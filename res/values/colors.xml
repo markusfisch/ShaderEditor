@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<color name="action_bar_background">#88111111</color>
+	<color name="editor_background">#88000000</color>
+	<color name="foreground">#ffffff</color>
+	<color name="pressed">#44222222</color>
+	<color name="error_background">#88880000</color>
+	<color name="error_foreground">#aa0000</color>
+</resources>

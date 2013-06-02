@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="app_name">Shader Editor</string>
+	<string name="description">Write your own live wallpaper</string>
+	<string name="add_shader">New shader</string>
+	<string name="duplicate_shader">Duplicate shader</string>
+	<string name="delete_shader">Delete shader</string>
+	<string name="save_shader">Save shader</string>
+	<string name="share_shader">Share shader</string>
+	<string name="are_you_sure">Are you sure you want to delete this shader?</string>
+	<string name="yes">Yes</string>
+	<string name="no">No</string>
+	<string name="preferences">Preferences</string>
+	<string name="wallpaper">Wallpaper</string>
+	<string name="shader">Shader</string>
+	<string name="shader_summary">Choose a shader</string>
+	<string name="editor">Editor</string>
+	<string name="compile_on_change">Compile on change</string>
+	<string name="compile_on_change_summary">Compile on change</string>
+</resources>

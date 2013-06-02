@@ -1,0 +1,23 @@
+precision mediump float;
+
+uniform float time;
+uniform vec2 touch;
+uniform vec2 resolution;
+
+void main( void )
+{
+	float mx = max( resolution.x, resolution.y );
+	vec2 p = gl_FragCoord.xy/mx;
+	vec2 m = touch.xy/mx;
+
+	vec3 background = vec3(
+		p,
+		0.25+0.5*sin( time ) );
+
+	float d = sin( 1.5-distance( p, m )*8.0 );
+	vec3 hole = vec3( d, d, d );
+
+	gl_FragColor = vec4(
+		mix( background, hole, -0.5 ),
+		1.0 );
+}

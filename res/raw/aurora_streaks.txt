@@ -1,0 +1,41 @@
+precision mediump float;
+
+uniform float time;
+uniform vec2 touch;
+uniform vec2 resolution;
+
+void main( void )
+{
+	float mx = max( resolution.x, resolution.y );
+	vec2 p = (gl_FragCoord.xy-resolution.xy*.5)/mx;
+
+	float angle = .78539816339745;
+	p *= mat2(
+		cos( angle ), -sin( angle ),
+		sin( angle ), cos( angle ) );
+
+	float fineness = mx*.4;
+	float fy = p.y*fineness;
+	float h = fract(
+		sin( floor( fy )/fineness*12.9898 )*
+		437.5854 );
+	float i = h;
+
+	// anti-aliasing of streaks
+	i *= sin( fract( fy )*3.1415 );
+
+	// streak shift
+	i *= abs( sin( (p.x+3.1415*h)*3.+time ))+.5;
+
+	// background color
+	float r = -p.y+.5;
+	float b = p.y+.5;
+
+	// highlights
+	float hl = sin( p.y*31.415+time*.2 )*.2;
+
+	gl_FragColor = vec4( vec3(
+		i*.3+r*.7+hl,
+		i*.24+r*.25+hl,
+		i*.3+b*.7+hl ), 1.0 );
+}

@@ -1,0 +1,6 @@
+*.swp
+bin
+gen
+local.properties
+build.xml
+Makefile
