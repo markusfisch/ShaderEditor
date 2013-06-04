@@ -14,8 +14,7 @@ void main( void )
 		p,
 		0.25+0.5*sin( time ) );
 
-	float d = sin( 1.5-distance( p, m )*8.0 );
-	vec3 hole = vec3( d, d, d );
+	vec3 hole = vec3( sin( 1.5-distance( p, m )*8.0 ) );
 
 	gl_FragColor = vec4(
 		mix( background, hole, -0.5 ),
