@@ -61,6 +61,20 @@ public class MainActivity
 		scrollView = (LockableScrollView)findViewById( R.id.scroll );
 		shaderEditor = (ShaderEditor)findViewById( R.id.editor );
 
+		saveButton.setOnLongClickListener(
+			new View.OnLongClickListener()
+			{
+				@Override
+				public boolean onLongClick( View v )
+				{
+					compileOnChange ^= true;
+					setSaveButton();
+					savePreferences();
+
+					return true;
+				}
+			} );
+
 		shaderEditor.onTextChangedListener =
 			new ShaderEditor.OnTextChangedListener()
 			{
@@ -313,6 +327,13 @@ public class MainActivity
 		setSourceButtonDefault();
 	}
 
+	private void setSaveButton()
+	{
+		saveButton.setImageResource( compileOnChange ?
+			R.drawable.ic_save :
+			R.drawable.ic_save_play );
+	}
+
 	private void setSourceButtonError()
 	{
 		sourceButton.setImageResource(
@@ -431,16 +452,31 @@ public class MainActivity
 			}
 	}
 
-	private void loadPreferences()
+	private SharedPreferences getSharedPreferences()
 	{
-		SharedPreferences p = getSharedPreferences(
+		return getSharedPreferences(
 			ShaderPreferenceActivity.SHARED_PREFERENCES_NAME,
 			0 );
+	}
 
-		compileOnChange = p.getBoolean( "compile_on_change", true );
-		saveButton.setImageResource( compileOnChange ?
-			R.drawable.ic_save :
-			R.drawable.ic_save_play );
+	private void loadPreferences()
+	{
+		SharedPreferences p = getSharedPreferences();
+
+		compileOnChange = p.getBoolean(
+			ShaderPreferenceActivity.COMPILE_ON_CHANGE,
+			true );
+		setSaveButton();
+	}
+
+	private void savePreferences()
+	{
+		SharedPreferences.Editor e = getSharedPreferences().edit();
+
+		e.putBoolean(
+			ShaderPreferenceActivity.COMPILE_ON_CHANGE,
+			compileOnChange );
+		e.commit();
 	}
 
 	private void loadShader( String source )

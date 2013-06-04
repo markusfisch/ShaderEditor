@@ -6,6 +6,7 @@ import android.preference.PreferenceActivity;
 public class ShaderPreferenceActivity extends PreferenceActivity
 {
 	public static final String SHARED_PREFERENCES_NAME = "ShaderEditorSettings";
+	public static final String COMPILE_ON_CHANGE = "compile_on_change";
 
 	@Override
 	public void onCreate( Bundle state )
