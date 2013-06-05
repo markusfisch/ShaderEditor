@@ -3,9 +3,11 @@ package de.markusfisch.android.shadereditor;
 import android.content.Context;
 import android.os.Handler;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
@@ -96,6 +98,31 @@ public class ShaderEditor extends EditText
 	private void init()
 	{
 		setHorizontallyScrolling( true );
+
+		setFilters( new InputFilter[]{
+			new InputFilter()
+			{
+				@Override
+				public CharSequence filter(
+					CharSequence source,
+					int start,
+					int end,
+					Spanned dest,
+					int dstart,
+					int dend )
+				{
+					if( modified )
+						return autoIndent(
+							source,
+							start,
+							end,
+							dest,
+							dstart,
+							dend );
+
+					return source;
+				}
+			} } );
 
 		addTextChangedListener(
 			new TextWatcher()
@@ -216,5 +243,48 @@ public class ShaderEditor extends EditText
 		}
 
 		return editable;
+	}
+
+	private CharSequence autoIndent(
+		CharSequence source,
+		int start,
+		int end,
+		Spanned dest,
+		int dstart,
+		int dend )
+	{
+		if( end-start != 1 ||
+			start >= source.length() ||
+			source.charAt( start ) != '\n' ||
+			dstart >= dest.length() )
+			return source;
+
+		int istart = dstart;
+		int iend = -1;
+
+		if( dest.charAt( istart ) == '\n' )
+			--istart;
+
+		for( ; istart > -1; --istart )
+			if( dest.charAt( istart ) == '\n' )
+				break;
+
+		if( istart < 0 )
+			return source;
+
+		for( iend = ++istart;
+			iend < dend;
+			++iend )
+		{
+			char c = dest.charAt( iend );
+
+			if( c != ' ' &&
+				c != '\t' )
+				break;
+		}
+
+		return "\n"+dest.subSequence(
+			istart,
+			iend );
 	}
 }
