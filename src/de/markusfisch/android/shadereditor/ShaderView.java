@@ -8,11 +8,9 @@ import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 
 public class ShaderView
 	extends GLSurfaceView
-	implements View.OnTouchListener
 {
 	public final ShaderRenderer renderer = new ShaderRenderer();
 
@@ -61,7 +59,7 @@ public class ShaderView
 	}
 
 	@Override
-	public boolean onTouch( final View v, final MotionEvent e )
+	public boolean onTouchEvent( MotionEvent e )
 	{
 		renderer.onTouch( e.getX(), e.getY() );
 
@@ -73,8 +71,6 @@ public class ShaderView
 		setEGLContextClientVersion( 2 );
 		setRenderer( renderer );
 		setRenderMode( GLSurfaceView.RENDERMODE_CONTINUOUSLY );
-
-		setOnTouchListener( this );
 	}
 
 	private class AccelerometerListener implements SensorEventListener
