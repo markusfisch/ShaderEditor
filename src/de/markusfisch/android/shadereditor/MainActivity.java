@@ -467,6 +467,10 @@ public class MainActivity
 			ShaderPreferenceActivity.COMPILE_ON_CHANGE,
 			true );
 		setSaveButton();
+
+		shaderView.renderer.showFps = p.getBoolean(
+			ShaderPreferenceActivity.SHOW_FPS,
+			false );
 	}
 
 	private void savePreferences()

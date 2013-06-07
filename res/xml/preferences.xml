@@ -19,5 +19,11 @@
 			android:summary="@string/compile_on_change_summary"
 			android:checked="true"
 			android:defaultValue="true"/>
+		<CheckBoxPreference
+			android:key="show_fps"
+			android:title="@string/show_fps"
+			android:summary="@string/show_fps_summary"
+			android:checked="false"
+			android:defaultValue="false"/>
 	</PreferenceCategory>
 </PreferenceScreen>

@@ -16,5 +16,7 @@
 	<string name="shader_summary">Choose a shader</string>
 	<string name="editor">Editor</string>
 	<string name="compile_on_change">Compile on change</string>
-	<string name="compile_on_change_summary">Compile on change</string>
+	<string name="compile_on_change_summary">Or on save if unchecked</string>
+	<string name="show_fps">Show FPS</string>
+	<string name="show_fps_summary">Show frames per second</string>
 </resources>
