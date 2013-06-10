@@ -12,13 +12,27 @@
 		android:layout_width="32dp"
 		android:layout_height="32dp"
 		android:gravity="center"/>
-	<TextView
-		android:id="@+id/title"
+	<LinearLayout
+		android:orientation="vertical"
 		android:layout_width="fill_parent"
 		android:layout_height="wrap_content"
-		android:gravity="center_vertical"
-		android:textColor="@color/foreground"
-		android:textSize="16dp"
-		android:lines="1"
-		android:ellipsize="end"/>
+		android:layout_gravity="center_vertical"
+		android:gravity="center"
+		android:paddingLeft="4dp">
+		<TextView
+			android:id="@+id/title"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:textColor="@color/foreground"
+			android:textSize="12dp"
+			android:lines="1"
+			android:ellipsize="end"/>
+		<TextView
+			android:id="@+id/fps"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:textColor="@color/foreground"
+			android:textSize="8dp"
+			android:lines="1"/>
+	</LinearLayout>
 </LinearLayout>

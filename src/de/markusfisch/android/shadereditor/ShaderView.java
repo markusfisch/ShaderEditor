@@ -18,6 +18,7 @@ public class ShaderView
 		new AccelerometerListener();
 	private SensorManager sensorManager = null;
 	private Sensor accelerometerSensor = null;
+	private boolean listeningToAccelerometer = false;
 
 	public ShaderView( Context context )
 	{
@@ -32,30 +33,18 @@ public class ShaderView
 	}
 
 	@Override
-	public void onResume()
-	{
-		super.onResume();
-
-		if( (sensorManager != null ||
-				(sensorManager = (SensorManager)
-					getContext().getSystemService(
-						Context.SENSOR_SERVICE )) != null) &&
-			(accelerometerSensor != null ||
-				(accelerometerSensor = sensorManager.getDefaultSensor(
-					Sensor.TYPE_ACCELEROMETER )) != null) )
-			sensorManager.registerListener(
-				accelerometerListener,
-				accelerometerSensor,
-				SensorManager.SENSOR_DELAY_NORMAL );
-	}
-
-	@Override
 	public void onPause()
 	{
 		super.onPause();
 
-		if( accelerometerSensor != null )
-			sensorManager.unregisterListener( accelerometerListener );
+		if( accelerometerSensor != null &&
+			listeningToAccelerometer )
+		{
+			sensorManager.unregisterListener(
+				accelerometerListener );
+
+			listeningToAccelerometer = false;
+		}
 	}
 
 	@Override
@@ -66,8 +55,26 @@ public class ShaderView
 		return true;
 	}
 
+	public void registerAccelerometerListener()
+	{
+		if( !listeningToAccelerometer &&
+			(sensorManager != null ||
+				(sensorManager = (SensorManager)
+					getContext().getSystemService(
+						Context.SENSOR_SERVICE )) != null) &&
+			(accelerometerSensor != null ||
+				(accelerometerSensor = sensorManager.getDefaultSensor(
+					Sensor.TYPE_ACCELEROMETER )) != null) )
+			listeningToAccelerometer = sensorManager.registerListener(
+				accelerometerListener,
+				accelerometerSensor,
+				SensorManager.SENSOR_DELAY_NORMAL );
+	}
+
 	private void init()
 	{
+		renderer.view = this;
+
 		setEGLContextClientVersion( 2 );
 		setRenderer( renderer );
 		setRenderMode( GLSurfaceView.RENDERMODE_CONTINUOUSLY );

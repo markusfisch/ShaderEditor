@@ -8,6 +8,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -25,8 +27,13 @@ import android.widget.TextView;
 
 public class MainActivity
 	extends Activity
-	implements ShaderRenderer.ErrorListener
+	implements
+		ShaderRenderer.ErrorListener,
+		ShaderRenderer.FpsListener
 {
+	private static final String STATE_SOURCE = "source";
+	private static final String STATE_SHADER = "shader";
+
 	private ShaderDataSource dataSource;
 	private ShaderAdapter adapter;
 	private ShaderView shaderView;
@@ -37,6 +44,7 @@ public class MainActivity
 	private ShaderEditor shaderEditor;
 	private PopupWindow errorPopup;
 	private TextView errorMessage;
+	private TextView fpsView = null;
 	private boolean errorPopupVisible = false;
 	private boolean compileOnChange = true;
 	private boolean showSource = true;
@@ -87,6 +95,7 @@ public class MainActivity
 			};
 
 		shaderView.renderer.errorListener = this;
+		shaderView.renderer.fpsListener = this;
 
 		// create error message popup
 		{
@@ -137,6 +146,8 @@ public class MainActivity
 				{
 					Cursor c = (Cursor)parent.getItemAtPosition( pos );
 
+					resetFps();
+
 					if( c != null )
 					{
 						String src = c.getString( c.getColumnIndex(
@@ -153,12 +164,15 @@ public class MainActivity
 				public void onNothingSelected(
 					AdapterView<?> parent )
 				{
+					resetFps();
 				}
 			} );
 
+		registerForContextMenu( shaderSpinner );
+
 		// show/hide source
 		if( state != null &&
-			!state.getBoolean( "source", showSource ) )
+			!state.getBoolean( STATE_SOURCE, showSource ) )
 			onToggleSource( null );
 
 		// set selection
@@ -166,7 +180,7 @@ public class MainActivity
 			int p = 0;
 
 			if( state != null )
-				p = state.getInt( "shader" );
+				p = state.getInt( STATE_SHADER );
 
 			if( shaderSpinner.getCount() <= p )
 				p = 0;
@@ -181,6 +195,7 @@ public class MainActivity
 		super.onDestroy();
 
 		shaderView.renderer.errorListener = null;
+		shaderView.renderer.fpsListener = null;
 	}
 
 	@Override
@@ -188,9 +203,9 @@ public class MainActivity
 	{
 		if( state != null )
 		{
-			state.putBoolean( "source", showSource );
+			state.putBoolean( STATE_SOURCE, showSource );
 			state.putInt(
-				"shader",
+				STATE_SHADER,
 				shaderSpinner.getSelectedItemPosition() );
 		}
 
@@ -226,8 +241,7 @@ public class MainActivity
 	@Override
 	public boolean onCreateOptionsMenu( Menu menu )
 	{
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate( R.menu.shader_options, menu );
+		inflateShaderMenu( menu );
 
 		return true;
 	}
@@ -235,29 +249,30 @@ public class MainActivity
 	@Override
 	public boolean onOptionsItemSelected( MenuItem item )
 	{
-		switch( item.getItemId() )
-		{
-			case R.id.add_shader:
-				addShader();
-				return true;
-			case R.id.duplicate_shader:
-				duplicateShader();
-				return true;
-			case R.id.delete_shader:
-				deleteShader();
-				return true;
-			case R.id.save_shader:
-				saveShader();
-				return true;
-			case R.id.share_shader:
-				shareShader();
-				return true;
-			case R.id.preferences:
-				showPreferences();
-				return true;
-		}
+		if( shaderMenuItemSelected( item ) )
+			return true;
 
 		return super.onOptionsItemSelected( item );
+	}
+
+	@Override
+	public void onCreateContextMenu(
+		ContextMenu menu,
+		View v,
+		ContextMenuInfo menuInfo )
+	{
+		super.onCreateContextMenu( menu, v, menuInfo );
+
+		inflateShaderMenu( menu );
+	}
+
+	@Override
+	public boolean onContextItemSelected( MenuItem item )
+	{
+		if( shaderMenuItemSelected( item ) )
+			return true;
+
+		return super.onContextItemSelected( item );
 	}
 
 	@Override
@@ -270,6 +285,20 @@ public class MainActivity
 				public void run()
 				{
 					showError( error );
+				}
+			} );
+	}
+
+	@Override
+	public void onShaderFramesPerSecond( final int fps )
+	{
+		// this call comes from the GL thread
+		runOnUiThread(
+			new Runnable()
+			{
+				public void run()
+				{
+					updateFps( fps );
 				}
 			} );
 	}
@@ -327,6 +356,39 @@ public class MainActivity
 		setSourceButtonDefault();
 	}
 
+	private void inflateShaderMenu( Menu menu )
+	{
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate( R.menu.shader_options, menu );
+	}
+
+	private boolean shaderMenuItemSelected( MenuItem item )
+	{
+		switch( item.getItemId() )
+		{
+			case R.id.add_shader:
+				addShader();
+				return true;
+			case R.id.duplicate_shader:
+				duplicateShader();
+				return true;
+			case R.id.delete_shader:
+				deleteShader();
+				return true;
+			case R.id.save_shader:
+				saveShader();
+				return true;
+			case R.id.share_shader:
+				shareShader();
+				return true;
+			case R.id.preferences:
+				showPreferences();
+				return true;
+		}
+
+		return false;
+	}
+
 	private void setSaveButton()
 	{
 		saveButton.setImageResource( compileOnChange ?
@@ -375,7 +437,7 @@ public class MainActivity
 					switch( which )
 					{
 						case DialogInterface.BUTTON_POSITIVE:
-							dataSource.delete(
+							dataSource.remove(
 								shaderSpinner.getSelectedItemId() );
 
 							updateAdapter();
@@ -411,7 +473,9 @@ public class MainActivity
 		Intent i = new Intent();
 
 		i.setAction( Intent.ACTION_SEND );
-		i.putExtra( Intent.EXTRA_TEXT, shaderEditor.getText().toString() );
+		i.putExtra(
+			Intent.EXTRA_TEXT,
+			shaderEditor.getText().toString() );
 		i.setType( "text/plain" );
 
 		startActivity( Intent.createChooser(
@@ -429,6 +493,7 @@ public class MainActivity
 	private void updateAdapter()
 	{
 		adapter.changeCursor( dataSource.queryAll() );
+		resetFps();
 	}
 
 	private void selectNewShader( long id )
@@ -468,8 +533,8 @@ public class MainActivity
 			true );
 		setSaveButton();
 
-		shaderView.renderer.showFps = p.getBoolean(
-			ShaderPreferenceActivity.SHOW_FPS,
+		shaderView.renderer.showFpsGauge = p.getBoolean(
+			ShaderPreferenceActivity.SHOW_FPS_GAUGE,
 			false );
 	}
 
@@ -489,10 +554,6 @@ public class MainActivity
 		errorPopup.dismiss();
 		errorPopupVisible = false;
 		shaderEditor.errorLine = 0;
-
-		if( shaderView.renderer.fragmentShader != null &&
-			shaderView.renderer.fragmentShader.equals( source ) )
-			return;
 
 		shaderView.onPause();
 		shaderView.renderer.fragmentShader = source;
@@ -543,6 +604,26 @@ public class MainActivity
 		}
 
 		shaderEditor.refresh();
+	}
+
+	private void resetFps()
+	{
+		fpsView = null;
+		shaderView.renderer.resetFps();
+	}
+
+	private void updateFps( int fps )
+	{
+		if( fpsView == null )
+		{
+			View v = shaderSpinner.getSelectedView();
+
+			if( v == null ||
+				(fpsView = (TextView)v.findViewById( R.id.fps )) == null )
+				return;
+		}
+
+		fpsView.setText( String.valueOf( fps )+" fps" );
 	}
 
 	private static float getDistanceBetweenTouches( MotionEvent ev )

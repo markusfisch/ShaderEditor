@@ -124,7 +124,7 @@ public class ShaderDataSource
 			null );
 	}
 
-	public void delete( long id )
+	public void remove( long id )
 	{
 		db.delete(
 			TABLE,
@@ -188,6 +188,13 @@ public class ShaderDataSource
 						R.raw.aurora_streaks ),
 					loadBitmapResource(
 						R.drawable.thumbnail_aurora_streaks ) );
+
+				ShaderDataSource.insert(
+					db,
+					loadRawResource(
+						R.raw.color_hole ),
+					loadBitmapResource(
+						R.drawable.thumbnail_color_hole ) );
 			}
 			catch( Exception e )
 			{

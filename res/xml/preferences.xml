@@ -20,9 +20,9 @@
 			android:checked="true"
 			android:defaultValue="true"/>
 		<CheckBoxPreference
-			android:key="show_fps"
-			android:title="@string/show_fps"
-			android:summary="@string/show_fps_summary"
+			android:key="show_fps_gauge"
+			android:title="@string/show_fps_gauge"
+			android:summary="@string/show_fps_gauge_summary"
 			android:checked="false"
 			android:defaultValue="false"/>
 	</PreferenceCategory>

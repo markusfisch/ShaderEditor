@@ -31,8 +31,7 @@ public class FpsGauge
 	private final int program;
 	private final int positionLoc;
 	private final int colorLoc;
-	private float sum = 0;
-	private float samples = 0;
+	private float lineWidth;
 
 	public FpsGauge()
 	{
@@ -56,18 +55,9 @@ public class FpsGauge
 		vertexBuffer = b.asFloatBuffer();
 		vertexBuffer.put( coords ).position( 0 );
 
-		int vs = ShaderRenderer.loadShader(
-			GLES20.GL_VERTEX_SHADER,
-			vertexShader );
-		int fs = ShaderRenderer.loadShader(
-			GLES20.GL_FRAGMENT_SHADER,
+		program = Shader.loadProgram(
+			vertexShader,
 			fragmentShader );
-		program = GLES20.glCreateProgram();
-		GLES20.glAttachShader( program, vs );
-		GLES20.glAttachShader( program, fs );
-		GLES20.glLinkProgram( program );
-		GLES20.glDeleteShader( vs );
-		GLES20.glDeleteShader( fs );
 
 		positionLoc = GLES20.glGetAttribLocation(
 			program, "position" );
@@ -76,13 +66,16 @@ public class FpsGauge
 			program, "color" );
 	}
 
-	public void reset()
+	public void resetHeight( float height )
 	{
-		sum = samples = 0;
+		lineWidth = height*.005f;
 	}
 
 	public void draw( int fps )
 	{
+		GLES20.glDisable( GLES20.GL_CULL_FACE );
+		GLES20.glDisable( GLES20.GL_DEPTH_TEST );
+
 		GLES20.glUseProgram( program );
 
 		GLES20.glUniform4fv(
@@ -100,24 +93,22 @@ public class FpsGauge
 			vertexBuffer );
 		GLES20.glEnableVertexAttribArray( positionLoc );
 
-		if( fps < 0 )
-			fps = 0;
-		else if( fps > 59 )
+		GLES20.glBlendFunc(
+			GLES20.GL_ONE_MINUS_DST_COLOR,
+			GLES20.GL_ZERO );
+		GLES20.glEnable( GLES20.GL_BLEND );
+
+		// make gauge 0 based
+		if( ++fps > 59 )
 			fps = 59;
 
-		sum += fps;
-		++samples;
-
-		if( samples > 0xffff )
-		{
-			sum = sum/samples;
-			samples = 1;
-		}
-
+		GLES20.glLineWidth( lineWidth );
 		GLES20.glDrawArrays(
 			GLES20.GL_LINES,
 			0,
-			(int)(sum/samples)*2 );
+			fps*2 );
+
+		GLES20.glDisable( GLES20.GL_BLEND );
 
 		GLES20.glDisableVertexAttribArray( positionLoc );
 	}

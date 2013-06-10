@@ -52,7 +52,7 @@ public class ShaderWallpaperService extends WallpaperService
 			dataSource.open();
 
 			for( long id = Long.parseLong(
-				p.getString( "shader", "1" ) );; )
+				p.getString( ShaderPreferenceActivity.SHADER, "1" ) );; )
 			{
 				fragmentShader = dataSource.getShader( id );
 

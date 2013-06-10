@@ -6,7 +6,6 @@ import android.opengl.GLSurfaceView;
 import android.os.SystemClock;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.RuntimeException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -20,12 +19,20 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		public void onShaderError( String error );
 	}
 
+	public interface FpsListener
+	{
+		public void onShaderFramesPerSecond( int fps );
+	}
+
 	public volatile ErrorListener errorListener = null;
+	public volatile FpsListener fpsListener = null;
 	public volatile String fragmentShader = null;
+	public volatile ShaderView view = null;
 	public volatile float gravity[] = new float[]{ 0, 0, 0 };
 	public volatile float linear[] = new float[]{ 0, 0, 0 };
-	public volatile boolean showFps = false;
+	public volatile boolean showFpsGauge = false;
 
+	private static final int FPS_UPDATE_FREQUENCY = 200;
 	private static final String vertexShader =
 		"attribute vec2 position;"+
 		"void main()"+
@@ -38,16 +45,20 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int resolutionLoc;
 	private int mouseLoc;
 	private int touchLoc;
-	private int gravityLoc;
-	private int linearLoc;
+	private int gravityLoc = -1;
+	private int linearLoc = -1;
 	private int positionLoc;
 	private final float resolution[] = new float[]{ 0, 0 };
 	private volatile float mouse[] = new float[]{ 0, 0 };
 	private volatile float touch[] = new float[]{ 0, 0 };
 	private long startTime;
 	private long lastRender;
+	private long lastFpsUpdate = 0;
 	private volatile byte thumbnail[] = new byte[1];
 	private FpsGauge fpsGauge;
+	private float sum;
+	private float samples;
+	private int lastFps;
 
 	@Override
 	public void onSurfaceCreated( GL10 gl, EGLConfig config )
@@ -68,7 +79,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 		if( fragmentShader != null )
 		{
-			fpsGauge.reset();
+			resetFps();
 			loadProgram();
 		}
 	}
@@ -138,11 +149,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		if( thumbnail == null )
 			thumbnail = saveThumbnail();
 
-		if( showFps )
-		{
-			fpsGauge.draw( (int)(1000f/(now-lastRender)) );
-			lastRender = now;
-		}
+		if( fpsListener != null )
+			updateFps( now );
 	}
 
 	@Override
@@ -153,8 +161,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		resolution[0] = width;
 		resolution[1] = height;
 
-		GLES20.glLineWidth( (float)height*.005f );
-		fpsGauge.reset();
+		fpsGauge.resetHeight( height );
+
+		resetFps();
 	}
 
 	public void onTouch( float x, float y )
@@ -183,71 +192,24 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		return thumbnail;
 	}
 
-	public static int loadShader( int type, String src )
+	public void resetFps()
 	{
-		int shader = GLES20.glCreateShader( type );
-
-		if( shader == 0 )
-			return 0;
-
-		GLES20.glShaderSource( shader, src );
-		GLES20.glCompileShader( shader );
-
-		return shader;
+		sum = samples = 0;
+		lastFps = 0;
+		lastFpsUpdate = 0;
 	}
 
 	private void loadProgram()
 	{
 		if( program != 0 )
-		{
 			GLES20.glDeleteProgram( program );
-			program = 0;
-		}
 
-		int vs, fs;
-
-		if( (vs = loadAndVerifyShader(
-			GLES20.GL_VERTEX_SHADER,
-			vertexShader )) != 0 )
-		{
-			if( (fs = loadAndVerifyShader(
-				GLES20.GL_FRAGMENT_SHADER,
-				fragmentShader )) != 0 )
-			{
-				if( (program = GLES20.glCreateProgram()) != 0 )
-				{
-					GLES20.glAttachShader( program, vs );
-					GLES20.glAttachShader( program, fs );
-					GLES20.glLinkProgram( program );
-				}
-
-				// mark shader objects as deleted so they get
-				// deleted as soon as glDeleteProgram() does
-				// detach them
-				GLES20.glDeleteShader( fs );
-			}
-
-			// same as above
-			GLES20.glDeleteShader( vs );
-		}
-
-		if( program == 0 )
-			return;
-
-		int[] linkStatus = new int[1];
-		GLES20.glGetProgramiv(
-			program,
-			GLES20.GL_LINK_STATUS,
-			linkStatus, 0 );
-
-		if( linkStatus[0] != GLES20.GL_TRUE )
+		if( (program = Shader.loadProgram(
+			vertexShader,
+			fragmentShader )) == 0 )
 		{
 			if( errorListener != null )
-				errorListener.onShaderError(
-					GLES20.glGetProgramInfoLog( program ) );
-
-			GLES20.glDeleteProgram( program );
-			program = 0;
+				errorListener.onShaderError( Shader.lastError );
 
 			return;
 		}
@@ -267,33 +229,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			program, "gravity" );
 		linearLoc = GLES20.glGetUniformLocation(
 			program, "linear" );
-	}
 
-	private int loadAndVerifyShader( int type, String src )
-	{
-		int shader = loadShader( type, src );
-
-		if( shader == 0 )
-			return 0;
-
-		int[] compiled = new int[1];
-		GLES20.glGetShaderiv(
-			shader,
-			GLES20.GL_COMPILE_STATUS,
-			compiled,
-			0 );
-
-		if( compiled[0] == 0 )
-		{
-			if( errorListener != null )
-				errorListener.onShaderError(
-					GLES20.glGetShaderInfoLog( shader ) );
-
-			GLES20.glDeleteShader( shader );
-			shader = 0;
-		}
-
-		return shader;
+		if( view != null &&
+			(gravityLoc > -1 || linearLoc > -1) )
+			view.registerAccelerometerListener();
 	}
 
 	private byte[] saveThumbnail()
@@ -352,5 +291,42 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		{
 			return null;
 		}
+	}
+
+	private void updateFps( long now )
+	{
+		int fps = (int)(1000f/(now-lastRender));
+
+		if( fps < 0 )
+			fps = 0;
+		else if( fps > 59 )
+			fps = 59;
+
+		sum += fps;
+		++samples;
+
+		if( samples > 0xffff )
+		{
+			sum = sum/samples;
+			samples = 1;
+		}
+
+		fps = (int)(sum/samples);
+
+		if( now-lastFpsUpdate > FPS_UPDATE_FREQUENCY )
+		{
+			if( fps != lastFps )
+			{
+				fpsListener.onShaderFramesPerSecond( fps );
+				lastFps = fps;
+			}
+
+			lastFpsUpdate = now;
+		}
+
+		if( showFpsGauge )
+			fpsGauge.draw( fps );
+
+		lastRender = now;
 	}
 }

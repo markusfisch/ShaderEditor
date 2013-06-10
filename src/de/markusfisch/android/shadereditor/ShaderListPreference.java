@@ -44,7 +44,9 @@ public class ShaderListPreference
 				public void onClick( DialogInterface dialog, int which )
 				{
 					Editor e = getSharedPreferences().edit();
-					e.putString( "shader", ""+adapter.getItemId( which ) );
+					e.putString(
+						ShaderPreferenceActivity.SHADER,
+						String.valueOf( adapter.getItemId( which ) ) );
 					e.commit();
 
 					ShaderListPreference.this.onClick(

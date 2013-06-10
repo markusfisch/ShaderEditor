@@ -43,7 +43,7 @@ public class ShaderAdapter
 	public View newView(
 		Context context,
 		Cursor cursor,
-		ViewGroup parent)
+		ViewGroup parent )
 	{
 		LayoutInflater i = LayoutInflater.from(
 			parent.getContext() );
@@ -58,7 +58,7 @@ public class ShaderAdapter
 	public View newDropDownView(
 		Context context,
 		Cursor cursor,
-		ViewGroup parent)
+		ViewGroup parent )
 	{
 		LayoutInflater i = LayoutInflater.from(
 			parent.getContext() );
