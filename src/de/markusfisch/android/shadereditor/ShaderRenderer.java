@@ -53,12 +53,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private volatile float touch[] = new float[]{ 0, 0 };
 	private long startTime;
 	private long lastRender;
-	private long lastFpsUpdate = 0;
+	private volatile long lastFpsUpdate = 0;
 	private volatile byte thumbnail[] = new byte[1];
 	private FpsGauge fpsGauge;
-	private float sum;
-	private float samples;
-	private int lastFps;
+	private volatile float sum;
+	private volatile float samples;
+	private volatile int lastFps;
 
 	@Override
 	public void onSurfaceCreated( GL10 gl, EGLConfig config )
