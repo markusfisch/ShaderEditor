@@ -1,13 +1,14 @@
 precision mediump float;
 
-uniform float time;
-uniform vec2 touch;
-uniform vec2 resolution;
+//uniform float time;
+//uniform vec2 touch;
+//uniform vec2 resolution;
+//uniform vec3 linear;
+//uniform vec3 gravity;
 
 void main( void )
 {
-	vec2 p = gl_FragCoord.xy/resolution.xy;
-	vec2 t = touch.xy/resolution.xy;
+	//vec2 uv = gl_FragCoord.xy/resolution.xy;
 
 	gl_FragColor = vec4( vec3( 0.2 ), 1.0 );
 }
