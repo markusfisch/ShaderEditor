@@ -44,7 +44,6 @@ public class MainActivity
 	private ShaderEditor shaderEditor;
 	private PopupWindow errorPopup;
 	private TextView errorMessage;
-	private TextView fpsView = null;
 	private boolean errorPopupVisible = false;
 	private boolean compileOnChange = true;
 	private boolean showSource = true;
@@ -608,22 +607,27 @@ public class MainActivity
 
 	private void resetFps()
 	{
-		fpsView = null;
 		shaderView.renderer.resetFps();
 	}
 
 	private void updateFps( int fps )
 	{
-		if( fpsView == null )
-		{
-			View v = shaderSpinner.getSelectedView();
+		// It's better to not save the view returned for R.id.fps
+		// because it's impossible to know when Spinner does change
+		// the selected view; especially when the adapter changes
+		// which may update the spinner not immediately.
+		// Anyway, getSelectedView() and findViewById() are just
+		// lookups and this method is only called every
+		// ShaderRenderer.FPS_UPDATE_FREQUENCY milliseconds and if
+		// fps did actually change so that shoudln't be problem
+		View v = shaderSpinner.getSelectedView();
+		TextView tv;
 
-			if( v == null ||
-				(fpsView = (TextView)v.findViewById( R.id.fps )) == null )
-				return;
-		}
+		if( v == null ||
+			(tv = (TextView)v.findViewById( R.id.fps )) == null )
+			return;
 
-		fpsView.setText( String.valueOf( fps )+" fps" );
+		tv.setText( String.valueOf( fps )+" fps" );
 	}
 
 	private static float getDistanceBetweenTouches( MotionEvent ev )
