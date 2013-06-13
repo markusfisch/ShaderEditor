@@ -3,7 +3,7 @@
 	<string name="app_name">Shader Editor</string>
 	<string name="description">Write your own live wallpaper</string>
 	<string name="add_shader">New shader</string>
-	<string name="duplicate_shader">Duplicate shader</string>
+	<string name="duplicate_shader">Save as new shader</string>
 	<string name="delete_shader">Delete shader</string>
 	<string name="save_shader">Save shader</string>
 	<string name="share_shader">Share shader</string>
