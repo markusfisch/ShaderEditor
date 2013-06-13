@@ -99,39 +99,45 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 		GLES20.glUseProgram( program );
 
-		GLES20.glUniform1f(
-			timeLoc,
-			(now-startTime)/1000f );
+		if( timeLoc > -1 )
+			GLES20.glUniform1f(
+				timeLoc,
+				(now-startTime)/1000f );
 
-		GLES20.glUniform2fv(
-			resolutionLoc,
-			1,
-			resolution,
-			0 );
+		if( resolutionLoc > -1 )
+			GLES20.glUniform2fv(
+				resolutionLoc,
+				1,
+				resolution,
+				0 );
 
-		GLES20.glUniform2fv(
-			mouseLoc,
-			1,
-			mouse,
-			0 );
+		if( mouseLoc > -1 )
+			GLES20.glUniform2fv(
+				mouseLoc,
+				1,
+				mouse,
+				0 );
 
-		GLES20.glUniform2fv(
-			touchLoc,
-			1,
-			touch,
-			0 );
+		if( touchLoc > -1 )
+			GLES20.glUniform2fv(
+				touchLoc,
+				1,
+				touch,
+				0 );
 
-		GLES20.glUniform3fv(
-			gravityLoc,
-			1,
-			gravity,
-			0 );
+		if( gravityLoc > -1 )
+			GLES20.glUniform3fv(
+				gravityLoc,
+				1,
+				gravity,
+				0 );
 
-		GLES20.glUniform3fv(
-			linearLoc,
-			1,
-			linear,
-			0 );
+		if( linearLoc > -1 )
+			GLES20.glUniform3fv(
+				linearLoc,
+				1,
+				linear,
+				0 );
 
 		GLES20.glVertexAttribPointer(
 			positionLoc,
