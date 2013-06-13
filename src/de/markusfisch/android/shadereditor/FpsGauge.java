@@ -98,7 +98,7 @@ public class FpsGauge
 			GLES20.GL_ZERO );
 		GLES20.glEnable( GLES20.GL_BLEND );
 
-		// make gauge 0 based
+		// increment to make first mark 0
 		if( ++fps > 59 )
 			fps = 59;
 
