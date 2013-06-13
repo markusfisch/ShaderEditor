@@ -7,14 +7,14 @@ uniform vec2 resolution;
 void main( void )
 {
 	float mx = max( resolution.x, resolution.y );
-	vec2 p = gl_FragCoord.xy/mx;
-	vec2 m = touch.xy/mx;
+	vec2 uv = gl_FragCoord.xy/mx;
+	vec2 t = touch.xy/mx;
 
 	vec3 background = vec3(
-		p,
+		uv,
 		0.25+0.5*sin( time ) );
 
-	vec3 hole = vec3( sin( 1.5-distance( p, m )*8.0 ) );
+	vec3 hole = vec3( sin( 1.5-distance( uv, t )*8.0 ) );
 
 	gl_FragColor = vec4(
 		mix( background, hole, -0.5 ),
