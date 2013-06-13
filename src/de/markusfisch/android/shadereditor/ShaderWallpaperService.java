@@ -1,6 +1,7 @@
 package de.markusfisch.android.shadereditor;
 
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.preference.PreferenceManager;
 import android.service.wallpaper.WallpaperService;
 import android.view.MotionEvent;
@@ -51,19 +52,23 @@ public class ShaderWallpaperService extends WallpaperService
 
 			dataSource.open();
 
-			for( long id = Long.parseLong(
-				p.getString( ShaderPreferenceActivity.SHADER, "1" ) );; )
+			final long id = Long.parseLong(
+				p.getString( ShaderPreferenceActivity.SHADER, "1" ) );
+
+			if( (fragmentShader = dataSource.getShader( id )) == null )
 			{
-				fragmentShader = dataSource.getShader( id );
+				Cursor c = dataSource.getRandomShader();
 
-				if( fragmentShader != null &&
-					!fragmentShader.isEmpty() )
-					break;
+				if( c != null )
+				{
+					fragmentShader = c.getString( c.getColumnIndex(
+						ShaderDataSource.COLUMN_SHADER ) );
 
-				if( id == 1 )
-					break;
-
-				id = 1;
+					ShaderPreferenceActivity.saveShader(
+						p,
+						c.getLong( c.getColumnIndex(
+							ShaderDataSource.COLUMN_ID ) ) );
+				}
 			}
 
 			if( view != null )

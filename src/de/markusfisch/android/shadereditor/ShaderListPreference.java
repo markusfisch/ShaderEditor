@@ -3,7 +3,6 @@ package de.markusfisch.android.shadereditor;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences.Editor;
 import android.preference.ListPreference;
 import android.util.AttributeSet;
 import android.widget.ListAdapter;
@@ -43,11 +42,9 @@ public class ShaderListPreference
 				@Override
 				public void onClick( DialogInterface dialog, int which )
 				{
-					Editor e = getSharedPreferences().edit();
-					e.putString(
-						ShaderPreferenceActivity.SHADER,
-						String.valueOf( adapter.getItemId( which ) ) );
-					e.commit();
+					ShaderPreferenceActivity.saveShader(
+						getSharedPreferences(),
+						adapter.getItemId( which ) );
 
 					ShaderListPreference.this.onClick(
 						dialog,
