@@ -59,19 +59,51 @@ public class ShaderDataSource
 
 	public String getShader( long id )
 	{
-		Cursor c = db.rawQuery(
-			"SELECT "+
-				COLUMN_SHADER+
-				" FROM "+TABLE+
-				" WHERE "+COLUMN_ID+"="+id,
-			null );
+		try
+		{
+			Cursor c = db.rawQuery(
+				"SELECT "+
+					COLUMN_SHADER+
+					" FROM "+TABLE+
+					" WHERE "+COLUMN_ID+"="+id,
+				null );
 
-		if( c == null )
+			if( c == null )
+				return null;
+
+			c.moveToFirst();
+
+			return c.getString( 0 );
+		}
+		catch( Exception e )
+		{
 			return null;
+		}
+	}
 
-		c.moveToFirst();
+	public Cursor getRandomShader()
+	{
+		try
+		{
+			Cursor c = db.rawQuery(
+				"SELECT "+
+					COLUMN_ID+", "+
+					COLUMN_SHADER+
+					" FROM "+TABLE+
+					" ORDER BY RANDOM() LIMIT 1",
+				null );
 
-		return c.getString( 0 );
+			if( c == null )
+				return null;
+
+			c.moveToFirst();
+
+			return c;
+		}
+		catch( Exception e )
+		{
+			return null;
+		}
 	}
 
 	public static long insert(
