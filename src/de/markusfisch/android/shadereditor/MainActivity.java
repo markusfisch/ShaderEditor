@@ -596,7 +596,8 @@ public class MainActivity
 			message = message.substring( f, t ).trim();
 		}
 
-		if( !message.isEmpty() )
+		if( message != null &&
+			message.length() > 0 )
 		{
 			errorMessage.setText( message );
 			setSourceButtonError();
