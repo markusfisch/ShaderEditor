@@ -27,6 +27,12 @@ public class ShaderEditor extends EditText
 	public int errorLine = 0;
 	public boolean dirty = false;
 
+	private static final int COLOR_ERROR = 0x80ff0000;
+	private static final int COLOR_NUMBER = 0xff7ba212;
+	private static final int COLOR_KEYWORD = 0xff399ed7;
+	private static final int COLOR_BUILTIN = 0xffd79e39;
+	private static final int COLOR_COMMENT = 0xff808080;
+
 	private static final Pattern line = Pattern.compile(
 		".*\\n" );
 	private static final Pattern numbers = Pattern.compile(
@@ -200,7 +206,7 @@ public class ShaderEditor extends EditText
 					n-- > 0 && m.find(); );
 
 				editable.setSpan(
-					new BackgroundColorSpan( 0x80ff0000 ),
+					new BackgroundColorSpan( COLOR_ERROR ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
@@ -209,7 +215,7 @@ public class ShaderEditor extends EditText
 			for( Matcher m = numbers.matcher( editable );
 				m.find(); )
 				editable.setSpan(
-					new ForegroundColorSpan( 0xff7ba212 ),
+					new ForegroundColorSpan( COLOR_NUMBER ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
@@ -217,7 +223,7 @@ public class ShaderEditor extends EditText
 			for( Matcher m = keywords.matcher( editable );
 				m.find(); )
 				editable.setSpan(
-					new ForegroundColorSpan( 0xff399ed7 ),
+					new ForegroundColorSpan( COLOR_KEYWORD ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
@@ -225,7 +231,7 @@ public class ShaderEditor extends EditText
 			for( Matcher m = builtins.matcher( editable );
 				m.find(); )
 				editable.setSpan(
-					new ForegroundColorSpan( 0xffd79e39 ),
+					new ForegroundColorSpan( COLOR_BUILTIN ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
@@ -233,7 +239,7 @@ public class ShaderEditor extends EditText
 			for( Matcher m = comments.matcher( editable );
 				m.find(); )
 				editable.setSpan(
-					new ForegroundColorSpan( 0xff808080 ),
+					new ForegroundColorSpan( COLOR_COMMENT ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
