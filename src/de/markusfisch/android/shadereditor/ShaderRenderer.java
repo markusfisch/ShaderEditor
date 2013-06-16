@@ -188,7 +188,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 		try
 		{
-			while( thumbnail == null )
+			while( program > 0 && thumbnail == null )
 				Thread.sleep( 100 );
 		}
 		catch( Exception e )
