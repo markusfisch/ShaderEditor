@@ -267,17 +267,45 @@ public class ShaderEditor extends EditText
 
 		int istart = dstart;
 		int iend = -1;
+		String indent = "";
 
+		// skip end of line if cursor is at the end of a line
 		if( dest.charAt( istart ) == '\n' )
 			--istart;
 
+		// indent next line if this one isn't terminated
+		if( istart > -1 )
+		{
+			// skip white space
+			for( ; istart > -1; --istart )
+			{
+				char c = dest.charAt( istart );
+
+				if( c != ' ' &&
+					c != '\t' )
+					break;
+			}
+
+			if( istart > -1 )
+			{
+				char c = dest.charAt( istart );
+
+				if( c != ';' &&
+					c != '\n' )
+					indent = "\t";
+			}
+		}
+
+		// find start of previous line
 		for( ; istart > -1; --istart )
 			if( dest.charAt( istart ) == '\n' )
 				break;
 
+		// cursor is in the first line
 		if( istart < 0 )
 			return source;
 
+		// span over previous indent
 		for( iend = ++istart;
 			iend < dend;
 			++iend )
@@ -289,8 +317,9 @@ public class ShaderEditor extends EditText
 				break;
 		}
 
+		// copy white space of previous lines and append new indent
 		return "\n"+dest.subSequence(
 			istart,
-			iend );
+			iend )+indent;
 	}
 }
