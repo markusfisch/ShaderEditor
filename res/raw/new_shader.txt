@@ -1,10 +1,22 @@
 precision mediump float;
 
+// time in ms
 //uniform float time;
+
+// touch position in pixels
 //uniform vec2 touch;
+
+// resolution in pixels
 //uniform vec2 resolution;
+
+// linear acceleration vector in m/s^2
 //uniform vec3 linear;
+
+// gravity vector in m/s^2
 //uniform vec3 gravity;
+
+// wallpaper offset from 0.0 to 1.0
+//uniform vec2 offset;
 
 void main( void )
 {
