@@ -457,7 +457,10 @@ public class MainActivity
 		String src = shaderEditor.getText().toString();
 
 		if( !compileOnChange )
+		{
 			loadShader( src );
+			shaderEditor.refresh();
+		}
 
 		dataSource.update(
 			shaderSpinner.getSelectedItemId(),
