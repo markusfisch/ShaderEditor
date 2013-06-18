@@ -117,6 +117,19 @@ public class ShaderWallpaperService extends WallpaperService
 			view.renderer.onTouch( e.getX(), e.getY() );
 		}
 
+		@Override
+		public void onOffsetsChanged(
+			float xOffset,
+			float yOffset,
+			float xStep,
+			float yStep,
+			int xPixels,
+			int yPixels )
+		{
+			view.renderer.offset[0] = xOffset;
+			view.renderer.offset[1] = yOffset;
+		}
+
 		private class ShaderWallpaperView extends ShaderView
 		{
 			public ShaderWallpaperView()

@@ -30,6 +30,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	public volatile ShaderView view = null;
 	public volatile float gravity[] = new float[]{ 0, 0, 0 };
 	public volatile float linear[] = new float[]{ 0, 0, 0 };
+	public volatile float offset[] = new float[]{ 0, 0 };
 	public volatile boolean showFpsGauge = false;
 
 	private static final int FPS_UPDATE_FREQUENCY = 200;
@@ -45,8 +46,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int resolutionLoc;
 	private int mouseLoc;
 	private int touchLoc;
-	private int gravityLoc = -1;
-	private int linearLoc = -1;
+	private int gravityLoc;
+	private int linearLoc;
+	private int offsetLoc;
 	private int positionLoc;
 	private final float resolution[] = new float[]{ 0, 0 };
 	private volatile float mouse[] = new float[]{ 0, 0 };
@@ -137,6 +139,13 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				linearLoc,
 				1,
 				linear,
+				0 );
+
+		if( offsetLoc > -1 )
+			GLES20.glUniform2fv(
+				offsetLoc,
+				1,
+				offset,
 				0 );
 
 		GLES20.glVertexAttribPointer(
@@ -235,6 +244,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			program, "gravity" );
 		linearLoc = GLES20.glGetUniformLocation(
 			program, "linear" );
+		offsetLoc = GLES20.glGetUniformLocation(
+			program, "offset" );
 
 		if( view != null &&
 			(gravityLoc > -1 || linearLoc > -1) )
