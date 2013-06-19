@@ -64,7 +64,7 @@ public class ShaderWallpaperService extends WallpaperService
 					fragmentShader = c.getString( c.getColumnIndex(
 						ShaderDataSource.COLUMN_SHADER ) );
 
-					ShaderPreferenceActivity.saveShader(
+					ShaderListPreference.saveShader(
 						p,
 						c.getLong( c.getColumnIndex(
 							ShaderDataSource.COLUMN_ID ) ) );

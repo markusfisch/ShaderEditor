@@ -1,6 +1,5 @@
 package de.markusfisch.android.shadereditor;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
@@ -20,12 +19,5 @@ public class ShaderPreferenceActivity extends PreferenceActivity
 			SHARED_PREFERENCES_NAME );
 
 		addPreferencesFromResource( R.xml.preferences );
-	}
-
-	public static void saveShader( SharedPreferences p, long id )
-	{
-		SharedPreferences.Editor e = p.edit();
-		e.putString( SHADER, String.valueOf( id ) );
-		e.commit();
 	}
 }
