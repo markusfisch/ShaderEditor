@@ -65,10 +65,14 @@ public class ShaderView
 			(accelerometerSensor != null ||
 				(accelerometerSensor = sensorManager.getDefaultSensor(
 					Sensor.TYPE_ACCELEROMETER )) != null) )
+		{
+			accelerometerListener.reset();
+
 			listeningToAccelerometer = sensorManager.registerListener(
 				accelerometerListener,
 				accelerometerSensor,
 				SensorManager.SENSOR_DELAY_NORMAL );
+		}
 	}
 
 	private void init()
@@ -82,7 +86,12 @@ public class ShaderView
 
 	private class AccelerometerListener implements SensorEventListener
 	{
-		private long last = 0;
+		private long last;
+
+		public void reset()
+		{
+			last = 0;
+		}
 
 		@Override
 		public final void onAccuracyChanged( Sensor sensor, int accuracy )
@@ -99,18 +108,28 @@ public class ShaderView
 				final float b = 1f-a;
 
 				renderer.gravity[0] =
-					a*renderer.gravity[0]+b*event.values[0];
+					a*renderer.gravity[0]+
+					b*event.values[0];
+
 				renderer.gravity[1] =
-					a*renderer.gravity[1]+b*event.values[1];
+					a*renderer.gravity[1]+
+					b*event.values[1];
+
 				renderer.gravity[2] =
-					a*renderer.gravity[2]+b*event.values[2];
+					a*renderer.gravity[2]+
+					b*event.values[2];
 
 				renderer.linear[0] =
-					event.values[0]-renderer.gravity[0];
+					event.values[0]-
+					renderer.gravity[0];
+
 				renderer.linear[1] =
-					event.values[1]-renderer.gravity[1];
+					event.values[1]-
+					renderer.gravity[1];
+
 				renderer.linear[2] =
-					event.values[2]-renderer.gravity[2];
+					event.values[2]-
+					renderer.gravity[2];
 			}
 
 			last = event.timestamp;
