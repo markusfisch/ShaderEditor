@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+	<string-array name="sensor_delay_names">
+		<item>"Fastest"</item>
+		<item>"Game"</item>
+		<item>"Normal"</item>
+		<item>"UI"</item>
+	</string-array>
+</resources>

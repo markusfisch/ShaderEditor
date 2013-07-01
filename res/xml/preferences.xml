@@ -26,4 +26,15 @@
 			android:checked="false"
 			android:defaultValue="false"/>
 	</PreferenceCategory>
+	<PreferenceCategory
+		android:title="@string/sensors"
+		android:key="sensor_preferences">
+		<ListPreference
+			android:key="sensor_delay"
+			android:title="@string/sensor_delay"
+			android:summary="@string/sensor_delay_summary"
+			android:entries="@array/sensor_delay_names"
+			android:entryValues="@array/sensor_delay_names"
+			android:defaultValue="Normal"/>
+	</PreferenceCategory>
 </PreferenceScreen>

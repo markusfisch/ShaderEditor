@@ -1,6 +1,7 @@
 package de.markusfisch.android.shadereditor;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -71,7 +72,7 @@ public class ShaderView
 			listeningToAccelerometer = sensorManager.registerListener(
 				accelerometerListener,
 				accelerometerSensor,
-				SensorManager.SENSOR_DELAY_NORMAL );
+				getSensorDelay() );
 		}
 	}
 
@@ -82,6 +83,25 @@ public class ShaderView
 		setEGLContextClientVersion( 2 );
 		setRenderer( renderer );
 		setRenderMode( GLSurfaceView.RENDERMODE_CONTINUOUSLY );
+	}
+
+	private int getSensorDelay()
+	{
+		SharedPreferences p = getContext().getSharedPreferences(
+			ShaderPreferenceActivity.SHARED_PREFERENCES_NAME,
+			0 );
+		String s = p.getString(
+			ShaderPreferenceActivity.SENSOR_DELAY,
+			"Normal" );
+
+		if( s.equals( "Fastest" ) )
+			return SensorManager.SENSOR_DELAY_FASTEST;
+		else if( s.equals( "Game" ) )
+			return SensorManager.SENSOR_DELAY_GAME;
+		else if( s.equals( "UI" ) )
+			return SensorManager.SENSOR_DELAY_UI;
+
+		return SensorManager.SENSOR_DELAY_NORMAL;
 	}
 
 	private class AccelerometerListener implements SensorEventListener

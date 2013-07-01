@@ -12,6 +12,9 @@
 	<string name="no">No</string>
 	<string name="preferences">Preferences</string>
 	<string name="wallpaper">Wallpaper</string>
+	<string name="sensors">Sensors</string>
+	<string name="sensor_delay">Sensor Delay</string>
+	<string name="sensor_delay_summary">Rate of sensor events</string>
 	<string name="shader">Shader</string>
 	<string name="shader_summary">Choose a shader</string>
 	<string name="editor">Editor</string>
