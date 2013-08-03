@@ -14,6 +14,8 @@ Features
 * FPS display
 * Use any shader as _live wallpaper_
 * Exposure of _accelerometer sensor_
+* Exposure of _wallpaper offset_
+* Previous rendered frame in _backbuffer_ texture
 
 Tips
 ----
@@ -28,4 +30,8 @@ A live wallpaper should only consume battery when you see it. So it generally de
 
 ### Errors are not highlighted
 
-Unfortunately error information is disabled on some devices (e.g. Huawei Ideos X3). Error highlighting/reporting is not available on these devices.
+Unfortunately error information is disabled on some devices (e.g. Huawei Ideos X3, Asus Transformer). Error highlighting/reporting is not available on these devices.
+
+### Soft keyboard is constantly resetting
+
+Some devices will automatically reset the keyboard layout when the contents of the editor does change (which includes syntax highlighting). To prevent that annoying behaviour, you may set a longer update delay for syntax highlighting in the preferences or simply use a soft keyboard without modes.
