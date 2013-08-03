@@ -526,6 +526,40 @@ public class MainActivity
 			0 );
 	}
 
+	private void saveStringPreference(
+		SharedPreferences p,
+		String key,
+		String value )
+	{
+		SharedPreferences.Editor e = p.edit();
+
+		e.putString( key, value );
+		e.commit();
+	}
+
+	private void saveTextSize()
+	{
+		saveStringPreference(
+			getSharedPreferences(),
+			ShaderPreferenceActivity.TEXT_SIZE,
+			String.valueOf( textSize ) );
+	}
+
+	private void setTextSize()
+	{
+		shaderEditor.setTextSize(
+			android.util.TypedValue.COMPLEX_UNIT_SP,
+			textSize );
+	}
+
+	private void validateTextSize()
+	{
+		if( textSize < minimumTextSize )
+			textSize = minimumTextSize;
+		else if( textSize > maximumTextSize )
+			textSize = maximumTextSize;
+	}
+
 	private void loadPreferences()
 	{
 		SharedPreferences p = getSharedPreferences();
@@ -552,13 +586,27 @@ public class MainActivity
 		{
 			shaderEditor.updateDelay = 1000;
 
-			SharedPreferences.Editor e = p.edit();
-
-			e.putString(
+			saveStringPreference(
+				p,
 				ShaderPreferenceActivity.UPDATE_DELAY,
 				String.valueOf( shaderEditor.updateDelay ) );
-			e.commit();
 		}
+
+		try
+		{
+			textSize = Float.parseFloat( p.getString(
+				ShaderPreferenceActivity.TEXT_SIZE,
+				"9" ) );
+
+			validateTextSize();
+		}
+		catch( Exception ex )
+		{
+			textSize = 1000;
+			saveTextSize();
+		}
+
+		setTextSize();
 	}
 
 	private void savePreferences()
@@ -698,14 +746,11 @@ public class MainActivity
 
 					textSize = zoomPinchFactor*d;
 
-					if( textSize < minimumTextSize )
-						textSize = minimumTextSize;
-					else if( textSize > maximumTextSize )
-						textSize = maximumTextSize;
+					validateTextSize();
+					saveTextSize();
+					setTextSize();
 
-					shaderEditor.setTextSize(
-						android.util.TypedValue.COMPLEX_UNIT_SP,
-						textSize );
+					shaderEditor.invalidate();
 				}
 				break;
 		}

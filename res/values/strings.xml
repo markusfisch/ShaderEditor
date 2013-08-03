@@ -24,4 +24,6 @@
 	<string name="show_fps_gauge_summary">Show frames per second</string>
 	<string name="update_delay">Update delay</string>
 	<string name="update_delay_summary">Update editor (and compile) after that much time of inactivity</string>
+	<string name="text_size">Text size</string>
+	<string name="text_size_summary">Text size of editor</string>
 </resources>

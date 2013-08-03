@@ -11,6 +11,7 @@ public class ShaderPreferenceActivity extends PreferenceActivity
 	public static final String SHOW_FPS_GAUGE = "show_fps_gauge";
 	public static final String SENSOR_DELAY = "sensor_delay";
 	public static final String UPDATE_DELAY = "update_delay";
+	public static final String TEXT_SIZE = "text_size";
 
 	@Override
 	public void onCreate( Bundle state )

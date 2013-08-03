@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+	<string-array name="text_size_names">
+		<item>"Small"</item>
+		<item>"Medium"</item>
+		<item>"Big"</item>
+	</string-array>
+	<string-array name="text_size_values">
+		<item>"9"</item>
+		<item>"16"</item>
+		<item>"22"</item>
+	</string-array>
+</resources>
