@@ -22,4 +22,6 @@
 	<string name="compile_on_change_summary">Disable to compile on save only</string>
 	<string name="show_fps_gauge">Show FPS Gauge</string>
 	<string name="show_fps_gauge_summary">Show frames per second</string>
+	<string name="update_delay">Update delay</string>
+	<string name="update_delay_summary">Update editor (and compile) after that much time of inactivity</string>
 </resources>

@@ -25,6 +25,13 @@
 			android:summary="@string/show_fps_gauge_summary"
 			android:checked="false"
 			android:defaultValue="false"/>
+		<ListPreference
+			android:key="update_delay"
+			android:title="@string/update_delay"
+			android:summary="@string/update_delay_summary"
+			android:entries="@array/update_delay_names"
+			android:entryValues="@array/update_delay_values"
+			android:defaultValue="1000"/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="@string/sensors"

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+	<string-array name="update_delay_names">
+		<item>"0.5s"</item>
+		<item>"1.0s"</item>
+		<item>"1.5s"</item>
+		<item>"2.0s"</item>
+		<item>"3.0s"</item>
+		<item>"5.0s"</item>
+	</string-array>
+	<string-array name="update_delay_values">
+		<item>"500"</item>
+		<item>"1000"</item>
+		<item>"1500"</item>
+		<item>"2000"</item>
+		<item>"3000"</item>
+		<item>"5000"</item>
+	</string-array>
+</resources>

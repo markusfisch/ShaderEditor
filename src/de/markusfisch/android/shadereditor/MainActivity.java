@@ -538,6 +538,27 @@ public class MainActivity
 		shaderView.renderer.showFpsGauge = p.getBoolean(
 			ShaderPreferenceActivity.SHOW_FPS_GAUGE,
 			false );
+
+		try
+		{
+			shaderEditor.updateDelay = Integer.parseInt( p.getString(
+				ShaderPreferenceActivity.UPDATE_DELAY,
+				"1000" ) );
+
+			if( shaderEditor.updateDelay < 500 )
+				shaderEditor.updateDelay = 500;
+		}
+		catch( Exception ex )
+		{
+			shaderEditor.updateDelay = 1000;
+
+			SharedPreferences.Editor e = p.edit();
+
+			e.putString(
+				ShaderPreferenceActivity.UPDATE_DELAY,
+				String.valueOf( shaderEditor.updateDelay ) );
+			e.commit();
+		}
 	}
 
 	private void savePreferences()

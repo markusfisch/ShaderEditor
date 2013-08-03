@@ -24,6 +24,7 @@ public class ShaderEditor extends EditText
 	}
 
 	public OnTextChangedListener onTextChangedListener = null;
+	public int updateDelay = 1000;
 	public int errorLine = 0;
 	public boolean dirty = false;
 
@@ -162,7 +163,7 @@ public class ShaderEditor extends EditText
 					dirty = true;
 					updateHandler.postDelayed(
 						updateRunnable,
-						1000 );
+						updateDelay );
 				}
 			} );
 	}
@@ -291,6 +292,7 @@ public class ShaderEditor extends EditText
 				char c = dest.charAt( istart );
 
 				if( c != ';' &&
+					c != '}' &&
 					c != '\n' )
 					indent = "\t";
 			}
