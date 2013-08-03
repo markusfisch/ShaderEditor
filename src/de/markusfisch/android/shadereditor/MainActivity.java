@@ -749,8 +749,6 @@ public class MainActivity
 					validateTextSize();
 					saveTextSize();
 					setTextSize();
-
-					shaderEditor.invalidate();
 				}
 				break;
 		}
