@@ -135,7 +135,6 @@ public class ShaderWallpaperService extends WallpaperService
 			public ShaderWallpaperView()
 			{
 				super( ShaderWallpaperService.this );
-
 			}
 
 			@Override
