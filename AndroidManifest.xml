@@ -4,9 +4,7 @@
 	android:versionCode="6"
 	android:versionName="1.3.0"
 	android:installLocation="auto">
-	<uses-sdk
-		android:minSdkVersion="8"
-		android:targetSdkVersion="17"/>
+	<uses-sdk android:minSdkVersion="8"/>
 	<supports-screens
 		android:resizeable="true"
 		android:smallScreens="true"
