@@ -18,6 +18,9 @@ precision mediump float;
 // wallpaper offset from 0.0 to 1.0
 //uniform vec2 offset;
 
+// previous frame
+//uniform sampler2D backbuffer;
+
 void main( void )
 {
 	//vec2 uv = gl_FragCoord.xy/resolution.xy;

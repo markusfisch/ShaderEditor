@@ -50,6 +50,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int linearLoc;
 	private int offsetLoc;
 	private int positionLoc;
+	private int backBufferLoc = -1;
+	private int frontTarget = 0;
+	private int backTarget = 1;
+	private final int fb[] = new int[]{ 0, 0 };
+	private final int rb[] = new int[]{ 0, 0 };
+	private final int tx[] = new int[]{ 0, 0 };
 	private final float resolution[] = new float[]{ 0, 0 };
 	private volatile float mouse[] = new float[]{ 0, 0 };
 	private volatile float touch[] = new float[]{ 0, 0 };
@@ -89,13 +95,18 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	@Override
 	public void onDrawFrame( GL10 gl )
 	{
-		GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT );
 		GLES20.glDisable( GLES20.GL_CULL_FACE );
 		GLES20.glDisable( GLES20.GL_BLEND );
 		GLES20.glDisable( GLES20.GL_DEPTH_TEST );
 
 		if( program == 0 )
+		{
+			GLES20.glClear(
+				GLES20.GL_COLOR_BUFFER_BIT |
+				GLES20.GL_DEPTH_BUFFER_BIT );
+
 			return;
+		}
 
 		final long now = SystemClock.elapsedRealtime();
 
@@ -148,6 +159,27 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				offset,
 				0 );
 
+		if( backBufferLoc > -1 )
+		{
+			if( fb[0] == 0 )
+				createTargets(
+					(int)resolution[0],
+					(int)resolution[1] );
+
+			GLES20.glUniform1i(
+				backBufferLoc,
+				0 );
+
+			GLES20.glActiveTexture( GLES20.GL_TEXTURE0 );
+			GLES20.glBindTexture(
+				GLES20.GL_TEXTURE_2D,
+				tx[backTarget] );
+
+			GLES20.glBindFramebuffer(
+				GLES20.GL_FRAMEBUFFER,
+				fb[frontTarget] );
+		}
+
 		GLES20.glVertexAttribPointer(
 			positionLoc,
 			2,
@@ -157,7 +189,24 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			vertexBuffer );
 		GLES20.glEnableVertexAttribArray( positionLoc );
 
+		GLES20.glClear(
+			GLES20.GL_COLOR_BUFFER_BIT |
+			GLES20.GL_DEPTH_BUFFER_BIT );
 		GLES20.glDrawArrays( GLES20.GL_TRIANGLE_STRIP, 0, 4 );
+
+		if( backBufferLoc > -1 )
+		{
+			GLES20.glBindFramebuffer( GLES20.GL_FRAMEBUFFER, 0 );
+
+			GLES20.glClear(
+				GLES20.GL_COLOR_BUFFER_BIT |
+				GLES20.GL_DEPTH_BUFFER_BIT );
+			GLES20.glDrawArrays( GLES20.GL_TRIANGLE_STRIP, 0, 4 );
+
+			int t = frontTarget;
+			frontTarget = backTarget;
+			backTarget = t;
+		}
 
 		GLES20.glDisableVertexAttribArray( positionLoc );
 
@@ -172,6 +221,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	public void onSurfaceChanged( GL10 gl, int width, int height )
 	{
 		GLES20.glViewport( 0, 0, width, height );
+
+		if( width != resolution[0] ||
+			height != resolution[1] )
+			deleteTargets();
 
 		resolution[0] = width;
 		resolution[1] = height;
@@ -219,6 +272,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		if( program != 0 )
 			GLES20.glDeleteProgram( program );
 
+		deleteTargets();
+
 		if( (program = Shader.loadProgram(
 			vertexShader,
 			fragmentShader )) == 0 )
@@ -246,6 +301,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			program, "linear" );
 		offsetLoc = GLES20.glGetUniformLocation(
 			program, "offset" );
+		backBufferLoc = GLES20.glGetUniformLocation(
+			program, "backbuffer" );
 
 		if( view != null &&
 			(gravityLoc > -1 || linearLoc > -1) )
@@ -345,5 +402,91 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			fpsGauge.draw( fps );
 
 		lastRender = now;
+	}
+
+	private void deleteTargets()
+	{
+		if( fb[0] == 0 )
+			return;
+
+		GLES20.glDeleteFramebuffers( 2, fb, 0 );
+		GLES20.glDeleteRenderbuffers( 2, rb, 0 );
+		GLES20.glDeleteTextures( 2, tx, 0 );
+
+		fb[0] = 0;
+	}
+
+	private void createTargets( int width, int height )
+	{
+		deleteTargets();
+
+		GLES20.glGenFramebuffers( 2, fb, 0 );
+		GLES20.glGenRenderbuffers( 2, rb, 0 );
+		GLES20.glGenTextures( 2, tx, 0 );
+
+		createTarget( frontTarget, width, height );
+		createTarget( backTarget, width, height );
+
+		GLES20.glBindTexture( GLES20.GL_TEXTURE_2D, 0 );
+		GLES20.glBindRenderbuffer( GLES20.GL_RENDERBUFFER, 0 );
+		GLES20.glBindFramebuffer( GLES20.GL_FRAMEBUFFER, 0 );
+	}
+
+	private void createTarget( int idx, int width, int height )
+	{
+		GLES20.glBindTexture( GLES20.GL_TEXTURE_2D, tx[idx] );
+		GLES20.glTexImage2D(
+			GLES20.GL_TEXTURE_2D,
+			0,
+			GLES20.GL_RGBA,
+			width,
+			height,
+			0,
+			GLES20.GL_RGBA,
+			GLES20.GL_UNSIGNED_BYTE,
+			null );
+
+		GLES20.glTexParameteri(
+			GLES20.GL_TEXTURE_2D,
+			GLES20.GL_TEXTURE_WRAP_S,
+			GLES20.GL_CLAMP_TO_EDGE );
+		GLES20.glTexParameteri(
+			GLES20.GL_TEXTURE_2D,
+			GLES20.GL_TEXTURE_WRAP_T,
+			GLES20.GL_CLAMP_TO_EDGE );
+
+		GLES20.glTexParameteri(
+			GLES20.GL_TEXTURE_2D,
+			GLES20.GL_TEXTURE_MAG_FILTER,
+			GLES20.GL_NEAREST );
+		GLES20.glTexParameteri(
+			GLES20.GL_TEXTURE_2D,
+			GLES20.GL_TEXTURE_MIN_FILTER,
+			GLES20.GL_NEAREST );
+
+		GLES20.glBindFramebuffer(
+			GLES20.GL_FRAMEBUFFER,
+			fb[idx] );
+		GLES20.glFramebufferTexture2D(
+			GLES20.GL_FRAMEBUFFER,
+			GLES20.GL_COLOR_ATTACHMENT0,
+			GLES20.GL_TEXTURE_2D,
+			tx[idx],
+			0 );
+
+		GLES20.glBindRenderbuffer(
+			GLES20.GL_RENDERBUFFER,
+			rb[idx] );
+
+		GLES20.glRenderbufferStorage(
+			GLES20.GL_RENDERBUFFER,
+			GLES20.GL_DEPTH_COMPONENT16,
+			width,
+			height );
+		GLES20.glFramebufferRenderbuffer(
+			GLES20.GL_FRAMEBUFFER,
+			GLES20.GL_DEPTH_ATTACHMENT,
+			GLES20.GL_RENDERBUFFER,
+			rb[idx] );
 	}
 }
