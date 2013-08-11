@@ -67,7 +67,7 @@ public class ShaderEditor extends EditText
 				if( onTextChangedListener != null )
 					onTextChangedListener.onTextChanged( e.toString() );
 
-				replaceTextKeepCursor( e );
+				highlightWithoutChange( e );
 			}
 		};
 	private boolean modified = true;
@@ -91,7 +91,9 @@ public class ShaderEditor extends EditText
 		errorLine = 0;
 		dirty = false;
 
-		replaceText( new SpannableStringBuilder( text ) );
+		modified = false;
+		setText( highlight( new SpannableStringBuilder( text ) ) );
+		modified = true;
 
 		if( onTextChangedListener != null )
 			onTextChangedListener.onTextChanged( text.toString() );
@@ -99,7 +101,7 @@ public class ShaderEditor extends EditText
 
 	public void refresh()
 	{
-		replaceTextKeepCursor( getText() );
+		highlightWithoutChange( getText() );
 	}
 
 	private void init()
@@ -173,83 +175,100 @@ public class ShaderEditor extends EditText
 		updateHandler.removeCallbacks( updateRunnable );
 	}
 
-	private void replaceText( Editable e )
+	private void highlightWithoutChange( Editable e )
 	{
 		modified = false;
-		setText( highlight( e ) );
+		highlight( e );
 		modified = true;
 	}
 
-	private void replaceTextKeepCursor( Editable e )
-	{
-		int p = getSelectionStart();
-
-		replaceText( e );
-
-		if( p > -1 )
-			setSelection( p );
-	}
-
-	private Editable highlight( Editable editable )
+	private Editable highlight( Editable e )
 	{
 		try
 		{
-			editable.clearSpans();
+			// don't use e.clearSpans() because it will remove
+			// too much
+			clearSpans( e );
 
-			if( editable.length() == 0 )
-				return editable;
+			if( e.length() == 0 )
+				return e;
 
 			if( errorLine > 0 )
 			{
-				Matcher m = line.matcher( editable );
+				Matcher m = line.matcher( e );
 
 				for( int n = errorLine;
 					n-- > 0 && m.find(); );
 
-				editable.setSpan(
+				e.setSpan(
 					new BackgroundColorSpan( COLOR_ERROR ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
 			}
 
-			for( Matcher m = numbers.matcher( editable );
+			for( Matcher m = numbers.matcher( e );
 				m.find(); )
-				editable.setSpan(
+				e.setSpan(
 					new ForegroundColorSpan( COLOR_NUMBER ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
 
-			for( Matcher m = keywords.matcher( editable );
+			for( Matcher m = keywords.matcher( e );
 				m.find(); )
-				editable.setSpan(
+				e.setSpan(
 					new ForegroundColorSpan( COLOR_KEYWORD ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
 
-			for( Matcher m = builtins.matcher( editable );
+			for( Matcher m = builtins.matcher( e );
 				m.find(); )
-				editable.setSpan(
+				e.setSpan(
 					new ForegroundColorSpan( COLOR_BUILTIN ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
 
-			for( Matcher m = comments.matcher( editable );
+			for( Matcher m = comments.matcher( e );
 				m.find(); )
-				editable.setSpan(
+				e.setSpan(
 					new ForegroundColorSpan( COLOR_COMMENT ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
 		}
-		catch( Exception e )
+		catch( Exception ex )
 		{
 		}
 
-		return editable;
+		return e;
+	}
+
+	private void clearSpans( Editable e )
+	{
+		// remove foreground color spans
+		{
+			ForegroundColorSpan spans[] = e.getSpans(
+				0,
+				e.length(),
+				ForegroundColorSpan.class );
+
+			for( int n = spans.length; n-- > 0; )
+				e.removeSpan( spans[n] );
+		}
+
+		// remove background color spans
+		{
+			BackgroundColorSpan spans[] = e.getSpans(
+				0,
+				e.length(),
+				BackgroundColorSpan.class );
+
+			for( int n = spans.length; n-- > 0; )
+				e.removeSpan( spans[n] );
+		}
 	}
 
 	private CharSequence autoIndent(
