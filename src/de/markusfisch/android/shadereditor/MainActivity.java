@@ -454,7 +454,7 @@ public class MainActivity
 
 	private void saveShader()
 	{
-		String src = shaderEditor.getText().toString();
+		String src = shaderEditor.getCleanText();
 
 		if( !compileOnChange )
 		{

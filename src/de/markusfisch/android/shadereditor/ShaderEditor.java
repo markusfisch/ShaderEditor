@@ -54,6 +54,9 @@ public class ShaderEditor extends EditText
 		"texture2DProjLod|textureCube|textureCubeLod)\\b" );
 	private static final Pattern comments = Pattern.compile(
 		"/\\*(?:.|[\\n\\r])*?\\*/|//.*" );
+	private static final Pattern trailingWhiteSpace = Pattern.compile(
+		"[\\t ]+$",
+		Pattern.MULTILINE );
 
 	private final Handler updateHandler = new Handler();
 	private final Runnable updateRunnable =
@@ -97,6 +100,13 @@ public class ShaderEditor extends EditText
 
 		if( onTextChangedListener != null )
 			onTextChangedListener.onTextChanged( text.toString() );
+	}
+
+	public String getCleanText()
+	{
+		return trailingWhiteSpace
+			.matcher( getText() )
+			.replaceAll( "" );
 	}
 
 	public void refresh()
