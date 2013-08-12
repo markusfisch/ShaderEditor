@@ -120,14 +120,22 @@ public class ShaderEditor extends EditText
 					int dstart,
 					int dend )
 				{
-					if( modified )
-						return autoIndent(
-							source,
-							start,
-							end,
-							dest,
-							dstart,
-							dend );
+					if( modified &&
+						end-start == 1 &&
+						start < source.length() &&
+						dstart < dest.length() )
+					{
+						char c = source.charAt( start );
+
+						if( c == '\n' )
+							return autoIndent(
+								source,
+								start,
+								end,
+								dest,
+								dstart,
+								dend );
+					}
 
 					return source;
 				}
@@ -279,68 +287,82 @@ public class ShaderEditor extends EditText
 		int dstart,
 		int dend )
 	{
-		if( end-start != 1 ||
-			start >= source.length() ||
-			source.charAt( start ) != '\n' ||
-			dstart >= dest.length() )
-			return source;
-
-		int istart = dstart;
-		int iend = -1;
 		String indent = "";
+		int istart = dstart-1;
+		int iend = -1;
 
-		// skip end of line if cursor is at the end of a line
-		if( dest.charAt( istart ) == '\n' )
-			--istart;
+		// find start of this line
+		boolean dataBefore = false;
+		int pt = 0;
 
-		// indent next line if this one isn't terminated
+		for( ; istart > -1; --istart )
+		{
+			char c = dest.charAt( istart );
+
+			if( c == '\n' )
+				break;
+
+			if( c != ' ' &&
+				c != '\t' )
+			{
+				if( !dataBefore )
+				{
+					// indent always after those characters
+					if( c == '{' ||
+						c == '+' ||
+						c == '-' ||
+						c == '*' ||
+						c == '/' ||
+						c == '%' ||
+						c == '^' ||
+						c == '=' )
+						--pt;
+
+					dataBefore = true;
+				}
+
+				// parenthesis counter
+				if( c == '(' )
+					--pt;
+				else if( c == ')' )
+					++pt;
+			}
+		}
+
+		// copy indent of this line into the next
 		if( istart > -1 )
 		{
-			// skip white space
-			for( ; istart > -1; --istart )
+			char charAtCursor = dest.charAt( dstart );
+
+			for( iend = ++istart;
+				iend < dend;
+				++iend )
 			{
-				char c = dest.charAt( istart );
+				char c = dest.charAt( iend );
+
+				// auto expand comments
+				if( charAtCursor != '\n' &&
+					c == '/' &&
+					iend+1 < dend &&
+					dest.charAt( iend ) == c )
+				{
+					iend += 2;
+					break;
+				}
 
 				if( c != ' ' &&
 					c != '\t' )
 					break;
 			}
 
-			if( istart > -1 )
-			{
-				char c = dest.charAt( istart );
-
-				if( c != ';' &&
-					c != '}' &&
-					c != '\n' )
-					indent = "\t";
-			}
+			indent += dest.subSequence( istart, iend );
 		}
 
-		// find start of previous line
-		for( ; istart > -1; --istart )
-			if( dest.charAt( istart ) == '\n' )
-				break;
+		// add new indent
+		if( pt < 0 )
+			indent += "\t";
 
-		// cursor is in the first line
-		if( istart < 0 )
-			return source;
-
-		// span over previous indent
-		for( iend = ++istart;
-			iend < dend;
-			++iend )
-		{
-			char c = dest.charAt( iend );
-
-			if( c != ' ' &&
-				c != '\t' )
-				break;
-		}
-
-		// copy white space of previous lines and append new indent
-		return "\n"+dest.subSequence(
-			istart,
-			iend )+indent;
+		// append white space of previous line and new indent
+		return source+indent;
 	}
 }
