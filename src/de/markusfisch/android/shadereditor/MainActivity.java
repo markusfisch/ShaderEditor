@@ -58,7 +58,7 @@ public class MainActivity
 	{
 		super.onCreate( state );
 
-		this.requestWindowFeature( Window.FEATURE_NO_TITLE );
+		requestWindowFeature( Window.FEATURE_NO_TITLE );
 		setContentView( R.layout.main_activity );
 
 		shaderView = (ShaderView)findViewById( R.id.preview );

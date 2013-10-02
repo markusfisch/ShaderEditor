@@ -1,8 +1,11 @@
 package de.markusfisch.android.shadereditor;
 
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.os.BatteryManager;
 import android.os.SystemClock;
 
 import java.io.ByteArrayOutputStream;
@@ -30,6 +33,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	public volatile ShaderView view = null;
 	public volatile float gravity[] = new float[]{ 0, 0, 0 };
 	public volatile float linear[] = new float[]{ 0, 0, 0 };
+	public volatile float gyroscope[] = new float[]{ 0, 0, 0, 0 };
 	public volatile float offset[] = new float[]{ 0, 0 };
 	public volatile boolean showFpsGauge = false;
 
@@ -48,8 +52,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int touchLoc;
 	private int gravityLoc;
 	private int linearLoc;
+	private int gyroscopeLoc;
 	private int offsetLoc;
 	private int positionLoc;
+	private int batteryLoc;
 	private int backBufferLoc = -1;
 	private int frontTarget = 0;
 	private int backTarget = 1;
@@ -67,6 +73,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private volatile float sum;
 	private volatile float samples;
 	private volatile int lastFps;
+	private Intent batteryStatus = null;
 
 	@Override
 	public void onSurfaceCreated( GL10 gl, EGLConfig config )
@@ -152,12 +159,32 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				linear,
 				0 );
 
+		if( gyroscopeLoc > -1 )
+			GLES20.glUniform4fv(
+				gyroscopeLoc,
+				1,
+				gyroscope,
+				0 );
+
 		if( offsetLoc > -1 )
 			GLES20.glUniform2fv(
 				offsetLoc,
 				1,
 				offset,
 				0 );
+
+		if( batteryLoc > -1 )
+		{
+			int level = batteryStatus.getIntExtra(
+				BatteryManager.EXTRA_LEVEL, -1 );
+			int scale = batteryStatus.getIntExtra(
+				BatteryManager.EXTRA_SCALE, -1 );
+			float battery = level/(float)scale;
+
+			GLES20.glUniform1f(
+				batteryLoc,
+				battery );
+		}
 
 		if( backBufferLoc > -1 )
 		{
@@ -299,14 +326,29 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			program, "gravity" );
 		linearLoc = GLES20.glGetUniformLocation(
 			program, "linear" );
+		gyroscopeLoc = GLES20.glGetUniformLocation(
+			program, "gyroscope" );
 		offsetLoc = GLES20.glGetUniformLocation(
 			program, "offset" );
+		batteryLoc = GLES20.glGetUniformLocation(
+			program, "battery" );
 		backBufferLoc = GLES20.glGetUniformLocation(
 			program, "backbuffer" );
 
-		if( view != null &&
-			(gravityLoc > -1 || linearLoc > -1) )
-			view.registerAccelerometerListener();
+		if( view != null )
+		{
+			if( (gravityLoc > -1 || linearLoc > -1) )
+				view.registerAccelerometerListener();
+
+			if( gyroscopeLoc > -1 )
+				view.registerGyroscopeListener();
+
+			if( batteryLoc > -1 &&
+				batteryStatus == null )
+				batteryStatus = view.getContext().registerReceiver(
+					null,
+					new IntentFilter( Intent.ACTION_BATTERY_CHANGED ) );
+		}
 	}
 
 	private byte[] saveThumbnail()

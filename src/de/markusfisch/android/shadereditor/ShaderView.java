@@ -3,8 +3,6 @@ package de.markusfisch.android.shadereditor;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
@@ -15,11 +13,13 @@ public class ShaderView
 {
 	public final ShaderRenderer renderer = new ShaderRenderer();
 
-	private final AccelerometerListener accelerometerListener =
-		new AccelerometerListener();
+	private AccelerometerListener accelerometerListener = null;
+	private GyroscopeListener gyroscopeListener = null;
 	private SensorManager sensorManager = null;
 	private Sensor accelerometerSensor = null;
+	private Sensor gyroscopeSensor = null;
 	private boolean listeningToAccelerometer = false;
+	private boolean listeningToGyroscope = false;
 
 	public ShaderView( Context context )
 	{
@@ -46,6 +46,15 @@ public class ShaderView
 
 			listeningToAccelerometer = false;
 		}
+
+		if( gyroscopeSensor != null &&
+			listeningToGyroscope )
+		{
+			sensorManager.unregisterListener(
+				gyroscopeListener );
+
+			listeningToGyroscope = false;
+		}
 	}
 
 	@Override
@@ -59,14 +68,15 @@ public class ShaderView
 	public void registerAccelerometerListener()
 	{
 		if( !listeningToAccelerometer &&
-			(sensorManager != null ||
-				(sensorManager = (SensorManager)
-					getContext().getSystemService(
-						Context.SENSOR_SERVICE )) != null) &&
+			getSensorManager() != null &&
 			(accelerometerSensor != null ||
 				(accelerometerSensor = sensorManager.getDefaultSensor(
 					Sensor.TYPE_ACCELEROMETER )) != null) )
 		{
+			if( accelerometerListener == null )
+				accelerometerListener =
+					new AccelerometerListener( renderer );
+
 			accelerometerListener.reset();
 
 			listeningToAccelerometer = sensorManager.registerListener(
@@ -74,6 +84,38 @@ public class ShaderView
 				accelerometerSensor,
 				getSensorDelay() );
 		}
+	}
+
+	public void registerGyroscopeListener()
+	{
+		if( !listeningToGyroscope &&
+			getSensorManager() != null &&
+			(gyroscopeSensor != null ||
+				(gyroscopeSensor = sensorManager.getDefaultSensor(
+					Sensor.TYPE_GYROSCOPE )) != null) )
+		{
+			if( gyroscopeListener == null )
+				gyroscopeListener =
+					new GyroscopeListener( renderer );
+
+			gyroscopeListener.reset();
+
+			listeningToGyroscope = sensorManager.registerListener(
+				gyroscopeListener,
+				gyroscopeSensor,
+				getSensorDelay() );
+		}
+	}
+
+	private SensorManager getSensorManager()
+	{
+		if( sensorManager != null )
+			return sensorManager;
+
+		sensorManager = (SensorManager)
+			getContext().getSystemService( Context.SENSOR_SERVICE );
+
+		return sensorManager;
 	}
 
 	private void init()
@@ -102,57 +144,5 @@ public class ShaderView
 			return SensorManager.SENSOR_DELAY_UI;
 
 		return SensorManager.SENSOR_DELAY_NORMAL;
-	}
-
-	private class AccelerometerListener implements SensorEventListener
-	{
-		private long last;
-
-		public void reset()
-		{
-			last = 0;
-		}
-
-		@Override
-		public final void onAccuracyChanged( Sensor sensor, int accuracy )
-		{
-		}
-
-		@Override
-		public final void onSensorChanged( SensorEvent event )
-		{
-			if( last > 0 )
-			{
-				final float t = event.timestamp;
-				final float a = t/(t+(t-last));
-				final float b = 1f-a;
-
-				renderer.gravity[0] =
-					a*renderer.gravity[0]+
-					b*event.values[0];
-
-				renderer.gravity[1] =
-					a*renderer.gravity[1]+
-					b*event.values[1];
-
-				renderer.gravity[2] =
-					a*renderer.gravity[2]+
-					b*event.values[2];
-
-				renderer.linear[0] =
-					event.values[0]-
-					renderer.gravity[0];
-
-				renderer.linear[1] =
-					event.values[1]-
-					renderer.gravity[1];
-
-				renderer.linear[2] =
-					event.values[2]-
-					renderer.gravity[2];
-			}
-
-			last = event.timestamp;
-		}
 	}
 }
