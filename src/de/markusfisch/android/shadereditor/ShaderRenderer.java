@@ -42,7 +42,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		"attribute vec2 position;"+
 		"void main()"+
 		"{"+
-			"gl_Position = vec4( position, 0.0, 1.0 );"+
+			"gl_Position = vec4( position, 0., 1. );"+
 		"}";
 	private ByteBuffer vertexBuffer;
 	private int program = 0;
@@ -186,6 +186,15 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				battery );
 		}
 
+		GLES20.glVertexAttribPointer(
+			positionLoc,
+			2,
+			GLES20.GL_BYTE,
+			false,
+			2,
+			vertexBuffer );
+		GLES20.glEnableVertexAttribArray( positionLoc );
+
 		if( backBufferLoc > -1 )
 		{
 			if( fb[0] == 0 )
@@ -200,21 +209,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			GLES20.glActiveTexture( GLES20.GL_TEXTURE0 );
 			GLES20.glBindTexture(
 				GLES20.GL_TEXTURE_2D,
-				tx[backTarget] );
+				tx[frontTarget] );
 
 			GLES20.glBindFramebuffer(
 				GLES20.GL_FRAMEBUFFER,
-				fb[frontTarget] );
+				0 );
 		}
-
-		GLES20.glVertexAttribPointer(
-			positionLoc,
-			2,
-			GLES20.GL_BYTE,
-			false,
-			2,
-			vertexBuffer );
-		GLES20.glEnableVertexAttribArray( positionLoc );
 
 		GLES20.glClear(
 			GLES20.GL_COLOR_BUFFER_BIT |
@@ -223,7 +223,14 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 		if( backBufferLoc > -1 )
 		{
-			GLES20.glBindFramebuffer( GLES20.GL_FRAMEBUFFER, 0 );
+			GLES20.glActiveTexture( GLES20.GL_TEXTURE1 );
+			GLES20.glBindTexture(
+				GLES20.GL_TEXTURE_2D,
+				tx[backTarget] );
+
+			GLES20.glBindFramebuffer(
+				GLES20.GL_FRAMEBUFFER,
+				fb[frontTarget] );
 
 			GLES20.glClear(
 				GLES20.GL_COLOR_BUFFER_BIT |
