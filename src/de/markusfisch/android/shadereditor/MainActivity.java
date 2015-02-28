@@ -333,7 +333,9 @@ public class MainActivity
 					0 );
 
 			errorPopupVisible ^= true;
-			return;
+
+			if( showSource )
+				return;
 		}
 
 		scrollView.setVisibility( showSource ?
@@ -352,7 +354,9 @@ public class MainActivity
 		}
 
 		showSource ^= true;
-		setSourceButtonDefault();
+
+		if( shaderEditor.errorLine < 1 )
+			setSourceButtonDefault();
 	}
 
 	private void inflateShaderMenu( Menu menu )
