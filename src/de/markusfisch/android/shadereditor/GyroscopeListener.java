@@ -70,9 +70,8 @@ public class GyroscopeListener
 			deltaRotationMatrix,
 			deltaRotationVector );
 
-		renderer.gyroscope[0] *= deltaRotationMatrix[0];
-		renderer.gyroscope[1] *= deltaRotationMatrix[1];
-		renderer.gyroscope[2] *= deltaRotationMatrix[2];
-		renderer.gyroscope[3] *= deltaRotationMatrix[3];
+		renderer.rotation[0] += deltaRotationMatrix[0];
+		renderer.rotation[1] += deltaRotationMatrix[1];
+		renderer.rotation[2] += deltaRotationMatrix[2];
 	}
 }
