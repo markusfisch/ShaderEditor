@@ -30,8 +30,7 @@ public class AccelerometerListener
 	{
 		if( last > 0 )
 		{
-			final float t = event.timestamp;
-			final float a = t/(t+(t-last));
+			final float a = .8f;
 			final float b = 1f-a;
 
 			renderer.gravity[0] =
