@@ -15,10 +15,16 @@ precision mediump float;
 // gravity vector in m/s^2
 //uniform vec3 gravity;
 
+// device rotation on the x, y and z axis
+//uniform vec3 rotation;
+
+// battery level from 0.0 to 1.0
+//uniform float battery;
+
 // wallpaper offset from 0.0 to 1.0
 //uniform vec2 offset;
 
-// previous frame
+// previous frame, i.e. texture2D( backbuffer, uv ).rgb
 //uniform sampler2D backbuffer;
 
 void main( void )
