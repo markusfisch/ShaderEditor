@@ -359,6 +359,11 @@ public class MainActivity
 			setSourceButtonDefault();
 	}
 
+	public void onOpenMenu( View v )
+	{
+		openContextMenu( shaderSpinner );
+	}
+
 	private void inflateShaderMenu( Menu menu )
 	{
 		MenuInflater inflater = getMenuInflater();

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="horizontal"
+	android:layout_weight="0"
+	android:layout_width="144dp"
+	android:layout_height="48dp">
+	<ImageButton
+		android:id="@+id/tab"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:padding="12dp"
+		android:gravity="center"
+		android:scaleType="fitXY"
+		android:src="@drawable/ic_tab"
+		android:background="@drawable/button"
+		android:onClick="onInsertTab"/>
+	<ImageButton
+		android:id="@+id/save"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:padding="12dp"
+		android:gravity="center"
+		android:scaleType="fitXY"
+		android:src="@drawable/ic_save"
+		android:background="@drawable/button"
+		android:onClick="onSaveShader"/>
+	<ImageButton
+		android:id="@+id/source"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:padding="12dp"
+		android:gravity="center"
+		android:scaleType="fitXY"
+		android:src="@drawable/ic_hide_source"
+		android:background="@drawable/button"
+		android:onClick="onToggleSource"/>
+</LinearLayout>
