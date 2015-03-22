@@ -6,20 +6,19 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
-
 public class FpsGauge
 {
 	private static final String vertexShader =
 		"attribute vec4 position;"+
-		"void main() {"+
+		"void main()"+
+		"{"+
 			"gl_Position = position;"+
 		"}";
 	private static final String fragmentShader =
 		"precision mediump float;"+
 		"uniform vec4 color;"+
-		"void main() {"+
+		"void main()"+
+		"{"+
 			"gl_FragColor = color;"+
 		"}";
 	private static final int COORDS_PER_VERTEX = 2;
