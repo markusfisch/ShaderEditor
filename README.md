@@ -40,3 +40,9 @@ note a difference in battery consumption.
 
 Unfortunately error information is disabled on some devices (e.g. Huawei Ideos X3,
 Asus Transformer). Error highlighting/reporting is not available on these devices.
+
+License
+-------
+
+Shader Editor is open source and licensed under the
+[MIT license](http://www.opensource.org/licenses/mit-license.php).
