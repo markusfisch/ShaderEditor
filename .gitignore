@@ -1,6 +1,6 @@
 *.swp
-bin
-gen
+.gradle
+.idea
+build
 local.properties
-build.xml
-Makefile
+gradle.properties
