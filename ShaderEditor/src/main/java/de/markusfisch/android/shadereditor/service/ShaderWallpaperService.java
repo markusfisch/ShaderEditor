@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.service;
 
 import de.markusfisch.android.shadereditor.activity.ShaderPreferenceActivity;
 import de.markusfisch.android.shadereditor.database.ShaderDataSource;
+import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.preference.ShaderListPreference;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 import de.markusfisch.android.shadereditor.R;
@@ -15,6 +16,8 @@ import android.view.SurfaceHolder;
 
 public class ShaderWallpaperService extends WallpaperService
 {
+	public static ShaderRenderer renderer;
+
 	@Override
 	public final Engine onCreateEngine()
 	{
@@ -90,6 +93,8 @@ public class ShaderWallpaperService extends WallpaperService
 
 			view = new ShaderWallpaperView();
 			view.renderer.fragmentShader = fragmentShader;
+
+			renderer = view.renderer;
 		}
 
 		@Override
@@ -99,6 +104,8 @@ public class ShaderWallpaperService extends WallpaperService
 
 			view.destroy();
 			view = null;
+
+			renderer = null;
 		}
 
 		@Override

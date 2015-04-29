@@ -20,6 +20,9 @@
 		android:icon="@android:drawable/ic_menu_share"
 		android:title="@string/share_shader"/>
 	<item
+		android:id="@+id/update_wallpaper"
+		android:title="@string/update_wallpaper"/>
+	<item
 		android:id="@+id/preferences"
 		android:icon="@android:drawable/ic_menu_preferences"
 		android:title="@string/preferences"/>

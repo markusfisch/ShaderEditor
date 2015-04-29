@@ -3,6 +3,8 @@ package de.markusfisch.android.shadereditor.activity;
 import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
 import de.markusfisch.android.shadereditor.database.ShaderDataSource;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
+import de.markusfisch.android.shadereditor.preference.ShaderListPreference;
+import de.markusfisch.android.shadereditor.service.ShaderWallpaperService;
 import de.markusfisch.android.shadereditor.widget.LockableScrollView;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
@@ -203,6 +205,10 @@ public class MainActivity
 
 		shaderView.renderer.errorListener = null;
 		shaderView.renderer.fpsListener = null;
+
+		// close cursor
+		if( adapter != null )
+			adapter.changeCursor( null );
 	}
 
 	@Override
@@ -375,7 +381,7 @@ public class MainActivity
 	private void inflateShaderMenu( Menu menu )
 	{
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate( R.menu.shader_options, menu );
+		inflater.inflate( R.menu.menu_main, menu );
 	}
 
 	private boolean shaderMenuItemSelected( MenuItem item )
@@ -396,6 +402,9 @@ public class MainActivity
 				return true;
 			case R.id.share_shader:
 				shareShader();
+				return true;
+			case R.id.update_wallpaper:
+				updateWallpaper();
 				return true;
 			case R.id.preferences:
 				showPreferences();
@@ -500,6 +509,18 @@ public class MainActivity
 		startActivity( Intent.createChooser(
 			i,
 			getResources().getText( R.string.share_shader ) ) );
+	}
+
+	private void updateWallpaper()
+	{
+		ShaderRenderer renderer = ShaderWallpaperService.renderer;
+
+		if( renderer != null )
+			renderer.fragmentShader = shaderEditor.getCleanText();
+
+		ShaderListPreference.saveShader(
+			getSharedPreferences(),
+			shaderSpinner.getSelectedItemId() );
 	}
 
 	private void showPreferences()
