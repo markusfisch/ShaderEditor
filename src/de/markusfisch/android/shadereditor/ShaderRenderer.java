@@ -279,7 +279,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		touch[0] = x;
 		touch[1] = resolution[1]-y;
 
-		// to be compatible with glsl.heroku.com
+		// to be compatible with http://glslsandbox.com/
 		mouse[0] = x/resolution[0];
 		mouse[1] = 1-y/resolution[1];
 	}
