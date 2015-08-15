@@ -1,37 +1,22 @@
 package de.markusfisch.android.shadereditor.preference;
 
-import de.markusfisch.android.shadereditor.activity.ShaderPreferenceActivity;
-import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
-import de.markusfisch.android.shadereditor.database.ShaderDataSource;
-import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.adapter.ShaderSpinnerAdapter;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.preference.ListPreference;
 import android.util.AttributeSet;
 import android.widget.ListAdapter;
 
-import java.util.ArrayList;
-
 public class ShaderListPreference extends ListPreference
 {
-	private ShaderDataSource dataSource;
+	private ShaderSpinnerAdapter adapter;
 
 	public ShaderListPreference( Context context, AttributeSet attrs )
 	{
 		super( context, attrs );
-	}
-
-	public static void saveShader( SharedPreferences p, long id )
-	{
-		SharedPreferences.Editor e = p.edit();
-
-		e.putString(
-			ShaderPreferenceActivity.SHADER,
-			String.valueOf( id ) );
-		e.commit();
 	}
 
 	@Override
@@ -41,13 +26,9 @@ public class ShaderListPreference extends ListPreference
 		// for Entries and set up a setSingleChoiceItems() for them that
 		// will never be used
 
-		dataSource = new ShaderDataSource( getContext() );
-		dataSource.open();
-
-		final ListAdapter adapter = (ListAdapter)new ShaderAdapter(
+		adapter = new ShaderSpinnerAdapter(
 			getContext(),
-			dataSource.queryAll(),
-			R.layout.shader_spinner_dropdown );
+			ShaderEditorApplication.dataSource.queryShaders() );
 
 		builder.setSingleChoiceItems(
 			adapter,
@@ -55,11 +36,14 @@ public class ShaderListPreference extends ListPreference
 			new DialogInterface.OnClickListener()
 			{
 				@Override
-				public void onClick( DialogInterface dialog, int which )
+				public void onClick(
+					DialogInterface dialog,
+					int which )
 				{
-					ShaderListPreference.saveShader(
-						getSharedPreferences(),
-						adapter.getItemId( which ) );
+					ShaderEditorApplication
+						.preferences
+						.setWallpaperShader(
+							adapter.getItemId( which ) );
 
 					ShaderListPreference.this.onClick(
 						dialog,
@@ -75,8 +59,10 @@ public class ShaderListPreference extends ListPreference
 	@Override
 	protected void onDialogClosed( boolean positiveResult )
 	{
-		super.onDialogClosed( positiveResult );
+		// close last cursor
+		if( adapter != null )
+			adapter.changeCursor( null );
 
-		dataSource.close();
+		super.onDialogClosed( positiveResult );
 	}
 }

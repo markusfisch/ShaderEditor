@@ -1,5 +1,0 @@
-<resources>
-	<style
-		name="Theme.ShaderEditorTheme"
-		parent="@android:style/Theme.Holo"/>
-</resources>

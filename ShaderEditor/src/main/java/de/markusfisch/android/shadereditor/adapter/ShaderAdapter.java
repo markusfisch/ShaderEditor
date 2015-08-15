@@ -1,45 +1,38 @@
 package de.markusfisch.android.shadereditor.adapter;
 
-import de.markusfisch.android.shadereditor.database.ShaderDataSource;
+import de.markusfisch.android.shadereditor.activity.MainActivity;
+import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import java.io.ByteArrayInputStream;
 
-public class ShaderAdapter
-	extends CursorAdapter
-	implements SpinnerAdapter
+public class ShaderAdapter extends CursorAdapter
 {
-	private LayoutInflater inflater = null;
-	private int layout = 0;
-
-	public ShaderAdapter( Context context, Cursor cursor )
-	{
-		super( context, cursor, false );
-		init( context );
-	}
+	private int idIndex;
+	private int thumbIndex;
+	private int modifiedIndex;
+	private int textColorSelected;
+	private int textColorUnselected;
 
 	public ShaderAdapter(
 		Context context,
-		Cursor cursor,
-		int layout )
+		Cursor cursor )
 	{
 		super( context, cursor, false );
-		init( context );
 
-		this.layout = layout;
+		indexColumns( cursor );
+		initTextColors( context );
 	}
 
 	@Override
@@ -48,69 +41,83 @@ public class ShaderAdapter
 		Cursor cursor,
 		ViewGroup parent )
 	{
-		LayoutInflater i = LayoutInflater.from(
+		LayoutInflater inflater = LayoutInflater.from(
 			parent.getContext() );
 
-		return i.inflate(
-			layout > 0 ? layout : R.layout.shader_spinner,
+		return inflater.inflate(
+			R.layout.row_shader,
 			parent,
 			false );
 	}
 
 	@Override
-	public View newDropDownView(
+	public void bindView(
+		View view,
 		Context context,
-		Cursor cursor,
-		ViewGroup parent )
+		Cursor cursor )
 	{
-		LayoutInflater i = LayoutInflater.from(
-			parent.getContext() );
+		ViewHolder holder = getViewHolder( view );
 
-		return i.inflate(
-			R.layout.shader_spinner_dropdown,
-			parent,
-			false );
+		setData( holder, cursor );
+
+		holder.title.setTextColor(
+			cursor.getLong( idIndex ) == MainActivity.selectedShaderId ?
+				textColorSelected :
+				textColorUnselected );
 	}
 
-	@Override
-	public void bindView( View view, Context context, Cursor cursor )
+	protected ViewHolder getViewHolder( View view )
 	{
-		final long id = cursor.getLong( cursor.getColumnIndex(
-			ShaderDataSource.COLUMN_ID ) );
+		ViewHolder holder;
 
-		// set icon
+		if( (holder = (ViewHolder)view.getTag()) == null )
 		{
-			ImageView v = (ImageView)view.findViewById(
+			holder = new ViewHolder();
+			holder.icon = (ImageView)view.findViewById(
 				R.id.icon );
-			byte bytes[] = cursor.getBlob( cursor.getColumnIndex(
-				ShaderDataSource.COLUMN_THUMB ) );
-
-			if( v != null &&
-				bytes != null &&
-				bytes.length > 0 )
-			{
-				ByteArrayInputStream in =
-					new ByteArrayInputStream( bytes );
-				Bitmap b = BitmapFactory.decodeStream( in );
-
-				if( b != null )
-					v.setImageBitmap( b );
-			}
-		}
-
-		// set title
-		{
-			TextView v = (TextView)view.findViewById(
+			holder.title = (TextView)view.findViewById(
 				R.id.title );
-
-			if( v != null )
-				v.setText( cursor.getString( cursor.getColumnIndex(
-					ShaderDataSource.COLUMN_MODIFIED ) ) );
 		}
+
+		return holder;
 	}
 
-	private void init( Context context )
+	protected void setData( ViewHolder holder, Cursor cursor )
 	{
-		inflater = LayoutInflater.from( context );
+		byte bytes[] = cursor.getBlob( thumbIndex );
+
+		if( bytes != null &&
+			bytes.length > 0 )
+			holder.icon.setImageBitmap(
+				BitmapFactory.decodeStream(
+					new ByteArrayInputStream( bytes ) ) );
+
+		holder.title.setText( cursor.getString( modifiedIndex ) );
+	}
+
+	private void indexColumns( Cursor cursor )
+	{
+		idIndex = cursor.getColumnIndex(
+			DataSource.SHADERS_ID );
+		thumbIndex = cursor.getColumnIndex(
+			DataSource.SHADERS_THUMB );
+		modifiedIndex = cursor.getColumnIndex(
+			DataSource.SHADERS_MODIFIED );
+	}
+
+	private static final class ViewHolder
+	{
+		public ImageView icon;
+		public TextView title;
+	}
+
+	private void initTextColors( Context context )
+	{
+		Resources res = context.getResources();
+
+		textColorSelected = res.getColor(
+			R.color.accent );
+		textColorUnselected = res.getColor(
+			R.color.drawer_text_unselected );
 	}
 }

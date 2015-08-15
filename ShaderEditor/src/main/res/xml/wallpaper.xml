@@ -1,0 +1,5 @@
+<wallpaper
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:description="@string/wallpaper_description"
+	android:thumbnail="@mipmap/ic_launcher"
+	android:settingsActivity="de.markusfisch.android.shadereditor.activity.PreferencesActivity"/>

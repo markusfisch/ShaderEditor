@@ -1,41 +1,28 @@
 package de.markusfisch.android.shadereditor.widget;
 
-import de.markusfisch.android.shadereditor.activity.ShaderPreferenceActivity;
-import de.markusfisch.android.shadereditor.hardware.AccelerometerListener;
-import de.markusfisch.android.shadereditor.hardware.GyroscopeListener;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
-import de.markusfisch.android.shadereditor.widget.ShaderView;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 public class ShaderView extends GLSurfaceView
 {
-	public final ShaderRenderer renderer = new ShaderRenderer();
-
-	private AccelerometerListener accelerometerListener = null;
-	private GyroscopeListener gyroscopeListener = null;
-	private SensorManager sensorManager = null;
-	private Sensor accelerometerSensor = null;
-	private Sensor gyroscopeSensor = null;
-	private boolean listeningToAccelerometer = false;
-	private boolean listeningToGyroscope = false;
+	private ShaderRenderer renderer;
 
 	public ShaderView( Context context )
 	{
 		super( context );
-		init();
+
+		init( context );
 	}
 
 	public ShaderView( Context context, AttributeSet attrs )
 	{
 		super( context, attrs );
-		init();
+
+		init( context );
 	}
 
 	@Override
@@ -43,111 +30,33 @@ public class ShaderView extends GLSurfaceView
 	{
 		super.onPause();
 
-		if( accelerometerSensor != null &&
-			listeningToAccelerometer )
-		{
-			sensorManager.unregisterListener(
-				accelerometerListener );
-
-			listeningToAccelerometer = false;
-		}
-
-		if( gyroscopeSensor != null &&
-			listeningToGyroscope )
-		{
-			sensorManager.unregisterListener(
-				gyroscopeListener );
-
-			listeningToGyroscope = false;
-		}
+		renderer.unregisterListeners();
 	}
 
 	@Override
 	public boolean onTouchEvent( MotionEvent e )
 	{
-		renderer.onTouch( e.getX(), e.getY() );
+		renderer.touchAt( e.getX(), e.getY() );
 
 		return true;
 	}
 
-	public void registerAccelerometerListener()
+	public void setFragmentShader( String src )
 	{
-		if( !listeningToAccelerometer &&
-			getSensorManager() != null &&
-			(accelerometerSensor != null ||
-				(accelerometerSensor = sensorManager.getDefaultSensor(
-					Sensor.TYPE_ACCELEROMETER )) != null) )
-		{
-			if( accelerometerListener == null )
-				accelerometerListener =
-					new AccelerometerListener( renderer );
-
-			accelerometerListener.reset();
-
-			listeningToAccelerometer = sensorManager.registerListener(
-				accelerometerListener,
-				accelerometerSensor,
-				getSensorDelay() );
-		}
+		onPause();
+		renderer.setFragmentShader( src );
+		onResume();
 	}
 
-	public void registerGyroscopeListener()
+	public ShaderRenderer getRenderer()
 	{
-		if( !listeningToGyroscope &&
-			getSensorManager() != null &&
-			(gyroscopeSensor != null ||
-				(gyroscopeSensor = sensorManager.getDefaultSensor(
-					Sensor.TYPE_GYROSCOPE )) != null) )
-		{
-			if( gyroscopeListener == null )
-				gyroscopeListener =
-					new GyroscopeListener( renderer );
-
-			gyroscopeListener.reset();
-
-			listeningToGyroscope = sensorManager.registerListener(
-				gyroscopeListener,
-				gyroscopeSensor,
-				getSensorDelay() );
-		}
+		return renderer;
 	}
 
-	private SensorManager getSensorManager()
+	private void init( Context context )
 	{
-		if( sensorManager != null )
-			return sensorManager;
-
-		sensorManager = (SensorManager)
-			getContext().getSystemService( Context.SENSOR_SERVICE );
-
-		return sensorManager;
-	}
-
-	private void init()
-	{
-		renderer.view = this;
-
 		setEGLContextClientVersion( 2 );
-		setRenderer( renderer );
+		setRenderer( (renderer = new ShaderRenderer( context )) );
 		setRenderMode( GLSurfaceView.RENDERMODE_CONTINUOUSLY );
-	}
-
-	private int getSensorDelay()
-	{
-		SharedPreferences p = getContext().getSharedPreferences(
-			ShaderPreferenceActivity.SHARED_PREFERENCES_NAME,
-			0 );
-		String s = p.getString(
-			ShaderPreferenceActivity.SENSOR_DELAY,
-			"Normal" );
-
-		if( s.equals( "Fastest" ) )
-			return SensorManager.SENSOR_DELAY_FASTEST;
-		else if( s.equals( "Game" ) )
-			return SensorManager.SENSOR_DELAY_GAME;
-		else if( s.equals( "UI" ) )
-			return SensorManager.SENSOR_DELAY_UI;
-
-		return SensorManager.SENSOR_DELAY_NORMAL;
 	}
 }

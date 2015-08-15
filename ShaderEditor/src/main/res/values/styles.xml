@@ -1,5 +1,19 @@
 <resources>
 	<style
-		name="Theme.ShaderEditorTheme"
-		parent="@android:style/Theme.Black"/>
+		name="AppTheme"
+		parent="Theme.AppCompat.NoActionBar">
+		<item name="background">@android:color/transparent</item>
+		<item name="colorPrimary">@color/primary</item>
+		<item name="colorPrimaryDark">@color/primary_dark</item>
+		<item name="colorAccent">@color/accent</item>
+	</style>
+	<style
+		name="Title"
+		parent="@android:style/TextAppearance.Medium">
+	</style>
+	<style
+		name="Subtitle"
+		parent="@android:style/TextAppearance.Small">
+		<item name="android:textSize">12sp</item>
+	</style>
 </resources>

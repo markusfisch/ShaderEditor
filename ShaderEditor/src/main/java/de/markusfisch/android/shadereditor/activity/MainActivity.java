@@ -1,228 +1,124 @@
 package de.markusfisch.android.shadereditor.activity;
 
 import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
-import de.markusfisch.android.shadereditor.database.ShaderDataSource;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.fragment.EditorFragment;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
-import de.markusfisch.android.shadereditor.preference.ShaderListPreference;
-import de.markusfisch.android.shadereditor.service.ShaderWallpaperService;
-import de.markusfisch.android.shadereditor.widget.LockableScrollView;
-import de.markusfisch.android.shadereditor.widget.ShaderEditor;
+import de.markusfisch.android.shadereditor.widget.TouchThruDrawerlayout;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 import de.markusfisch.android.shadereditor.R;
 
-import android.app.Activity;
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.database.Cursor;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.inputmethod.InputMethodManager;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.view.MenuInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
-import android.widget.PopupWindow;
-import android.widget.Spinner;
-import android.widget.TextView;
+import android.widget.ListView;
 
 public class MainActivity
-	extends Activity
-	implements
-		ShaderRenderer.ErrorListener,
-		ShaderRenderer.FpsListener
+	extends AppCompatActivity
+	implements EditorFragment.OnEditorListener
 {
-	private static final String STATE_SOURCE = "source";
-	private static final String STATE_SHADER = "shader";
+	public static long selectedShaderId = 0;
 
-	private ShaderDataSource dataSource;
-	private ShaderAdapter adapter;
+	private static final String SELECTED_SHADER = "selected_shader";
+
+	private static EditorFragment editorFragment;
+
+	private final Runnable updateFpsRunnable =
+		new Runnable()
+		{
+			@Override
+				public void run()
+				{
+					toolbar.setSubtitle(
+						// fps should be the same in
+						// all languages
+						fps+" fps" );
+				}
+		};
+
+	private Toolbar toolbar;
+	private TouchThruDrawerlayout drawerLayout;
+	private ActionBarDrawerToggle drawerToggle;
+	private View menuFrame;
+	private ListView listView;
+	private ShaderAdapter shaderAdapter;
 	private ShaderView shaderView;
-	private Spinner shaderSpinner;
-	private ImageButton saveButton;
-	private ImageButton sourceButton;
-	private LockableScrollView scrollView;
-	private ShaderEditor shaderEditor;
-	private PopupWindow errorPopup;
-	private TextView errorMessage;
-	private boolean errorPopupVisible = false;
-	private boolean compileOnChange = true;
-	private boolean showSource = true;
-	private boolean zoomPinch = false;
-	private float minimumTextSize;
-	private float maximumTextSize;
-	private float textSize;
-	private float zoomPinchFactor;
+	private volatile int fps;
 
 	@Override
 	public void onCreate( Bundle state )
 	{
 		super.onCreate( state );
+		setContentView( R.layout.activity_main );
 
-		requestWindowFeature( Window.FEATURE_NO_TITLE );
-		setContentView( R.layout.main_activity );
+		initStatusBar();
+		initToolbar();
+		initDrawer();
+		initListView();
+		initShaderView();
 
-		shaderView = (ShaderView)findViewById( R.id.preview );
-		shaderSpinner = (Spinner)findViewById( R.id.shader );
-		saveButton = (ImageButton)findViewById( R.id.save );
-		sourceButton = (ImageButton)findViewById( R.id.source );
-		scrollView = (LockableScrollView)findViewById( R.id.scroll );
-		shaderEditor = (ShaderEditor)findViewById( R.id.editor );
-
-		saveButton.setOnLongClickListener(
-			new View.OnLongClickListener()
-			{
-				@Override
-				public boolean onLongClick( View v )
-				{
-					compileOnChange ^= true;
-					setSaveButton();
-					savePreferences();
-
-					return true;
-				}
-			} );
-
-		shaderEditor.onTextChangedListener =
-			new ShaderEditor.OnTextChangedListener()
-			{
-				@Override
-				public void onTextChanged( String text )
-				{
-					if( compileOnChange )
-						loadShader( text );
-				}
-			};
-
-		shaderView.renderer.errorListener = this;
-		shaderView.renderer.fpsListener = this;
-
-		// create error message popup
+		if( state == null ||
+			(editorFragment = (EditorFragment)
+				getSupportFragmentManager()
+					.findFragmentByTag(
+						EditorFragment.TAG )) == null )
 		{
-			View v = ((LayoutInflater)getSystemService(
-				LAYOUT_INFLATER_SERVICE )).inflate(
-					R.layout.error_popup,
-					null );
+			editorFragment = new EditorFragment();
 
-			errorMessage = (TextView)v.findViewById( R.id.message );
-			errorPopup = new PopupWindow(
-				v,
-				LayoutParams.WRAP_CONTENT,
-				LayoutParams.WRAP_CONTENT );
-		}
-
-		float density = getResources().getDisplayMetrics().scaledDensity;
-		textSize = shaderEditor.getTextSize()/density;
-		minimumTextSize = 9f;
-		maximumTextSize = 22f;
-
-		scrollView.setOnTouchListener(
-			new View.OnTouchListener()
-			{
-				@Override
-				public boolean onTouch( View v, MotionEvent ev )
-				{
-					return pinchZoom( ev );
-				}
-			} );
-
-		dataSource = new ShaderDataSource( this );
-		dataSource.open();
-
-		adapter = new ShaderAdapter(
-			this,
-			dataSource.queryAll() );
-
-		shaderSpinner.setAdapter( adapter );
-		shaderSpinner.setOnItemSelectedListener(
-			new Spinner.OnItemSelectedListener()
-			{
-				@Override
-				public void onItemSelected(
-					AdapterView<?> parent,
-					View view,
-					int pos,
-					long id )
-				{
-					Cursor c = (Cursor)parent.getItemAtPosition( pos );
-
-					resetFps();
-
-					if( c != null )
-					{
-						String src = c.getString( c.getColumnIndex(
-							ShaderDataSource.COLUMN_SHADER ) );
-
-						shaderEditor.setTextHighlighted( src );
-
-						if( !compileOnChange )
-							loadShader( src );
-					}
-				}
-
-				@Override
-				public void onNothingSelected(
-					AdapterView<?> parent )
-				{
-					resetFps();
-				}
-			} );
-
-		registerForContextMenu( shaderSpinner );
-
-		// show/hide source
-		if( state != null &&
-			!state.getBoolean( STATE_SOURCE, showSource ) )
-			onToggleSource( null );
-
-		// set selection
-		{
-			int p = 0;
-
-			if( state != null )
-				p = state.getInt( STATE_SHADER );
-
-			if( shaderSpinner.getCount() <= p )
-				p = 0;
-
-			shaderSpinner.setSelection( p );
+			getSupportFragmentManager()
+				.beginTransaction()
+				.replace(
+					R.id.content_frame,
+					editorFragment,
+					EditorFragment.TAG )
+				.commit();
 		}
 	}
 
 	@Override
-	public void onDestroy()
+	public void onRestoreInstanceState( Bundle state )
 	{
-		super.onDestroy();
+		super.onRestoreInstanceState( state );
 
-		shaderView.renderer.errorListener = null;
-		shaderView.renderer.fpsListener = null;
-
-		// close cursor
-		if( adapter != null )
-			adapter.changeCursor( null );
+		selectedShaderId = state != null ?
+			state.getLong( SELECTED_SHADER ) :
+			0;
 	}
 
 	@Override
 	public void onSaveInstanceState( Bundle state )
 	{
 		if( state != null )
-		{
-			state.putBoolean( STATE_SOURCE, showSource );
-			state.putInt(
-				STATE_SHADER,
-				shaderSpinner.getSelectedItemPosition() );
-		}
+			state.putLong(
+				SELECTED_SHADER,
+				selectedShaderId );
 
 		super.onSaveInstanceState( state );
+	}
+
+	@Override
+	public void onPostCreate( Bundle state )
+	{
+		super.onPostCreate( state );
+
+		drawerToggle.syncState();
 	}
 
 	@Override
@@ -231,9 +127,7 @@ public class MainActivity
 		super.onResume();
 
 		shaderView.onResume();
-		dataSource.open();
-
-		loadPreferences();
+		queryShaders();
 	}
 
 	@Override
@@ -241,214 +135,377 @@ public class MainActivity
 	{
 		super.onPause();
 
-		if( shaderEditor.dirty )
-		{
-			saveShader();
-			shaderEditor.dirty = false;
-		}
-
 		shaderView.onPause();
-		dataSource.close();
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu( Menu menu )
+	public void onDestroy()
 	{
-		inflateShaderMenu( menu );
+		super.onDestroy();
 
-		return true;
+		// close last cursor
+		if( shaderAdapter != null )
+			shaderAdapter.changeCursor( null );
+	}
+
+	@Override
+	public void onConfigurationChanged( Configuration newConfig )
+	{
+		super.onConfigurationChanged( newConfig );
+
+		drawerToggle.onConfigurationChanged( newConfig );
+	}
+
+	@Override
+	public boolean onKeyDown( int keyCode, KeyEvent e )
+	{
+		if( keyCode == KeyEvent.KEYCODE_MENU )
+		{
+			if( drawerLayout.isDrawerOpen( menuFrame ) )
+				closeDrawer();
+			else
+				openDrawer();
+
+			return true;
+		}
+
+		return super.onKeyDown( keyCode, e );
 	}
 
 	@Override
 	public boolean onOptionsItemSelected( MenuItem item )
-	{
-		if( shaderMenuItemSelected( item ) )
-			return true;
-
-		return super.onOptionsItemSelected( item );
-	}
-
-	@Override
-	public void onCreateContextMenu(
-		ContextMenu menu,
-		View v,
-		ContextMenuInfo menuInfo )
-	{
-		super.onCreateContextMenu( menu, v, menuInfo );
-
-		inflateShaderMenu( menu );
-	}
-
-	@Override
-	public boolean onContextItemSelected( MenuItem item )
-	{
-		if( shaderMenuItemSelected( item ) )
-			return true;
-
-		return super.onContextItemSelected( item );
-	}
-
-	@Override
-	public void onShaderError( final String error )
-	{
-		// this call comes from the GL thread
-		runOnUiThread(
-			new Runnable()
-			{
-				public void run()
-				{
-					showError( error );
-				}
-			} );
-	}
-
-	@Override
-	public void onShaderFramesPerSecond( final int fps )
-	{
-		// this call comes from the GL thread
-		runOnUiThread(
-			new Runnable()
-			{
-				public void run()
-				{
-					updateFps( fps );
-				}
-			} );
-	}
-
-	public void onInsertTab( View v )
-	{
-		int start = shaderEditor.getSelectionStart();
-		int end = shaderEditor.getSelectionEnd();
-
-		shaderEditor.getText().replace(
-			Math.min( start, end ),
-			Math.max( start, end ),
-			"\t",
-			0,
-			1 );
-	}
-
-	public void onSaveShader( View v )
-	{
-		saveShader();
-	}
-
-	public void onToggleSource( View v )
-	{
-		if( shaderEditor.errorLine > 0 )
-		{
-			if( errorPopupVisible )
-				errorPopup.dismiss();
-			else
-				errorPopup.showAsDropDown(
-					sourceButton,
-					getWindow().getDecorView().getWidth(),
-					0 );
-
-			errorPopupVisible ^= true;
-
-			if( showSource )
-				return;
-		}
-
-		scrollView.setVisibility( showSource ?
-			View.GONE :
-			View.VISIBLE );
-
-		if( showSource )
-		{
-			InputMethodManager m =
-				(InputMethodManager)getSystemService(
-					Context.INPUT_METHOD_SERVICE );
-
-			m.hideSoftInputFromWindow(
-				shaderEditor.getWindowToken(),
-				0 );
-		}
-
-		showSource ^= true;
-
-		if( shaderEditor.errorLine < 1 )
-			setSourceButtonDefault();
-	}
-
-	public void onOpenMenu( View v )
-	{
-		openContextMenu( shaderSpinner );
-	}
-
-	private void inflateShaderMenu( Menu menu )
-	{
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate( R.menu.menu_main, menu );
-	}
-
-	private boolean shaderMenuItemSelected( MenuItem item )
 	{
 		switch( item.getItemId() )
 		{
 			case R.id.add_shader:
 				addShader();
 				return true;
+			case R.id.save_shader:
+				saveShader( selectedShaderId );
+				return true;
 			case R.id.duplicate_shader:
-				duplicateShader();
+				duplicateShader( selectedShaderId );
 				return true;
 			case R.id.delete_shader:
-				deleteShader();
-				return true;
-			case R.id.save_shader:
-				saveShader();
-				return true;
-			case R.id.share_shader:
-				shareShader();
+				deleteShader( selectedShaderId );
 				return true;
 			case R.id.update_wallpaper:
-				updateWallpaper();
-				return true;
-			case R.id.preferences:
-				showPreferences();
+				updateWallpaper( selectedShaderId );
 				return true;
 		}
 
-		return false;
+		return super.onOptionsItemSelected( item );
 	}
 
-	private void setSaveButton()
+	@Override
+	public void onRunCode( String code )
 	{
-		saveButton.setImageResource( compileOnChange ?
-			R.drawable.ic_save :
-			R.drawable.ic_save_play );
+		setFragmentShader( code );
 	}
 
-	private void setSourceButtonError()
+	@Override
+	public void onCodeHidden( boolean hidden )
 	{
-		sourceButton.setImageResource(
-			R.drawable.ic_show_error );
+		drawerLayout.setTouchThru( hidden );
 	}
 
-	private void setSourceButtonDefault()
+	@TargetApi( 22 )
+	private void initStatusBar()
 	{
-		sourceButton.setImageResource( showSource ?
-			R.drawable.ic_hide_source :
-			R.drawable.ic_show_source );
+		// below status bar settings are available
+		// from Lollipop on only
+		if( Build.VERSION.SDK_INT <
+			Build.VERSION_CODES.LOLLIPOP )
+			return;
+
+		Window window = getWindow();
+
+		window.getDecorView().setSystemUiVisibility(
+			View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+			View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN );
+		window.setStatusBarColor( 0x88000000 );
+
+		findViewById( R.id.main_layout ).setPadding(
+			0,
+			getStatusBarHeight( getResources() ),
+			0,
+			0 );
+	}
+
+	private static int getStatusBarHeight( Resources res )
+	{
+		int id = res.getIdentifier(
+			"status_bar_height",
+			"dimen",
+			"android" );
+
+		return id > 0 ?
+			res.getDimensionPixelSize( id ) :
+			0;
+	}
+
+	private void initToolbar()
+	{
+		toolbar = (Toolbar)findViewById( R.id.toolbar );
+		setSupportActionBar( toolbar );
+	}
+
+	private void initDrawer()
+	{
+		drawerLayout = (TouchThruDrawerlayout)findViewById(
+			R.id.drawer_layout );
+
+		menuFrame = findViewById( R.id.menu_frame );
+
+		drawerToggle =
+			new ActionBarDrawerToggle(
+				this,
+				drawerLayout,
+				toolbar,
+				R.string.drawer_open,
+				R.string.drawer_close )
+			{
+				public void onDrawerClosed( View view )
+				{
+					supportInvalidateOptionsMenu();
+				}
+
+				public void onDrawerOpened( View view )
+				{
+					supportInvalidateOptionsMenu();
+				}
+			};
+
+		drawerToggle.setDrawerIndicatorEnabled( true );
+		drawerLayout.setDrawerListener( drawerToggle );
+
+		initSettingsButton();
+	}
+
+	private void initSettingsButton()
+	{
+		View view = findViewById( R.id.settings );
+
+		if( view == null )
+			return;
+
+		view.setOnClickListener(
+			new View.OnClickListener()
+			{
+				@Override
+				public void onClick( View v )
+				{
+					startActivity( new Intent(
+						MainActivity.this,
+						PreferencesActivity.class ) );
+
+					closeDrawer();
+				}
+			} );
+	}
+
+	private void initListView()
+	{
+		LayoutInflater inflater = getLayoutInflater();
+
+		listView = (ListView)findViewById( R.id.shaders );
+		listView.setEmptyView( findViewById( R.id.no_shaders ) );
+		listView.setOnItemClickListener(
+			new AdapterView.OnItemClickListener()
+			{
+				@Override
+				public void onItemClick(
+					AdapterView<?> parent,
+					View view,
+					int position,
+					long id )
+				{
+					selectShader( id );
+					closeDrawer();
+				}
+			} );
+	}
+
+	private void initShaderView()
+	{
+		shaderView = (ShaderView)findViewById( R.id.preview );
+
+		shaderView.getRenderer().setOnRendererListener(
+			new ShaderRenderer.OnRendererListener()
+			{
+				@Override
+				public void onFramesPerSecond( int fps )
+				{
+					// running in the GL thread
+					MainActivity.this.fps = fps;
+					toolbar.post( updateFpsRunnable );
+				}
+
+				@Override
+				public void onShaderError( String error )
+				{
+					// running in the GL thread
+					postSetError( error );
+				}
+			} );
+	}
+
+	private void postSetError( final String error )
+	{
+		shaderView.post(
+			new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					editorFragment.setError( error );
+				}
+			} );
+	}
+
+	private void queryShaders()
+	{
+		if( !ShaderEditorApplication.dataSource.isOpen() )
+		{
+			listView.postDelayed(
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						queryShaders();
+					}
+				},
+				500 );
+
+			return;
+		}
+
+		new AsyncTask<Void, Void, Cursor>()
+		{
+			@Override
+			protected Cursor doInBackground( Void... nothings )
+			{
+				return ShaderEditorApplication
+					.dataSource
+					.queryShaders();
+			}
+
+			@Override
+			protected void onPostExecute( Cursor cursor )
+			{
+				updateShaderAdapter( cursor );
+			}
+		}.execute();
+	}
+
+	private void updateShaderAdapter( Cursor cursor )
+	{
+		if( cursor == null ||
+			cursor.getCount() < 1 )
+		{
+			if( cursor != null )
+				cursor.close();
+
+			showNoShadersAvailable();
+			return;
+		}
+
+		if( shaderAdapter != null )
+		{
+			shaderAdapter.changeCursor( cursor );
+			return;
+		}
+
+		shaderAdapter = new ShaderAdapter(
+			this,
+			cursor );
+
+		selectShader( selectedShaderId );
+
+		listView.setAdapter( shaderAdapter );
+	}
+
+	private void showNoShadersAvailable()
+	{
+		View progressView;
+		View textView;
+
+		if( (progressView = findViewById(
+				R.id.progress_bar )) == null ||
+			(textView = findViewById(
+				R.id.no_shaders_message )) == null )
+			return;
+
+		progressView.setVisibility( View.GONE );
+		textView.setVisibility( View.VISIBLE );
+	}
+
+	private void closeDrawer()
+	{
+		if( drawerLayout == null )
+			return;
+
+		drawerLayout.closeDrawer( menuFrame );
+	}
+
+	private void openDrawer()
+	{
+		if( drawerLayout == null )
+			return;
+
+		drawerLayout.openDrawer( menuFrame );
+	}
+
+	private void saveShader( long id )
+	{
+		String fragmentShader = editorFragment.getText();
+		byte thumbnail[] = shaderView.getRenderer().getThumbnail();
+
+		if( id > 0 )
+			ShaderEditorApplication
+				.dataSource
+				.update(
+					id,
+					fragmentShader,
+					thumbnail );
+		else
+			ShaderEditorApplication
+				.dataSource
+				.insert(
+					fragmentShader,
+					thumbnail );
+
+		// update the thumbnails
+		queryShaders();
 	}
 
 	private void addShader()
 	{
-		selectNewShader( dataSource.insert() );
+		selectShader(
+			ShaderEditorApplication
+				.dataSource
+				.insert() );
 	}
 
-	private void duplicateShader()
+	private void duplicateShader( long id )
 	{
-		selectNewShader( dataSource.insert(
-			shaderEditor.getText().toString(),
-			shaderView.renderer.getThumbnail() ) );
+		if( id < 0 )
+			return;
+
+		saveShader( id );
+
+		selectShader(
+			ShaderEditorApplication
+				.dataSource
+				.insert(
+					editorFragment.getText(),
+					shaderView.getRenderer().getThumbnail() ) );
 	}
 
-	private void deleteShader()
+	private void deleteShader( final long id )
 	{
-		if( shaderSpinner.getCount() < 2 )
+		if( id < 0 )
 			return;
 
 		DialogInterface.OnClickListener listener =
@@ -459,338 +516,89 @@ public class MainActivity
 					DialogInterface dialog,
 					int which )
 				{
-					switch( which )
-					{
-						case DialogInterface.BUTTON_POSITIVE:
-							dataSource.remove(
-								shaderSpinner.getSelectedItemId() );
+					if( which != DialogInterface.BUTTON_POSITIVE )
+						return;
 
-							updateAdapter();
-							break;
-					}
+					ShaderEditorApplication
+						.dataSource
+						.remove( id );
+
+					selectShader( 0 );
 				}
 			};
 
 		new AlertDialog.Builder( this )
 			.setMessage( R.string.are_you_sure )
-			.setPositiveButton( R.string.yes, listener )
-			.setNegativeButton( R.string.no, listener )
+			.setPositiveButton( android.R.string.yes, listener )
+			.setNegativeButton( android.R.string.no, listener )
 			.show();
 	}
 
-	private void saveShader()
+	private void updateWallpaper( long id )
 	{
-		String src = shaderEditor.getCleanText();
+		if( id < 0 )
+			return;
 
-		if( !compileOnChange )
-		{
-			loadShader( src );
-			shaderEditor.refresh();
-		}
+		if( editorFragment.isModified() )
+			saveShader( id );
 
-		dataSource.update(
-			shaderSpinner.getSelectedItemId(),
-			src,
-			shaderView.renderer.getThumbnail() );
+		// the onSharedPreferenceChanged() listener
+		// in WallpaperService is only triggered if
+		// the value would change
+		ShaderEditorApplication
+			.preferences
+			.setWallpaperShader( 0 );
 
-		updateAdapter();
+		ShaderEditorApplication
+			.preferences
+			.setWallpaperShader( id );
 	}
 
-	private void shareShader()
+	private void selectShader( long id )
 	{
-		Intent i = new Intent();
+		if( id < 1 &&
+			shaderAdapter.getCount() > 0 )
+			id = shaderAdapter.getItemId( 0 );
 
-		i.setAction( Intent.ACTION_SEND );
-		i.putExtra(
-			Intent.EXTRA_TEXT,
-			shaderEditor.getText().toString() );
-		i.setType( "text/plain" );
-
-		startActivity( Intent.createChooser(
-			i,
-			getResources().getText( R.string.share_shader ) ) );
+		selectedShaderId = id;
+		loadShader( id );
+		queryShaders();
 	}
 
-	private void updateWallpaper()
-	{
-		ShaderRenderer renderer = ShaderWallpaperService.renderer;
-
-		if( renderer != null )
-			renderer.fragmentShader = shaderEditor.getCleanText();
-
-		ShaderListPreference.saveShader(
-			getSharedPreferences(),
-			shaderSpinner.getSelectedItemId() );
-	}
-
-	private void showPreferences()
-	{
-		startActivity( new Intent(
-			this,
-			ShaderPreferenceActivity.class ) );
-	}
-
-	private void updateAdapter()
-	{
-		adapter.changeCursor( dataSource.queryAll() );
-		resetFps();
-	}
-
-	private void selectNewShader( long id )
+	private void loadShader( long id )
 	{
 		if( id < 1 )
 			return;
 
-		updateAdapter();
-		setSpinnerItemById( shaderSpinner, id );
-	}
+		Cursor cursor = ShaderEditorApplication
+			.dataSource
+			.getShader( id );
 
-	private static void setSpinnerItemById( Spinner spinner, long id )
-	{
-		for( int n = 0, l = spinner.getCount();
-			n < l;
-			++n )
-			if( spinner.getItemIdAtPosition( n ) == id )
-			{
-				spinner.setSelection( n );
-				return;
-			}
-	}
-
-	private SharedPreferences getSharedPreferences()
-	{
-		return getSharedPreferences(
-			ShaderPreferenceActivity.SHARED_PREFERENCES_NAME,
-			0 );
-	}
-
-	private void saveStringPreference(
-		SharedPreferences p,
-		String key,
-		String value )
-	{
-		SharedPreferences.Editor e = p.edit();
-
-		e.putString( key, value );
-		e.commit();
-	}
-
-	private void saveTextSize()
-	{
-		saveStringPreference(
-			getSharedPreferences(),
-			ShaderPreferenceActivity.TEXT_SIZE,
-			String.valueOf( textSize ) );
-	}
-
-	private void setTextSize()
-	{
-		shaderEditor.setTextSize(
-			android.util.TypedValue.COMPLEX_UNIT_SP,
-			textSize );
-	}
-
-	private void validateTextSize()
-	{
-		if( textSize < minimumTextSize )
-			textSize = minimumTextSize;
-		else if( textSize > maximumTextSize )
-			textSize = maximumTextSize;
-	}
-
-	private void loadPreferences()
-	{
-		SharedPreferences p = getSharedPreferences();
-
-		compileOnChange = p.getBoolean(
-			ShaderPreferenceActivity.COMPILE_ON_CHANGE,
-			true );
-		setSaveButton();
-
-		shaderView.renderer.showFpsGauge = p.getBoolean(
-			ShaderPreferenceActivity.SHOW_FPS_GAUGE,
-			false );
-
-		try
-		{
-			shaderEditor.updateDelay = Integer.parseInt( p.getString(
-				ShaderPreferenceActivity.UPDATE_DELAY,
-				"1000" ) );
-
-			if( shaderEditor.updateDelay < 500 )
-				shaderEditor.updateDelay = 500;
-		}
-		catch( Exception ex )
-		{
-			shaderEditor.updateDelay = 1000;
-
-			saveStringPreference(
-				p,
-				ShaderPreferenceActivity.UPDATE_DELAY,
-				String.valueOf( shaderEditor.updateDelay ) );
-		}
-
-		try
-		{
-			textSize = Float.parseFloat( p.getString(
-				ShaderPreferenceActivity.TEXT_SIZE,
-				"9" ) );
-
-			validateTextSize();
-		}
-		catch( Exception ex )
-		{
-			textSize = 1000;
-			saveTextSize();
-		}
-
-		setTextSize();
-	}
-
-	private void savePreferences()
-	{
-		SharedPreferences.Editor e = getSharedPreferences().edit();
-
-		e.putBoolean(
-			ShaderPreferenceActivity.COMPILE_ON_CHANGE,
-			compileOnChange );
-		e.commit();
-	}
-
-	private void loadShader( String source )
-	{
-		setSourceButtonDefault();
-		errorPopup.dismiss();
-		errorPopupVisible = false;
-		shaderEditor.errorLine = 0;
-
-		shaderView.onPause();
-		shaderView.renderer.fragmentShader = source;
-		shaderView.onResume();
-	}
-
-	private void showError( String message )
-	{
-		if( message == null )
+		if( DataSource.closeIfEmpty( cursor ) )
 			return;
 
-		int f;
-
-		if( (f = message.indexOf( "ERROR: 0:" )) > -1 )
-			f += 9;
-		else if( (f = message.indexOf( "0:" )) > -1 )
-			f += 2;
-
-		if( f > -1 )
-		{
-			int t;
-
-			if( (t = message.indexOf( ":", f )) > -1 )
-			{
-				try
-				{
-					shaderEditor.errorLine = Integer.valueOf(
-						message.substring( f, t ).trim() );
-				}
-				catch( Exception e )
-				{
-					e.printStackTrace();
-				}
-
-				f = ++t;
-			}
-
-			if( (t = message.indexOf( "\n", f )) < 0 )
-				t = message.length();
-
-			message = message.substring( f, t ).trim();
-		}
-
-		if( message != null &&
-			message.length() > 0 )
-		{
-			errorMessage.setText( message );
-			setSourceButtonError();
-		}
-
-		shaderEditor.refresh();
+		loadShader( cursor );
+		cursor.close();
 	}
 
-	private void resetFps()
+	private void loadShader( Cursor cursor )
 	{
-		shaderView.renderer.resetFps();
-	}
-
-	private void updateFps( int fps )
-	{
-		// It's better to not save the view returned for R.id.fps
-		// because it's impossible to know when Spinner does change
-		// the selected view; especially when the adapter changes
-		// which may update the spinner not immediately.
-		// Anyway, getSelectedView() and findViewById() are just
-		// lookups and this method is only called every
-		// ShaderRenderer.FPS_UPDATE_FREQUENCY milliseconds and if
-		// fps did actually change so that shoudln't be problem
-		View v = shaderSpinner.getSelectedView();
-		TextView tv;
-
-		if( v == null ||
-			(tv = (TextView)v.findViewById( R.id.fps )) == null )
+		if( cursor == null )
 			return;
 
-		tv.setText( String.valueOf( fps )+" fps" );
+		String fragmentShader = cursor.getString(
+			cursor.getColumnIndex( DataSource.SHADERS_SHADER ) );
+		String modified = cursor.getString( cursor.getColumnIndex(
+			DataSource.SHADERS_MODIFIED ) );
+
+		toolbar.setTitle( modified );
+		editorFragment.setText( fragmentShader );
+
+		setFragmentShader( fragmentShader );
 	}
 
-	private static float getDistanceBetweenTouches( MotionEvent ev )
+	private void setFragmentShader( String code )
 	{
-		float xx = ev.getX( 1 )-ev.getX( 0 );
-		float yy = ev.getY( 1 )-ev.getY( 0 );
-
-		return (float)Math.sqrt( xx*xx+yy*yy );
-	}
-
-	private boolean pinchZoom( MotionEvent ev )
-	{
-		switch( ev.getAction() )
-		{
-			case MotionEvent.ACTION_CANCEL:
-			case MotionEvent.ACTION_UP:
-				shaderEditor.setOnLongClickListener( null );
-				scrollView.setScrollingEnabled( true );
-				zoomPinch = false;
-				break;
-			case MotionEvent.ACTION_MOVE:
-				if( ev.getPointerCount() == 2 )
-				{
-					float d = getDistanceBetweenTouches( ev );
-
-					if( !zoomPinch )
-					{
-						shaderEditor.setOnLongClickListener(
-							new View.OnLongClickListener()
-							{
-								@Override
-								public boolean onLongClick( View v )
-								{
-									return true;
-								}
-							} );
-						scrollView.setScrollingEnabled( false );
-
-						zoomPinchFactor = textSize/d;
-						zoomPinch = true;
-						break;
-					}
-
-					textSize = zoomPinchFactor*d;
-
-					validateTextSize();
-					saveTextSize();
-					setTextSize();
-				}
-				break;
-		}
-
-		return zoomPinch;
+		shaderView.setFragmentShader( code );
 	}
 }

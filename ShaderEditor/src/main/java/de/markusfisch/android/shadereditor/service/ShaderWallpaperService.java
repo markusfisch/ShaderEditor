@@ -1,23 +1,18 @@
 package de.markusfisch.android.shadereditor.service;
 
-import de.markusfisch.android.shadereditor.activity.ShaderPreferenceActivity;
-import de.markusfisch.android.shadereditor.database.ShaderDataSource;
-import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
-import de.markusfisch.android.shadereditor.preference.ShaderListPreference;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
-import de.markusfisch.android.shadereditor.R;
 
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.preference.PreferenceManager;
 import android.service.wallpaper.WallpaperService;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
 public class ShaderWallpaperService extends WallpaperService
 {
-	public static ShaderRenderer renderer;
-
 	@Override
 	public final Engine onCreateEngine()
 	{
@@ -28,62 +23,31 @@ public class ShaderWallpaperService extends WallpaperService
 		extends Engine
 		implements SharedPreferences.OnSharedPreferenceChangeListener
 	{
-		private ShaderWallpaperView view = null;
-		private String fragmentShader = null;
+		private ShaderWallpaperView view;
+		private String fragmentShader;
 
 		public ShaderWallpaperEngine()
 		{
 			super();
 
-			PreferenceManager.setDefaultValues(
-				ShaderWallpaperService.this,
-				R.xml.preferences,
-				false );
+			ShaderEditorApplication
+				.preferences
+				.getSharedPreferences()
+				.registerOnSharedPreferenceChangeListener(
+					this );
 
-			SharedPreferences p =
-				ShaderWallpaperService.this.getSharedPreferences(
-					ShaderPreferenceActivity.SHARED_PREFERENCES_NAME,
-					0 );
-
-			p.registerOnSharedPreferenceChangeListener( this );
-			onSharedPreferenceChanged( p, null );
+			setShader();
 
 			setTouchEventsEnabled( true );
 		}
 
 		@Override
 		public void onSharedPreferenceChanged(
-			SharedPreferences p,
+			SharedPreferences preferences,
 			String key )
 		{
-			ShaderDataSource dataSource = new ShaderDataSource(
-				ShaderWallpaperService.this );
-
-			dataSource.open();
-
-			final long id = Long.parseLong(
-				p.getString( ShaderPreferenceActivity.SHADER, "1" ) );
-
-			if( (fragmentShader = dataSource.getShader( id )) == null )
-			{
-				Cursor c = dataSource.getRandomShader();
-
-				if( c != null )
-				{
-					fragmentShader = c.getString( c.getColumnIndex(
-						ShaderDataSource.COLUMN_SHADER ) );
-
-					ShaderListPreference.saveShader(
-						p,
-						c.getLong( c.getColumnIndex(
-							ShaderDataSource.COLUMN_ID ) ) );
-				}
-			}
-
-			if( view != null )
-				view.renderer.fragmentShader = fragmentShader;
-
-			dataSource.close();
+			if( Preferences.WALLPAPER_SHADER.equals( key ) )
+				setShader();
 		}
 
 		@Override
@@ -92,9 +56,8 @@ public class ShaderWallpaperService extends WallpaperService
 			super.onCreate( holder );
 
 			view = new ShaderWallpaperView();
-			view.renderer.fragmentShader = fragmentShader;
-
-			renderer = view.renderer;
+			view.getRenderer().setFragmentShader(
+				fragmentShader );
 		}
 
 		@Override
@@ -104,8 +67,6 @@ public class ShaderWallpaperService extends WallpaperService
 
 			view.destroy();
 			view = null;
-
-			renderer = null;
 		}
 
 		@Override
@@ -127,7 +88,9 @@ public class ShaderWallpaperService extends WallpaperService
 		{
 			super.onTouchEvent( e );
 
-			view.renderer.onTouch( e.getX(), e.getY() );
+			view.getRenderer().touchAt(
+				e.getX(),
+				e.getY() );
 		}
 
 		@Override
@@ -139,8 +102,52 @@ public class ShaderWallpaperService extends WallpaperService
 			int xPixels,
 			int yPixels )
 		{
-			view.renderer.offset[0] = xOffset;
-			view.renderer.offset[1] = yOffset;
+			view.getRenderer().setOffset(
+				xOffset,
+				yOffset );
+		}
+
+		private void setShader()
+		{
+			final long id = ShaderEditorApplication
+				.preferences
+				.getWallpaperShader();
+
+			Cursor cursor = ShaderEditorApplication
+				.dataSource
+				.getShader( id );
+
+			boolean isRandom = false;
+
+			while( cursor == null ||
+				!cursor.moveToFirst() )
+			{
+				if( cursor != null )
+					cursor.close();
+
+				if( isRandom )
+					return;
+
+				isRandom = true;
+				cursor = ShaderEditorApplication
+					.dataSource
+					.getRandomShader();
+			}
+
+			fragmentShader = cursor.getString(
+				cursor.getColumnIndex(
+					DataSource.SHADERS_SHADER ) );
+
+			if( isRandom )
+				ShaderEditorApplication
+					.preferences
+					.setWallpaperShader( cursor.getLong(
+						cursor.getColumnIndex(
+							DataSource.SHADERS_ID ) ) );
+
+			if( view != null )
+				view.getRenderer().setFragmentShader(
+					fragmentShader );
 		}
 
 		private class ShaderWallpaperView extends ShaderView
@@ -153,7 +160,9 @@ public class ShaderWallpaperService extends WallpaperService
 			@Override
 			public final SurfaceHolder getHolder()
 			{
-				return ShaderWallpaperEngine.this.getSurfaceHolder();
+				return ShaderWallpaperEngine
+					.this
+					.getSurfaceHolder();
 			}
 
 			public void destroy()

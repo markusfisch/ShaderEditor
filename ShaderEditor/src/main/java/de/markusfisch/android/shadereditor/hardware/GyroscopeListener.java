@@ -1,40 +1,34 @@
 package de.markusfisch.android.shadereditor.hardware;
 
-import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
-
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-public class GyroscopeListener implements SensorEventListener
+public class GyroscopeListener extends AbstractListener
 {
-	private static final float EPSILON = 1.0f;
+	public final float rotation[] = new float[]{ 0, 0, 0 };
 
-	private ShaderRenderer renderer;
-	private static final float NS2S = 1.0f/1000000000.0f;
-	private final float[] deltaRotationVector = new float[4];
-	private long last = 0;
+	private static final float NS2S = 1f/1000000000f;
+	private static final float EPSILON = 1f;
 
-	public GyroscopeListener( ShaderRenderer r )
+	private final float deltaRotationVector[] = new float[4];
+	private final float deltaRotationMatrix[] = new float[9];
+
+	public GyroscopeListener( Context context )
 	{
-		renderer = r;
+		super( context );
 	}
 
-	public void reset()
+	public boolean register()
 	{
-		last = 0;
-	}
-
-	@Override
-	public final void onAccuracyChanged( Sensor sensor, int accuracy )
-	{
+		return register( Sensor.TYPE_GYROSCOPE );
 	}
 
 	@Override
-	public final void onSensorChanged( SensorEvent event )
+	public void onSensorChanged( SensorEvent event )
 	{
-		if( last != 0 )
+		if( last > 0 )
 		{
 			final float dT = (event.timestamp-last)*NS2S;
 
@@ -62,17 +56,16 @@ public class GyroscopeListener implements SensorEventListener
 			deltaRotationVector[1] = sinThetaOverTwo*axisY;
 			deltaRotationVector[2] = sinThetaOverTwo*axisZ;
 			deltaRotationVector[3] = cosThetaOverTwo;
+
+			SensorManager.getRotationMatrixFromVector(
+				deltaRotationMatrix,
+				deltaRotationVector );
+
+			rotation[0] += deltaRotationMatrix[0];
+			rotation[1] += deltaRotationMatrix[1];
+			rotation[2] += deltaRotationMatrix[2];
 		}
 
 		last = event.timestamp;
-
-		float[] deltaRotationMatrix = new float[9];
-		SensorManager.getRotationMatrixFromVector(
-			deltaRotationMatrix,
-			deltaRotationVector );
-
-		renderer.rotation[0] += deltaRotationMatrix[0];
-		renderer.rotation[1] += deltaRotationMatrix[1];
-		renderer.rotation[2] += deltaRotationMatrix[2];
 	}
 }

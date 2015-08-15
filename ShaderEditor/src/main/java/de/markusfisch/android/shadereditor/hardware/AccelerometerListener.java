@@ -1,62 +1,55 @@
 package de.markusfisch.android.shadereditor.hardware;
 
-import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
-
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 
-public class AccelerometerListener implements SensorEventListener
+public class AccelerometerListener extends AbstractListener
 {
-	private ShaderRenderer renderer;
-	private long last = 0;
+	public final float gravity[] = new float[]{ 0, 0, 0 };
+	public final float linear[] = new float[]{ 0, 0, 0 };
 
-	public AccelerometerListener( ShaderRenderer r )
+	public AccelerometerListener( Context context )
 	{
-		renderer = r;
+		super( context );
 	}
 
-	public void reset()
+	public boolean register()
 	{
-		last = 0;
-	}
-
-	@Override
-	public final void onAccuracyChanged( Sensor sensor, int accuracy )
-	{
+		return register( Sensor.TYPE_ACCELEROMETER );
 	}
 
 	@Override
-	public final void onSensorChanged( SensorEvent event )
+	public void onSensorChanged( SensorEvent event )
 	{
 		if( last > 0 )
 		{
 			final float a = .8f;
 			final float b = 1f-a;
 
-			renderer.gravity[0] =
-				a*renderer.gravity[0]+
+			gravity[0] =
+				a*gravity[0]+
 				b*event.values[0];
 
-			renderer.gravity[1] =
-				a*renderer.gravity[1]+
+			gravity[1] =
+				a*gravity[1]+
 				b*event.values[1];
 
-			renderer.gravity[2] =
-				a*renderer.gravity[2]+
+			gravity[2] =
+				a*gravity[2]+
 				b*event.values[2];
 
-			renderer.linear[0] =
+			linear[0] =
 				event.values[0]-
-				renderer.gravity[0];
+				gravity[0];
 
-			renderer.linear[1] =
+			linear[1] =
 				event.values[1]-
-				renderer.gravity[1];
+				gravity[1];
 
-			renderer.linear[2] =
+			linear[2] =
 				event.values[2]-
-				renderer.gravity[2];
+				gravity[2];
 		}
 
 		last = event.timestamp;

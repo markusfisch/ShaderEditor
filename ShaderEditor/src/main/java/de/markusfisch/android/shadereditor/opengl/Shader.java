@@ -4,9 +4,72 @@ import android.opengl.GLES20;
 
 public class Shader
 {
-	public static String lastError;
+	private static String lastError;
 
-	public static int loadShader( int type, String src )
+	public static String getLastError()
+	{
+		return lastError;
+	}
+
+	public static int loadProgram(
+		String vertexShader,
+		String fragmentShader )
+	{
+		int vs, fs, p = 0;
+
+		if( (vs = compileShader(
+			GLES20.GL_VERTEX_SHADER,
+			vertexShader )) != 0 )
+		{
+			if( (fs = compileShader(
+				GLES20.GL_FRAGMENT_SHADER,
+				fragmentShader )) != 0 )
+			{
+				p = linkProgram( vs, fs );
+
+				// mark shader objects as deleted so they get
+				// deleted as soon as glDeleteProgram() does
+				// detach them
+				GLES20.glDeleteShader( fs );
+			}
+
+			// same as above
+			GLES20.glDeleteShader( vs );
+		}
+
+		return p;
+	}
+
+	private static int linkProgram( int... shaders )
+	{
+		int p = GLES20.glCreateProgram();
+
+		if( p == 0 )
+			return 0;
+
+		for( int n = 0, l = shaders.length; n < l; ++n )
+			GLES20.glAttachShader( p, shaders[n] );
+
+		GLES20.glLinkProgram( p );
+
+		int[] linkStatus = new int[1];
+		GLES20.glGetProgramiv(
+			p,
+			GLES20.GL_LINK_STATUS,
+			linkStatus, 0 );
+
+		if( linkStatus[0] != GLES20.GL_TRUE )
+		{
+			lastError = GLES20.glGetProgramInfoLog( p );
+
+			GLES20.glDeleteProgram( p );
+			p = 0;
+		}
+
+		return p;
+	}
+
+	private static int compileShader( int type, String src )
 	{
 		int s = GLES20.glCreateShader( type );
 
@@ -32,53 +95,5 @@ public class Shader
 		}
 
 		return s;
-	}
-
-	public static int loadProgram(
-		String vertexShader,
-		String fragmentShader )
-	{
-		int vs, fs, p = 0;
-
-		if( (vs = loadShader(
-			GLES20.GL_VERTEX_SHADER,
-			vertexShader )) != 0 )
-		{
-			if( (fs = loadShader(
-				GLES20.GL_FRAGMENT_SHADER,
-				fragmentShader )) != 0 )
-			{
-				if( (p = GLES20.glCreateProgram()) != 0 )
-				{
-					GLES20.glAttachShader( p, vs );
-					GLES20.glAttachShader( p, fs );
-					GLES20.glLinkProgram( p );
-
-					int[] linkStatus = new int[1];
-					GLES20.glGetProgramiv(
-						p,
-						GLES20.GL_LINK_STATUS,
-						linkStatus, 0 );
-
-					if( linkStatus[0] != GLES20.GL_TRUE )
-					{
-						lastError = GLES20.glGetProgramInfoLog( p );
-
-						GLES20.glDeleteProgram( p );
-						p = 0;
-					}
-				}
-
-				// mark shader objects as deleted so they get
-				// deleted as soon as glDeleteProgram() does
-				// detach them
-				GLES20.glDeleteShader( fs );
-			}
-
-			// same as above
-			GLES20.glDeleteShader( vs );
-		}
-
-		return p;
 	}
 }

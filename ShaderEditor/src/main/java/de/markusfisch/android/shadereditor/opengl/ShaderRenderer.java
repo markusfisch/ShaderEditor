@@ -1,16 +1,19 @@
 package de.markusfisch.android.shadereditor.opengl;
 
-import de.markusfisch.android.shadereditor.widget.ShaderView;
+import de.markusfisch.android.shadereditor.hardware.AccelerometerListener;
+import de.markusfisch.android.shadereditor.hardware.GyroscopeListener;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.BatteryManager;
-import android.os.SystemClock;
 
 import java.io.ByteArrayOutputStream;
+import java.lang.IllegalArgumentException;
+import java.lang.InterruptedException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -19,33 +22,33 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class ShaderRenderer implements GLSurfaceView.Renderer
 {
-	public interface ErrorListener
+	public interface OnRendererListener
 	{
 		public void onShaderError( String error );
+		public void onFramesPerSecond( int fps );
 	}
 
-	public interface FpsListener
-	{
-		public void onShaderFramesPerSecond( int fps );
-	}
-
-	public volatile ErrorListener errorListener = null;
-	public volatile FpsListener fpsListener = null;
-	public volatile String fragmentShader = null;
-	public volatile ShaderView view = null;
-	public volatile float gravity[] = new float[]{ 0, 0, 0 };
-	public volatile float linear[] = new float[]{ 0, 0, 0 };
-	public volatile float rotation[] = new float[]{ 0, 0, 0 };
-	public volatile float offset[] = new float[]{ 0, 0 };
-	public volatile boolean showFpsGauge = false;
-
-	private static final int FPS_UPDATE_FREQUENCY = 200;
+	private static final float NANO = 1000000000f;
+	private static final long FPS_UPDATE_FREQUENCY = 200000000;
 	private static final String vertexShader =
 		"attribute vec2 position;"+
 		"void main()"+
 		"{"+
 			"gl_Position = vec4( position, 0., 1. );"+
 		"}";
+
+	private final int fb[] = new int[]{ 0, 0 };
+	private final int tx[] = new int[]{ 0, 0 };
+	private final float resolution[] = new float[]{ 0, 0 };
+	private final float mouse[] = new float[]{ 0, 0 };
+	private final float touch[] = new float[]{ 0, 0 };
+	private final float offset[] = new float[]{ 0, 0 };
+
+	private Context context;
+	private AccelerometerListener accelerometerListener;
+	private GyroscopeListener gyroscopeListener;
+	private OnRendererListener onRendererListener;
+	private String fragmentShader;
 	private ByteBuffer vertexBuffer;
 	private int program = 0;
 	private int timeLoc;
@@ -58,28 +61,44 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int offsetLoc;
 	private int positionLoc;
 	private int batteryLoc;
-	private int backBufferLoc = -1;
+	private int backBufferLoc;
 	private int frontTarget = 0;
 	private int backTarget = 1;
-	private final int fb[] = new int[]{ 0, 0 };
-	private final int tx[] = new int[]{ 0, 0 };
-	private final float resolution[] = new float[]{ 0, 0 };
-	private volatile float mouse[] = new float[]{ 0, 0 };
-	private volatile float touch[] = new float[]{ 0, 0 };
 	private long startTime;
 	private long lastRender;
-	private volatile long lastFpsUpdate = 0;
+	private Intent batteryStatus;
+
 	private volatile byte thumbnail[] = new byte[1];
-	private FpsGauge fpsGauge;
+	private volatile long nextFpsUpdate = 0;
 	private volatile float sum;
 	private volatile float samples;
 	private volatile int lastFps;
-	private Intent batteryStatus = null;
+
+	public ShaderRenderer( Context context )
+	{
+		this.context = context;
+
+		accelerometerListener =
+			new AccelerometerListener( context );
+		gyroscopeListener =
+			new GyroscopeListener( context );
+	}
+
+	public void setFragmentShader( String source )
+	{
+		resetFps();
+		fragmentShader = source;
+	}
+
+	public void setOnRendererListener( OnRendererListener listener )
+	{
+		onRendererListener = listener;
+	}
 
 	@Override
 	public void onSurfaceCreated( GL10 gl, EGLConfig config )
 	{
-		startTime = lastRender = SystemClock.elapsedRealtime();
+		startTime = lastRender = System.nanoTime();
 
 		final byte screenCoords[] = {
 			-1, 1,
@@ -88,8 +107,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			1, -1 };
 		vertexBuffer = ByteBuffer.allocateDirect( 8 );
 		vertexBuffer.put( screenCoords ).position( 0 );
-
-		fpsGauge = new FpsGauge();
 
 		GLES20.glDisable( GLES20.GL_CULL_FACE );
 		GLES20.glDisable( GLES20.GL_BLEND );
@@ -107,16 +124,14 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	@Override
 	public void onDrawFrame( GL10 gl )
 	{
+		GLES20.glClear(
+			GLES20.GL_COLOR_BUFFER_BIT |
+			GLES20.GL_DEPTH_BUFFER_BIT );
+
 		if( program == 0 )
-		{
-			GLES20.glClear(
-				GLES20.GL_COLOR_BUFFER_BIT |
-				GLES20.GL_DEPTH_BUFFER_BIT );
-
 			return;
-		}
 
-		final long now = SystemClock.elapsedRealtime();
+		final long now = System.nanoTime();
 
 		GLES20.glUseProgram( program );
 
@@ -131,7 +146,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		if( timeLoc > -1 )
 			GLES20.glUniform1f(
 				timeLoc,
-				(now-startTime)/1000f );
+				(now-startTime)/NANO );
 
 		if( resolutionLoc > -1 )
 			GLES20.glUniform2fv(
@@ -158,21 +173,21 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			GLES20.glUniform3fv(
 				gravityLoc,
 				1,
-				gravity,
+				accelerometerListener.gravity,
 				0 );
 
 		if( linearLoc > -1 )
 			GLES20.glUniform3fv(
 				linearLoc,
 				1,
-				linear,
+				accelerometerListener.linear,
 				0 );
 
 		if( rotationLoc > -1 )
 			GLES20.glUniform3fv(
 				rotationLoc,
 				1,
-				rotation,
+				gyroscopeListener.rotation,
 				0 );
 
 		if( offsetLoc > -1 )
@@ -188,11 +203,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				BatteryManager.EXTRA_LEVEL, -1 );
 			int scale = batteryStatus.getIntExtra(
 				BatteryManager.EXTRA_SCALE, -1 );
-			float battery = level/(float)scale;
 
 			GLES20.glUniform1f(
 				batteryLoc,
-				battery );
+				(float)level/scale );
 		}
 
 		if( backBufferLoc > -1 )
@@ -211,8 +225,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				tx[backTarget] );
 		}
 
-		GLES20.glClear(
-			GLES20.GL_COLOR_BUFFER_BIT );
 		GLES20.glDrawArrays(
 			GLES20.GL_TRIANGLE_STRIP,
 			0,
@@ -255,7 +267,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		if( thumbnail == null )
 			thumbnail = saveThumbnail();
 
-		if( fpsListener != null )
+		if( onRendererListener != null )
 			updateFps( now );
 	}
 
@@ -271,12 +283,16 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		resolution[0] = width;
 		resolution[1] = height;
 
-		fpsGauge.resetHeight( height );
-
 		resetFps();
 	}
 
-	public void onTouch( float x, float y )
+	public void unregisterListeners()
+	{
+		accelerometerListener.unregister();
+		gyroscopeListener.unregister();
+	}
+
+	public void touchAt( float x, float y )
 	{
 		touch[0] = x;
 		touch[1] = resolution[1]-y;
@@ -284,6 +300,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		// to be compatible with http://glslsandbox.com/
 		mouse[0] = x/resolution[0];
 		mouse[1] = 1-y/resolution[1];
+	}
+
+	public void setOffset( float x, float y )
+	{
+		offset[0] = x;
+		offset[1] = y;
 	}
 
 	public byte[] getThumbnail()
@@ -295,18 +317,19 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			while( program > 0 && thumbnail == null )
 				Thread.sleep( 100 );
 		}
-		catch( Exception e )
+		catch( InterruptedException e )
 		{
+			// thread got interrupted, ignore that
 		}
 
 		return thumbnail;
 	}
 
-	public void resetFps()
+	private void resetFps()
 	{
 		sum = samples = 0;
 		lastFps = 0;
-		lastFpsUpdate = 0;
+		nextFpsUpdate = 0;
 	}
 
 	private void loadProgram()
@@ -320,15 +343,36 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			vertexShader,
 			fragmentShader )) == 0 )
 		{
-			if( errorListener != null )
-				errorListener.onShaderError( Shader.lastError );
+			if( onRendererListener != null )
+				onRendererListener.onShaderError(
+					Shader.getLastError() );
 
 			return;
 		}
 
+		indexLocations();
+
+		GLES20.glEnableVertexAttribArray( positionLoc );
+
+		if( gravityLoc > -1 ||
+			linearLoc > -1 )
+			accelerometerListener.register();
+
+		if( rotationLoc > -1 )
+			gyroscopeListener.register();
+
+		if( batteryLoc > -1 &&
+			batteryStatus == null )
+			batteryStatus = context.registerReceiver(
+				null,
+				new IntentFilter(
+					Intent.ACTION_BATTERY_CHANGED ) );
+	}
+
+	private void indexLocations()
+	{
 		positionLoc = GLES20.glGetAttribLocation(
 			program, "position" );
-		GLES20.glEnableVertexAttribArray( positionLoc );
 
 		timeLoc = GLES20.glGetUniformLocation(
 			program, "time" );
@@ -350,22 +394,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			program, "battery" );
 		backBufferLoc = GLES20.glGetUniformLocation(
 			program, "backbuffer" );
-
-		if( view != null )
-		{
-			if( gravityLoc > -1 ||
-				linearLoc > -1 )
-				view.registerAccelerometerListener();
-
-			if( rotationLoc > -1 )
-				view.registerGyroscopeListener();
-
-			if( batteryLoc > -1 &&
-				batteryStatus == null )
-				batteryStatus = view.getContext().registerReceiver(
-					null,
-					new IntentFilter( Intent.ACTION_BATTERY_CHANGED ) );
-		}
 	}
 
 	private byte[] saveThumbnail()
@@ -420,45 +448,36 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 			return out.toByteArray();
 		}
-		catch( Exception e )
+		catch( IllegalArgumentException e )
 		{
+			// will never happen because neither
+			// width nor height <= 0
 			return null;
 		}
 	}
 
 	private void updateFps( long now )
 	{
-		int fps = (int)(1000f/(now-lastRender));
+		sum += Math.min( (int)(NANO/(now-lastRender)), 60 );
 
-		if( fps < 0 )
-			fps = 0;
-		else if( fps > 59 )
-			fps = 59;
-
-		sum += fps;
-		++samples;
-
-		if( samples > 0xffff )
+		if( ++samples > 0xffff )
 		{
 			sum = sum/samples;
 			samples = 1;
 		}
 
-		fps = (int)(sum/samples);
-
-		if( now-lastFpsUpdate > FPS_UPDATE_FREQUENCY )
+		if( now > nextFpsUpdate )
 		{
+			int fps = Math.round( sum/samples );
+
 			if( fps != lastFps )
 			{
-				fpsListener.onShaderFramesPerSecond( fps );
+				onRendererListener.onFramesPerSecond( fps );
 				lastFps = fps;
 			}
 
-			lastFpsUpdate = now;
+			nextFpsUpdate = now+FPS_UPDATE_FREQUENCY;
 		}
-
-		if( showFpsGauge )
-			fpsGauge.draw( fps );
 
 		lastRender = now;
 	}

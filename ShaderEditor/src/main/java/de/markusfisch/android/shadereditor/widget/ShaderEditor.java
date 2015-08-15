@@ -1,6 +1,10 @@
 package de.markusfisch.android.shadereditor.widget;
 
+import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.R;
+
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -13,6 +17,7 @@ import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
+import java.lang.IllegalStateException;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -23,28 +28,17 @@ public class ShaderEditor extends EditText
 		public void onTextChanged( String text );
 	}
 
-	public OnTextChangedListener onTextChangedListener = null;
-	public int updateDelay = 1000;
-	public int errorLine = 0;
-	public boolean dirty = false;
-
-	private static final int COLOR_ERROR = 0x80ff0000;
-	private static final int COLOR_NUMBER = 0xff7ba212;
-	private static final int COLOR_KEYWORD = 0xff399ed7;
-	private static final int COLOR_BUILTIN = 0xffd79e39;
-	private static final int COLOR_COMMENT = 0xff808080;
-
-	private static final Pattern line = Pattern.compile(
+	private static final Pattern PATTERN_LINE = Pattern.compile(
 		".*\\n" );
-	private static final Pattern numbers = Pattern.compile(
+	private static final Pattern PATTERN_NUMBERS = Pattern.compile(
 		"\\b(\\d*[.]?\\d+)\\b" );
-	private static final Pattern keywords = Pattern.compile(
+	private static final Pattern PATTERN_KEYWORDS = Pattern.compile(
 		"\\b(attribute|const|uniform|varying|break|continue|"+
 		"do|for|while|if|else|in|out|inout|float|int|void|bool|true|false|"+
 		"lowp|mediump|highp|precision|invariant|discard|return|mat2|mat3|"+
 		"mat4|vec2|vec3|vec4|ivec2|ivec3|ivec4|bvec2|bvec3|bvec4|sampler2D|"+
 		"samplerCube|struct|gl_Vertex|gl_FragCoord|gl_FragColor)\\b" );
-	private static final Pattern builtins = Pattern.compile(
+	private static final Pattern PATTERN_BUILTINS = Pattern.compile(
 		"\\b(radians|degrees|sin|cos|tan|asin|acos|atan|pow|"+
 		"exp|log|exp2|log2|sqrt|inversesqrt|abs|sign|floor|ceil|fract|mod|"+
 		"min|max|clamp|mix|step|smoothstep|length|distance|dot|cross|"+
@@ -52,9 +46,9 @@ public class ShaderEditor extends EditText
 		"lessThanEqual|greaterThan|greaterThanEqual|equal|notEqual|any|all|"+
 		"not|dFdx|dFdy|fwidth|texture2D|texture2DProj|texture2DLod|"+
 		"texture2DProjLod|textureCube|textureCubeLod)\\b" );
-	private static final Pattern comments = Pattern.compile(
+	private static final Pattern PATTERN_COMMENTS = Pattern.compile(
 		"/\\*(?:.|[\\n\\r])*?\\*/|//.*" );
-	private static final Pattern trailingWhiteSpace = Pattern.compile(
+	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
 		"[\\t ]+$",
 		Pattern.MULTILINE );
 
@@ -68,23 +62,57 @@ public class ShaderEditor extends EditText
 				Editable e = getText();
 
 				if( onTextChangedListener != null )
-					onTextChangedListener.onTextChanged( e.toString() );
+					onTextChangedListener.onTextChanged(
+						e.toString() );
 
 				highlightWithoutChange( e );
 			}
 		};
+
+	private OnTextChangedListener onTextChangedListener;
+	private int updateDelay = 1000;
+	private int errorLine = 0;
+	private boolean dirty = false;
 	private boolean modified = true;
+	private int colorError = 0x880000;
+	private int colorNumber = 0x7ba212;
+	private int colorKeyword = 0x399ed7;
+	private int colorBuiltin = 0xd79e39;
+	private int colorComment = 0x808080;
 
 	public ShaderEditor( Context context )
 	{
 		super( context );
-		init();
+
+		init( context );
 	}
 
 	public ShaderEditor( Context context, AttributeSet attrs )
 	{
 		super( context, attrs );
-		init();
+
+		init( context );
+	}
+
+	public void setOnTextChangedListener( OnTextChangedListener listener )
+	{
+		onTextChangedListener = listener;
+	}
+
+	public void setUpdateDelay( int ms )
+	{
+		updateDelay = ms;
+	}
+
+	public void setErrorLine( int line )
+	{
+		errorLine = line;
+		refresh();
+	}
+
+	public boolean isModified()
+	{
+		return dirty;
 	}
 
 	public void setTextHighlighted( CharSequence text )
@@ -104,7 +132,7 @@ public class ShaderEditor extends EditText
 
 	public String getCleanText()
 	{
-		return trailingWhiteSpace
+		return PATTERN_TRAILING_WHITE_SPACE
 			.matcher( getText() )
 			.replaceAll( "" );
 	}
@@ -114,7 +142,7 @@ public class ShaderEditor extends EditText
 		highlightWithoutChange( getText() );
 	}
 
-	private void init()
+	private void init( Context context )
 	{
 		setHorizontallyScrolling( true );
 
@@ -186,6 +214,23 @@ public class ShaderEditor extends EditText
 						updateDelay );
 				}
 			} );
+
+		setSyntaxColors( context );
+
+		updateDelay = ShaderEditorApplication
+			.preferences
+			.getCompileDelay();
+	}
+
+	private void setSyntaxColors( Context context )
+	{
+		Resources res = context.getResources();
+
+		colorError = res.getColor( R.color.syntax_error );
+		colorNumber = res.getColor( R.color.syntax_number );
+		colorKeyword = res.getColor( R.color.syntax_keyword );
+		colorBuiltin = res.getColor( R.color.syntax_builtin );
+		colorComment = res.getColor( R.color.syntax_comment );
 	}
 
 	private void cancelUpdate()
@@ -204,8 +249,8 @@ public class ShaderEditor extends EditText
 	{
 		try
 		{
-			// don't use e.clearSpans() because it will remove
-			// too much
+			// don't use e.clearSpans() because it will
+			// remove too much
 			clearSpans( e );
 
 			if( e.length() == 0 )
@@ -213,52 +258,55 @@ public class ShaderEditor extends EditText
 
 			if( errorLine > 0 )
 			{
-				Matcher m = line.matcher( e );
+				Matcher m = PATTERN_LINE.matcher( e );
 
 				for( int n = errorLine;
 					n-- > 0 && m.find(); );
 
 				e.setSpan(
-					new BackgroundColorSpan( COLOR_ERROR ),
+					new BackgroundColorSpan( colorError ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
 			}
 
-			for( Matcher m = numbers.matcher( e );
+			for( Matcher m = PATTERN_NUMBERS.matcher( e );
 				m.find(); )
 				e.setSpan(
-					new ForegroundColorSpan( COLOR_NUMBER ),
+					new ForegroundColorSpan( colorNumber ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
 
-			for( Matcher m = keywords.matcher( e );
+			for( Matcher m = PATTERN_KEYWORDS.matcher( e );
 				m.find(); )
 				e.setSpan(
-					new ForegroundColorSpan( COLOR_KEYWORD ),
+					new ForegroundColorSpan( colorKeyword ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
 
-			for( Matcher m = builtins.matcher( e );
+			for( Matcher m = PATTERN_BUILTINS.matcher( e );
 				m.find(); )
 				e.setSpan(
-					new ForegroundColorSpan( COLOR_BUILTIN ),
+					new ForegroundColorSpan( colorBuiltin ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
 
-			for( Matcher m = comments.matcher( e );
+			for( Matcher m = PATTERN_COMMENTS.matcher( e );
 				m.find(); )
 				e.setSpan(
-					new ForegroundColorSpan( COLOR_COMMENT ),
+					new ForegroundColorSpan( colorComment ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
 		}
-		catch( Exception ex )
+		catch( IllegalStateException ex )
 		{
+			// raised by Matcher.start()/.end() when
+			// no successful match has been made what
+			// shouldn't ever happen because of find()
 		}
 
 		return e;

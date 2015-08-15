@@ -10,4 +10,18 @@ android
 		minSdkVersion 9
 		targetSdkVersion 22
 	}
+
+	buildTypes
+	{
+		release
+		{
+			minifyEnabled true
+			shrinkResources true
+		}
+	}
+}
+
+dependencies
+{
+	compile 'com.android.support:appcompat-v7:22.2.1'
 }

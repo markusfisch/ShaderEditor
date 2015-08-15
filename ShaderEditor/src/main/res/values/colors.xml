@@ -1,7 +1,20 @@
 <resources>
-	<color name="action_bar_background">#88111111</color>
-	<color name="editor_background">#88000000</color>
-	<color name="foreground">#ffffff</color>
-	<color name="error_background">#aa880000</color>
-	<color name="error_foreground">#ffffff</color>
+	<color name="primary">#222</color>
+	<color name="primary_dark">#111</color>
+	<color name="primary_translucent">#8222</color>
+	<color name="accent">#fff</color>
+	<color name="secondary_text">#8a000000</color>
+	<color name="drawer_text">#fff</color>
+	<color name="drawer_text_unselected">#8affffff</color>
+	<color name="background_drawer">#8000</color>
+	<color name="background_editor">#8000</color>
+	<color name="background_error">#a800</color>
+	<color name="background_item_pressed">#8222</color>
+	<color name="divider">#8affffff</color>
+	<color name="text_editor">#fff</color>
+	<color name="syntax_error">#800</color>
+	<color name="syntax_number">#7ba212</color>
+	<color name="syntax_keyword">#399ed7</color>
+	<color name="syntax_builtin">#d79e39</color>
+	<color name="syntax_comment">#808080</color>
 </resources>
