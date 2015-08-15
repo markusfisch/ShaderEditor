@@ -4,7 +4,8 @@ Shader Editor
 Create and edit [GLSL](https://en.wikipedia.org/wiki/GLSL) shaders on
 your Android phone or tablet and use them as live wallpaper.
 
-[![Google Play](http://developer.android.com/images/brand/en_generic_rgb_wo_45.png)](https://play.google.com/store/apps/details?id=de.markusfisch.android.shadereditor)
+[![Download from Google Play](http://developer.android.com/images/brand/en_generic_rgb_wo_45.png)](https://play.google.com/store/apps/details?id=de.markusfisch.android.shadereditor)
+[![Shader Editor on fdroid.org](https://f-droid.org/wiki/images/0/0f/F-Droid-button_smaller.png)](https://f-droid.org/repository/browse/?fdfilter=Shader+Editor&fdid=de.markusfisch.android.shadereditor)
 
 Features
 --------
