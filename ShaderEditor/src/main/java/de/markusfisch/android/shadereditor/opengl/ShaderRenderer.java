@@ -146,7 +146,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		if( timeLoc > -1 )
 			GLES20.glUniform1f(
 				timeLoc,
-				(now-startTime)/NANO );
+				// wrap time early to avoid rounding
+				// errors when the value becomes too
+				// big for a mere mediump float
+				(now-startTime)/NANO % 65535f );
 
 		if( resolutionLoc > -1 )
 			GLES20.glUniform2fv(
@@ -458,7 +461,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	private void updateFps( long now )
 	{
-		sum += Math.min( (int)(NANO/(now-lastRender)), 60 );
+		sum += Math.min( NANO/(now-lastRender), 60f );
 
 		if( ++samples > 0xffff )
 		{
