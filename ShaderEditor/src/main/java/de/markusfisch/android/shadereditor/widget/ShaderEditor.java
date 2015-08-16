@@ -219,7 +219,7 @@ public class ShaderEditor extends EditText
 
 		updateDelay = ShaderEditorApplication
 			.preferences
-			.getCompileDelay();
+			.getUpdateDelay();
 	}
 
 	private void setSyntaxColors( Context context )

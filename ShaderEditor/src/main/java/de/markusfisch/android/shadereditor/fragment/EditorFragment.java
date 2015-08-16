@@ -99,7 +99,7 @@ public class EditorFragment extends Fragment
 				{
 					if( ShaderEditorApplication
 							.preferences
-							.doesCompileOnChange() )
+							.doesRunOnChange() )
 						runText( text );
 				}
 			} );
@@ -126,15 +126,19 @@ public class EditorFragment extends Fragment
 	{
 		inflater.inflate( R.menu.fragment_editor, menu );
 
-		boolean doesCompileOnChange =
+		boolean doesRunOnChange =
 			ShaderEditorApplication
 				.preferences
-				.doesCompileOnChange();
+				.doesRunOnChange();
 
 		menu.findItem( R.id.run_code ).setVisible(
-			doesCompileOnChange ^ true );
+			doesRunOnChange ^ true );
 		menu.findItem( R.id.save_shader ).setVisible(
-			doesCompileOnChange );
+			doesRunOnChange );
+		menu.findItem( R.id.toggle_code ).setVisible(
+			ShaderEditorApplication
+				.preferences
+				.doesRunInBackground() );
 	}
 
 	@Override

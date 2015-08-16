@@ -21,9 +21,19 @@
 	<string name="shader">Shader</string>
 	<string name="editor">Editor</string>
 	<string name="are_you_sure">Are you sure you want to delete this shader?</string>
-	<string name="compile_on_change">Compile on change</string>
-	<string name="compile_on_change_summary">Disable to compile on save only</string>
+	<string name="run_mode">Run mode</string>
 	<string name="update_delay">Update delay</string>
 	<string name="text_size">Text size</string>
 	<string name="wallpaper_description">Write your own live wallpaper</string>
+	<string name="preview">Preview</string>
+	<string name="run_auto">Auto run on change</string>
+	<string name="run_manually">Run manually</string>
+	<string name="run_manually_extra">Run in extra activity</string>
+	<string name="fastest">Fastest</string>
+	<string name="game">Game</string>
+	<string name="normal">Normal</string>
+	<string name="ui">UI</string>
+	<string name="small">Small</string>
+	<string name="medium">Medium</string>
+	<string name="big">Big</string>
 </resources>

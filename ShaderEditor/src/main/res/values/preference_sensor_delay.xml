@@ -1,0 +1,14 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+	<string-array name="sensor_delay_names">
+		<item>@string/fastest</item>
+		<item>@string/game</item>
+		<item>@string/normal</item>
+		<item>@string/ui</item>
+	</string-array>
+	<string-array name="sensor_delay_values">
+		<item>Fastest</item>
+		<item>Game</item>
+		<item>Normal</item>
+		<item>UI</item>
+	</string-array>
+</resources>

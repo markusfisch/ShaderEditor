@@ -12,15 +12,19 @@ public class Preferences
 		"de.markusfisch.android.preference.Preferences";
 
 	public static final String WALLPAPER_SHADER = "shader";
-	public static final String COMPILE_ON_CHANGE = "compile_on_change";
-	public static final String COMPILE_AFTER = "compile_after";
+	public static final String RUN_MODE = "run_mode";
+	public static final String UPDATE_DELAY = "update_delay";
 	public static final String SENSOR_DELAY = "sensor_delay";
 	public static final String TEXT_SIZE = "text_size";
 
+	private static final int RUN_AUTO = 1;
+	private static final int RUN_MANUALLY = 2;
+	private static final int RUN_MANUALLY_EXTRA = 3;
+
 	private SharedPreferences preferences;
 	private long wallpaperShaderId = 1;
-	private boolean compileOnChange = true;
-	private int compileAfter = 1000;
+	private int runMode = RUN_AUTO;
+	private int updateDelay = 1000;
 	private int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
 	private int textSize = 12;
 
@@ -43,12 +47,12 @@ public class Preferences
 		wallpaperShaderId = parseLong(
 			preferences.getString( WALLPAPER_SHADER, null ),
 			wallpaperShaderId );
-		compileOnChange = preferences.getBoolean(
-			COMPILE_ON_CHANGE,
-			compileOnChange );
-		compileAfter = parseInt(
-			preferences.getString( COMPILE_AFTER, null ),
-			compileAfter );
+		runMode = parseInt(
+			preferences.getString( RUN_MODE, null ),
+			runMode );
+		updateDelay = parseInt(
+			preferences.getString( UPDATE_DELAY, null ),
+			updateDelay );
 		sensorDelay = parseSensorDelay(
 			preferences.getString( SENSOR_DELAY, null ),
 			sensorDelay );
@@ -57,14 +61,19 @@ public class Preferences
 			textSize );
 	}
 
-	public boolean doesCompileOnChange()
+	public boolean doesRunOnChange()
 	{
-		return compileOnChange;
+		return runMode == RUN_AUTO;
 	}
 
-	public int getCompileDelay()
+	public boolean doesRunInBackground()
 	{
-		return compileAfter;
+		return runMode != RUN_MANUALLY_EXTRA;
+	}
+
+	public int getUpdateDelay()
+	{
+		return updateDelay;
 	}
 
 	public int getSensorDelay()

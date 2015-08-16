@@ -12,12 +12,12 @@
 	<PreferenceCategory
 		android:title="@string/editor"
 		android:key="editor_preferences">
-		<CheckBoxPreference
-			android:key="compile_on_change"
-			android:title="@string/compile_on_change"
-			android:summary="@string/compile_on_change_summary"
-			android:checked="true"
-			android:defaultValue="true"/>
+		<ListPreference
+			android:key="run_mode"
+			android:title="@string/run_mode"
+			android:entries="@array/run_mode_names"
+			android:entryValues="@array/run_mode_values"
+			android:defaultValue="1"/>
 		<ListPreference
 			android:key="update_delay"
 			android:title="@string/update_delay"
@@ -38,7 +38,7 @@
 			android:key="sensor_delay"
 			android:title="@string/sensor_delay"
 			android:entries="@array/sensor_delay_names"
-			android:entryValues="@array/sensor_delay_names"
+			android:entryValues="@array/sensor_delay_values"
 			android:defaultValue="Normal"/>
 	</PreferenceCategory>
 </PreferenceScreen>

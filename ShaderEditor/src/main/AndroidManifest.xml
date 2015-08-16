@@ -44,6 +44,9 @@
 			</intent-filter>
 		</activity>
 		<activity
+			android:name=".activity.PreviewActivity"
+			android:label="@string/preview"/>
+		<activity
 			android:name=".activity.PreferencesActivity"
 			android:label="@string/preferences"
 			android:exported="true"/>

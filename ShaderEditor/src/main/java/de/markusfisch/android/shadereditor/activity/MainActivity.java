@@ -126,7 +126,11 @@ public class MainActivity
 	{
 		super.onResume();
 
-		shaderView.onResume();
+		if( ShaderEditorApplication
+				.preferences
+				.doesRunInBackground() )
+			shaderView.onResume();
+
 		queryShaders();
 	}
 
@@ -200,7 +204,12 @@ public class MainActivity
 	@Override
 	public void onRunCode( String code )
 	{
-		setFragmentShader( code );
+		if( ShaderEditorApplication
+				.preferences
+				.doesRunInBackground() )
+			setFragmentShader( code );
+		else
+			showPreview( code );
 	}
 
 	@Override
@@ -594,11 +603,27 @@ public class MainActivity
 		toolbar.setTitle( modified );
 		editorFragment.setText( fragmentShader );
 
-		setFragmentShader( fragmentShader );
+		if( ShaderEditorApplication
+				.preferences
+				.doesRunInBackground() )
+			setFragmentShader( fragmentShader );
 	}
 
 	private void setFragmentShader( String code )
 	{
 		shaderView.setFragmentShader( code );
+	}
+
+	private void showPreview( String code )
+	{
+		Intent intent = new Intent(
+			this,
+			PreviewActivity.class );
+
+		intent.putExtra(
+			PreviewActivity.FRAGMENT_SHADER,
+			code );
+
+		startActivity( intent );
 	}
 }

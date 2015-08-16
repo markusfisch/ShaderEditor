@@ -1,0 +1,12 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+	<string-array name="run_mode_names">
+		<item>@string/run_auto</item>
+		<item>@string/run_manually</item>
+		<item>@string/run_manually_extra</item>
+	</string-array>
+	<string-array name="run_mode_values">
+		<item>1</item>
+		<item>2</item>
+		<item>3</item>
+	</string-array>
+</resources>
