@@ -469,7 +469,12 @@ public class MainActivity
 	private void saveShader( long id )
 	{
 		String fragmentShader = editorFragment.getText();
-		byte thumbnail[] = shaderView.getRenderer().getThumbnail();
+		byte thumbnail[] =
+			ShaderEditorApplication
+				.preferences
+				.doesRunInBackground() ?
+					shaderView.getRenderer().getThumbnail() :
+					PreviewActivity.thumbnail;
 
 		if( id > 0 )
 			ShaderEditorApplication
@@ -485,7 +490,7 @@ public class MainActivity
 					fragmentShader,
 					thumbnail );
 
-		// update the thumbnails
+		// update thumbnails
 		queryShaders();
 	}
 
@@ -502,14 +507,20 @@ public class MainActivity
 		if( id < 0 )
 			return;
 
-		saveShader( id );
+		if( editorFragment.isModified() )
+			saveShader( id );
 
 		selectShader(
 			ShaderEditorApplication
 				.dataSource
 				.insert(
 					editorFragment.getText(),
-					shaderView.getRenderer().getThumbnail() ) );
+					ShaderEditorApplication
+						.dataSource
+						.getThumbnail( id ) ) );
+
+		// update thumbnails
+		queryShaders();
 	}
 
 	private void deleteShader( final long id )

@@ -102,6 +102,27 @@ public class DataSource
 			null );
 	}
 
+	public byte[] getThumbnail( long id )
+	{
+		Cursor cursor = db.rawQuery(
+			"SELECT "+
+				SHADERS_THUMB+
+				" FROM "+SHADERS+
+				" WHERE "+SHADERS_ID+"="+id,
+			null );
+
+		if( closeIfEmpty( cursor ) )
+			return null;
+
+		byte thumbnail[] = cursor.getBlob(
+			cursor.getColumnIndex(
+				SHADERS_THUMB ) );
+
+		cursor.close();
+
+		return thumbnail;
+	}
+
 	public static long insert(
 		SQLiteDatabase db,
 		String shader,

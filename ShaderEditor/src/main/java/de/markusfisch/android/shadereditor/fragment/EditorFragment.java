@@ -130,15 +130,15 @@ public class EditorFragment extends Fragment
 			ShaderEditorApplication
 				.preferences
 				.doesRunOnChange();
+		boolean doesRunInBackground =
+			ShaderEditorApplication
+				.preferences
+				.doesRunInBackground();
 
 		menu.findItem( R.id.run_code ).setVisible(
 			doesRunOnChange ^ true );
-		menu.findItem( R.id.save_shader ).setVisible(
-			doesRunOnChange );
 		menu.findItem( R.id.toggle_code ).setVisible(
-			ShaderEditorApplication
-				.preferences
-				.doesRunInBackground() );
+			doesRunInBackground );
 	}
 
 	@Override

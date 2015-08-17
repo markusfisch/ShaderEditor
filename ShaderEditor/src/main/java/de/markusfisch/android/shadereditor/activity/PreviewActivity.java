@@ -12,8 +12,23 @@ import android.view.Window;
 public class PreviewActivity extends AppCompatActivity
 {
 	public static final String FRAGMENT_SHADER = "fragment_shader";
+	public static byte thumbnail[];
 
 	private ShaderView shaderView;
+	private Runnable thumbnailRunnable =
+		new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if( shaderView == null )
+					return;
+
+				thumbnail = shaderView
+					.getRenderer()
+					.getThumbnail();
+			}
+		};
 
 	@Override
 	public void onCreate( Bundle state )
@@ -43,6 +58,11 @@ public class PreviewActivity extends AppCompatActivity
 		super.onResume();
 
 		shaderView.onResume();
+
+		thumbnail = null;
+		shaderView.postDelayed(
+			thumbnailRunnable,
+			500 );
 	}
 
 	@Override
