@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.BatteryManager;
+import android.view.MotionEvent;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.IllegalArgumentException;
@@ -40,8 +41,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private final int fb[] = new int[]{ 0, 0 };
 	private final int tx[] = new int[]{ 0, 0 };
 	private final float resolution[] = new float[]{ 0, 0 };
-	private final float mouse[] = new float[]{ 0, 0 };
 	private final float touch[] = new float[]{ 0, 0 };
+	private final float mouse[] = new float[]{ 0, 0 };
+	private final float pointers[] = new float[30];
 	private final float offset[] = new float[]{ 0, 0 };
 
 	private Context context;
@@ -53,8 +55,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int program = 0;
 	private int timeLoc;
 	private int resolutionLoc;
-	private int mouseLoc;
 	private int touchLoc;
+	private int mouseLoc;
+	private int pointerCountLoc;
+	private int pointersLoc;
 	private int gravityLoc;
 	private int linearLoc;
 	private int rotationLoc;
@@ -62,6 +66,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int positionLoc;
 	private int batteryLoc;
 	private int backBufferLoc;
+	private int pointerCount;
 	private int frontTarget = 0;
 	private int backTarget = 1;
 	private long startTime;
@@ -158,6 +163,13 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				resolution,
 				0 );
 
+		if( touchLoc > -1 )
+			GLES20.glUniform2fv(
+				touchLoc,
+				1,
+				touch,
+				0 );
+
 		if( mouseLoc > -1 )
 			GLES20.glUniform2fv(
 				mouseLoc,
@@ -165,11 +177,17 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				mouse,
 				0 );
 
-		if( touchLoc > -1 )
-			GLES20.glUniform2fv(
-				touchLoc,
+		if( pointerCountLoc > -1 )
+			GLES20.glUniform1i(
+				pointerCountLoc,
+				pointerCount );
+
+		if( pointersLoc > -1 )
+			GLES20.glUniformMatrix3fv(
+				pointersLoc,
 				1,
-				touch,
+				false,
+				pointers,
 				0 );
 
 		if( gravityLoc > -1 )
@@ -295,14 +313,42 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		gyroscopeListener.unregister();
 	}
 
-	public void touchAt( float x, float y )
+	public void touchAt( MotionEvent e )
 	{
+		switch( e.getActionMasked() )
+		{
+			case MotionEvent.ACTION_UP:
+			case MotionEvent.ACTION_CANCEL:
+				touch[0] =
+					touch[1] =
+					mouse[0] =
+					mouse[1] =
+					pointerCount = 0;
+				return;
+		}
+
+		float x = e.getX();
+		float y = e.getY();
+
 		touch[0] = x;
 		touch[1] = resolution[1]-y;
 
 		// to be compatible with http://glslsandbox.com/
 		mouse[0] = x/resolution[0];
 		mouse[1] = 1-y/resolution[1];
+
+		pointerCount = Math.min(
+			e.getPointerCount(),
+			pointers.length/3 );
+
+		for( int n = 0, offset = 0;
+			n < pointerCount;
+			++n )
+		{
+			pointers[offset++] = e.getX( n );
+			pointers[offset++] = resolution[1]-e.getY( n );
+			pointers[offset++] = e.getTouchMajor( n );
+		}
 	}
 
 	public void setOffset( float x, float y )
@@ -381,10 +427,14 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			program, "time" );
 		resolutionLoc = GLES20.glGetUniformLocation(
 			program, "resolution" );
-		mouseLoc = GLES20.glGetUniformLocation(
-			program, "mouse" );
 		touchLoc = GLES20.glGetUniformLocation(
 			program, "touch" );
+		mouseLoc = GLES20.glGetUniformLocation(
+			program, "mouse" );
+		pointerCountLoc = GLES20.glGetUniformLocation(
+			program, "pointerCount" );
+		pointersLoc = GLES20.glGetUniformLocation(
+			program, "pointers" );
 		gravityLoc = GLES20.glGetUniformLocation(
 			program, "gravity" );
 		linearLoc = GLES20.glGetUniformLocation(

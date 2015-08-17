@@ -88,9 +88,7 @@ public class ShaderWallpaperService extends WallpaperService
 		{
 			super.onTouchEvent( e );
 
-			view.getRenderer().touchAt(
-				e.getX(),
-				e.getY() );
+			view.getRenderer().touchAt( e );
 		}
 
 		@Override
