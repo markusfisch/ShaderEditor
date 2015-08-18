@@ -131,7 +131,7 @@ public class MainActivity
 				.doesRunInBackground() )
 			shaderView.onResume();
 
-		queryShaders();
+		queryShadersAsync();
 	}
 
 	@Override
@@ -372,7 +372,7 @@ public class MainActivity
 			} );
 	}
 
-	private void queryShaders()
+	private void queryShadersAsync()
 	{
 		if( !ShaderEditorApplication.dataSource.isOpen() )
 		{
@@ -382,7 +382,7 @@ public class MainActivity
 					@Override
 					public void run()
 					{
-						queryShaders();
+						queryShadersAsync();
 					}
 				},
 				500 );
@@ -491,7 +491,7 @@ public class MainActivity
 					thumbnail );
 
 		// update thumbnails
-		queryShaders();
+		queryShadersAsync();
 	}
 
 	private void addShader()
@@ -520,7 +520,7 @@ public class MainActivity
 						.getThumbnail( id ) ) );
 
 		// update thumbnails
-		queryShaders();
+		queryShadersAsync();
 	}
 
 	private void deleteShader( final long id )
@@ -582,7 +582,7 @@ public class MainActivity
 
 		selectedShaderId = id;
 		loadShader( id );
-		queryShaders();
+		queryShadersAsync();
 	}
 
 	private void loadShader( long id )

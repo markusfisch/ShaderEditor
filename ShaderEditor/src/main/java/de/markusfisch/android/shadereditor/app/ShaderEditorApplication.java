@@ -28,6 +28,11 @@ public class ShaderEditorApplication extends Application
 		preferences = new Preferences( this );
 		dataSource = new DataSource( this );
 
+		openDataSourceAsync();
+	}
+
+	private void openDataSourceAsync()
+	{
 		new AsyncTask<Void, Void, Boolean>()
 		{
 			@Override
