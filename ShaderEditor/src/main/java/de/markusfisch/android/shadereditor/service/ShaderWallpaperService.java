@@ -7,16 +7,25 @@ import de.markusfisch.android.shadereditor.widget.ShaderView;
 
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.opengl.GLSurfaceView;
 import android.service.wallpaper.WallpaperService;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
 public class ShaderWallpaperService extends WallpaperService
 {
+	private static ShaderWallpaperEngine engine;
+
 	@Override
 	public final Engine onCreateEngine()
 	{
-		return new ShaderWallpaperEngine();
+		return (engine = new ShaderWallpaperEngine());
+	}
+
+	public static void setRenderMode( int renderMode )
+	{
+		if( engine != null )
+			engine.setRenderMode( renderMode );
 	}
 
 	private class ShaderWallpaperEngine
@@ -75,10 +84,7 @@ public class ShaderWallpaperService extends WallpaperService
 			super.onVisibilityChanged( visible );
 
 			if( visible )
-			{
 				view.onResume();
-				view.requestRender();
-			}
 			else
 				view.onPause();
 		}
@@ -103,6 +109,14 @@ public class ShaderWallpaperService extends WallpaperService
 			view.getRenderer().setOffset(
 				xOffset,
 				yOffset );
+		}
+
+		public void setRenderMode( int renderMode )
+		{
+			if( view == null )
+				return;
+
+			view.setRenderMode( renderMode );
 		}
 
 		private void setShader()
@@ -152,7 +166,11 @@ public class ShaderWallpaperService extends WallpaperService
 		{
 			public ShaderWallpaperView()
 			{
-				super( ShaderWallpaperService.this );
+				super(
+					ShaderWallpaperService.this,
+					ShaderEditorApplication.batteryLow ?
+						GLSurfaceView.RENDERMODE_WHEN_DIRTY :
+						GLSurfaceView.RENDERMODE_CONTINUOUSLY );
 			}
 
 			@Override

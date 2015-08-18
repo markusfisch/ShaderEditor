@@ -14,6 +14,7 @@ public class ShaderEditorApplication extends Application
 {
 	public static Preferences preferences;
 	public static DataSource dataSource;
+	public static boolean batteryLow = false;
 
 	@Override
 	public void onCreate()

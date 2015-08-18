@@ -8,6 +8,12 @@
 		<de.markusfisch.android.shadereditor.preference.ShaderListPreference
 			android:key="shader"
 			android:title="@string/shader"/>
+		<CheckBoxPreference
+			android:key="save_battery"
+			android:title="@string/save_battery"
+			android:summary="@string/save_battery_summary"
+			android:checked="true"
+			android:defaultValue="true"/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="@string/editor"

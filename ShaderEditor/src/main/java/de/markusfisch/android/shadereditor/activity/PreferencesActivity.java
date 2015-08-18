@@ -4,6 +4,7 @@ import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.preference.ShaderListPreference;
+import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
 import de.markusfisch.android.shadereditor.R;
 
 import android.database.Cursor;
@@ -39,7 +40,7 @@ public class PreferencesActivity
 			.registerOnSharedPreferenceChangeListener(
 				this );
 
-		initSummaries( getPreferenceScreen() );
+		setSummaries( getPreferenceScreen() );
 	}
 
 	@Override
@@ -67,7 +68,14 @@ public class PreferencesActivity
 			.preferences
 			.update();
 
-		initSummary( preference );
+		setSummary( preference );
+
+		if( Preferences.SAVE_BATTERY.equals( key ) &&
+			ShaderEditorApplication.batteryLow )
+			BatteryLevelReceiver.saveBattery(
+				ShaderEditorApplication
+					.preferences
+					.saveBattery() );
 	}
 
 	@Override
@@ -81,13 +89,13 @@ public class PreferencesActivity
 		return false;
 	}
 
-	private void initSummaries( PreferenceGroup screen )
+	private void setSummaries( PreferenceGroup screen )
 	{
 		for( int n = screen.getPreferenceCount(); n-- > 0; )
-			initSummary( screen.getPreference( n ) );
+			setSummary( screen.getPreference( n ) );
 	}
 
-	private void initSummary( Preference preference )
+	private void setSummary( Preference preference )
 	{
 		if( preference instanceof ShaderListPreference )
 			preference.setSummary(
@@ -96,7 +104,7 @@ public class PreferencesActivity
 			preference.setSummary(
 				((ListPreference)preference).getEntry() );
 		else if( preference instanceof PreferenceGroup )
-			initSummaries(
+			setSummaries(
 				(PreferenceGroup)preference );
 	}
 

@@ -23,6 +23,12 @@
 		android:label="@string/app_name"
 		android:icon="@mipmap/ic_launcher"
 		android:theme="@style/AppTheme">
+		<receiver android:name=".receiver.BatteryLevelReceiver">
+			<intent-filter>
+				<action android:name="android.intent.action.ACTION_BATTERY_LOW"/>
+				<action android:name="android.intent.action.ACTION_BATTERY_OKAY"/>
+			</intent-filter>
+		</receiver>
 		<service
 			android:name=".service.ShaderWallpaperService"
 			android:description="@string/wallpaper_description"
