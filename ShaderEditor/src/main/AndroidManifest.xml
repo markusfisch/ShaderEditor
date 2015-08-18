@@ -18,6 +18,7 @@
 		tools:ignore="UnusedAttribute"
 		android:name=".app.ShaderEditorApplication"
 		android:allowBackup="true"
+		android:fullBackupContent="true"
 		android:supportsRtl="true"
 		android:label="@string/app_name"
 		android:icon="@mipmap/ic_launcher"

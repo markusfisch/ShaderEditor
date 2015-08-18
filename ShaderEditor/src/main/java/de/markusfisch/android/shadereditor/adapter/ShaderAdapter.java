@@ -74,9 +74,9 @@ public class ShaderAdapter extends CursorAdapter
 		{
 			holder = new ViewHolder();
 			holder.icon = (ImageView)view.findViewById(
-				R.id.icon );
+				R.id.shader_icon );
 			holder.title = (TextView)view.findViewById(
-				R.id.title );
+				R.id.shader_title );
 		}
 
 		return holder;

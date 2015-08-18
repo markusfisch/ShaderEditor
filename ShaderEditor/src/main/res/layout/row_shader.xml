@@ -7,14 +7,14 @@
 	android:padding="16dp"
 	android:background="@drawable/drawer_item_selector">
 	<ImageView
-		android:id="@+id/icon"
+		android:id="@+id/shader_icon"
 		android:contentDescription="@string/shader"
 		android:layout_marginRight="32dp"
 		android:layout_marginEnd="32dp"
 		android:layout_width="24dp"
 		android:layout_height="24dp"/>
 	<TextView
-		android:id="@+id/title"
+		android:id="@+id/shader_title"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:textColor="@drawable/drawer_item_selector"
