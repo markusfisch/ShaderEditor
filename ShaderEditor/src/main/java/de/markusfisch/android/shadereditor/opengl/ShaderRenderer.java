@@ -315,18 +315,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	public void touchAt( MotionEvent e )
 	{
-		switch( e.getActionMasked() )
-		{
-			case MotionEvent.ACTION_UP:
-			case MotionEvent.ACTION_CANCEL:
-				touch[0] =
-					touch[1] =
-					mouse[0] =
-					mouse[1] =
-					pointerCount = 0;
-				return;
-		}
-
 		float x = e.getX();
 		float y = e.getY();
 
@@ -336,6 +324,14 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		// to be compatible with http://glslsandbox.com/
 		mouse[0] = x/resolution[0];
 		mouse[1] = 1-y/resolution[1];
+
+		switch( e.getActionMasked() )
+		{
+			case MotionEvent.ACTION_UP:
+			case MotionEvent.ACTION_CANCEL:
+				pointerCount = 0;
+				return;
+		}
 
 		pointerCount = Math.min(
 			e.getPointerCount(),
