@@ -154,7 +154,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				// wrap time early to avoid rounding
 				// errors when the value becomes too
 				// big for a mere mediump float
-				(now-startTime)/NANO % 65535f );
+				(now-startTime)/NANO % 60000f );
 
 		if( resolutionLoc > -1 )
 			GLES20.glUniform2fv(
@@ -359,7 +359,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 		try
 		{
-			while( program > 0 && thumbnail == null )
+			for( int trys = 10;
+				trys-- > 0 &&
+					program > 0 &&
+					thumbnail == null; )
 				Thread.sleep( 100 );
 		}
 		catch( InterruptedException e )
