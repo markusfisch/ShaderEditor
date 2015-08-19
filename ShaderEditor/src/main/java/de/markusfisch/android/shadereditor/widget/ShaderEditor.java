@@ -4,8 +4,8 @@ import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
@@ -224,13 +224,21 @@ public class ShaderEditor extends EditText
 
 	private void setSyntaxColors( Context context )
 	{
-		Resources res = context.getResources();
-
-		colorError = res.getColor( R.color.syntax_error );
-		colorNumber = res.getColor( R.color.syntax_number );
-		colorKeyword = res.getColor( R.color.syntax_keyword );
-		colorBuiltin = res.getColor( R.color.syntax_builtin );
-		colorComment = res.getColor( R.color.syntax_comment );
+		colorError = ContextCompat.getColor(
+			context,
+			R.color.syntax_error );
+		colorNumber = ContextCompat.getColor(
+			context,
+			R.color.syntax_number );
+		colorKeyword = ContextCompat.getColor(
+			context,
+			R.color.syntax_keyword );
+		colorBuiltin = ContextCompat.getColor(
+			context,
+			R.color.syntax_builtin );
+		colorComment = ContextCompat.getColor(
+			context,
+			R.color.syntax_comment );
 	}
 
 	private void cancelUpdate()

@@ -5,9 +5,9 @@ import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -113,11 +113,11 @@ public class ShaderAdapter extends CursorAdapter
 
 	private void initTextColors( Context context )
 	{
-		Resources res = context.getResources();
-
-		textColorSelected = res.getColor(
+		textColorSelected = ContextCompat.getColor(
+			context,
 			R.color.accent );
-		textColorUnselected = res.getColor(
+		textColorUnselected = ContextCompat.getColor(
+			context,
 			R.color.drawer_text_unselected );
 	}
 }
