@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.app;
 
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.preference.Preferences;
+import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
 import de.markusfisch.android.shadereditor.R;
 
 import android.app.Application;

@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.preference.ListPreference;
 import android.util.AttributeSet;
-import android.widget.ListAdapter;
 
 public class ShaderListPreference extends ListPreference
 {

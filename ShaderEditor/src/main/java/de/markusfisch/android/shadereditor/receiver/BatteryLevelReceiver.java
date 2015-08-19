@@ -26,10 +26,10 @@ public class BatteryLevelReceiver extends BroadcastReceiver
 		if( !ShaderEditorApplication
 				.preferences
 				.saveBattery() )
-			// set batteryLow and render mode because
-			// the setting may have changed while in
-			// battery mode
 			low = false;
+			// fall through to update batteryLow and
+			// render mode because the preference may
+			// have changed while battery is low
 
 		ShaderEditorApplication.batteryLow = low;
 
