@@ -6,6 +6,7 @@ import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.widget.TouchThruDrawerlayout;
+import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 import de.markusfisch.android.shadereditor.R;
 
@@ -24,6 +25,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -32,7 +35,7 @@ import android.widget.ListView;
 
 public class MainActivity
 	extends AppCompatActivity
-	implements EditorFragment.OnEditorListener
+	implements ShaderEditor.OnTextChangedListener
 {
 	public static long selectedShaderId = 0;
 
@@ -130,6 +133,8 @@ public class MainActivity
 				.preferences
 				.doesRunInBackground() )
 			shaderView.onResume();
+		else if( !editorFragment.isCodeVisible() )
+			toggleCode();
 
 		queryShadersAsync();
 	}
@@ -177,21 +182,48 @@ public class MainActivity
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu( Menu menu )
+	{
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate( R.menu.main, menu );
+
+		menu.findItem( R.id.run_code ).setVisible(
+			ShaderEditorApplication
+				.preferences
+				.doesRunOnChange() ^ true );
+		menu.findItem( R.id.toggle_code ).setVisible(
+			ShaderEditorApplication
+				.preferences
+				.doesRunInBackground() );
+
+		return true;
+	}
+
+	@Override
 	public boolean onOptionsItemSelected( MenuItem item )
 	{
 		switch( item.getItemId() )
 		{
-			case R.id.add_shader:
-				addShader();
+			case R.id.run_code:
+				runShader();
 				return true;
 			case R.id.save_shader:
 				saveShader( selectedShaderId );
+				return true;
+			case R.id.toggle_code:
+				toggleCode();
+				return true;
+			case R.id.add_shader:
+				addShader();
 				return true;
 			case R.id.duplicate_shader:
 				duplicateShader( selectedShaderId );
 				return true;
 			case R.id.delete_shader:
 				deleteShader( selectedShaderId );
+				return true;
+			case R.id.share_shader:
+				shareShader();
 				return true;
 			case R.id.update_wallpaper:
 				updateWallpaper( selectedShaderId );
@@ -202,20 +234,12 @@ public class MainActivity
 	}
 
 	@Override
-	public void onRunCode( String code )
+	public void onTextChanged( String text )
 	{
 		if( ShaderEditorApplication
 				.preferences
-				.doesRunInBackground() )
-			setFragmentShader( code );
-		else
-			showPreview( code );
-	}
-
-	@Override
-	public void onCodeHidden( boolean hidden )
-	{
-		drawerLayout.setTouchThru( hidden );
+				.doesRunOnChange() )
+			setFragmentShader( text );
 	}
 
 	@TargetApi( 22 )
@@ -466,6 +490,20 @@ public class MainActivity
 		drawerLayout.openDrawer( menuFrame );
 	}
 
+	private void runShader()
+	{
+		String code = editorFragment.getText();
+
+		editorFragment.hideError();
+
+		if( ShaderEditorApplication
+				.preferences
+				.doesRunInBackground() )
+			setFragmentShader( code );
+		else
+			showPreview( code );
+	}
+
 	private void saveShader( long id )
 	{
 		String fragmentShader = editorFragment.getText();
@@ -492,6 +530,12 @@ public class MainActivity
 
 		// update thumbnails
 		queryShadersAsync();
+	}
+
+	private void toggleCode()
+	{
+		drawerLayout.setTouchThru(
+			editorFragment.toggleCode() );
 	}
 
 	private void addShader()
@@ -552,6 +596,21 @@ public class MainActivity
 			.setPositiveButton( android.R.string.yes, listener )
 			.setNegativeButton( android.R.string.no, listener )
 			.show();
+	}
+
+	private void shareShader()
+	{
+		Intent intent = new Intent();
+
+		intent.setAction( Intent.ACTION_SEND );
+		intent.putExtra(
+			Intent.EXTRA_TEXT,
+			editorFragment.getText() );
+		intent.setType( "text/plain" );
+
+		startActivity( Intent.createChooser(
+			intent,
+			getString( R.string.share_shader ) ) );
 	}
 
 	private void updateWallpaper( long id )
