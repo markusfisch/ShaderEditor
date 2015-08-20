@@ -129,18 +129,7 @@ public class MainActivity
 	{
 		super.onResume();
 
-		if( ShaderEditorApplication
-				.preferences
-				.doesRunInBackground() )
-			shaderView.onResume();
-		else
-		{
-			if( !editorFragment.isCodeVisible() )
-				toggleCode();
-
-			toolbar.setSubtitle( null );
-		}
-
+		updateUiToPrefrences();
 		queryShadersAsync();
 	}
 
@@ -192,10 +181,18 @@ public class MainActivity
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate( R.menu.main, menu );
 
+
+		return true;
+	}
+
+	@Override
+	public boolean onPrepareOptionsMenu( Menu menu )
+	{
 		menu.findItem( R.id.run_code ).setVisible(
 			ShaderEditorApplication
 				.preferences
 				.doesRunOnChange() ^ true );
+
 		menu.findItem( R.id.toggle_code ).setVisible(
 			ShaderEditorApplication
 				.preferences
@@ -402,6 +399,21 @@ public class MainActivity
 					editorFragment.setError( error );
 				}
 			} );
+	}
+
+	private void updateUiToPrefrences()
+	{
+		if( ShaderEditorApplication
+				.preferences
+				.doesRunInBackground() )
+			shaderView.onResume();
+		else
+		{
+			if( !editorFragment.isCodeVisible() )
+				toggleCode();
+
+			toolbar.setSubtitle( null );
+		}
 	}
 
 	private void queryShadersAsync()
