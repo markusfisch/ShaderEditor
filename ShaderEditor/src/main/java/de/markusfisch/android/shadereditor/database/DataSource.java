@@ -123,6 +123,28 @@ public class DataSource
 		return thumbnail;
 	}
 
+	public long getFirstShaderId()
+	{
+		Cursor cursor = db.rawQuery(
+			"SELECT "+
+				SHADERS_ID+
+				" FROM "+SHADERS+
+				" ORDER BY "+SHADERS_ID+
+				" LIMIT 1",
+			null );
+
+		if( closeIfEmpty( cursor ) )
+			return 0;
+
+		long id = cursor.getLong(
+			cursor.getColumnIndex(
+				SHADERS_ID ) );
+
+		cursor.close();
+
+		return id;
+	}
+
 	public static long insert(
 		SQLiteDatabase db,
 		String shader,

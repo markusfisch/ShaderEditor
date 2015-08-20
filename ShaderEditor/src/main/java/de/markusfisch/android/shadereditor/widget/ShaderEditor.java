@@ -117,6 +117,9 @@ public class ShaderEditor extends EditText
 
 	public void setTextHighlighted( CharSequence text )
 	{
+		if( text == null )
+			text = "";
+
 		cancelUpdate();
 
 		errorLine = 0;

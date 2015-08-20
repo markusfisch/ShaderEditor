@@ -133,8 +133,13 @@ public class MainActivity
 				.preferences
 				.doesRunInBackground() )
 			shaderView.onResume();
-		else if( !editorFragment.isCodeVisible() )
-			toggleCode();
+		else
+		{
+			if( !editorFragment.isCodeVisible() )
+				toggleCode();
+
+			toolbar.setSubtitle( null );
+		}
 
 		queryShadersAsync();
 	}
@@ -236,10 +241,13 @@ public class MainActivity
 	@Override
 	public void onTextChanged( String text )
 	{
-		if( ShaderEditorApplication
+		if( !ShaderEditorApplication
 				.preferences
 				.doesRunOnChange() )
-			setFragmentShader( text );
+			return;
+
+		editorFragment.hideError();
+		setFragmentShader( text );
 	}
 
 	@TargetApi( 22 )
@@ -454,6 +462,10 @@ public class MainActivity
 			this,
 			cursor );
 
+		if( selectedShaderId < 1 &&
+			shaderAdapter.getCount() > 0 )
+			selectedShaderId = shaderAdapter.getItemId( 0 );
+
 		selectShader( selectedShaderId );
 
 		listView.setAdapter( shaderAdapter );
@@ -472,6 +484,9 @@ public class MainActivity
 
 		progressView.setVisibility( View.GONE );
 		textView.setVisibility( View.VISIBLE );
+
+		if( shaderAdapter != null )
+			shaderAdapter.changeCursor( null );
 	}
 
 	private void closeDrawer()
@@ -548,7 +563,7 @@ public class MainActivity
 
 	private void duplicateShader( long id )
 	{
-		if( id < 0 )
+		if( id < 1 )
 			return;
 
 		if( editorFragment.isModified() )
@@ -569,7 +584,7 @@ public class MainActivity
 
 	private void deleteShader( final long id )
 	{
-		if( id < 0 )
+		if( id < 1 )
 			return;
 
 		DialogInterface.OnClickListener listener =
@@ -587,7 +602,10 @@ public class MainActivity
 						.dataSource
 						.remove( id );
 
-					selectShader( 0 );
+					selectShader(
+						ShaderEditorApplication
+							.dataSource
+							.getFirstShaderId() );
 				}
 			};
 
@@ -615,7 +633,7 @@ public class MainActivity
 
 	private void updateWallpaper( long id )
 	{
-		if( id < 0 )
+		if( id < 1 )
 			return;
 
 		if( editorFragment.isModified() )
@@ -635,29 +653,33 @@ public class MainActivity
 
 	private void selectShader( long id )
 	{
-		if( id < 1 &&
-			shaderAdapter.getCount() > 0 )
-			id = shaderAdapter.getItemId( 0 );
+		if( (selectedShaderId = loadShader( id )) < 1 )
+		{
+			editorFragment.setText( null );
+			setFragmentShader( null );
+			setTitle( R.string.app_name );
+			toolbar.setSubtitle( null );
+		}
 
-		selectedShaderId = id;
-		loadShader( id );
 		queryShadersAsync();
 	}
 
-	private void loadShader( long id )
+	private long loadShader( long id )
 	{
 		if( id < 1 )
-			return;
+			return 0;
 
 		Cursor cursor = ShaderEditorApplication
 			.dataSource
 			.getShader( id );
 
 		if( DataSource.closeIfEmpty( cursor ) )
-			return;
+			return 0;
 
 		loadShader( cursor );
 		cursor.close();
+
+		return id;
 	}
 
 	private void loadShader( Cursor cursor )
