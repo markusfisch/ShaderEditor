@@ -28,8 +28,7 @@ public class TouchThruDrawerlayout extends DrawerLayout
 	@Override
 	public boolean onInterceptTouchEvent( MotionEvent ev )
 	{
-		if( ev.getActionMasked() == MotionEvent.ACTION_DOWN &&
-			touchThru )
+		if( touchThru )
 			return false;
 
 		return super.onInterceptTouchEvent( ev );
