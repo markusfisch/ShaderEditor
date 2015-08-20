@@ -119,7 +119,16 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 		GLES20.glClearColor( 0f, 0f, 0f, 1f );
 
-		if( fragmentShader != null )
+		if( program != 0 )
+		{
+			GLES20.glDeleteProgram( program );
+			program = 0;
+
+			deleteTargets();
+		}
+
+		if( fragmentShader != null &&
+			fragmentShader.length() > 0 )
 		{
 			resetFps();
 			loadProgram();
@@ -382,11 +391,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	private void loadProgram()
 	{
-		if( program != 0 )
-			GLES20.glDeleteProgram( program );
-
-		deleteTargets();
-
 		if( (program = Shader.loadProgram(
 			vertexShader,
 			fragmentShader )) == 0 )
