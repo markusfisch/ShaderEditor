@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.opengl;
 
-public class ShaderError
+public class InfoLog
 {
 	private static String message;
 	private static int errorLine;
@@ -15,31 +15,31 @@ public class ShaderError
 		return errorLine;
 	}
 
-	public static void parseError( String glError )
+	public static void parse( String infoLog )
 	{
 		message = null;
 		errorLine = 0;
 
-		if( glError == null )
+		if( infoLog == null )
 			return;
 
 		int from;
 
-		if( (from = glError.indexOf( "ERROR: 0:" )) > -1 )
+		if( (from = infoLog.indexOf( "ERROR: 0:" )) > -1 )
 			from += 9;
-		else if( (from = glError.indexOf( "0:" )) > -1 )
+		else if( (from = infoLog.indexOf( "0:" )) > -1 )
 			from += 2;
 
 		if( from > -1 )
 		{
 			int to;
 
-			if( (to = glError.indexOf( ":", from )) > -1 )
+			if( (to = infoLog.indexOf( ":", from )) > -1 )
 			{
 				try
 				{
 					errorLine = Integer.valueOf(
-						glError.substring( from, to ).trim() );
+						infoLog.substring( from, to ).trim() );
 				}
 				catch( NullPointerException e )
 				{
@@ -49,12 +49,12 @@ public class ShaderError
 				from = ++to;
 			}
 
-			if( (to = glError.indexOf( "\n", from )) < 0 )
-				to = glError.length();
+			if( (to = infoLog.indexOf( "\n", from )) < 0 )
+				to = infoLog.length();
 
-			glError = glError.substring( from, to ).trim();
+			infoLog = infoLog.substring( from, to ).trim();
 		}
 
-		message = glError;
+		message = infoLog;
 	}
 }

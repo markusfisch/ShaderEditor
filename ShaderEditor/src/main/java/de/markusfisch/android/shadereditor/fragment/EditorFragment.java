@@ -1,7 +1,7 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
-import de.markusfisch.android.shadereditor.opengl.ShaderError;
+import de.markusfisch.android.shadereditor.opengl.InfoLog;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.R;
 
@@ -89,14 +89,14 @@ public class EditorFragment extends Fragment
 		shaderEditor.setErrorLine( 0 );
 	}
 
-	public void setError( String glError )
+	public void setErrorMessage( String infoLog )
 	{
-		ShaderError.parseError( glError );
+		InfoLog.parse( infoLog );
 
-		errorView.setText( ShaderError.getMessage() );
+		errorView.setText( InfoLog.getMessage() );
 		errorView.setVisibility( View.VISIBLE );
 
-		shaderEditor.setErrorLine( ShaderError.getErrorLine() );
+		shaderEditor.setErrorLine( InfoLog.getErrorLine() );
 	}
 
 	public boolean isModified()

@@ -374,21 +374,26 @@ public class MainActivity
 				@Override
 				public void onFramesPerSecond( int fps )
 				{
-					// running in the GL thread
-					MainActivity.this.fps = fps;
-					toolbar.post( updateFpsRunnable );
+					// this is running in the GL thread
+					postUpdateFps( fps );
 				}
 
 				@Override
-				public void onShaderError( String error )
+				public void onInfoLog( String infoLog )
 				{
-					// running in the GL thread
-					postSetError( error );
+					// this is running in the GL thread
+					postInfoLog( infoLog );
 				}
 			} );
 	}
 
-	private void postSetError( final String error )
+	private void postUpdateFps( int fps )
+	{
+		this.fps = fps;
+		toolbar.post( updateFpsRunnable );
+	}
+
+	private void postInfoLog( final String infoLog )
 	{
 		shaderView.post(
 			new Runnable()
@@ -396,7 +401,7 @@ public class MainActivity
 				@Override
 				public void run()
 				{
-					editorFragment.setError( error );
+					editorFragment.setErrorMessage( infoLog );
 				}
 			} );
 	}

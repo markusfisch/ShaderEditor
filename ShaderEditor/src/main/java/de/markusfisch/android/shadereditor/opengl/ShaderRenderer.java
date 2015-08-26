@@ -25,7 +25,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 {
 	public interface OnRendererListener
 	{
-		public void onShaderError( String error );
+		public void onInfoLog( String error );
 		public void onFramesPerSecond( int fps );
 	}
 
@@ -391,13 +391,13 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	private void loadProgram()
 	{
-		if( (program = Shader.loadProgram(
+		if( (program = Program.loadProgram(
 			vertexShader,
 			fragmentShader )) == 0 )
 		{
 			if( onRendererListener != null )
-				onRendererListener.onShaderError(
-					Shader.getLastError() );
+				onRendererListener.onInfoLog(
+					Program.getInfoLog() );
 
 			return;
 		}

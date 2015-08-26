@@ -2,13 +2,13 @@ package de.markusfisch.android.shadereditor.opengl;
 
 import android.opengl.GLES20;
 
-public class Shader
+public class Program
 {
-	private static String lastError;
+	private static String infoLog;
 
-	public static String getLastError()
+	public static String getInfoLog()
 	{
-		return lastError;
+		return infoLog;
 	}
 
 	public static int loadProgram(
@@ -60,7 +60,7 @@ public class Shader
 
 		if( linkStatus[0] != GLES20.GL_TRUE )
 		{
-			lastError = GLES20.glGetProgramInfoLog( p );
+			infoLog = GLES20.glGetProgramInfoLog( p );
 
 			GLES20.glDeleteProgram( p );
 			p = 0;
@@ -88,7 +88,7 @@ public class Shader
 
 		if( compiled[0] == 0 )
 		{
-			lastError = GLES20.glGetShaderInfoLog( s );
+			infoLog = GLES20.glGetShaderInfoLog( s );
 
 			GLES20.glDeleteShader( s );
 			s = 0;
