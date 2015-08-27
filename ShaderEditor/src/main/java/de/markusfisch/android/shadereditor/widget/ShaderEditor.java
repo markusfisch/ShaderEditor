@@ -32,6 +32,10 @@ public class ShaderEditor extends EditText
 		".*\\n" );
 	private static final Pattern PATTERN_NUMBERS = Pattern.compile(
 		"\\b(\\d*[.]?\\d+)\\b" );
+	private static final Pattern PATTERN_PREPROCESSOR = Pattern.compile(
+		"^[\t ]*(#define|#undef|#if|#ifdef|#ifndef|#else|#elif|#endif|"+
+		"#error|#pragma|#extension|#version|#line)\\b",
+		Pattern.MULTILINE );
 	private static final Pattern PATTERN_KEYWORDS = Pattern.compile(
 		"\\b(attribute|const|uniform|varying|break|continue|"+
 		"do|for|while|if|else|in|out|inout|float|int|void|bool|true|false|"+
@@ -285,6 +289,14 @@ public class ShaderEditor extends EditText
 				m.find(); )
 				e.setSpan(
 					new ForegroundColorSpan( colorNumber ),
+					m.start(),
+					m.end(),
+					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
+
+			for( Matcher m = PATTERN_PREPROCESSOR.matcher( e );
+				m.find(); )
+				e.setSpan(
+					new ForegroundColorSpan( colorKeyword ),
 					m.start(),
 					m.end(),
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
