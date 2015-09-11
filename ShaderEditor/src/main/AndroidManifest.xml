@@ -14,6 +14,7 @@
 		android:anyDensity="true"/>
 	<uses-feature android:glEsVersion="0x00020000"/>
 	<uses-feature android:name="android.software.live_wallpaper"/>
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 	<application
 		tools:ignore="UnusedAttribute"
 		android:name=".app.ShaderEditorApplication"

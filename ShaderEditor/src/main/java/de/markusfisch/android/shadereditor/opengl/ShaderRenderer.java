@@ -7,8 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLUtils;
 import android.os.BatteryManager;
 import android.view.MotionEvent;
 
@@ -39,7 +41,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		"}";
 
 	private final int fb[] = new int[]{ 0, 0 };
-	private final int tx[] = new int[]{ 0, 0 };
+	private final int tx[] = new int[]{ 0, 0, 0 };
 	private final float resolution[] = new float[]{ 0, 0 };
 	private final float touch[] = new float[]{ 0, 0 };
 	private final float mouse[] = new float[]{ 0, 0 };
@@ -66,9 +68,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int positionLoc;
 	private int batteryLoc;
 	private int backBufferLoc;
+	private int textureLoc;
 	private int pointerCount;
 	private int frontTarget = 0;
 	private int backTarget = 1;
+	private int inputTexture = 2;
 	private long startTime;
 	private long lastRender;
 	private Intent batteryStatus;
@@ -156,6 +160,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			false,
 			0,
 			vertexBuffer );
+
 
 		if( timeLoc > -1 )
 			GLES20.glUniform1f(
@@ -253,6 +258,19 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			GLES20.glBindTexture(
 				GLES20.GL_TEXTURE_2D,
 				tx[backTarget] );
+		}
+
+		if ( textureLoc > -1 )
+        {
+			if (tx[2] == 0) {
+				final Bitmap bitmap = BitmapFactory.decodeFile("/sdcard/input.png");
+				createTexture(bitmap);
+				bitmap.recycle();
+			}
+
+			GLES20.glUniform1i(textureLoc, 0);
+			int t = tx[inputTexture];
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, t);
 		}
 
 		GLES20.glDrawArrays(
@@ -450,6 +468,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			program, "battery" );
 		backBufferLoc = GLES20.glGetUniformLocation(
 			program, "backbuffer" );
+
+        textureLoc = GLES20.glGetUniformLocation(
+				program, "texture");
 	}
 
 	private byte[] saveThumbnail()
@@ -538,15 +559,27 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		lastRender = now;
 	}
 
-	private void deleteTargets()
-	{
+	private void deleteTargets() {
+		deleteFrameBuffers();
+		deleteTextures();
+	}
+
+	private void deleteFrameBuffers() {
 		if( fb[0] == 0 )
 			return;
 
-		GLES20.glDeleteFramebuffers( 2, fb, 0 );
-		GLES20.glDeleteTextures( 2, tx, 0 );
+		GLES20.glDeleteFramebuffers(2, fb, 0);
 
 		fb[0] = 0;
+	}
+
+	private void deleteTextures() {
+		if (tx[0] == 0)
+			return;
+
+		GLES20.glDeleteTextures(3, tx, 0);
+
+		tx[0] = tx[1] = tx[2] = 0;
 	}
 
 	private void createTargets( int width, int height )
@@ -554,13 +587,48 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		deleteTargets();
 
 		GLES20.glGenFramebuffers( 2, fb, 0 );
-		GLES20.glGenTextures( 2, tx, 0 );
+		if (tx[0] == 0)
+			generateTextures(tx);
 
 		createTarget( frontTarget, width, height );
-		createTarget( backTarget, width, height );
+		createTarget(backTarget, width, height);
 
-		GLES20.glBindTexture( GLES20.GL_TEXTURE_2D, 0 );
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
 		GLES20.glBindFramebuffer( GLES20.GL_FRAMEBUFFER, 0 );
+	}
+
+	private void generateTextures(int[] tx) {
+		GLES20.glGenTextures(3, tx, 0);
+	}
+
+	private void createTexture(Bitmap bitmap) {
+		if (tx[0] == 0)
+			generateTextures(tx);
+
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, tx[inputTexture]);
+
+		GLES20.glTexParameteri(
+				GLES20.GL_TEXTURE_2D,
+				GLES20.GL_TEXTURE_WRAP_S,
+				GLES20.GL_REPEAT );
+		GLES20.glTexParameteri(
+				GLES20.GL_TEXTURE_2D,
+				GLES20.GL_TEXTURE_WRAP_T,
+				GLES20.GL_REPEAT );
+
+		GLES20.glTexParameteri(
+				GLES20.GL_TEXTURE_2D,
+				GLES20.GL_TEXTURE_MAG_FILTER,
+				GLES20.GL_LINEAR );
+		GLES20.glTexParameteri(
+				GLES20.GL_TEXTURE_2D,
+				GLES20.GL_TEXTURE_MIN_FILTER,
+				GLES20.GL_LINEAR_MIPMAP_LINEAR);
+
+		if (bitmap != null) {
+			GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA, bitmap, GLES20.GL_UNSIGNED_BYTE, 0);
+			GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+		}
 	}
 
 	private void createTarget( int idx, int width, int height )
