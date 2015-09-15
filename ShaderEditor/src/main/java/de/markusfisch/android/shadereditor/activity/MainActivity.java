@@ -66,7 +66,7 @@ public class MainActivity
 	private volatile int fps;
 
 	@Override
-	public void onCreate( Bundle state )
+	protected void onCreate( Bundle state )
 	{
 		super.onCreate( state );
 		setContentView( R.layout.activity_main );
@@ -96,7 +96,7 @@ public class MainActivity
 	}
 
 	@Override
-	public void onRestoreInstanceState( Bundle state )
+	protected void onRestoreInstanceState( Bundle state )
 	{
 		super.onRestoreInstanceState( state );
 
@@ -106,7 +106,7 @@ public class MainActivity
 	}
 
 	@Override
-	public void onSaveInstanceState( Bundle state )
+	protected void onSaveInstanceState( Bundle state )
 	{
 		if( state != null )
 			state.putLong(
@@ -117,7 +117,7 @@ public class MainActivity
 	}
 
 	@Override
-	public void onPostCreate( Bundle state )
+	protected void onPostCreate( Bundle state )
 	{
 		super.onPostCreate( state );
 
@@ -125,7 +125,7 @@ public class MainActivity
 	}
 
 	@Override
-	public void onResume()
+	protected void onResume()
 	{
 		super.onResume();
 
@@ -134,7 +134,7 @@ public class MainActivity
 	}
 
 	@Override
-	public void onPause()
+	protected void onPause()
 	{
 		super.onPause();
 
@@ -142,7 +142,7 @@ public class MainActivity
 	}
 
 	@Override
-	public void onDestroy()
+	protected void onDestroy()
 	{
 		super.onDestroy();
 

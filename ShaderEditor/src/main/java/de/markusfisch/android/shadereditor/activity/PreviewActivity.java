@@ -31,7 +31,7 @@ public class PreviewActivity extends AppCompatActivity
 		};
 
 	@Override
-	public void onCreate( Bundle state )
+	protected void onCreate( Bundle state )
 	{
 		super.onCreate( state );
 
@@ -53,7 +53,7 @@ public class PreviewActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onResume()
+	protected void onResume()
 	{
 		super.onResume();
 
@@ -66,7 +66,7 @@ public class PreviewActivity extends AppCompatActivity
 	}
 
 	@Override
-	public void onPause()
+	protected void onPause()
 	{
 		super.onPause();
 
