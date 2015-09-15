@@ -3,8 +3,7 @@
 	android:title="@string/preferences"
 	android:key="preferences">
 	<PreferenceCategory
-		android:title="@string/wallpaper"
-		android:key="wallpaper_preferences">
+		android:title="@string/wallpaper">
 		<de.markusfisch.android.shadereditor.preference.ShaderListPreference
 			android:key="shader"
 			android:title="@string/shader"/>
@@ -16,8 +15,7 @@
 			android:defaultValue="true"/>
 	</PreferenceCategory>
 	<PreferenceCategory
-		android:title="@string/editor"
-		android:key="editor_preferences">
+		android:title="@string/editor">
 		<ListPreference
 			android:key="run_mode"
 			android:title="@string/run_mode"
@@ -38,8 +36,7 @@
 			android:defaultValue="12"/>
 	</PreferenceCategory>
 	<PreferenceCategory
-		android:title="@string/sensors"
-		android:key="sensor_preferences">
+		android:title="@string/sensors">
 		<ListPreference
 			android:key="sensor_delay"
 			android:title="@string/sensor_delay"

@@ -2,13 +2,12 @@ package de.markusfisch.android.shadereditor.app;
 
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.preference.Preferences;
-import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
 import de.markusfisch.android.shadereditor.R;
 
 import android.app.Application;
 import android.database.SQLException;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceManager;
 import android.widget.Toast;
 
 public class ShaderEditorApplication extends Application
