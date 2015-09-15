@@ -10,10 +10,10 @@ install:
 	adb $(TARGET) install -rk $(APK)
 
 start:
-	adb shell 'am start -n $(PACKAGE)/.activity.MainActivity'
+	adb $(TARGET) shell 'am start -n $(PACKAGE)/.activity.MainActivity'
 
 uninstall:
-	adb uninstall $(PACKAGE)
+	adb $(TARGET) uninstall $(PACKAGE)
 
 images:
 	svg/update.sh
