@@ -9,12 +9,8 @@ To keep things in good shape, I kindly ask you to
 * choose [clear and simple semantics][semantics].
 * prefer many short methods over of a lot of [indent][kernel].
 * test.
-* write good a [commit message][commit].
+* write a good [commit message][commit].
 * open a [pull request][pull].
-
-If you can get your fingers to type this way, I may still happily accept
-your contribution but probably won't merge it directly but make it fit in
-first. This may take time.
 
 Once your contribution is merged, I'll add your name or call sign to
 CONTRIBUTORS unless you don't want that.
