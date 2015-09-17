@@ -19,6 +19,8 @@ public class BatteryLevelReceiver extends BroadcastReceiver
 			saveBattery( true );
 		else if( Intent.ACTION_BATTERY_OKAY.equals( action ) )
 			saveBattery( false );
+		else if( Intent.ACTION_POWER_CONNECTED.equals( action ) )
+			saveBattery( false );
 	}
 
 	public static void saveBattery( boolean low )
