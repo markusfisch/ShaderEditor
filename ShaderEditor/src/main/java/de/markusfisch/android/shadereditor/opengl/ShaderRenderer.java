@@ -192,10 +192,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				pointerCount );
 
 		if( pointersLoc > -1 )
-			GLES20.glUniformMatrix3fv(
+			GLES20.glUniform3fv(
 				pointersLoc,
-				1,
-				false,
+				pointerCount,
 				pointers,
 				0 );
 

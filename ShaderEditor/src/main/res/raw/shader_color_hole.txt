@@ -6,7 +6,7 @@ precision mediump float;
 
 uniform float time;
 uniform int pointerCount;
-uniform mat3 pointers;
+uniform vec3 pointers[10];
 uniform vec2 resolution;
 
 void main( void )
