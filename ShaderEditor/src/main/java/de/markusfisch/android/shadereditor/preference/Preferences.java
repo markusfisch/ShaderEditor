@@ -3,14 +3,12 @@ package de.markusfisch.android.shadereditor.preference;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.SensorManager;
+import android.preference.PreferenceManager;
 
 import java.lang.NumberFormatException;
 
 public class Preferences
 {
-	public static final String NAME =
-		"de.markusfisch.android.preference.Preferences";
-
 	public static final String WALLPAPER_SHADER = "shader";
 	public static final String SAVE_BATTERY = "save_battery";
 	public static final String RUN_MODE = "run_mode";
@@ -32,9 +30,8 @@ public class Preferences
 
 	public Preferences( Context context )
 	{
-		preferences = context.getSharedPreferences(
-			NAME,
-			Context.MODE_PRIVATE );
+		preferences = PreferenceManager
+			.getDefaultSharedPreferences( context );
 
 		update();
 	}
@@ -122,6 +119,7 @@ public class Preferences
 		}
 		catch( NumberFormatException e )
 		{
+			// use preset
 		}
 
 		return preset;
@@ -137,6 +135,7 @@ public class Preferences
 		}
 		catch( NumberFormatException e )
 		{
+			// use preset
 		}
 
 		return preset;
