@@ -129,7 +129,7 @@ public class MainActivity
 	{
 		super.onResume();
 
-		updateUiToPrefrences();
+		updateUiToPreferences();
 		queryShadersAsync();
 	}
 
@@ -406,12 +406,14 @@ public class MainActivity
 			} );
 	}
 
-	private void updateUiToPrefrences()
+	private void updateUiToPreferences()
 	{
 		if( ShaderEditorApplication
 				.preferences
 				.doesRunInBackground() )
+		{
 			shaderView.onResume();
+		}
 		else
 		{
 			if( !editorFragment.isCodeVisible() )
