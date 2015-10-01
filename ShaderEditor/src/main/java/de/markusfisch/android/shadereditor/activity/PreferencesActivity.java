@@ -10,6 +10,13 @@ import android.support.v7.widget.Toolbar;
 public class PreferencesActivity extends AppCompatActivity
 {
 	@Override
+	public boolean onSupportNavigateUp()
+	{
+		finish();
+		return true;
+	}
+
+	@Override
 	protected void onCreate( Bundle state )
 	{
 		super.onCreate( state );
