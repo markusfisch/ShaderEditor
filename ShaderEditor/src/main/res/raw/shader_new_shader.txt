@@ -27,9 +27,13 @@ precision mediump float;
 // previous frame, i.e. texture2D( backbuffer, uv ).rgb
 //uniform sampler2D backbuffer;
 
+// texture
+//uniform sampler2D texture;
+
 void main( void )
 {
 	//vec2 uv = gl_FragCoord.xy/resolution.xy;
+	//gl_FragColor = texture2D(texture, uv);
 
 	gl_FragColor = vec4( vec3( 0.2 ), 1.0 );
 }

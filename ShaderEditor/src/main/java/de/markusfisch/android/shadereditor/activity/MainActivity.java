@@ -138,6 +138,7 @@ public class MainActivity
 	{
 		super.onPause();
 
+		saveShader( selectedShaderId );
 		shaderView.onPause();
 	}
 
