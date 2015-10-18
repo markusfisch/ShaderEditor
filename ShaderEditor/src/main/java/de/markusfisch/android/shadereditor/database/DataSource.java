@@ -22,7 +22,7 @@ public class DataSource
 {
 	public static final String SHADERS = "shaders";
 	public static final String SHADERS_ID = "_id";
-	public static final String SHADERS_SHADER = "shader";
+	public static final String SHADERS_FRAGMENT_SHADER = "shader";
 	public static final String SHADERS_THUMB = "thumb";
 	public static final String SHADERS_CREATED = "created";
 	public static final String SHADERS_MODIFIED = "modified";
@@ -83,7 +83,7 @@ public class DataSource
 		return db.rawQuery(
 			"SELECT "+
 				SHADERS_ID+","+
-				SHADERS_SHADER+","+
+				SHADERS_FRAGMENT_SHADER+","+
 				SHADERS_MODIFIED+
 				" FROM "+SHADERS+
 				" WHERE "+SHADERS_ID+"="+id,
@@ -95,7 +95,7 @@ public class DataSource
 		return db.rawQuery(
 			"SELECT "+
 				SHADERS_ID+","+
-				SHADERS_SHADER+","+
+				SHADERS_FRAGMENT_SHADER+","+
 				SHADERS_MODIFIED+
 				" FROM "+SHADERS+
 				" ORDER BY RANDOM() LIMIT 1",
@@ -153,7 +153,7 @@ public class DataSource
 		String now = currentTime();
 
 		ContentValues cv = new ContentValues();
-		cv.put( SHADERS_SHADER, shader );
+		cv.put( SHADERS_FRAGMENT_SHADER, shader );
 		cv.put( SHADERS_THUMB, thumbnail );
 		cv.put( SHADERS_CREATED, now );
 		cv.put( SHADERS_MODIFIED, now );
@@ -184,7 +184,7 @@ public class DataSource
 	public void update( long id, String shader, byte[] thumbnail )
 	{
 		ContentValues cv = new ContentValues();
-		cv.put( SHADERS_SHADER, shader );
+		cv.put( SHADERS_FRAGMENT_SHADER, shader );
 		cv.put( SHADERS_THUMB, thumbnail );
 		cv.put( SHADERS_MODIFIED, currentTime() );
 
@@ -233,6 +233,30 @@ public class DataSource
 		return out.toByteArray();
 	}
 
+	private void insertInitalShaders( SQLiteDatabase db )
+	{
+		try
+		{
+			DataSource.insert(
+				db,
+				loadRawResource(
+					R.raw.shader_laser_lines ),
+				loadBitmapResource(
+					R.drawable.thumbnail_laser_lines ) );
+
+			DataSource.insert(
+				db,
+				loadRawResource(
+					R.raw.shader_color_hole ),
+				loadBitmapResource(
+					R.drawable.thumbnail_color_hole ) );
+		}
+		catch( IOException e )
+		{
+			// fail silently
+		}
+	}
+
 	private class OpenHelper extends SQLiteOpenHelper
 	{
 		public OpenHelper( Context c )
@@ -247,31 +271,12 @@ public class DataSource
 			db.execSQL(
 				"CREATE TABLE "+SHADERS+" ("+
 					SHADERS_ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"+
-					SHADERS_SHADER+" TEXT NOT NULL,"+
+					SHADERS_FRAGMENT_SHADER+" TEXT NOT NULL,"+
 					SHADERS_THUMB+" BLOB,"+
 					SHADERS_CREATED+" DATETIME,"+
 					SHADERS_MODIFIED+" DATETIME );" );
 
-			try
-			{
-				DataSource.insert(
-					db,
-					loadRawResource(
-						R.raw.shader_laser_lines ),
-					loadBitmapResource(
-						R.drawable.thumbnail_laser_lines ) );
-
-				DataSource.insert(
-					db,
-					loadRawResource(
-						R.raw.shader_color_hole ),
-					loadBitmapResource(
-						R.drawable.thumbnail_color_hole ) );
-			}
-			catch( IOException e )
-			{
-				// fail silently
-			}
+			insertInitalShaders( db );
 		}
 
 		@Override

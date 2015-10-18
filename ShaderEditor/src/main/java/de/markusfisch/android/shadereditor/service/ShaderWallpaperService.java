@@ -148,7 +148,7 @@ public class ShaderWallpaperService extends WallpaperService
 
 			fragmentShader = cursor.getString(
 				cursor.getColumnIndex(
-					DataSource.SHADERS_SHADER ) );
+					DataSource.SHADERS_FRAGMENT_SHADER ) );
 
 			if( isRandom )
 				ShaderEditorApplication

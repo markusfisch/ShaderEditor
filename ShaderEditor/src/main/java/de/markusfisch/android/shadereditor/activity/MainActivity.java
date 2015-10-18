@@ -707,7 +707,7 @@ public class MainActivity
 			return;
 
 		String fragmentShader = cursor.getString(
-			cursor.getColumnIndex( DataSource.SHADERS_SHADER ) );
+			cursor.getColumnIndex( DataSource.SHADERS_FRAGMENT_SHADER ) );
 		String modified = cursor.getString( cursor.getColumnIndex(
 			DataSource.SHADERS_MODIFIED ) );
 
