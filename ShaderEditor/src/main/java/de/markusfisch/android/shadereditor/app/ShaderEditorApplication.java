@@ -19,7 +19,6 @@ public class ShaderEditorApplication extends Application
 	@Override
 	public void onCreate()
 	{
-android.util.Log.d( "mfdbg", "mfdbg: ShaderEditorApplication::onCreate()" );
 		super.onCreate();
 
 		PreferenceManager.setDefaultValues(
@@ -42,12 +41,10 @@ android.util.Log.d( "mfdbg", "mfdbg: ShaderEditorApplication::onCreate()" );
 			{
 				try
 				{
-android.util.Log.d( "mfdbg", "mfdbg: dataSource.open()" );
 					return dataSource.open();
 				}
 				catch( SQLException e )
 				{
-android.util.Log.e( "mfdbg", "mfdbg: SQLException: "+e.getMessage(), e );
 					return false;
 				}
 			}
@@ -55,7 +52,6 @@ android.util.Log.e( "mfdbg", "mfdbg: SQLException: "+e.getMessage(), e );
 			@Override
 			protected void onPostExecute( Boolean success )
 			{
-android.util.Log.d( "mfdbg", "mfdbg: dataSource.open(): "+success );
 				if( success )
 					return;
 
