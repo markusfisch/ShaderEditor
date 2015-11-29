@@ -13,7 +13,7 @@ To keep things in good shape, I kindly ask you to
 * open a [pull request][pull].
 
 Once your contribution is merged, I'll add your name or call sign to
-CONTRIBUTORS unless you don't want that.
+CONTRIBUTORS.md unless you don't want that.
 
 [style]:https://gist.github.com/markusfisch/e4cf70fab43e798f6091
 [pikestyle]:http://doc.cat-v.org/bell_labs/pikestyle
