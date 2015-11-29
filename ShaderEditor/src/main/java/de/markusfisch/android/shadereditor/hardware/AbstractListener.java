@@ -8,7 +8,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-abstract public class AbstractListener implements SensorEventListener
+public abstract class AbstractListener implements SensorEventListener
 {
 	protected long last = 0;
 

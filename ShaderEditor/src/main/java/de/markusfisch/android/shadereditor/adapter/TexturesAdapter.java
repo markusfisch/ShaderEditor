@@ -1,13 +1,11 @@
 package de.markusfisch.android.shadereditor.adapter;
 
-import de.markusfisch.android.shadereditor.activity.MainActivity;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
-import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,22 +13,19 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class ShaderAdapter extends CursorAdapter
+public class TexturesAdapter extends CursorAdapter
 {
 	private int idIndex;
+	private int nameIndex;
 	private int thumbIndex;
-	private int modifiedIndex;
-	private int textColorSelected;
-	private int textColorUnselected;
 
-	public ShaderAdapter(
+	public TexturesAdapter(
 		Context context,
 		Cursor cursor )
 	{
 		super( context, cursor, false );
 
 		indexColumns( cursor );
-		initTextColors( context );
 	}
 
 	@Override
@@ -43,7 +38,7 @@ public class ShaderAdapter extends CursorAdapter
 			parent.getContext() );
 
 		return inflater.inflate(
-			R.layout.row_shader,
+			R.layout.row_texture,
 			parent,
 			false );
 	}
@@ -57,11 +52,6 @@ public class ShaderAdapter extends CursorAdapter
 		ViewHolder holder = getViewHolder( view );
 
 		setData( holder, cursor );
-
-		holder.title.setTextColor(
-			cursor.getLong( idIndex ) == MainActivity.selectedShaderId ?
-				textColorSelected :
-				textColorUnselected );
 	}
 
 	protected ViewHolder getViewHolder( View view )
@@ -71,10 +61,10 @@ public class ShaderAdapter extends CursorAdapter
 		if( (holder = (ViewHolder)view.getTag()) == null )
 		{
 			holder = new ViewHolder();
-			holder.icon = (ImageView)view.findViewById(
-				R.id.shader_icon );
-			holder.title = (TextView)view.findViewById(
-				R.id.shader_title );
+			holder.preview = (ImageView)view.findViewById(
+				R.id.texture_preview );
+			holder.name = (TextView)view.findViewById(
+				R.id.texture_name );
 		}
 
 		return holder;
@@ -86,38 +76,28 @@ public class ShaderAdapter extends CursorAdapter
 
 		if( bytes != null &&
 			bytes.length > 0 )
-			holder.icon.setImageBitmap(
+			holder.preview.setImageBitmap(
 				BitmapFactory.decodeByteArray(
 					bytes,
 					0,
 					bytes.length ) );
 
-		holder.title.setText( cursor.getString( modifiedIndex ) );
+		holder.name.setText( cursor.getString( nameIndex ) );
 	}
 
 	private void indexColumns( Cursor cursor )
 	{
 		idIndex = cursor.getColumnIndex(
-			DataSource.SHADERS_ID );
+			DataSource.TEXTURES_ID );
+		nameIndex = cursor.getColumnIndex(
+			DataSource.TEXTURES_NAME );
 		thumbIndex = cursor.getColumnIndex(
-			DataSource.SHADERS_THUMB );
-		modifiedIndex = cursor.getColumnIndex(
-			DataSource.SHADERS_MODIFIED );
+			DataSource.TEXTURES_THUMB );
 	}
 
 	private static final class ViewHolder
 	{
-		public ImageView icon;
-		public TextView title;
-	}
-
-	private void initTextColors( Context context )
-	{
-		textColorSelected = ContextCompat.getColor(
-			context,
-			R.color.accent );
-		textColorUnselected = ContextCompat.getColor(
-			context,
-			R.color.drawer_text_unselected );
+		public ImageView preview;
+		public TextView name;
 	}
 }

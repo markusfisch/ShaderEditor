@@ -26,20 +26,20 @@ public class TouchThruDrawerlayout extends DrawerLayout
 	}
 
 	@Override
-	public boolean onInterceptTouchEvent( MotionEvent ev )
+	public boolean onInterceptTouchEvent( MotionEvent event )
 	{
 		if( touchThru )
 			return false;
 
-		return super.onInterceptTouchEvent( ev );
+		return super.onInterceptTouchEvent( event );
 	}
 
 	@Override
-	public boolean onTouchEvent( MotionEvent ev )
+	public boolean onTouchEvent( MotionEvent event )
 	{
 		if( touchThru )
 			return false;
 
-		return super.onTouchEvent( ev );
+		return super.onTouchEvent( event );
 	}
 }

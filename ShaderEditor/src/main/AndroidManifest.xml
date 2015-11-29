@@ -62,5 +62,8 @@
 			android:name=".activity.PreferencesActivity"
 			android:label="@string/preferences"
 			android:exported="true"/>
+		<activity
+			android:name=".activity.TexturesActivity"
+			android:label="@string/textures"/>
 	</application>
 </manifest>

@@ -44,7 +44,7 @@ public class EditorFragment extends Fragment
 			(shaderEditor = (ShaderEditor)view.findViewById(
 				R.id.editor )) == null ||
 			(scrollView = (ScrollView)view.findViewById(
-				R.id.scroll )) == null )
+				R.id.scroll_view )) == null )
 		{
 			activity.finish();
 			return null;

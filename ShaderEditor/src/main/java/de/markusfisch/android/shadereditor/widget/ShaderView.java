@@ -45,9 +45,9 @@ public class ShaderView extends GLSurfaceView
 	}
 
 	@Override
-	public boolean onTouchEvent( MotionEvent e )
+	public boolean onTouchEvent( MotionEvent event )
 	{
-		renderer.touchAt( e );
+		renderer.touchAt( event );
 
 		return true;
 	}

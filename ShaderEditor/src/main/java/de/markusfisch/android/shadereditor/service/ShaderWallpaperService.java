@@ -45,8 +45,6 @@ public class ShaderWallpaperService extends WallpaperService
 				.registerOnSharedPreferenceChangeListener(
 					this );
 
-			setShader();
-
 			setTouchEventsEnabled( true );
 		}
 
@@ -65,8 +63,8 @@ public class ShaderWallpaperService extends WallpaperService
 			super.onCreate( holder );
 
 			view = new ShaderWallpaperView();
-			view.getRenderer().setFragmentShader(
-				fragmentShader );
+
+			setShader();
 		}
 
 		@Override
@@ -121,6 +119,23 @@ public class ShaderWallpaperService extends WallpaperService
 
 		private void setShader()
 		{
+			if( !ShaderEditorApplication.dataSource.isOpen() &&
+				view != null )
+			{
+				view.postDelayed(
+					new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							setShader();
+						}
+					},
+					100 );
+
+				return;
+			}
+
 			final long id = ShaderEditorApplication
 				.preferences
 				.getWallpaperShader();

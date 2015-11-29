@@ -41,4 +41,9 @@
 		android:icon="@drawable/ic_action_update"
 		android:title="@string/update_wallpaper"
 		material:showAsAction="ifRoom"/>
+	<item
+		android:id="@+id/textures"
+		android:icon="@drawable/ic_action_textures"
+		android:title="@string/textures"
+		material:showAsAction="ifRoom"/>
 </menu>

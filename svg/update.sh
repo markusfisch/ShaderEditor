@@ -101,6 +101,8 @@ EOF
 
 update ShaderEditor/src/main/res/drawable << EOF
 svg/ic_action_add.svg 24 1
+svg/ic_action_add_texture.svg 24
+svg/ic_action_cut.svg 24 1
 svg/ic_action_delete.svg 24 1
 svg/ic_action_duplicate.svg 24 1
 svg/ic_action_preview.svg 24 1
@@ -109,4 +111,5 @@ svg/ic_action_save.svg 24 1
 svg/ic_action_settings.svg 24 1
 svg/ic_action_share.svg 24 1
 svg/ic_action_update.svg 24 1
+svg/ic_action_textures.svg 24 1
 EOF

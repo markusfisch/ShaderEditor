@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.opengl;
 
+import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.hardware.AccelerometerListener;
 import de.markusfisch.android.shadereditor.hardware.GyroscopeListener;
 
@@ -7,8 +8,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLUtils;
 import android.os.BatteryManager;
 import android.view.MotionEvent;
 
@@ -21,6 +24,10 @@ import java.nio.IntBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import java.util.ArrayList;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 public class ShaderRenderer implements GLSurfaceView.Renderer
 {
 	public interface OnRendererListener
@@ -31,13 +38,17 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	private static final float NANO = 1000000000f;
 	private static final long FPS_UPDATE_FREQUENCY = 200000000;
-	private static final String vertexShader =
+	private static final Pattern SAMPLER_2D = Pattern.compile(
+		"uniform[ \t]+sampler2D[ \t]+([a-zA-Z0-9]+);" );
+	private static final String VERTEX_SHADER =
 		"attribute vec2 position;"+
 		"void main()"+
 		"{"+
 			"gl_Position = vec4( position, 0., 1. );"+
 		"}";
 
+	private final ArrayList<String> textureNames = new ArrayList<String>();
+	private final Matrix flipMatrix = new Matrix();
 	private final int fb[] = new int[]{ 0, 0 };
 	private final int tx[] = new int[]{ 0, 0 };
 	private final float resolution[] = new float[]{ 0, 0 };
@@ -66,6 +77,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int positionLoc;
 	private int batteryLoc;
 	private int backBufferLoc;
+	private int textureLocs[] = new int[4];
+	private int textureIds[] = new int[4];
+	private int numberOfTextures = 0;
 	private int pointerCount;
 	private int frontTarget = 0;
 	private int backTarget = 1;
@@ -87,12 +101,16 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			new AccelerometerListener( context );
 		gyroscopeListener =
 			new GyroscopeListener( context );
+
+		flipMatrix.postScale( 1f, -1f );
 	}
 
 	public void setFragmentShader( String source )
 	{
 		resetFps();
 		fragmentShader = source;
+
+		indexTextureNames( source );
 	}
 
 	public void setOnRendererListener( OnRendererListener listener )
@@ -132,6 +150,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		{
 			resetFps();
 			loadProgram();
+			createTextures();
 		}
 	}
 
@@ -254,6 +273,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				tx[backTarget] );
 		}
 
+		if( numberOfTextures > 0 )
+			bindTextures();
+
 		GLES20.glDrawArrays(
 			GLES20.GL_TRIANGLE_STRIP,
 			0,
@@ -266,6 +288,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			GLES20.glBindTexture(
 				GLES20.GL_TEXTURE_2D,
 				tx[backTarget] );
+
+			if( numberOfTextures > 0 )
+				bindTextures();
 
 			GLES20.glBindFramebuffer(
 				GLES20.GL_FRAMEBUFFER,
@@ -391,7 +416,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private void loadProgram()
 	{
 		if( (program = Program.loadProgram(
-			vertexShader,
+			VERTEX_SHADER,
 			fragmentShader )) == 0 )
 		{
 			if( onRendererListener != null )
@@ -449,6 +474,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			program, "battery" );
 		backBufferLoc = GLES20.glGetUniformLocation(
 			program, "backbuffer" );
+
+		for( int n = textureNames.size(); n-- > 0; )
+			textureLocs[n] = GLES20.glGetUniformLocation(
+				program, textureNames.get( n ) );
 	}
 
 	private byte[] saveThumbnail()
@@ -609,5 +638,126 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		GLES20.glClear(
 			GLES20.GL_COLOR_BUFFER_BIT |
 			GLES20.GL_DEPTH_BUFFER_BIT );
+	}
+
+	private void bindTextures()
+	{
+		for( int n = numberOfTextures; n-- > 0; )
+		{
+			int id = textureLocs[n];
+
+			if( id < 0 )
+				continue;
+
+			GLES20.glUniform1i(
+				id,
+				0 );
+
+			GLES20.glBindTexture(
+				GLES20.GL_TEXTURE_2D,
+				textureIds[n] );
+		}
+	}
+
+	private void deleteTextures()
+	{
+		if( textureIds[0] == 1 ||
+			numberOfTextures < 1 )
+			return;
+
+		GLES20.glDeleteTextures(
+			numberOfTextures,
+			textureIds,
+			0 );
+	}
+
+	private void createTextures()
+	{
+		deleteTextures();
+
+		numberOfTextures = textureNames.size();
+
+		if( numberOfTextures > textureIds.length )
+		{
+			int size = numberOfTextures*2;
+
+			textureLocs = new int[size];
+			textureIds = new int[size];
+		}
+
+		GLES20.glGenTextures(
+			numberOfTextures,
+			textureIds,
+			0 );
+
+		for( int n = 0; n < numberOfTextures; ++n )
+		{
+			Bitmap bitmap = ShaderEditorApplication
+				.dataSource
+				.getTexture( textureNames.get( n ) );
+
+			if( bitmap == null )
+				continue;
+
+			createTexture( textureIds[n], bitmap );
+			bitmap.recycle();
+		}
+	}
+
+	private void createTexture( int id, Bitmap bitmap )
+	{
+		GLES20.glBindTexture( GLES20.GL_TEXTURE_2D, id );
+
+		GLES20.glTexParameteri(
+			GLES20.GL_TEXTURE_2D,
+			GLES20.GL_TEXTURE_WRAP_S,
+			GLES20.GL_REPEAT );
+		GLES20.glTexParameteri(
+			GLES20.GL_TEXTURE_2D,
+			GLES20.GL_TEXTURE_WRAP_T,
+			GLES20.GL_REPEAT );
+
+		GLES20.glTexParameteri(
+			GLES20.GL_TEXTURE_2D,
+			GLES20.GL_TEXTURE_MIN_FILTER,
+			GLES20.GL_NEAREST );
+		GLES20.glTexParameteri(
+			GLES20.GL_TEXTURE_2D,
+			GLES20.GL_TEXTURE_MAG_FILTER,
+			GLES20.GL_LINEAR );
+
+		GLUtils.texImage2D(
+			GLES20.GL_TEXTURE_2D,
+			0,
+			GLES20.GL_RGBA,
+			// flip bitmap because 0/0 is bottom left in OpenGL
+			Bitmap.createBitmap(
+				bitmap,
+				0,
+				0,
+				bitmap.getWidth(),
+				bitmap.getHeight(),
+				flipMatrix,
+				true ),
+			GLES20.GL_UNSIGNED_BYTE,
+			0 );
+
+		GLES20.glGenerateMipmap(
+			GLES20.GL_TEXTURE_2D );
+	}
+
+	private void indexTextureNames( String source )
+	{
+		textureNames.clear();
+
+		for( Matcher m = SAMPLER_2D.matcher( source );
+			m.find(); )
+		{
+			String name = m.group( 1 );
+
+			if( name != null &&
+				!name.equals( "backbuffer" ) )
+				textureNames.add( name );
+		}
 	}
 }

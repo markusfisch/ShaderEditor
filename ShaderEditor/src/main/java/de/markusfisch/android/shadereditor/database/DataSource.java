@@ -27,13 +27,27 @@ public class DataSource
 	public static final String SHADERS_CREATED = "created";
 	public static final String SHADERS_MODIFIED = "modified";
 
+	public static final String TEXTURES = "textures";
+	public static final String TEXTURES_ID = "_id";
+	public static final String TEXTURES_NAME = "name";
+	public static final String TEXTURES_THUMB = "thumb";
+	public static final String TEXTURES_PATH = "path";
+	public static final String TEXTURES_MATRIX = "matrix";
+
 	private SQLiteDatabase db;
 	private OpenHelper helper;
 	private Context context;
+	private int textureThumbnailSize;
 
 	public DataSource( Context context )
 	{
 		helper = new OpenHelper( context );
+
+		textureThumbnailSize = Math.round(
+			context
+				.getResources()
+				.getDisplayMetrics()
+				.density*48f );
 
 		this.context = context;
 	}
@@ -75,6 +89,18 @@ public class DataSource
 				SHADERS_MODIFIED+
 				" FROM "+SHADERS+
 				" ORDER BY "+SHADERS_ID,
+			null );
+	}
+
+	public Cursor queryTextures()
+	{
+		return db.rawQuery(
+			"SELECT "+
+				TEXTURES_ID+","+
+				TEXTURES_NAME+","+
+				TEXTURES_THUMB+
+				" FROM "+TEXTURES+
+				" ORDER BY "+TEXTURES_ID,
 			null );
 	}
 
@@ -145,10 +171,47 @@ public class DataSource
 		return id;
 	}
 
-	public static long insert(
+	public Bitmap getTexture( String name )
+	{
+		Cursor cursor = db.rawQuery(
+			"SELECT "+
+				TEXTURES_PATH+","+
+				TEXTURES_MATRIX+
+				" FROM "+TEXTURES+
+				" WHERE "+TEXTURES_NAME+"=\""+name+"\"",
+			null );
+
+		if( closeIfEmpty( cursor ) )
+			return null;
+
+		Bitmap bm;
+		String path = cursor.getString(
+			cursor.getColumnIndex(
+				TEXTURES_PATH ) );
+
+		if( path == null ||
+			path.length() < 1 ||
+			(bm = BitmapFactory.decodeFile( path )) == null )
+		{
+			byte data[] = cursor.getBlob(
+				cursor.getColumnIndex(
+					TEXTURES_MATRIX ) );
+
+			bm = BitmapFactory.decodeByteArray(
+				data,
+				0,
+				data.length );
+		}
+
+		cursor.close();
+
+		return bm;
+	}
+
+	public static long insertShader(
 		SQLiteDatabase db,
 		String shader,
-		byte[] thumbnail )
+		byte thumbnail[] )
 	{
 		String now = currentTime();
 
@@ -161,16 +224,16 @@ public class DataSource
 		return db.insert( SHADERS, null, cv );
 	}
 
-	public long insert( String shader, byte[] thumbnail )
+	public long insertShader( String shader, byte[] thumbnail )
 	{
-		return insert( db, shader, thumbnail );
+		return insertShader( db, shader, thumbnail );
 	}
 
-	public long insert()
+	public long insertShader()
 	{
 		try
 		{
-			return insert(
+			return insertShader(
 				db,
 				loadRawResource( R.raw.shader_new_shader ),
 				loadBitmapResource( R.drawable.thumbnail_new_shader ) );
@@ -181,7 +244,45 @@ public class DataSource
 		}
 	}
 
-	public void update( long id, String shader, byte[] thumbnail )
+	public static long insertTexture(
+		SQLiteDatabase db,
+		String name,
+		Bitmap bitmap,
+		int thumbnailSize )
+	{
+		Bitmap thumbnail;
+
+		try
+		{
+			thumbnail = Bitmap.createScaledBitmap(
+				bitmap,
+				thumbnailSize,
+				thumbnailSize,
+				true );
+		}
+		catch( IllegalArgumentException e )
+		{
+			return 0;
+		}
+
+		ContentValues cv = new ContentValues();
+		cv.put( TEXTURES_NAME, name );
+		cv.put( TEXTURES_THUMB, bitmapToPng( thumbnail ) );
+		cv.put( TEXTURES_MATRIX, bitmapToPng( bitmap ) );
+
+		return db.insert( TEXTURES, null, cv );
+	}
+
+	public long insertTexture( String name, Bitmap bitmap )
+	{
+		return insertTexture(
+			db,
+			name,
+			bitmap,
+			textureThumbnailSize );
+	}
+
+	public void updateShader( long id, String shader, byte thumbnail[] )
 	{
 		ContentValues cv = new ContentValues();
 		cv.put( SHADERS_FRAGMENT_SHADER, shader );
@@ -195,11 +296,19 @@ public class DataSource
 			null );
 	}
 
-	public void remove( long id )
+	public void removeShader( long id )
 	{
 		db.delete(
 			SHADERS,
 			SHADERS_ID+"="+id,
+			null );
+	}
+
+	public void removeTexture( long id )
+	{
+		db.delete(
+			TEXTURES,
+			TEXTURES_ID+"="+id,
 			null );
 	}
 
@@ -224,27 +333,45 @@ public class DataSource
 
 	private byte[] loadBitmapResource( int id )
 	{
-		Bitmap image = BitmapFactory.decodeResource(
+		return bitmapToPng( BitmapFactory.decodeResource(
 			context.getResources(),
-			id );
+			id ) );
+	}
+
+	private static byte[] bitmapToPng( Bitmap bitmap )
+	{
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		image.compress( Bitmap.CompressFormat.PNG, 100, out );
+		bitmap.compress( Bitmap.CompressFormat.PNG, 100, out );
 
 		return out.toByteArray();
+	}
+
+	private void createShadersTable( SQLiteDatabase db )
+	{
+		db.execSQL( "DROP TABLE IF EXISTS "+SHADERS );
+		db.execSQL(
+			"CREATE TABLE "+SHADERS+" ("+
+				SHADERS_ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"+
+				SHADERS_FRAGMENT_SHADER+" TEXT NOT NULL,"+
+				SHADERS_THUMB+" BLOB,"+
+				SHADERS_CREATED+" DATETIME,"+
+				SHADERS_MODIFIED+" DATETIME );" );
+
+		insertInitalShaders( db );
 	}
 
 	private void insertInitalShaders( SQLiteDatabase db )
 	{
 		try
 		{
-			DataSource.insert(
+			DataSource.insertShader(
 				db,
 				loadRawResource(
 					R.raw.shader_laser_lines ),
 				loadBitmapResource(
 					R.drawable.thumbnail_laser_lines ) );
 
-			DataSource.insert(
+			DataSource.insertShader(
 				db,
 				loadRawResource(
 					R.raw.shader_color_hole ),
@@ -257,26 +384,43 @@ public class DataSource
 		}
 	}
 
+	private void createTexturesTable( SQLiteDatabase db )
+	{
+		db.execSQL( "DROP TABLE IF EXISTS "+TEXTURES );
+		db.execSQL(
+			"CREATE TABLE "+TEXTURES+" ("+
+				TEXTURES_ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"+
+				TEXTURES_NAME+" TEXT NOT NULL UNIQUE,"+
+				TEXTURES_THUMB+" BLOB,"+
+				TEXTURES_PATH+" TEXT,"+
+				TEXTURES_MATRIX+" BLOB );" );
+
+		insertInitalTextures( db );
+	}
+
+	private void insertInitalTextures( SQLiteDatabase db )
+	{
+		DataSource.insertTexture(
+			db,
+			context.getString( R.string.texture_name_noise ),
+			BitmapFactory.decodeResource(
+				context.getResources(),
+				R.drawable.texture_noise ),
+			textureThumbnailSize );
+	}
+
 	private class OpenHelper extends SQLiteOpenHelper
 	{
 		public OpenHelper( Context c )
 		{
-			super( c, "shaders.db", null, 1 );
+			super( c, "shaders.db", null, 2 );
 		}
 
 		@Override
 		public void onCreate( SQLiteDatabase db )
 		{
-			db.execSQL( "DROP TABLE IF EXISTS "+SHADERS );
-			db.execSQL(
-				"CREATE TABLE "+SHADERS+" ("+
-					SHADERS_ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"+
-					SHADERS_FRAGMENT_SHADER+" TEXT NOT NULL,"+
-					SHADERS_THUMB+" BLOB,"+
-					SHADERS_CREATED+" DATETIME,"+
-					SHADERS_MODIFIED+" DATETIME );" );
-
-			insertInitalShaders( db );
+			createShadersTable( db );
+			createTexturesTable( db );
 		}
 
 		@Override
@@ -285,8 +429,8 @@ public class DataSource
 			int oldVersion,
 			int newVersion )
 		{
-			// without that method, a downgrade will
-			// cause an exception
+			// without onDowngrade(), a downgrade will throw
+			// an exception
 		}
 
 		@Override
@@ -295,7 +439,8 @@ public class DataSource
 			int oldVersion,
 			int newVersion )
 		{
-			// there'll be upgrades
+			if( oldVersion == 1 )
+				createTexturesTable( db );
 		}
 	}
 }

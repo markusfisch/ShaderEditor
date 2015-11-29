@@ -4,6 +4,7 @@ import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
+import de.markusfisch.android.shadereditor.fragment.CropImageFragment;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.widget.TouchThruDrawerlayout;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
@@ -24,7 +25,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -79,9 +79,8 @@ public class MainActivity
 
 		if( state == null ||
 			(editorFragment = (EditorFragment)
-				getSupportFragmentManager()
-					.findFragmentByTag(
-						EditorFragment.TAG )) == null )
+				getSupportFragmentManager().findFragmentByTag(
+					EditorFragment.TAG )) == null )
 		{
 			editorFragment = new EditorFragment();
 
@@ -131,6 +130,7 @@ public class MainActivity
 
 		updateUiToPreferences();
 		queryShadersAsync();
+		CropImageFragment.recycle();
 	}
 
 	@Override
@@ -181,7 +181,6 @@ public class MainActivity
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate( R.menu.main, menu );
 
-
 		return true;
 	}
 
@@ -230,6 +229,9 @@ public class MainActivity
 			case R.id.update_wallpaper:
 				updateWallpaper( selectedShaderId );
 				return true;
+			case R.id.textures:
+				showTextures();
+				return true;
 		}
 
 		return super.onOptionsItemSelected( item );
@@ -243,7 +245,9 @@ public class MainActivity
 				.doesRunOnChange() )
 			return;
 
-		editorFragment.hideError();
+		if( editorFragment != null )
+			editorFragment.hideError();
+
 		setFragmentShader( text );
 	}
 
@@ -344,8 +348,6 @@ public class MainActivity
 
 	private void initListView()
 	{
-		LayoutInflater inflater = getLayoutInflater();
-
 		listView = (ListView)findViewById( R.id.shaders );
 		listView.setEmptyView( findViewById( R.id.no_shaders ) );
 		listView.setOnItemClickListener(
@@ -401,7 +403,8 @@ public class MainActivity
 				@Override
 				public void run()
 				{
-					editorFragment.setErrorMessage( infoLog );
+					if( editorFragment != null )
+						editorFragment.setErrorMessage( infoLog );
 				}
 			} );
 	}
@@ -416,7 +419,8 @@ public class MainActivity
 		}
 		else
 		{
-			if( !editorFragment.isCodeVisible() )
+			if( editorFragment != null &&
+				!editorFragment.isCodeVisible() )
 				toggleCode();
 
 			toolbar.setSubtitle( null );
@@ -540,6 +544,9 @@ public class MainActivity
 
 	private void saveShader( long id )
 	{
+		if( editorFragment == null )
+			return;
+
 		String fragmentShader = editorFragment.getText();
 		byte thumbnail[] =
 			ShaderEditorApplication
@@ -551,14 +558,14 @@ public class MainActivity
 		if( id > 0 )
 			ShaderEditorApplication
 				.dataSource
-				.update(
+				.updateShader(
 					id,
 					fragmentShader,
 					thumbnail );
 		else
 			ShaderEditorApplication
 				.dataSource
-				.insert(
+				.insertShader(
 					fragmentShader,
 					thumbnail );
 
@@ -568,6 +575,9 @@ public class MainActivity
 
 	private void toggleCode()
 	{
+		if( editorFragment == null )
+			return;
+
 		drawerLayout.setTouchThru(
 			editorFragment.toggleCode() );
 	}
@@ -577,12 +587,13 @@ public class MainActivity
 		selectShader(
 			ShaderEditorApplication
 				.dataSource
-				.insert() );
+				.insertShader() );
 	}
 
 	private void duplicateShader( long id )
 	{
-		if( id < 1 )
+		if( editorFragment == null ||
+			id < 1 )
 			return;
 
 		if( editorFragment.isModified() )
@@ -591,7 +602,7 @@ public class MainActivity
 		selectShader(
 			ShaderEditorApplication
 				.dataSource
-				.insert(
+				.insertShader(
 					editorFragment.getText(),
 					ShaderEditorApplication
 						.dataSource
@@ -619,7 +630,7 @@ public class MainActivity
 
 					ShaderEditorApplication
 						.dataSource
-						.remove( id );
+						.removeShader( id );
 
 					selectShader(
 						ShaderEditorApplication
@@ -637,6 +648,9 @@ public class MainActivity
 
 	private void shareShader()
 	{
+		if( editorFragment == null )
+			return;
+
 		Intent intent = new Intent();
 
 		intent.setAction( Intent.ACTION_SEND );
@@ -652,7 +666,8 @@ public class MainActivity
 
 	private void updateWallpaper( long id )
 	{
-		if( id < 1 )
+		if( editorFragment == null ||
+			id < 1 )
 			return;
 
 		if( editorFragment.isModified() )
@@ -670,11 +685,20 @@ public class MainActivity
 			.setWallpaperShader( id );
 	}
 
+	private void showTextures()
+	{
+		startActivity( new Intent(
+			this,
+			TexturesActivity.class ) );
+	}
+
 	private void selectShader( long id )
 	{
 		if( (selectedShaderId = loadShader( id )) < 1 )
 		{
-			editorFragment.setText( null );
+			if( editorFragment != null )
+				editorFragment.setText( null );
+
 			setFragmentShader( null );
 			setTitle( R.string.app_name );
 			toolbar.setSubtitle( null );
@@ -712,7 +736,9 @@ public class MainActivity
 			DataSource.SHADERS_MODIFIED ) );
 
 		toolbar.setTitle( modified );
-		editorFragment.setText( fragmentShader );
+
+		if( editorFragment != null )
+			editorFragment.setText( fragmentShader );
 
 		if( ShaderEditorApplication
 				.preferences
