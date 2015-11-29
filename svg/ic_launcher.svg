@@ -14,7 +14,7 @@
    height="512"
    id="svg3317"
    version="1.1"
-   inkscape:version="0.48.5 r10040"
+   inkscape:version="0.91 r13725"
    sodipodi:docname="ic_launcher.svg"
    inkscape:export-filename="/home/markus/ic_launcher.png"
    inkscape:export-xdpi="90"
@@ -26,9 +26,9 @@
      borderopacity="1"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.66145874"
-     inkscape:cx="255.99999"
-     inkscape:cy="255.99998"
+     inkscape:zoom="0.45301824"
+     inkscape:cx="256.00002"
+     inkscape:cy="260.00279"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -576,14 +576,14 @@
        id="path11208" />
     <rect
        y="694.94574"
-       x="347.63885"
+       x="367.63885"
        height="134.04161"
        width="11.637332"
        id="rect11212"
        style="fill:#ffffff;fill-opacity:0.62745098;stroke:none" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 417.75642,911.61613 c 0,35.52317 -28.79724,64.3203 -64.32019,64.3203 -35.52295,0 -64.32019,-28.79713 -64.32019,-64.3203 0,-35.52303 33.07427,-58.7621 64.32019,-90.00797 31.25139,31.25133 64.32019,54.48494 64.32019,90.00797 z"
+       d="m 437.75642,911.61613 c 0,35.52317 -28.79724,64.3203 -64.32019,64.3203 -35.52295,0 -64.32019,-28.79713 -64.32019,-64.3203 0,-35.52303 33.07427,-58.7621 64.32019,-90.00797 31.25139,31.25133 64.32019,54.48494 64.32019,90.00797 z"
        id="path11214"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ssscs" />
