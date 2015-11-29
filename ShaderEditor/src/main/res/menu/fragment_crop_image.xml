@@ -1,9 +1,0 @@
-<menu
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:material="http://schemas.android.com/apk/res-auto">
-	<item
-		android:id="@+id/cut"
-		android:icon="@drawable/ic_action_cut"
-		android:title="@string/cut_image"
-		material:showAsAction="ifRoom"/>
-</menu>
