@@ -1,6 +1,5 @@
 package de.markusfisch.android.shadereditor.adapter;
 
-import de.markusfisch.android.shadereditor.activity.MainActivity;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.R;
 
@@ -22,6 +21,7 @@ public class ShaderAdapter extends CursorAdapter
 	private int modifiedIndex;
 	private int textColorSelected;
 	private int textColorUnselected;
+	private long selectedShaderId;
 
 	public ShaderAdapter(
 		Context context,
@@ -31,6 +31,11 @@ public class ShaderAdapter extends CursorAdapter
 
 		indexColumns( cursor );
 		initTextColors( context );
+	}
+
+	public void setSelectedId( long id )
+	{
+		selectedShaderId = id;
 	}
 
 	@Override
@@ -59,7 +64,7 @@ public class ShaderAdapter extends CursorAdapter
 		setData( holder, cursor );
 
 		holder.title.setTextColor(
-			cursor.getLong( idIndex ) == MainActivity.selectedShaderId ?
+			cursor.getLong( idIndex ) == selectedShaderId ?
 				textColorSelected :
 				textColorUnselected );
 	}

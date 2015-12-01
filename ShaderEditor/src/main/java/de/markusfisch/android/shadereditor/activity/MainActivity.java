@@ -37,8 +37,6 @@ public class MainActivity
 	extends AppCompatActivity
 	implements ShaderEditor.OnTextChangedListener
 {
-	public static long selectedShaderId = 0;
-
 	private static final String SELECTED_SHADER = "selected_shader";
 
 	private static EditorFragment editorFragment;
@@ -63,6 +61,7 @@ public class MainActivity
 	private ListView listView;
 	private ShaderAdapter shaderAdapter;
 	private ShaderView shaderView;
+	private long selectedShaderId = 0;
 	private volatile int fps;
 
 	@Override
@@ -485,11 +484,16 @@ public class MainActivity
 			this,
 			cursor );
 
-		if( selectedShaderId < 1 &&
-			shaderAdapter.getCount() > 0 )
-			selectedShaderId = shaderAdapter.getItemId( 0 );
-
-		selectShader( selectedShaderId );
+		if( shaderAdapter.getCount() > 0 )
+		{
+			if( selectedShaderId < 1 )
+			{
+				selectedShaderId = shaderAdapter.getItemId( 0 );
+				selectShader( selectedShaderId );
+			}
+			else
+				shaderAdapter.setSelectedId( selectedShaderId );
+		}
 
 		listView.setAdapter( shaderAdapter );
 	}
@@ -704,6 +708,7 @@ public class MainActivity
 			toolbar.setSubtitle( null );
 		}
 
+		shaderAdapter.setSelectedId( id );
 		queryShadersAsync();
 	}
 
