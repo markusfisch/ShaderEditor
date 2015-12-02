@@ -8,7 +8,6 @@
 	<color name="drawer_text_unselected">#8affffff</color>
 	<color name="background_drawer">#8000</color>
 	<color name="background_editor">#8000</color>
-	<color name="background_error">#a800</color>
 	<color name="background_item_pressed">#8222</color>
 	<color name="divider">#8affffff</color>
 	<color name="text_editor">#fff</color>

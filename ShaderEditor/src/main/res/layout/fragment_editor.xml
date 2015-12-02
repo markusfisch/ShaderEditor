@@ -1,36 +1,22 @@
-<LinearLayout
+<ScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	tools:ignore="Overdraw"
+	android:id="@+id/scroll_view"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:orientation="vertical">
-	<ScrollView
-		android:id="@+id/scroll_view"
-		android:layout_width="match_parent"
-		android:layout_height="0dp"
-		android:layout_weight="1"
-		android:background="@color/background_editor">
-		<de.markusfisch.android.shadereditor.widget.ShaderEditor
-			android:id="@+id/editor"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:padding="8dp"
-			android:gravity="start|top"
-			android:typeface="monospace"
-			android:textSize="12sp"
-			android:textColor="@color/text_editor"
-			android:ellipsize="end"
-			android:imeOptions="flagNoExtractUi"
-			android:inputType="textVisiblePassword|textMultiLine"
-			android:background="@android:color/transparent"/>
-	</ScrollView>
-	<TextView
-		android:id="@+id/error"
+	android:background="@color/background_editor">
+	<de.markusfisch.android.shadereditor.widget.ShaderEditor
+		android:id="@+id/editor"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:padding="16dp"
-		android:background="@color/background_error"
+		android:padding="8dp"
+		android:gravity="start|top"
+		android:typeface="monospace"
+		android:textSize="12sp"
 		android:textColor="@color/text_editor"
-		android:visibility="gone"/>
-</LinearLayout>
+		android:ellipsize="end"
+		android:imeOptions="flagNoExtractUi"
+		android:inputType="textVisiblePassword|textMultiLine"
+		android:background="@android:color/transparent"/>
+</ScrollView>

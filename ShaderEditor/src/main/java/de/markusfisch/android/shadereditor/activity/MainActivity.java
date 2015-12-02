@@ -403,7 +403,7 @@ public class MainActivity
 				public void run()
 				{
 					if( editorFragment != null )
-						editorFragment.setErrorMessage( infoLog );
+						editorFragment.showError( infoLog );
 				}
 			} );
 	}

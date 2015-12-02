@@ -14,7 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
-import android.widget.TextView;
+import android.widget.Toast;
 
 public class EditorFragment extends Fragment
 {
@@ -23,7 +23,6 @@ public class EditorFragment extends Fragment
 	private ScrollView scrollView;
 	private ShaderEditor shaderEditor;
 	private InputMethodManager imm;
-	private TextView errorView;
 
 	@Override
 	public View onCreateView(
@@ -41,10 +40,10 @@ public class EditorFragment extends Fragment
 				R.layout.fragment_editor,
 				container,
 				false )) == null ||
-			(shaderEditor = (ShaderEditor)view.findViewById(
-				R.id.editor )) == null ||
 			(scrollView = (ScrollView)view.findViewById(
-				R.id.scroll_view )) == null )
+				R.id.scroll_view )) == null ||
+			(shaderEditor = (ShaderEditor)view.findViewById(
+				R.id.editor )) == null )
 		{
 			activity.finish();
 			return null;
@@ -66,8 +65,6 @@ public class EditorFragment extends Fragment
 				"ShaderEditor.OnTextChangedListener" );
 		}
 
-		initErrorView( view );
-
 		return view;
 	}
 
@@ -85,18 +82,23 @@ public class EditorFragment extends Fragment
 
 	public void hideError()
 	{
-		errorView.setVisibility( View.GONE );
 		shaderEditor.setErrorLine( 0 );
 	}
 
-	public void setErrorMessage( String infoLog )
+	public void showError( String infoLog )
 	{
+		Context context = getActivity();
+
+		if( context == null )
+			return;
+
 		InfoLog.parse( infoLog );
-
-		errorView.setText( InfoLog.getMessage() );
-		errorView.setVisibility( View.VISIBLE );
-
 		shaderEditor.setErrorLine( InfoLog.getErrorLine() );
+
+		Toast.makeText(
+			context,
+			InfoLog.getMessage(),
+			Toast.LENGTH_LONG ).show();
 	}
 
 	public boolean isModified()
@@ -134,11 +136,5 @@ public class EditorFragment extends Fragment
 				0 );
 
 		return visible;
-	}
-
-	private void initErrorView( View view )
-	{
-		errorView = (TextView)view.findViewById(
-			R.id.error );
 	}
 }
