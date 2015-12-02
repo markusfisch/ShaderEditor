@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -70,7 +71,7 @@ public class MainActivity
 		super.onCreate( state );
 		setContentView( R.layout.activity_main );
 
-		initStatusBar();
+		initSystemBars();
 		initToolbar();
 		initDrawer();
 		initListView();
@@ -251,20 +252,30 @@ public class MainActivity
 	}
 
 	@TargetApi( 22 )
-	private void initStatusBar()
+	public static void setSystemBarColor( Window window, int color )
 	{
-		// below status bar settings are available
+		window.getDecorView().setSystemUiVisibility(
+			View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+			View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+			View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN );
+		window.setStatusBarColor( color );
+		window.setNavigationBarColor( color );
+	}
+
+	@TargetApi( 22 )
+	private void initSystemBars()
+	{
+		// below system bar settings are available
 		// from Lollipop on only
 		if( Build.VERSION.SDK_INT <
 			Build.VERSION_CODES.LOLLIPOP )
 			return;
 
-		Window window = getWindow();
-
-		window.getDecorView().setSystemUiVisibility(
-			View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-			View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN );
-		window.setStatusBarColor( 0x88000000 );
+		setSystemBarColor(
+			getWindow(),
+			ContextCompat.getColor(
+				this,
+				R.color.primary_dark_translucent ) );
 
 		findViewById( R.id.main_layout ).setPadding(
 			0,
@@ -534,16 +545,16 @@ public class MainActivity
 
 	private void runShader()
 	{
-		String code = editorFragment.getText();
+		String src = editorFragment.getText();
 
 		editorFragment.hideError();
 
 		if( ShaderEditorApplication
 				.preferences
 				.doesRunInBackground() )
-			setFragmentShader( code );
+			setFragmentShader( src );
 		else
-			showPreview( code );
+			showPreview( src );
 	}
 
 	private void saveShader( long id )
@@ -751,12 +762,12 @@ public class MainActivity
 			setFragmentShader( fragmentShader );
 	}
 
-	private void setFragmentShader( String code )
+	private void setFragmentShader( String src )
 	{
-		shaderView.setFragmentShader( code );
+		shaderView.setFragmentShader( src );
 	}
 
-	private void showPreview( String code )
+	private void showPreview( String src )
 	{
 		Intent intent = new Intent(
 			this,
@@ -764,7 +775,7 @@ public class MainActivity
 
 		intent.putExtra(
 			PreviewActivity.FRAGMENT_SHADER,
-			code );
+			src );
 
 		startActivity( intent );
 	}
