@@ -45,14 +45,17 @@ public class Program
 		int p = GLES20.glCreateProgram();
 
 		if( p == 0 )
+		{
+			infoLog = "Cannot create program";
 			return 0;
+		}
 
 		for( int n = 0, l = shaders.length; n < l; ++n )
 			GLES20.glAttachShader( p, shaders[n] );
 
 		GLES20.glLinkProgram( p );
 
-		int[] linkStatus = new int[1];
+		int linkStatus[] = new int[1];
 		GLES20.glGetProgramiv(
 			p,
 			GLES20.GL_LINK_STATUS,
@@ -74,12 +77,15 @@ public class Program
 		int s = GLES20.glCreateShader( type );
 
 		if( s == 0 )
+		{
+			infoLog = "Cannot create shader";
 			return 0;
+		}
 
 		GLES20.glShaderSource( s, src );
 		GLES20.glCompileShader( s );
 
-		int[] compiled = new int[1];
+		int compiled[] = new int[1];
 		GLES20.glGetShaderiv(
 			s,
 			GLES20.GL_COMPILE_STATUS,
