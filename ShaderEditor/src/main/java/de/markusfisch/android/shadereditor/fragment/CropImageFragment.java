@@ -21,7 +21,7 @@ public class CropImageFragment extends Fragment
 	public static Bitmap bitmap;
 	public static Rect rect;
 
-	private CropImageView imageView;
+	private CropImageView cropImageView;
 
 	public static CropImageFragment newInstance( Bitmap bitmap )
 	{
@@ -69,14 +69,14 @@ public class CropImageFragment extends Fragment
 				R.layout.fragment_crop_image,
 				container,
 				false )) == null ||
-			(imageView = (CropImageView)view.findViewById(
+			(cropImageView = (CropImageView)view.findViewById(
 				R.id.texture_image )) == null )
 		{
 			activity.finish();
 			return null;
 		}
 
-		imageView.setImageBitmap( bitmap );
+		cropImageView.setImageBitmap( bitmap );
 
 		return view;
 	}
@@ -104,7 +104,7 @@ public class CropImageFragment extends Fragment
 
 	private void cutImage()
 	{
-		rect = imageView.getRectInBound();
+		rect = cropImageView.getRectInBounds();
 
 		AbstractSecondaryActivity.addFragment(
 			getFragmentManager(),
