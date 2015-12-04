@@ -6,9 +6,7 @@ import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.R;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
@@ -155,58 +153,16 @@ public class TexturesFragment extends Fragment
 					int position,
 					long id )
 				{
-					askToRemoveTexture( id );
+					showTexture( id );
 				}
 			} );
 	}
 
-	private void askToRemoveTexture( final long id )
+	private void showTexture( long id )
 	{
-		Context context = getActivity();
-
-		if( context == null )
-			return;
-
-		new AlertDialog.Builder( context )
-			.setTitle( R.string.remove_texture )
-			.setMessage( R.string.want_to_remove_texture )
-			.setPositiveButton(
-				android.R.string.yes,
-				new DialogInterface.OnClickListener()
-				{
-					@Override
-					public void onClick(
-						DialogInterface dialog,
-						int whichButton )
-					{
-						removeTextureAsync( id );
-					}
-				} )
-			.setNegativeButton(
-				android.R.string.no,
-				null ).show();
-	}
-
-	private void removeTextureAsync( final long id )
-	{
-		new AsyncTask<Void, Void, Void>()
-		{
-			@Override
-			protected Void doInBackground( Void... nothings )
-			{
-				ShaderEditorApplication
-					.dataSource
-					.removeTexture( id );
-
-				return null;
-			}
-
-			@Override
-			protected void onPostExecute( Void nothing )
-			{
-				queryTexturesAsync( getActivity() );
-			}
-		}.execute();
+		AbstractSecondaryActivity.addFragment(
+			getFragmentManager(),
+			TextureViewFragment.newInstance( id ) );
 	}
 
 	private void queryTexturesAsync( final Context context )

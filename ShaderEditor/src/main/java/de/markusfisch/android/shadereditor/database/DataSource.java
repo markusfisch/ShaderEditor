@@ -171,16 +171,30 @@ public class DataSource
 		return id;
 	}
 
+	public Bitmap getTexture( long id )
+	{
+		return getTexture( db.rawQuery(
+			"SELECT "+
+				TEXTURES_PATH+","+
+				TEXTURES_MATRIX+
+				" FROM "+TEXTURES+
+				" WHERE "+TEXTURES_ID+"=\""+id+"\"",
+			null ) );
+	}
+
 	public Bitmap getTexture( String name )
 	{
-		Cursor cursor = db.rawQuery(
+		return getTexture( db.rawQuery(
 			"SELECT "+
 				TEXTURES_PATH+","+
 				TEXTURES_MATRIX+
 				" FROM "+TEXTURES+
 				" WHERE "+TEXTURES_NAME+"=\""+name+"\"",
-			null );
+			null ) );
+	}
 
+	public Bitmap getTexture( Cursor cursor )
+	{
 		if( closeIfEmpty( cursor ) )
 			return null;
 

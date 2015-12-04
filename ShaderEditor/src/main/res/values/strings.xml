@@ -54,6 +54,7 @@
 	<string name="invalid_texture_name">Invalid name, please choose a name you can use in a GLSL source</string>
 	<string name="illegal_rectangle">Illegal rectangle</string>
 	<string name="name_already_taken">Name already taken</string>
+	<string name="view_texture">View texture</string>
 	<string name="remove_texture">Remove texture</string>
 	<string name="want_to_remove_texture">Do you want to remove this texture?</string>
 </resources>
