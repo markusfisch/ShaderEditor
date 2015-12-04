@@ -28,12 +28,14 @@
 		<TextView
 			android:id="@+id/no_textures_message"
 			android:layout_width="match_parent"
-			android:layout_height="20dp"
+			android:layout_height="wrap_content"
 			android:text="@string/no_textures"
 			android:textColor="@color/secondary_text"
 			android:textSize="16sp"
 			android:lines="1"
 			android:ellipsize="end"
+			android:layout_gravity="center"
+			android:gravity="center"
 			android:visibility="gone"/>
 	</FrameLayout>
 	<android.support.design.widget.FloatingActionButton
