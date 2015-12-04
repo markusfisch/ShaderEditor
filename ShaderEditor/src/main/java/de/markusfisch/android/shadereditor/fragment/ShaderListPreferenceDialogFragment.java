@@ -16,12 +16,12 @@ public class ShaderListPreferenceDialogFragment
 	public static ShaderListPreferenceDialogFragment newInstance(
 		String key )
 	{
-		final ShaderListPreferenceDialogFragment fragment =
-			new ShaderListPreferenceDialogFragment();
+		Bundle bundle = new Bundle();
+		bundle.putString( ARG_KEY, key );
 
-		final Bundle b = new Bundle( 1 );
-		b.putString( ARG_KEY, key );
-		fragment.setArguments( b );
+		ShaderListPreferenceDialogFragment fragment =
+			new ShaderListPreferenceDialogFragment();
+		fragment.setArguments( bundle );
 
 		return fragment;
 	}

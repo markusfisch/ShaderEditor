@@ -632,32 +632,30 @@ public class MainActivity
 		if( id < 1 )
 			return;
 
-		DialogInterface.OnClickListener listener =
-			new DialogInterface.OnClickListener()
-			{
-				@Override
-				public void onClick(
-					DialogInterface dialog,
-					int which )
-				{
-					if( which != DialogInterface.BUTTON_POSITIVE )
-						return;
-
-					ShaderEditorApplication
-						.dataSource
-						.removeShader( id );
-
-					selectShader(
-						ShaderEditorApplication
-							.dataSource
-							.getFirstShaderId() );
-				}
-			};
-
 		new AlertDialog.Builder( this )
 			.setMessage( R.string.are_you_sure )
-			.setPositiveButton( android.R.string.yes, listener )
-			.setNegativeButton( android.R.string.no, listener )
+			.setPositiveButton(
+				android.R.string.yes,
+				new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(
+						DialogInterface dialog,
+						int which )
+					{
+						ShaderEditorApplication
+							.dataSource
+							.removeShader( id );
+
+						selectShader(
+							ShaderEditorApplication
+								.dataSource
+								.getFirstShaderId() );
+					}
+				} )
+			.setNegativeButton(
+				android.R.string.no,
+				null )
 			.show();
 	}
 
