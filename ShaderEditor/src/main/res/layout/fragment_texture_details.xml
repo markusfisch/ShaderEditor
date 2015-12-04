@@ -1,31 +1,53 @@
-<LinearLayout
+<FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical"
-	android:padding="16dp">
-	<TextView
+	android:layout_height="match_parent">
+	<ScrollView
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginBottom="8dp"
-		android:text="@string/texture_size"/>
-	<SeekBar
-		android:id="@+id/size_bar"
+		android:layout_height="match_parent">
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:padding="16dp">
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="8dp"
+				android:text="@string/texture_size"/>
+			<SeekBar
+				android:id="@+id/size_bar"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="4dp"
+				android:progress="8"
+				android:max="12"/>
+			<TextView
+				android:id="@+id/size"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginBottom="8dp"
+				android:gravity="center"/>
+			<EditText
+				android:id="@+id/name"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/texture_name"
+				android:inputType="text"/>
+		</LinearLayout>
+	</ScrollView>
+	<FrameLayout
+		android:id="@+id/progress_view"
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginBottom="4dp"
-		android:progress="8"
-		android:max="12"/>
-	<TextView
-		android:id="@+id/size"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginBottom="8dp"
-		android:gravity="center"/>
-	<EditText
-		android:id="@+id/name"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:hint="@string/texture_name"
-		android:inputType="text"/>
-</LinearLayout>
+		android:layout_height="match_parent"
+		android:background="@color/background_progress"
+		android:clickable="true"
+		android:visibility="gone">
+		<ProgressBar
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center"/>
+	</FrameLayout>
+</FrameLayout>

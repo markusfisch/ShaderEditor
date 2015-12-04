@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.inputmethod.InputMethodManager;
@@ -27,6 +28,7 @@ public class TextureDetailsFragment extends Fragment
 	private SeekBar sizeBarView;
 	private TextView sizeView;
 	private EditText nameView;
+	private View progressView;
 
 	@Override
 	public void onCreate( Bundle state )
@@ -59,7 +61,9 @@ public class TextureDetailsFragment extends Fragment
 			(sizeView = (TextView)view.findViewById(
 				R.id.size )) == null ||
 			(nameView = (EditText)view.findViewById(
-				R.id.name )) == null )
+				R.id.name )) == null ||
+			(progressView = view.findViewById(
+				R.id.progress_view )) == null )
 		{
 			activity.finish();
 			return null;
@@ -87,7 +91,7 @@ public class TextureDetailsFragment extends Fragment
 		switch( item.getItemId() )
 		{
 			case R.id.save:
-				saveTexture();
+				saveTextureAsync();
 				return true;
 			default:
 				return super.onOptionsItemSelected( item );
@@ -135,16 +139,19 @@ public class TextureDetailsFragment extends Fragment
 			size ) );
 	}
 
-	private void saveTexture()
+	private void saveTextureAsync()
 	{
-		Bitmap bitmap = CropImageFragment.bitmap;
-		Rect rect = CropImageFragment.rect;
+		if( progressView.getVisibility() == View.VISIBLE )
+			return;
+
+		final Bitmap bitmap = CropImageFragment.bitmap;
+		final Rect rect = CropImageFragment.rect;
 
 		if( bitmap == null ||
 			rect == null )
 			return;
 
-		String name = nameView.getText().toString();
+		final String name = nameView.getText().toString();
 
 		if( name == null ||
 			name.trim().length() < 1 )
@@ -164,6 +171,52 @@ public class TextureDetailsFragment extends Fragment
 			return;
 		}
 
+		final int size = getPower( sizeBarView.getProgress() );
+
+		progressView.setVisibility( View.VISIBLE );
+
+		new AsyncTask<Void, Void, Integer>()
+		{
+			@Override
+			protected Integer doInBackground( Void... nothings )
+			{
+				return saveTexture( bitmap, rect, name, size );
+			}
+
+			@Override
+			protected void onPostExecute( Integer messageId )
+			{
+				Activity activity = getActivity();
+
+				if( activity == null )
+					return;
+
+				progressView.setVisibility( View.GONE );
+
+				if( messageId > 0 )
+				{
+					toast(
+						activity,
+						messageId );
+
+					return;
+				}
+
+				imm.hideSoftInputFromWindow(
+					nameView.getWindowToken(),
+					0 );
+
+				activity.finish();
+			}
+		}.execute();
+	}
+
+	private int saveTexture(
+		Bitmap bitmap,
+		Rect rect,
+		String name,
+		int size )
+	{
 		try
 		{
 			bitmap = Bitmap.createBitmap(
@@ -175,14 +228,8 @@ public class TextureDetailsFragment extends Fragment
 		}
 		catch( IllegalArgumentException e )
 		{
-			toast(
-				getActivity(),
-				R.string.illegal_rectangle );
-
-			return;
+			return R.string.illegal_rectangle;
 		}
-
-		int size = getPower( sizeBarView.getProgress() );
 
 		if( ShaderEditorApplication
 			.dataSource
@@ -194,21 +241,10 @@ public class TextureDetailsFragment extends Fragment
 					size,
 					true ) ) < 1 )
 		{
-			toast(
-				getActivity(),
-				R.string.name_already_taken );
-
-			return;
+			return R.string.name_already_taken;
 		}
 
-		if( !isAdded() )
-			return;
-
-		imm.hideSoftInputFromWindow(
-			nameView.getWindowToken(),
-			0 );
-
-		getActivity().finish();
+		return 0;
 	}
 
 	private static int getPower( int power )
