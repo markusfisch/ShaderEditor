@@ -46,13 +46,13 @@ public class MainActivity
 		new Runnable()
 		{
 			@Override
-				public void run()
-				{
-					toolbar.setSubtitle(
-						// fps should be the same in
-						// all languages
-						fps+" fps" );
-				}
+			public void run()
+			{
+				toolbar.setSubtitle(
+					// fps should be the same in
+					// all languages
+					fps+" fps" );
+			}
 		};
 
 	private Toolbar toolbar;
