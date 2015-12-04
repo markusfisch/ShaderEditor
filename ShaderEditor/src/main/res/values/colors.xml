@@ -12,7 +12,7 @@
 	<color name="background_item_pressed">#8222</color>
 	<color name="background_progress">#8000</color>
 	<color name="divider">#8affffff</color>
-	<color name="text_editor">#fff</color>
+	<color name="editor_text">#fff</color>
 	<color name="syntax_error">#800</color>
 	<color name="syntax_number">#7ba212</color>
 	<color name="syntax_keyword">#399ed7</color>
