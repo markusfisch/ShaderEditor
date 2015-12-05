@@ -22,7 +22,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class TextureDetailsFragment extends Fragment
+public class TexturePropertiesFragment extends Fragment
 {
 	private InputMethodManager imm;
 	private SeekBar sizeBarView;
@@ -53,7 +53,7 @@ public class TextureDetailsFragment extends Fragment
 		activity.setTitle( R.string.texture_properties );
 
 		if( (view = inflater.inflate(
-				R.layout.fragment_texture_details,
+				R.layout.fragment_texture_properties,
 				container,
 				false )) == null ||
 			(sizeBarView = (SeekBar)view.findViewById(
@@ -81,7 +81,7 @@ public class TextureDetailsFragment extends Fragment
 	public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
 	{
 		inflater.inflate(
-			R.menu.fragment_texture_details,
+			R.menu.fragment_texture_properties,
 			menu );
 	}
 

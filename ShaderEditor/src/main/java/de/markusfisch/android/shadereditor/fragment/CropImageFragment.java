@@ -108,6 +108,6 @@ public class CropImageFragment extends Fragment
 
 		AbstractSecondaryActivity.addFragment(
 			getFragmentManager(),
-			new TextureDetailsFragment() );
+			new TexturePropertiesFragment() );
 	}
 }
