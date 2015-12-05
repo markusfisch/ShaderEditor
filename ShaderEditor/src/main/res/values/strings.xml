@@ -48,7 +48,7 @@
 	<string name="texture_name_noise">noise</string>
 	<string name="choose_image">Choose image</string>
 	<string name="texture_size">Texture size in pixels</string>
-	<string name="texture_name">Name of texture</string>
+	<string name="texture_name">Give the texture a name</string>
 	<string name="cut_image">Cut image</string>
 	<string name="save_texture">Save texture</string>
 	<string name="missing_name">You need to give a name</string>
