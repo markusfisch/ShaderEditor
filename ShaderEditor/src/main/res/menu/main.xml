@@ -12,14 +12,14 @@
 		android:title="@string/run_code"
 		material:showAsAction="ifRoom"/>
 	<item
-		android:id="@+id/save_shader"
-		android:icon="@drawable/ic_action_save"
-		android:title="@string/save_shader"
-		material:showAsAction="ifRoom"/>
-	<item
 		android:id="@+id/toggle_code"
 		android:icon="@drawable/ic_action_preview"
 		android:title="@string/toggle_code"
+		material:showAsAction="ifRoom"/>
+	<item
+		android:id="@+id/save_shader"
+		android:icon="@drawable/ic_action_save"
+		android:title="@string/save_shader"
 		material:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/add_shader"
