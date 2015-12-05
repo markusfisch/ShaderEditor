@@ -18,7 +18,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
@@ -96,14 +95,25 @@ public class MainActivity
 	}
 
 	@TargetApi( 22 )
-	public static void setSystemBarColor( Window window, int color )
+	public static boolean setSystemBarColor(
+		Window window,
+		int color,
+		boolean expand )
 	{
-		window.getDecorView().setSystemUiVisibility(
-			View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-			View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-			View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN );
+		if( Build.VERSION.SDK_INT <
+			Build.VERSION_CODES.LOLLIPOP )
+			return false;
+
+		if( expand )
+			window.getDecorView().setSystemUiVisibility(
+				View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+				View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+				View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN );
+
 		window.setStatusBarColor( color );
 		window.setNavigationBarColor( color );
+
+		return true;
 	}
 
 	@Override
@@ -301,26 +311,17 @@ public class MainActivity
 			shaderAdapter.changeCursor( null );
 	}
 
-	@TargetApi( 22 )
 	private void initSystemBars()
 	{
-		// below system bar settings are available
-		// from Lollipop on only
-		if( Build.VERSION.SDK_INT <
-			Build.VERSION_CODES.LOLLIPOP )
-			return;
-
-		setSystemBarColor(
-			getWindow(),
-			ContextCompat.getColor(
-				this,
-				R.color.primary_dark_translucent ) );
-
-		findViewById( R.id.main_layout ).setPadding(
-			0,
-			getStatusBarHeight( getResources() ),
-			0,
-			0 );
+		if( setSystemBarColor(
+				getWindow(),
+				ShaderEditorApplication.systemBarColor,
+				true ) )
+			findViewById( R.id.main_layout ).setPadding(
+				0,
+				getStatusBarHeight( getResources() ),
+				0,
+				0 );
 	}
 
 	private static int getStatusBarHeight( Resources res )

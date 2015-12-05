@@ -3,9 +3,7 @@ package de.markusfisch.android.shadereditor.activity;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 
-import android.annotation.TargetApi;
 import android.os.Bundle;
-import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 
 public class PreviewActivity extends AppCompatActivity
@@ -75,7 +73,10 @@ public class PreviewActivity extends AppCompatActivity
 
 		setContentView( shaderView );
 
-		initSystemBars();
+		MainActivity.setSystemBarColor(
+			getWindow(),
+			0,
+			true );
 	}
 
 	@Override
@@ -97,19 +98,5 @@ public class PreviewActivity extends AppCompatActivity
 		super.onPause();
 
 		shaderView.onPause();
-	}
-
-	@TargetApi( 22 )
-	private void initSystemBars()
-	{
-		// below status bar settings are available
-		// from Lollipop on only
-		if( Build.VERSION.SDK_INT <
-			Build.VERSION_CODES.LOLLIPOP )
-			return;
-
-		MainActivity.setSystemBarColor(
-			getWindow(),
-			0 );
 	}
 }

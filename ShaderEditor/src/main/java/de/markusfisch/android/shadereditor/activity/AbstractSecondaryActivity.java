@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.activity;
 
+import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.R;
 
 import android.os.Bundle;
@@ -41,6 +42,7 @@ public abstract class AbstractSecondaryActivity extends AppCompatActivity
 		super.onCreate( state );
 		setContentView( R.layout.activity_secondary );
 
+		initSystemBars();
 		initToolbar();
 
 		fm = getSupportFragmentManager();
@@ -54,6 +56,14 @@ public abstract class AbstractSecondaryActivity extends AppCompatActivity
 	}
 
 	protected abstract Fragment defaultFragment();
+
+	private void initSystemBars()
+	{
+		MainActivity.setSystemBarColor(
+			getWindow(),
+			ShaderEditorApplication.systemBarColor,
+			false );
+	}
 
 	private void initToolbar()
 	{
