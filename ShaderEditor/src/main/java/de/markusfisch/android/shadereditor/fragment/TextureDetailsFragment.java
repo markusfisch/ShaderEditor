@@ -162,7 +162,9 @@ public class TextureDetailsFragment extends Fragment
 
 			return;
 		}
-		else if( !name.matches( "[a-zA-Z0-9]+" ) )
+		else if(
+			!name.matches( "[a-zA-Z0-9_]+" ) ||
+			name.equals( "backbuffer" ) )
 		{
 			toast(
 				getActivity(),
