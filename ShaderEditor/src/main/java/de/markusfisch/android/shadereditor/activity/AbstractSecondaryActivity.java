@@ -12,6 +12,18 @@ public abstract class AbstractSecondaryActivity extends AppCompatActivity
 {
 	private FragmentManager fm;
 
+	public static void addFragment(
+		FragmentManager fm,
+		Fragment fragment )
+	{
+		fm.beginTransaction()
+			.replace(
+				R.id.content_frame,
+				fragment )
+			.addToBackStack( null )
+			.commit();
+	}
+
 	@Override
 	public boolean onSupportNavigateUp()
 	{
@@ -48,17 +60,5 @@ public abstract class AbstractSecondaryActivity extends AppCompatActivity
 		Toolbar toolbar = (Toolbar)findViewById( R.id.toolbar );
 		setSupportActionBar( toolbar );
 		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
-	}
-
-	public static void addFragment(
-		FragmentManager fm,
-		Fragment fragment )
-	{
-		fm.beginTransaction()
-			.replace(
-				R.id.content_frame,
-				fragment )
-			.addToBackStack( null )
-			.commit();
 	}
 }

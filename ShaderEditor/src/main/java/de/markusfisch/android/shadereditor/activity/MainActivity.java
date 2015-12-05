@@ -40,6 +40,7 @@ public class MainActivity
 {
 	private static final String SELECTED_SHADER = "selected_shader";
 
+	private static MainActivity instance;
 	private static EditorFragment editorFragment;
 
 	private final Runnable updateFpsRunnable =
@@ -65,90 +66,44 @@ public class MainActivity
 	private long selectedShaderId = 0;
 	private volatile int fps;
 
-	@Override
-	protected void onCreate( Bundle state )
+	public static void postUpdateFps( int fps )
 	{
-		super.onCreate( state );
-		setContentView( R.layout.activity_main );
+		if( instance == null )
+			return;
 
-		initSystemBars();
-		initToolbar();
-		initDrawer();
-		initListView();
-		initShaderView();
-
-		if( state == null ||
-			(editorFragment = (EditorFragment)
-				getSupportFragmentManager().findFragmentByTag(
-					EditorFragment.TAG )) == null )
-		{
-			editorFragment = new EditorFragment();
-
-			getSupportFragmentManager()
-				.beginTransaction()
-				.replace(
-					R.id.content_frame,
-					editorFragment,
-					EditorFragment.TAG )
-				.commit();
-		}
+		instance.fps = fps;
+		instance.toolbar.post(
+			instance.updateFpsRunnable );
 	}
 
-	@Override
-	protected void onRestoreInstanceState( Bundle state )
+	public static void postInfoLog( final String infoLog )
 	{
-		super.onRestoreInstanceState( state );
+		if( instance == null )
+			return;
 
-		selectedShaderId = state != null ?
-			state.getLong( SELECTED_SHADER ) :
-			0;
+		instance.runOnUiThread(
+			new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					if( instance.editorFragment != null )
+						instance
+							.editorFragment
+							.showError( infoLog );
+				}
+			} );
 	}
 
-	@Override
-	protected void onSaveInstanceState( Bundle state )
+	@TargetApi( 22 )
+	public static void setSystemBarColor( Window window, int color )
 	{
-		if( state != null )
-			state.putLong(
-				SELECTED_SHADER,
-				selectedShaderId );
-
-		super.onSaveInstanceState( state );
-	}
-
-	@Override
-	protected void onPostCreate( Bundle state )
-	{
-		super.onPostCreate( state );
-
-		drawerToggle.syncState();
-	}
-
-	@Override
-	protected void onResume()
-	{
-		super.onResume();
-
-		updateUiToPreferences();
-		queryShadersAsync();
-		CropImageFragment.recycle();
-	}
-
-	@Override
-	protected void onPause()
-	{
-		super.onPause();
-
-		shaderView.onPause();
-	}
-
-	@Override
-	protected void onDestroy()
-	{
-		super.onDestroy();
-
-		// close last cursor
-		if( shaderAdapter != null )
-			shaderAdapter.changeCursor( null );
+		window.getDecorView().setSystemUiVisibility(
+			View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+			View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+			View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN );
+		window.setStatusBarColor( color );
+		window.setNavigationBarColor( color );
 	}
 
 	@Override
@@ -251,15 +206,93 @@ public class MainActivity
 		setFragmentShader( text );
 	}
 
-	@TargetApi( 22 )
-	public static void setSystemBarColor( Window window, int color )
+	@Override
+	protected void onCreate( Bundle state )
 	{
-		window.getDecorView().setSystemUiVisibility(
-			View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-			View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-			View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN );
-		window.setStatusBarColor( color );
-		window.setNavigationBarColor( color );
+		instance = this;
+
+		super.onCreate( state );
+		setContentView( R.layout.activity_main );
+
+		initSystemBars();
+		initToolbar();
+		initDrawer();
+		initListView();
+		initShaderView();
+
+		if( state == null ||
+			(editorFragment = (EditorFragment)
+				getSupportFragmentManager().findFragmentByTag(
+					EditorFragment.TAG )) == null )
+		{
+			editorFragment = new EditorFragment();
+
+			getSupportFragmentManager()
+				.beginTransaction()
+				.replace(
+					R.id.content_frame,
+					editorFragment,
+					EditorFragment.TAG )
+				.commit();
+		}
+	}
+
+	@Override
+	protected void onRestoreInstanceState( Bundle state )
+	{
+		super.onRestoreInstanceState( state );
+
+		selectedShaderId = state != null ?
+			state.getLong( SELECTED_SHADER ) :
+			0;
+	}
+
+	@Override
+	protected void onSaveInstanceState( Bundle state )
+	{
+		if( state != null )
+			state.putLong(
+				SELECTED_SHADER,
+				selectedShaderId );
+
+		super.onSaveInstanceState( state );
+	}
+
+	@Override
+	protected void onPostCreate( Bundle state )
+	{
+		super.onPostCreate( state );
+
+		drawerToggle.syncState();
+	}
+
+	@Override
+	protected void onResume()
+	{
+		super.onResume();
+
+		updateUiToPreferences();
+		queryShadersAsync();
+		CropImageFragment.recycle();
+	}
+
+	@Override
+	protected void onPause()
+	{
+		super.onPause();
+
+		if( shaderView.getVisibility() == View.VISIBLE )
+			shaderView.onPause();
+	}
+
+	@Override
+	protected void onDestroy()
+	{
+		super.onDestroy();
+
+		// close last cursor
+		if( shaderAdapter != null )
+			shaderAdapter.changeCursor( null );
 	}
 
 	@TargetApi( 22 )
@@ -386,35 +419,15 @@ public class MainActivity
 				@Override
 				public void onFramesPerSecond( int fps )
 				{
-					// this is running in the GL thread
+					// invoked from the GL thread
 					postUpdateFps( fps );
 				}
 
 				@Override
 				public void onInfoLog( String infoLog )
 				{
-					// this is running in the GL thread
+					// invoked from the GL thread
 					postInfoLog( infoLog );
-				}
-			} );
-	}
-
-	private void postUpdateFps( int fps )
-	{
-		this.fps = fps;
-		toolbar.post( updateFpsRunnable );
-	}
-
-	private void postInfoLog( final String infoLog )
-	{
-		shaderView.post(
-			new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					if( editorFragment != null )
-						editorFragment.showError( infoLog );
 				}
 			} );
 	}
@@ -425,15 +438,16 @@ public class MainActivity
 				.preferences
 				.doesRunInBackground() )
 		{
+			shaderView.setVisibility( View.VISIBLE );
 			shaderView.onResume();
 		}
 		else
 		{
+			shaderView.setVisibility( View.GONE );
+
 			if( editorFragment != null &&
 				!editorFragment.isCodeVisible() )
 				toggleCode();
-
-			toolbar.setSubtitle( null );
 		}
 	}
 
@@ -713,8 +727,7 @@ public class MainActivity
 				editorFragment.setText( null );
 
 			setFragmentShader( null );
-			setTitle( R.string.app_name );
-			toolbar.setSubtitle( null );
+			setToolbarTitle( getString( R.string.app_name ) );
 		}
 
 		shaderAdapter.setSelectedId( id );
@@ -746,10 +759,10 @@ public class MainActivity
 
 		String fragmentShader = cursor.getString(
 			cursor.getColumnIndex( DataSource.SHADERS_FRAGMENT_SHADER ) );
-		String modified = cursor.getString( cursor.getColumnIndex(
-			DataSource.SHADERS_MODIFIED ) );
+		String modified = cursor.getString(
+			cursor.getColumnIndex( DataSource.SHADERS_MODIFIED ) );
 
-		toolbar.setTitle( modified );
+		setToolbarTitle( modified );
 
 		if( editorFragment != null )
 			editorFragment.setText( fragmentShader );
@@ -760,6 +773,16 @@ public class MainActivity
 			setFragmentShader( fragmentShader );
 	}
 
+	private void setToolbarTitle( String name )
+	{
+		toolbar.setTitle( name );
+
+		if( !ShaderEditorApplication
+				.preferences
+				.doesRunInBackground() )
+			toolbar.setSubtitle( null );
+	}
+
 	private void setFragmentShader( String src )
 	{
 		shaderView.setFragmentShader( src );
@@ -767,6 +790,8 @@ public class MainActivity
 
 	private void showPreview( String src )
 	{
+		toolbar.setSubtitle( null );
+
 		Intent intent = new Intent(
 			this,
 			PreviewActivity.class );

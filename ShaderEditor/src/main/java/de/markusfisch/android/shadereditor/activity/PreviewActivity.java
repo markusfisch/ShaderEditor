@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.activity;
 
+import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 
 import android.annotation.TargetApi;
@@ -13,6 +14,15 @@ public class PreviewActivity extends AppCompatActivity
 	public static byte thumbnail[];
 
 	private ShaderView shaderView;
+	private Runnable finishRunnable =
+		new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				finish();
+			}
+		};
 	private Runnable thumbnailRunnable =
 		new Runnable()
 		{
@@ -44,6 +54,24 @@ public class PreviewActivity extends AppCompatActivity
 
 		shaderView = new ShaderView( this );
 		shaderView.setFragmentShader( fragmentShader );
+		shaderView.getRenderer().setOnRendererListener(
+			new ShaderRenderer.OnRendererListener()
+			{
+				@Override
+				public void onFramesPerSecond( int fps )
+				{
+					// invoked from the GL thread
+					MainActivity.postUpdateFps( fps );
+				}
+
+				@Override
+				public void onInfoLog( String infoLog )
+				{
+					// invoked from the GL thread
+					MainActivity.postInfoLog( infoLog );
+					runOnUiThread( finishRunnable );
+				}
+			} );
 
 		setContentView( shaderView );
 
