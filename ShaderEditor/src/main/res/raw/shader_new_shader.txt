@@ -4,11 +4,17 @@ precision highp float;
 precision mediump float;
 #endif
 
-// time in ms
+// time in ms, wraps at 60000
 //uniform float time;
 
 // touch position in pixels
 //uniform vec2 touch;
+
+// number of touches
+//uniform int pointerCount;
+
+// positions of touches
+//uniform vec3 pointers[10];
 
 // resolution in pixels
 //uniform vec2 resolution;
@@ -30,6 +36,9 @@ precision mediump float;
 
 // previous frame, i.e. texture2D( backbuffer, uv ).rgb
 //uniform sampler2D backbuffer;
+
+// use a texture, i.e. texture2D( name, uv ).rgb
+//uniform sampler2D name;
 
 void main( void )
 {
