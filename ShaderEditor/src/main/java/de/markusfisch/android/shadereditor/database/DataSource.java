@@ -31,7 +31,6 @@ public class DataSource
 	public static final String TEXTURES_ID = "_id";
 	public static final String TEXTURES_NAME = "name";
 	public static final String TEXTURES_THUMB = "thumb";
-	public static final String TEXTURES_PATH = "path";
 	public static final String TEXTURES_MATRIX = "matrix";
 
 	private SQLiteDatabase db;
@@ -175,7 +174,6 @@ public class DataSource
 	{
 		return getTexture( db.rawQuery(
 			"SELECT "+
-				TEXTURES_PATH+","+
 				TEXTURES_MATRIX+
 				" FROM "+TEXTURES+
 				" WHERE "+TEXTURES_ID+"=\""+id+"\"",
@@ -186,7 +184,6 @@ public class DataSource
 	{
 		return getTexture( db.rawQuery(
 			"SELECT "+
-				TEXTURES_PATH+","+
 				TEXTURES_MATRIX+
 				" FROM "+TEXTURES+
 				" WHERE "+TEXTURES_NAME+"=\""+name+"\"",
@@ -198,24 +195,14 @@ public class DataSource
 		if( closeIfEmpty( cursor ) )
 			return null;
 
-		Bitmap bm;
-		String path = cursor.getString(
+		byte data[] = cursor.getBlob(
 			cursor.getColumnIndex(
-				TEXTURES_PATH ) );
+				TEXTURES_MATRIX ) );
 
-		if( path == null ||
-			path.length() < 1 ||
-			(bm = BitmapFactory.decodeFile( path )) == null )
-		{
-			byte data[] = cursor.getBlob(
-				cursor.getColumnIndex(
-					TEXTURES_MATRIX ) );
-
-			bm = BitmapFactory.decodeByteArray(
-				data,
-				0,
-				data.length );
-		}
+		Bitmap bm = BitmapFactory.decodeByteArray(
+			data,
+			0,
+			data.length );
 
 		cursor.close();
 
@@ -406,7 +393,6 @@ public class DataSource
 				TEXTURES_ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"+
 				TEXTURES_NAME+" TEXT NOT NULL UNIQUE,"+
 				TEXTURES_THUMB+" BLOB,"+
-				TEXTURES_PATH+" TEXT,"+
 				TEXTURES_MATRIX+" BLOB );" );
 
 		insertInitalTextures( db );
