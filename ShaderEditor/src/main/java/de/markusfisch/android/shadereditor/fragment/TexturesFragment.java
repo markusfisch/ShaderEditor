@@ -129,6 +129,13 @@ public class TexturesFragment extends Fragment
 					null,
 					options ) );
 			}
+			catch( SecurityException e )
+			{
+				Toast.makeText(
+					activity,
+					R.string.error_no_permission,
+					Toast.LENGTH_SHORT ).show();
+			}
 			catch( IOException e )
 			{
 				Toast.makeText(
