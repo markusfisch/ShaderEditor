@@ -1,4 +1,4 @@
-<LinearLayout
+<FrameLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	tools:ignore="Overdraw"
@@ -6,60 +6,37 @@
 	android:layout_width="240dp"
 	android:layout_height="match_parent"
 	android:layout_gravity="start"
-	android:orientation="vertical"
 	android:background="@color/background_drawer">
+	<ListView
+		android:id="@+id/shaders"
+		android:choiceMode="singleChoice"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:divider="@android:color/transparent"
+		android:dividerHeight="1px"/>
 	<FrameLayout
+		android:id="@+id/no_shaders"
 		android:layout_width="match_parent"
-		android:layout_height="0dp"
-		android:layout_weight="1">
-		<ListView
-			android:id="@+id/shaders"
-			android:choiceMode="singleChoice"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:divider="@android:color/transparent"
-			android:dividerHeight="1px"/>
-		<FrameLayout
-			android:id="@+id/no_shaders"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"
-			android:padding="16dp"
-			android:clickable="true"
-			android:visibility="gone">
-			<ProgressBar
-				style="?android:attr/progressBarStyleLarge"
-				android:id="@+id/progress_bar"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_gravity="center"
-				android:gravity="center"/>
-			<TextView
-				android:id="@+id/no_shaders_message"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:text="@string/no_shaders"
-				android:textColor="@color/secondary_text"
-				android:textSize="16sp"
-				android:lines="1"
-				android:ellipsize="end"
-				android:visibility="gone"/>
-		</FrameLayout>
-	</FrameLayout>
-	<View
-		android:layout_width="match_parent"
-		android:layout_height="1px"
-		android:clickable="true"
-		android:background="@color/divider"/>
-	<TextView
-		android:id="@+id/settings"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:drawableLeft="@drawable/ic_action_settings"
-		android:drawableStart="@drawable/ic_action_settings"
-		android:drawablePadding="32dp"
+		android:layout_height="match_parent"
 		android:padding="16dp"
-		android:background="@drawable/drawer_item_selector"
-		android:textColor="@drawable/drawer_item_selector"
-		android:textSize="14sp"
-		android:text="@string/settings"/>
-</LinearLayout>
+		android:clickable="true"
+		android:visibility="gone">
+		<ProgressBar
+			style="?android:attr/progressBarStyleLarge"
+			android:id="@+id/progress_bar"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="center"
+			android:gravity="center"/>
+		<TextView
+			android:id="@+id/no_shaders_message"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/no_shaders"
+			android:textColor="@color/secondary_text"
+			android:textSize="16sp"
+			android:lines="1"
+			android:ellipsize="end"
+			android:visibility="gone"/>
+	</FrameLayout>
+</FrameLayout>

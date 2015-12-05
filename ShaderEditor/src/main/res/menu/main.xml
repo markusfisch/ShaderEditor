@@ -46,4 +46,9 @@
 		android:icon="@drawable/ic_action_textures"
 		android:title="@string/textures"
 		material:showAsAction="ifRoom"/>
+	<item
+		android:id="@+id/settings"
+		android:icon="@drawable/ic_action_settings"
+		android:title="@string/settings"
+		material:showAsAction="ifRoom"/>
 </menu>

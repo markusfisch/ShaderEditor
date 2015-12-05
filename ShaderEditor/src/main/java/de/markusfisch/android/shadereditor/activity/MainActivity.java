@@ -187,6 +187,9 @@ public class MainActivity
 			case R.id.textures:
 				showTextures();
 				return true;
+			case R.id.settings:
+				showSettings();
+				return true;
 		}
 
 		return super.onOptionsItemSelected( item );
@@ -363,30 +366,6 @@ public class MainActivity
 
 		drawerToggle.setDrawerIndicatorEnabled( true );
 		drawerLayout.setDrawerListener( drawerToggle );
-
-		initSettingsButton();
-	}
-
-	private void initSettingsButton()
-	{
-		View view = findViewById( R.id.settings );
-
-		if( view == null )
-			return;
-
-		view.setOnClickListener(
-			new View.OnClickListener()
-			{
-				@Override
-				public void onClick( View v )
-				{
-					startActivity( new Intent(
-						MainActivity.this,
-						PreferencesActivity.class ) );
-
-					closeDrawer();
-				}
-			} );
 	}
 
 	private void initListView()
@@ -717,6 +696,13 @@ public class MainActivity
 		startActivity( new Intent(
 			this,
 			TexturesActivity.class ) );
+	}
+
+	private void showSettings()
+	{
+		startActivity( new Intent(
+			MainActivity.this,
+			PreferencesActivity.class ) );
 	}
 
 	private void selectShader( long id )
