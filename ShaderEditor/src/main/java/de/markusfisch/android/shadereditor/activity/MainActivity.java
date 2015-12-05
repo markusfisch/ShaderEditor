@@ -160,6 +160,9 @@ public class MainActivity
 	{
 		switch( item.getItemId() )
 		{
+			case R.id.insert_tab:
+				insertTab();
+				return true;
 			case R.id.run_code:
 				runShader();
 				return true;
@@ -428,6 +431,10 @@ public class MainActivity
 				!editorFragment.isCodeVisible() )
 				toggleCode();
 		}
+
+		if( Build.VERSION.SDK_INT >=
+			Build.VERSION_CODES.HONEYCOMB  )
+			invalidateOptionsMenu();
 	}
 
 	private void queryShadersAsync()
@@ -534,6 +541,11 @@ public class MainActivity
 			return;
 
 		drawerLayout.openDrawer( menuFrame );
+	}
+
+	private void insertTab()
+	{
+		editorFragment.insertTab();
 	}
 
 	private void runShader()

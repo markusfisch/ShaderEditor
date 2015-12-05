@@ -6,9 +6,10 @@
 	<string name="settings">Settings</string>
 	<string name="error_database">Cannot open database!</string>
 	<string name="error_pick_image">Cannot open image!</string>
-	<string name="toggle_code">Toggle code</string>
+	<string name="insert_tab">Insert tab</string>
 	<string name="run_code">Run code</string>
 	<string name="save_shader">Save shader</string>
+	<string name="toggle_code">Toggle code</string>
 	<string name="add_shader">New shader</string>
 	<string name="duplicate_shader">Save as new shader</string>
 	<string name="delete_shader">Delete shader</string>

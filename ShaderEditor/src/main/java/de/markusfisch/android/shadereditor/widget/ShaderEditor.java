@@ -149,6 +149,19 @@ public class ShaderEditor extends EditText
 		highlightWithoutChange( getText() );
 	}
 
+	public void insertTab()
+	{
+		int start = getSelectionStart();
+		int end = getSelectionEnd();
+
+		getText().replace(
+			Math.min( start, end ),
+			Math.max( start, end ),
+			"\t",
+			0,
+			1 );
+	}
+
 	private void init( Context context )
 	{
 		setHorizontallyScrolling( true );

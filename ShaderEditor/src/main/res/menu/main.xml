@@ -2,6 +2,11 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:material="http://schemas.android.com/apk/res-auto">
 	<item
+		android:id="@+id/insert_tab"
+		android:icon="@drawable/ic_action_insert_tab"
+		android:title="@string/insert_tab"
+		material:showAsAction="ifRoom"/>
+	<item
 		android:id="@+id/run_code"
 		android:icon="@drawable/ic_action_run"
 		android:title="@string/run_code"

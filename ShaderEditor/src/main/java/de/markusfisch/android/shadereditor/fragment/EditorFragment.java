@@ -125,6 +125,11 @@ public class EditorFragment extends Fragment
 		shaderEditor.setTextHighlighted( text );
 	}
 
+	public void insertTab()
+	{
+		shaderEditor.insertTab();
+	}
+
 	public boolean isCodeVisible()
 	{
 		return scrollView.getVisibility() == View.VISIBLE;
