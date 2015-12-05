@@ -9,6 +9,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,9 +22,10 @@ public class EditorFragment extends Fragment
 {
 	public static final String TAG = "EditorFragment";
 
+	private InputMethodManager imm;
 	private ScrollView scrollView;
 	private ShaderEditor shaderEditor;
-	private InputMethodManager imm;
+	private int yOffset;
 
 	@Override
 	public View onCreateView(
@@ -36,7 +39,9 @@ public class EditorFragment extends Fragment
 		if( (activity = getActivity()) == null )
 			return null;
 
-		if( (view = inflater.inflate(
+		if( (imm = (InputMethodManager)activity.getSystemService(
+				Context.INPUT_METHOD_SERVICE )) == null ||
+			(view = inflater.inflate(
 				R.layout.fragment_editor,
 				container,
 				false )) == null ||
@@ -48,9 +53,6 @@ public class EditorFragment extends Fragment
 			activity.finish();
 			return null;
 		}
-
-		imm = (InputMethodManager)activity.getSystemService(
-			Context.INPUT_METHOD_SERVICE );
 
 		try
 		{
@@ -87,18 +89,24 @@ public class EditorFragment extends Fragment
 
 	public void showError( String infoLog )
 	{
-		Context context = getActivity();
+		Activity activity = getActivity();
 
-		if( context == null )
+		if( activity == null )
 			return;
 
 		InfoLog.parse( infoLog );
 		shaderEditor.setErrorLine( InfoLog.getErrorLine() );
 
-		Toast.makeText(
-			context,
+		Toast errorToast = Toast.makeText(
+			activity,
 			InfoLog.getMessage(),
-			Toast.LENGTH_LONG ).show();
+			Toast.LENGTH_SHORT );
+
+		errorToast.setGravity(
+			Gravity.TOP | Gravity.CENTER_HORIZONTAL,
+			0,
+			getYOffset( activity ) );
+		errorToast.show();
 	}
 
 	public boolean isModified()
@@ -136,5 +144,28 @@ public class EditorFragment extends Fragment
 				0 );
 
 		return visible;
+	}
+
+	private int getYOffset( Activity activity )
+	{
+		if( yOffset == 0 )
+		{
+			float dp = getResources().getDisplayMetrics().density;
+
+			try
+			{
+				yOffset = ((AppCompatActivity)activity)
+					.getSupportActionBar()
+					.getHeight();
+			}
+			catch( ClassCastException e )
+			{
+				yOffset = Math.round( 48f*dp );
+			}
+
+			yOffset += Math.round( 16f*dp );
+		}
+
+		return yOffset;
 	}
 }
