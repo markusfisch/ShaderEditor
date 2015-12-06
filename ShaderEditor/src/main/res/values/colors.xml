@@ -7,7 +7,7 @@
 	<color name="secondary_text">#8a000000</color>
 	<color name="drawer_text">#fff</color>
 	<color name="drawer_text_unselected">#8affffff</color>
-	<color name="background_drawer">#8111</color>
+	<color name="background_drawer">#8000</color>
 	<color name="background_editor">#8000</color>
 	<color name="background_item_pressed">#8222</color>
 	<color name="background_progress">#8000</color>
