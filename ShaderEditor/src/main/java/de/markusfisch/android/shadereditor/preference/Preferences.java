@@ -16,6 +16,7 @@ public class Preferences
 	public static final String SENSOR_DELAY = "sensor_delay";
 	public static final String TEXT_SIZE = "text_size";
 	public static final String SHOW_INSERT_TAB = "show_insert_tab";
+	public static final String SAVE_ON_RUN = "save_on_run";
 
 	private static final int RUN_AUTO = 1;
 	private static final int RUN_MANUALLY = 2;
@@ -29,6 +30,7 @@ public class Preferences
 	private int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
 	private int textSize = 12;
 	private boolean showInsertTab = true;
+	private boolean saveOnRun = true;
 
 	public Preferences( Context context )
 	{
@@ -66,6 +68,9 @@ public class Preferences
 		showInsertTab = preferences.getBoolean(
 			SHOW_INSERT_TAB,
 			showInsertTab );
+		saveOnRun = preferences.getBoolean(
+			SAVE_ON_RUN,
+			saveOnRun );
 	}
 
 	public boolean saveBattery()
@@ -101,6 +106,11 @@ public class Preferences
 	public boolean doesShowInsertTab()
 	{
 		return showInsertTab;
+	}
+
+	public boolean doesSaveOnRun()
+	{
+		return saveOnRun;
 	}
 
 	public long getWallpaperShader()

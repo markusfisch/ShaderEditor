@@ -582,6 +582,11 @@ public class MainActivity
 
 		if( ShaderEditorApplication
 				.preferences
+				.doesSaveOnRun() )
+			saveShader( selectedShaderId );
+
+		if( ShaderEditorApplication
+				.preferences
 				.doesRunInBackground() )
 			setFragmentShader( src );
 		else

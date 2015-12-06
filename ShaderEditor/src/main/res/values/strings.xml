@@ -32,6 +32,8 @@
 	<string name="text_size">Text size</string>
 	<string name="show_insert_tab">Show insert tab</string>
 	<string name="show_insert_tab_summary">Show insert tab menu item</string>
+	<string name="save_on_run">Save on run</string>
+	<string name="save_on_run_summary">Save changes when running manually</string>
 	<string name="wallpaper_description">Write your own live wallpaper</string>
 	<string name="preview">Preview</string>
 	<string name="run_auto">Auto run on change</string>
