@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.fragment;
 
+import de.markusfisch.android.shadereditor.activity.TexturesActivity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.R;
 
@@ -96,6 +97,9 @@ public class TextureViewFragment extends Fragment
 	{
 		switch( item.getItemId() )
 		{
+			case R.id.insert_code:
+				insertUniformSamplerStatement();
+				return true;
 			case R.id.remove_texture:
 				askToRemoveTexture( textureId );
 				return true;
@@ -155,5 +159,21 @@ public class TextureViewFragment extends Fragment
 					fragmentManager.popBackStack();
 			}
 		}.execute();
+	}
+
+	private void insertUniformSamplerStatement()
+	{
+		Activity activity = getActivity();
+
+		if( activity == null )
+			return;
+
+		TexturesActivity.setAddUniformResult(
+			activity,
+			ShaderEditorApplication
+				.dataSource
+				.getTextureName( textureId ) );
+
+		activity.finish();
 	}
 }

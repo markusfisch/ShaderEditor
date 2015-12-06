@@ -209,6 +209,26 @@ public class DataSource
 		return bm;
 	}
 
+	public String getTextureName( long id )
+	{
+		Cursor cursor = db.rawQuery(
+			"SELECT "+
+				TEXTURES_NAME+
+				" FROM "+TEXTURES+
+				" WHERE "+TEXTURES_ID+"=\""+id+"\"",
+			null );
+
+		if( closeIfEmpty( cursor ) )
+			return null;
+
+		String name = cursor.getString(
+			cursor.getColumnIndex( TEXTURES_NAME ) );
+
+		cursor.close();
+
+		return name;
+	}
+
 	public static long insertShader(
 		SQLiteDatabase db,
 		String shader,

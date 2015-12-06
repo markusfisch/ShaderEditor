@@ -20,20 +20,31 @@
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="4dp"
-				android:progress="8"
-				android:max="12"/>
+				android:progress="7"
+				android:max="9"/>
 			<TextView
 				android:id="@+id/size"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="8dp"
 				android:gravity="center"/>
+			<TextView
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/texture_name"/>
 			<EditText
 				android:id="@+id/name"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
-				android:hint="@string/texture_name"
+				android:layout_marginBottom="8dp"
+				android:hint="@string/input_texture_name"
 				android:inputType="text"/>
+			<android.support.v7.widget.AppCompatCheckBox
+				android:id="@+id/should_add_uniform"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:checked="true"
+				android:text="@string/should_add_uniform"/>
 		</LinearLayout>
 	</ScrollView>
 	<FrameLayout

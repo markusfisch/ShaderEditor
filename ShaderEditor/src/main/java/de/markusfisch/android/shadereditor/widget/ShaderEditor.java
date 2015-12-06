@@ -55,6 +55,9 @@ public class ShaderEditor extends EditText
 	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
 		"[\\t ]+$",
 		Pattern.MULTILINE );
+	private static final Pattern PATTERN_INSERT_UNIFORM = Pattern.compile(
+		"\\b(uniform[a-zA-Z0-9_ \t;\\[\\]\r\n]+[\r\n])\\b",
+		Pattern.MULTILINE );
 
 	private final Handler updateHandler = new Handler();
 	private final Runnable updateRunnable =
@@ -160,6 +163,20 @@ public class ShaderEditor extends EditText
 			"\t",
 			0,
 			1 );
+	}
+
+	public void addSampler2DUniform( String name )
+	{
+		if( name == null )
+			return;
+
+		Editable e = getText();
+		Matcher m = PATTERN_INSERT_UNIFORM.matcher( e );
+		int start = m.find() ?
+			Math.max( 0, m.end()-1 ) :
+			0;
+
+		e.insert( start, "uniform sampler2D "+name+";\n" );
 	}
 
 	private void init( Context context )

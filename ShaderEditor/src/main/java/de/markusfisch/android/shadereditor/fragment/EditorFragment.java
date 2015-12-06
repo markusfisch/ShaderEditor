@@ -130,6 +130,11 @@ public class EditorFragment extends Fragment
 		shaderEditor.insertTab();
 	}
 
+	public void addSampler2DUniform( String name )
+	{
+		shaderEditor.addSampler2DUniform( name );
+	}
+
 	public boolean isCodeVisible()
 	{
 		return scrollView.getVisibility() == View.VISIBLE;

@@ -38,6 +38,7 @@ public class MainActivity
 	implements ShaderEditor.OnTextChangedListener
 {
 	private static final String SELECTED_SHADER = "selected_shader";
+	private static final int ADD_TEXTURE = 1;
 
 	private static MainActivity instance;
 	private static EditorFragment editorFragment;
@@ -225,6 +226,22 @@ public class MainActivity
 			editorFragment.hideError();
 
 		setFragmentShader( text );
+	}
+
+	@Override
+	protected void onActivityResult(
+		int requestCode,
+		int resultCode,
+		Intent data )
+	{
+		super.onActivityResult( requestCode, resultCode, data );
+
+		if( editorFragment != null &&
+			requestCode == ADD_TEXTURE &&
+			resultCode == RESULT_OK &&
+			data != null )
+			editorFragment.addSampler2DUniform(
+				data.getStringExtra( TexturesActivity.TEXTURE_NAME ) );
 	}
 
 	@Override
@@ -711,9 +728,9 @@ public class MainActivity
 
 	private void showTextures()
 	{
-		startActivity( new Intent(
-			this,
-			TexturesActivity.class ) );
+		startActivityForResult(
+			new Intent( this, TexturesActivity.class ),
+			ADD_TEXTURE );
 	}
 
 	private void showSettings()

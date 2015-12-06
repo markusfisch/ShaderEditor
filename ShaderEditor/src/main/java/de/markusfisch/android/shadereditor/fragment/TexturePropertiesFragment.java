@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.fragment;
 
+import de.markusfisch.android.shadereditor.activity.TexturesActivity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.R;
 
@@ -17,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -28,6 +30,7 @@ public class TexturePropertiesFragment extends Fragment
 	private SeekBar sizeBarView;
 	private TextView sizeView;
 	private EditText nameView;
+	private CheckBox addUniformView;
 	private View progressView;
 
 	@Override
@@ -62,6 +65,8 @@ public class TexturePropertiesFragment extends Fragment
 				R.id.size )) == null ||
 			(nameView = (EditText)view.findViewById(
 				R.id.name )) == null ||
+			(addUniformView = (CheckBox)view.findViewById(
+				R.id.should_add_uniform )) == null ||
 			(progressView = view.findViewById(
 				R.id.progress_view )) == null )
 		{
@@ -208,6 +213,11 @@ public class TexturePropertiesFragment extends Fragment
 					nameView.getWindowToken(),
 					0 );
 
+				if( addUniformView.isChecked() )
+					TexturesActivity.setAddUniformResult(
+						activity,
+						name );
+
 				activity.finish();
 			}
 		}.execute();
@@ -251,7 +261,7 @@ public class TexturePropertiesFragment extends Fragment
 
 	private static int getPower( int power )
 	{
-		return 1 << power;
+		return 1 << (power+1);
 	}
 
 	private static void toast( Activity activity, int id )
