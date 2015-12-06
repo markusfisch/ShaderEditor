@@ -34,6 +34,12 @@
 			android:entries="@array/text_size_names"
 			android:entryValues="@array/text_size_values"
 			android:defaultValue="12"/>
+		<CheckBoxPreference
+			android:key="show_insert_tab"
+			android:title="@string/show_insert_tab"
+			android:summary="@string/show_insert_tab_summary"
+			android:checked="true"
+			android:defaultValue="true"/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="@string/sensors">

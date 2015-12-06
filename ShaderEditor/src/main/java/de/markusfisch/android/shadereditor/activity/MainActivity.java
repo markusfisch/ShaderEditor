@@ -152,6 +152,11 @@ public class MainActivity
 	@Override
 	public boolean onPrepareOptionsMenu( Menu menu )
 	{
+		menu.findItem( R.id.insert_tab ).setVisible(
+			ShaderEditorApplication
+				.preferences
+				.doesShowInsertTab() );
+
 		menu.findItem( R.id.run_code ).setVisible(
 			ShaderEditorApplication
 				.preferences
