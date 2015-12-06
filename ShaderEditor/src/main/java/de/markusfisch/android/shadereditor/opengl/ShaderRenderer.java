@@ -748,6 +748,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	private void indexTextureNames( String source )
 	{
+		if( source == null )
+			return;
+
 		textureNames.clear();
 
 		for( Matcher m = SAMPLER_2D.matcher( source );
