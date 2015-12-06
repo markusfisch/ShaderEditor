@@ -146,7 +146,10 @@ public class TexturePropertiesFragment extends Fragment
 
 	private void saveTextureAsync()
 	{
-		if( progressView.getVisibility() == View.VISIBLE )
+		Context context = getActivity();
+
+		if( context == null ||
+			progressView.getVisibility() == View.VISIBLE )
 			return;
 
 		final Bitmap bitmap = CropImageFragment.bitmap;
@@ -161,9 +164,10 @@ public class TexturePropertiesFragment extends Fragment
 		if( name == null ||
 			name.trim().length() < 1 )
 		{
-			toast(
-				getActivity(),
-				R.string.missing_name );
+			Toast.makeText(
+				context,
+				R.string.missing_name,
+				Toast.LENGTH_SHORT ).show();
 
 			return;
 		}
@@ -171,9 +175,10 @@ public class TexturePropertiesFragment extends Fragment
 			!name.matches( "[a-zA-Z0-9_]+" ) ||
 			name.equals( "backbuffer" ) )
 		{
-			toast(
-				getActivity(),
-				R.string.invalid_texture_name );
+			Toast.makeText(
+				context,
+				R.string.invalid_texture_name,
+				Toast.LENGTH_SHORT ).show();
 
 			return;
 		}
@@ -202,9 +207,10 @@ public class TexturePropertiesFragment extends Fragment
 
 				if( messageId > 0 )
 				{
-					toast(
+					Toast.makeText(
 						activity,
-						messageId );
+						messageId,
+						Toast.LENGTH_SHORT ).show();
 
 					return;
 				}
@@ -262,16 +268,5 @@ public class TexturePropertiesFragment extends Fragment
 	private static int getPower( int power )
 	{
 		return 1 << (power+1);
-	}
-
-	private static void toast( Activity activity, int id )
-	{
-		if( activity == null )
-			return;
-
-		Toast.makeText(
-			activity,
-			id,
-			Toast.LENGTH_SHORT ).show();
 	}
 }
