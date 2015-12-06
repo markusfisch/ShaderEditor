@@ -31,6 +31,8 @@ public class TexturesFragment extends Fragment
 
 	private ListView listView;
 	private TexturesAdapter texturesAdapter;
+	private View progessBar;
+	private View noTextureMessage;
 
 	@Override
 	public View onCreateView(
@@ -52,7 +54,11 @@ public class TexturesFragment extends Fragment
 				container,
 				false )) == null ||
 			(fab = view.findViewById(
-				R.id.add_texture )) == null )
+				R.id.add_texture )) == null ||
+			(progessBar = view.findViewById(
+				R.id.progress_bar )) == null ||
+			(noTextureMessage = view.findViewById(
+				R.id.no_textures_message )) == null )
 		{
 			activity.finish();
 			return null;
@@ -206,8 +212,17 @@ public class TexturesFragment extends Fragment
 
 					listView.setAdapter( texturesAdapter );
 				}
+
+				if( cursor.getCount() < 1 )
+					showNoTextures();
 			}
 		}.execute();
+	}
+
+	private void showNoTextures()
+	{
+		progessBar.setVisibility( View.GONE );
+		noTextureMessage.setVisibility( View.VISIBLE );
 	}
 
 	private void pickImage()

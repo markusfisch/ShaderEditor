@@ -30,7 +30,6 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:text="@string/no_textures"
-			android:textColor="@color/secondary_text"
 			android:textSize="16sp"
 			android:lines="1"
 			android:ellipsize="end"
