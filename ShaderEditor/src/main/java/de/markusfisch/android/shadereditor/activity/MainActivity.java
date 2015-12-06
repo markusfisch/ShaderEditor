@@ -526,7 +526,10 @@ public class MainActivity
 				selectShader( selectedShaderId );
 			}
 			else
+			{
 				shaderAdapter.setSelectedId( selectedShaderId );
+				setToolbarTitle( selectedShaderId );
+			}
 		}
 
 		listView.setAdapter( shaderAdapter );
@@ -757,12 +760,7 @@ public class MainActivity
 
 	private long loadShader( long id )
 	{
-		if( id < 1 )
-			return 0;
-
-		Cursor cursor = ShaderEditorApplication
-			.dataSource
-			.getShader( id );
+		Cursor cursor = getShader( id );
 
 		if( DataSource.closeIfEmpty( cursor ) )
 			return 0;
@@ -778,12 +776,10 @@ public class MainActivity
 		if( cursor == null )
 			return;
 
+		setToolbarTitle( cursor );
+
 		String fragmentShader = cursor.getString(
 			cursor.getColumnIndex( DataSource.SHADERS_FRAGMENT_SHADER ) );
-		String modified = cursor.getString(
-			cursor.getColumnIndex( DataSource.SHADERS_MODIFIED ) );
-
-		setToolbarTitle( modified );
 
 		if( editorFragment != null )
 			editorFragment.setText( fragmentShader );
@@ -794,9 +790,42 @@ public class MainActivity
 			setFragmentShader( fragmentShader );
 	}
 
+	private Cursor getShader( long id )
+	{
+		if( id < 1 )
+			return null;
+
+		return ShaderEditorApplication
+			.dataSource
+			.getShader( id );
+	}
+
+	private void setToolbarTitle( long id )
+	{
+		Cursor cursor = getShader( id );
+
+		if( DataSource.closeIfEmpty( cursor ) )
+			return;
+
+		setToolbarTitle( cursor );
+		cursor.close();
+	}
+
+	private void setToolbarTitle( Cursor cursor )
+	{
+		if( cursor == null )
+			return;
+
+		String modified = cursor.getString(
+			cursor.getColumnIndex( DataSource.SHADERS_MODIFIED ) );
+
+		setToolbarTitle( modified );
+	}
+
 	private void setToolbarTitle( String name )
 	{
-		toolbar.setTitle( name );
+		if( name != null )
+			toolbar.setTitle( name );
 
 		if( !ShaderEditorApplication
 				.preferences
