@@ -46,7 +46,7 @@
 		android:layout_alignParentEnd="true"
 		android:layout_alignParentRight="true"
 		android:layout_alignParentBottom="true"
-		android:layout_margin="24dp"
+		android:layout_margin="20dp"
 		android:src="@drawable/ic_action_add_texture"
 		app:elevation="4dp"/>
 </RelativeLayout>
