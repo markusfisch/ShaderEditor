@@ -63,7 +63,8 @@ public class ScalingImageView extends ImageView
 	@Override
 	public void setScaleType( ImageView.ScaleType scaleType )
 	{
-		if( scaleType != ImageView.ScaleType.CENTER_CROP &&
+		if( scaleType != ImageView.ScaleType.CENTER &&
+			scaleType != ImageView.ScaleType.CENTER_CROP &&
 			scaleType != ImageView.ScaleType.CENTER_INSIDE )
 			throw new UnsupportedOperationException();
 
@@ -177,17 +178,15 @@ public class ScalingImageView extends ImageView
 
 		float rw = rect.width();
 		float rh = rect.height();
+		float xr = rw/drawableWidth;
+		float yr = rh/drawableHeight;
 
-		if( scaleType == ImageView.ScaleType.CENTER_INSIDE )
-			minScale = drawableWidth > rw || drawableHeight > rh ?
-				Math.min(
-					rw/drawableWidth,
-					rh/drawableHeight ) :
-				1f;
+		if( scaleType == ImageView.ScaleType.CENTER )
+			minScale = 1f;
+		else if( scaleType == ImageView.ScaleType.CENTER_INSIDE )
+			minScale = Math.min( xr, yr );
 		else if( scaleType == ImageView.ScaleType.CENTER_CROP )
-			minScale = Math.max(
-				rw/drawableWidth,
-				rh/drawableHeight );
+			minScale = Math.max( xr, yr );
 		else
 			throw new UnsupportedOperationException();
 
