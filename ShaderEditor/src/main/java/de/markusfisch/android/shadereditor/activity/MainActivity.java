@@ -38,7 +38,8 @@ public class MainActivity
 	implements ShaderEditor.OnTextChangedListener
 {
 	private static final String SELECTED_SHADER = "selected_shader";
-	private static final int ADD_TEXTURE = 1;
+	private static final int PREVIEW_SHADER = 1;
+	private static final int ADD_TEXTURE = 2;
 
 	private static MainActivity instance;
 	private static EditorFragment editorFragment;
@@ -236,12 +237,23 @@ public class MainActivity
 	{
 		super.onActivityResult( requestCode, resultCode, data );
 
+		// add uniform sampler2D statement
 		if( editorFragment != null &&
 			requestCode == ADD_TEXTURE &&
 			resultCode == RESULT_OK &&
 			data != null )
 			editorFragment.addSampler2DUniform(
-				data.getStringExtra( TexturesActivity.TEXTURE_NAME ) );
+				data.getStringExtra(
+					TexturesActivity.TEXTURE_NAME ) );
+
+		// update thumbnail after shader ran
+		if( requestCode == PREVIEW_SHADER &&
+			selectedShaderId != 0 &&
+			PreviewActivity.thumbnail != null &&
+			ShaderEditorApplication
+				.preferences
+				.doesSaveOnRun() )
+			saveShader( selectedShaderId );
 	}
 
 	@Override
@@ -583,7 +595,14 @@ public class MainActivity
 		if( ShaderEditorApplication
 				.preferences
 				.doesSaveOnRun() )
+		{
+			// don't save the old thumbnail;
+			// onActivityResult() will add an
+			// updated one
+			PreviewActivity.thumbnail = null;
+
 			saveShader( selectedShaderId );
+		}
 
 		if( ShaderEditorApplication
 				.preferences
@@ -750,6 +769,9 @@ public class MainActivity
 
 	private void selectShader( long id )
 	{
+		// remove thumbnail from previous shader
+		PreviewActivity.thumbnail = null;
+
 		if( (selectedShaderId = loadShader( id )) < 1 )
 		{
 			if( editorFragment != null )
@@ -855,6 +877,6 @@ public class MainActivity
 			PreviewActivity.FRAGMENT_SHADER,
 			src );
 
-		startActivity( intent );
+		startActivityForResult( intent, PREVIEW_SHADER );
 	}
 }

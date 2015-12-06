@@ -307,8 +307,10 @@ public class DataSource
 	{
 		ContentValues cv = new ContentValues();
 		cv.put( SHADERS_FRAGMENT_SHADER, shader );
-		cv.put( SHADERS_THUMB, thumbnail );
 		cv.put( SHADERS_MODIFIED, currentTime() );
+
+		if( thumbnail != null )
+			cv.put( SHADERS_THUMB, thumbnail );
 
 		db.update(
 			SHADERS,
