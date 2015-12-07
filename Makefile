@@ -12,9 +12,6 @@ lint:
 apk:
 	./gradlew build
 
-infer:
-	infer -- ./gradlew build
-
 release:
 	@./gradlew assembleRelease \
 		-Pandroid.injected.signing.store.file=$(ANDROID_KEYFILE) \
