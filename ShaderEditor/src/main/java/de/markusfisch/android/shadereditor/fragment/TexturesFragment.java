@@ -34,6 +34,44 @@ public class TexturesFragment extends Fragment
 	private View progessBar;
 	private View noTextureMessage;
 
+	public static Bitmap getBitmapFromUri( Context context, Uri uri )
+	{
+		try
+		{
+			AssetFileDescriptor fd = context
+				.getContentResolver()
+				.openAssetFileDescriptor( uri, "r" );
+
+			BitmapFactory.Options options =
+				new BitmapFactory.Options();
+			options.inSampleSize = getSampleSizeForBitmap(
+				fd,
+				1024,
+				1024 );
+
+			return BitmapFactory.decodeFileDescriptor(
+				fd.getFileDescriptor(),
+				null,
+				options );
+		}
+		catch( SecurityException e )
+		{
+			Toast.makeText(
+				context,
+				R.string.error_no_permission,
+				Toast.LENGTH_SHORT ).show();
+		}
+		catch( IOException e )
+		{
+			Toast.makeText(
+				context,
+				R.string.error_pick_image,
+				Toast.LENGTH_SHORT ).show();
+		}
+
+		return null;
+	}
+
 	@Override
 	public View onCreateView(
 		LayoutInflater inflater,
@@ -117,38 +155,9 @@ public class TexturesFragment extends Fragment
 		{
 			Uri uri = data.getData();
 
-			try
-			{
-				AssetFileDescriptor fd = activity
-					.getContentResolver()
-					.openAssetFileDescriptor( uri, "r" );
-
-				BitmapFactory.Options options =
-					new BitmapFactory.Options();
-				options.inSampleSize = getSampleSizeForBitmap(
-					fd,
-					1024,
-					1024 );
-
-				cropImage( BitmapFactory.decodeFileDescriptor(
-					fd.getFileDescriptor(),
-					null,
-					options ) );
-			}
-			catch( SecurityException e )
-			{
-				Toast.makeText(
-					activity,
-					R.string.error_no_permission,
-					Toast.LENGTH_SHORT ).show();
-			}
-			catch( IOException e )
-			{
-				Toast.makeText(
-					activity,
-					R.string.error_pick_image,
-					Toast.LENGTH_SHORT ).show();
-			}
+			cropImage( getBitmapFromUri(
+				activity,
+				uri ) );
 		}
 	}
 
@@ -240,6 +249,9 @@ public class TexturesFragment extends Fragment
 
 	private void cropImage( Bitmap bitmap )
 	{
+		if( bitmap == null )
+			return;
+
 		AbstractSecondaryActivity.addFragment(
 			getFragmentManager(),
 			CropImageFragment.newInstance( bitmap ) );

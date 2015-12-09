@@ -345,6 +345,30 @@ public class MainActivity
 			shaderAdapter.changeCursor( null );
 	}
 
+	@Override
+	protected void onNewIntent( Intent intent )
+	{
+		super.onNewIntent( intent );
+
+		handleSendText( intent );
+	}
+
+	private void closeDrawer()
+	{
+		if( drawerLayout == null )
+			return;
+
+		drawerLayout.closeDrawer( menuFrame );
+	}
+
+	private void openDrawer()
+	{
+		if( drawerLayout == null )
+			return;
+
+		drawerLayout.openDrawer( menuFrame );
+	}
+
 	private void initSystemBars()
 	{
 		if( setSystemBarColor(
@@ -522,6 +546,7 @@ public class MainActivity
 
 		if( shaderAdapter != null )
 		{
+			shaderAdapter.setSelectedId( selectedShaderId );
 			shaderAdapter.changeCursor( cursor );
 			return;
 		}
@@ -530,7 +555,8 @@ public class MainActivity
 			this,
 			cursor );
 
-		if( shaderAdapter.getCount() > 0 )
+		if( !handleSendText( getIntent() ) &&
+			shaderAdapter.getCount() > 0 )
 		{
 			if( selectedShaderId < 1 )
 			{
@@ -565,20 +591,32 @@ public class MainActivity
 			shaderAdapter.changeCursor( null );
 	}
 
-	private void closeDrawer()
+	private boolean handleSendText( Intent intent )
 	{
-		if( drawerLayout == null )
-			return;
+		if( intent == null )
+			return false;
 
-		drawerLayout.closeDrawer( menuFrame );
-	}
+		String action = intent.getAction();
+		String type = intent.getType();
+		String text;
 
-	private void openDrawer()
-	{
-		if( drawerLayout == null )
-			return;
+		if( !Intent.ACTION_SEND.equals( action ) ||
+			type == null ||
+			!"text/plain".equals( type ) ||
+			(text = intent.getStringExtra(
+				Intent.EXTRA_TEXT )) == null )
+			return false;
 
-		drawerLayout.openDrawer( menuFrame );
+		if( ShaderEditorApplication
+				.preferences
+				.doesRunInBackground() )
+			setFragmentShader( text );
+
+		selectedShaderId = 0;
+		editorFragment.setText( text );
+		setDefaultToolbarTitle();
+
+		return true;
 	}
 
 	private void insertTab()
@@ -778,9 +816,10 @@ public class MainActivity
 				editorFragment.setText( null );
 
 			setFragmentShader( null );
-			setToolbarTitle( getString( R.string.app_name ) );
+			setDefaultToolbarTitle();
 		}
 
+		// update list
 		shaderAdapter.setSelectedId( id );
 		queryShadersAsync();
 	}
@@ -827,6 +866,11 @@ public class MainActivity
 			.getShader( id );
 	}
 
+	private void setDefaultToolbarTitle()
+	{
+		setToolbarTitle( getString( R.string.app_name ) );
+	}
+
 	private void setToolbarTitle( long id )
 	{
 		Cursor cursor = getShader( id );
@@ -851,13 +895,8 @@ public class MainActivity
 
 	private void setToolbarTitle( String name )
 	{
-		if( name != null )
-			toolbar.setTitle( name );
-
-		if( !ShaderEditorApplication
-				.preferences
-				.doesRunInBackground() )
-			toolbar.setSubtitle( null );
+		toolbar.setTitle( name );
+		toolbar.setSubtitle( null );
 	}
 
 	private void setFragmentShader( String src )
