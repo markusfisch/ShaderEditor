@@ -7,7 +7,9 @@ import de.markusfisch.android.shadereditor.R;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Rect;
+import android.graphics.Matrix;
+import android.graphics.RectF;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -26,12 +28,38 @@ import android.widget.Toast;
 
 public class TexturePropertiesFragment extends Fragment
 {
+	private static final String IMAGE_URI = "image_uri";
+	private static final String CROP_RECT = "crop_rect";
+	private static final String ROTATION = "rotation";
+
+	private static boolean inProgress = false;
+
 	private InputMethodManager imm;
 	private SeekBar sizeBarView;
 	private TextView sizeView;
 	private EditText nameView;
 	private CheckBox addUniformView;
 	private View progressView;
+	private Uri imageUri;
+	private RectF cropRect;
+	private float imageRotation;
+
+	public static Fragment newInstance(
+		Uri uri,
+		RectF rect,
+		float rotation )
+	{
+		Bundle args = new Bundle();
+		args.putParcelable( IMAGE_URI, uri );
+		args.putParcelable( CROP_RECT, rect );
+		args.putFloat( ROTATION, rotation );
+
+		TexturePropertiesFragment fragment =
+			new TexturePropertiesFragment();
+		fragment.setArguments( args );
+
+		return fragment;
+	}
 
 	@Override
 	public void onCreate( Bundle state )
@@ -48,14 +76,21 @@ public class TexturePropertiesFragment extends Fragment
 		Bundle state )
 	{
 		Activity activity;
-		View view;
 
 		if( (activity = getActivity()) == null )
 			return null;
 
 		activity.setTitle( R.string.texture_properties );
 
-		if( (view = inflater.inflate(
+		Bundle args;
+		View view;
+
+		if( (args = getArguments()) == null ||
+			(imageUri = (Uri)args.getParcelable(
+				IMAGE_URI )) == null ||
+			(cropRect = (RectF)args.getParcelable(
+				CROP_RECT )) == null ||
+			(view = inflater.inflate(
 				R.layout.fragment_texture_properties,
 				container,
 				false )) == null ||
@@ -73,6 +108,8 @@ public class TexturePropertiesFragment extends Fragment
 			activity.finish();
 			return null;
 		}
+
+		imageRotation = args.getFloat( ROTATION );
 
 		imm = (InputMethodManager)activity.getSystemService(
 			Context.INPUT_METHOD_SERVICE );
@@ -146,17 +183,10 @@ public class TexturePropertiesFragment extends Fragment
 
 	private void saveTextureAsync()
 	{
-		Context context = getActivity();
+		final Context context = getActivity();
 
 		if( context == null ||
-			progressView.getVisibility() == View.VISIBLE )
-			return;
-
-		final Bitmap bitmap = CropImageFragment.bitmap;
-		final Rect rect = CropImageFragment.rect;
-
-		if( bitmap == null ||
-			rect == null )
+			inProgress )
 			return;
 
 		final String name = nameView.getText().toString();
@@ -183,8 +213,13 @@ public class TexturePropertiesFragment extends Fragment
 			return;
 		}
 
+		imm.hideSoftInputFromWindow(
+			nameView.getWindowToken(),
+			0 );
+
 		final int size = getPower( sizeBarView.getProgress() );
 
+		inProgress = true;
 		progressView.setVisibility( View.VISIBLE );
 
 		new AsyncTask<Void, Void, Integer>()
@@ -192,18 +227,29 @@ public class TexturePropertiesFragment extends Fragment
 			@Override
 			protected Integer doInBackground( Void... nothings )
 			{
-				return saveTexture( bitmap, rect, name, size );
+				return saveTexture(
+					// try to get a bigger source image in
+					// case the cut out is quite small
+					CropImageFragment.getBitmapFromUri(
+						context,
+						imageUri,
+						2048 ),
+					cropRect,
+					imageRotation,
+					name,
+					size );
 			}
 
 			@Override
 			protected void onPostExecute( Integer messageId )
 			{
+				inProgress = false;
+				progressView.setVisibility( View.GONE );
+
 				Activity activity = getActivity();
 
 				if( activity == null )
 					return;
-
-				progressView.setVisibility( View.GONE );
 
 				if( messageId > 0 )
 				{
@@ -214,10 +260,6 @@ public class TexturePropertiesFragment extends Fragment
 
 					return;
 				}
-
-				imm.hideSoftInputFromWindow(
-					nameView.getWindowToken(),
-					0 );
 
 				if( addUniformView.isChecked() )
 					TexturesActivity.setAddUniformResult(
@@ -231,18 +273,40 @@ public class TexturePropertiesFragment extends Fragment
 
 	private int saveTexture(
 		Bitmap bitmap,
-		Rect rect,
+		RectF rect,
+		float rotation,
 		String name,
 		int size )
 	{
+		if( bitmap == null )
+			return 0;
+
 		try
 		{
+			if( rotation % 360 != 0 )
+			{
+				Matrix matrix = new Matrix();
+				matrix.setRotate( rotation );
+
+				bitmap = Bitmap.createBitmap(
+					bitmap,
+					0,
+					0,
+					bitmap.getWidth(),
+					bitmap.getHeight(),
+					matrix,
+					true );
+			}
+
+			float w = bitmap.getWidth();
+			float h = bitmap.getHeight();
+
 			bitmap = Bitmap.createBitmap(
 				bitmap,
-				rect.left,
-				rect.top,
-				rect.width(),
-				rect.height() );
+				Math.round( rect.left*w ),
+				Math.round( rect.top*h ),
+				Math.round( rect.width()*w ),
+				Math.round( rect.height()*h ) );
 		}
 		catch( IllegalArgumentException e )
 		{
@@ -258,9 +322,7 @@ public class TexturePropertiesFragment extends Fragment
 					size,
 					size,
 					true ) ) < 1 )
-		{
 			return R.string.name_already_taken;
-		}
 
 		return 0;
 	}

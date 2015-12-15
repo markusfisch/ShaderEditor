@@ -5,7 +5,6 @@ import de.markusfisch.android.shadereditor.fragment.TexturesFragment;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -52,16 +51,8 @@ public class TexturesActivity extends AbstractSecondaryActivity
 		Uri imageUri = (Uri)intent.getParcelableExtra(
 			Intent.EXTRA_STREAM );
 
-		if( imageUri == null )
-			return null;
-
-		Bitmap bitmap =
-			TexturesFragment.getBitmapFromUri(
-				this,
-				imageUri );
-
-		return bitmap != null ?
-			CropImageFragment.newInstance( bitmap ) :
+		return imageUri != null ?
+			CropImageFragment.newInstance( imageUri ) :
 			null;
 	}
 }

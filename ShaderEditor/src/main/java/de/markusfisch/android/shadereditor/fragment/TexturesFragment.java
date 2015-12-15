@@ -8,10 +8,7 @@ import de.markusfisch.android.shadereditor.R;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,9 +18,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
-
-import java.io.IOException;
 
 public class TexturesFragment extends Fragment
 {
@@ -34,44 +28,6 @@ public class TexturesFragment extends Fragment
 	private View progessBar;
 	private View noTextureMessage;
 
-	public static Bitmap getBitmapFromUri( Context context, Uri uri )
-	{
-		try
-		{
-			AssetFileDescriptor fd = context
-				.getContentResolver()
-				.openAssetFileDescriptor( uri, "r" );
-
-			BitmapFactory.Options options =
-				new BitmapFactory.Options();
-			options.inSampleSize = getSampleSizeForBitmap(
-				fd,
-				1024,
-				1024 );
-
-			return BitmapFactory.decodeFileDescriptor(
-				fd.getFileDescriptor(),
-				null,
-				options );
-		}
-		catch( SecurityException e )
-		{
-			Toast.makeText(
-				context,
-				R.string.error_no_permission,
-				Toast.LENGTH_SHORT ).show();
-		}
-		catch( IOException e )
-		{
-			Toast.makeText(
-				context,
-				R.string.error_pick_image,
-				Toast.LENGTH_SHORT ).show();
-		}
-
-		return null;
-	}
-
 	@Override
 	public View onCreateView(
 		LayoutInflater inflater,
@@ -79,13 +35,14 @@ public class TexturesFragment extends Fragment
 		Bundle state )
 	{
 		Activity activity;
-		View view;
-		View fab;
 
 		if( (activity = getActivity()) == null )
 			return null;
 
 		activity.setTitle( R.string.textures );
+
+		View view;
+		View fab;
 
 		if( (view = inflater.inflate(
 				R.layout.fragment_textures,
@@ -152,13 +109,7 @@ public class TexturesFragment extends Fragment
 			data != null &&
 			data.getData() != null &&
 			(activity = getActivity()) != null )
-		{
-			Uri uri = data.getData();
-
-			cropImage( getBitmapFromUri(
-				activity,
-				uri ) );
-		}
+			cropImage( data.getData() );
 	}
 
 	private void initListView( View view )
@@ -247,58 +198,10 @@ public class TexturesFragment extends Fragment
 			PICK_IMAGE_REQUEST);
 	}
 
-	private void cropImage( Bitmap bitmap )
+	private void cropImage( Uri imageUri )
 	{
-		if( bitmap == null )
-			return;
-
 		AbstractSecondaryActivity.addFragment(
 			getFragmentManager(),
-			CropImageFragment.newInstance( bitmap ) );
-	}
-
-	private static int getSampleSizeForBitmap(
-		AssetFileDescriptor fd,
-		int maxWidth,
-		int maxHeight )
-	{
-		BitmapFactory.Options options =
-			new BitmapFactory.Options();
-
-		options.inJustDecodeBounds = true;
-
-		BitmapFactory.decodeFileDescriptor(
-			fd.getFileDescriptor(),
-			null,
-			options );
-
-		return calculateSampleSize(
-			options.outWidth,
-			options.outHeight,
-			maxWidth,
-			maxHeight );
-	}
-
-	private static int calculateSampleSize(
-		int width,
-		int height,
-		int maxWidth,
-		int maxHeight )
-	{
-		int size = 1;
-
-		if( width > maxWidth ||
-			height > maxHeight )
-		{
-			final int hw = width/2;
-			final int hh = height/2;
-
-			while(
-				hw/size > maxWidth &&
-				hh/size > maxHeight )
-				size *= 2;
-		}
-
-		return size;
+			CropImageFragment.newInstance( imageUri ) );
 	}
 }

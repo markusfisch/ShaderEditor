@@ -28,11 +28,11 @@ public class TextureViewFragment extends Fragment
 
 	public static TextureViewFragment newInstance( long id )
 	{
-		Bundle bundle = new Bundle();
-		bundle.putLong( TEXTURE_ID, id );
+		Bundle args = new Bundle();
+		args.putLong( TEXTURE_ID, id );
 
 		TextureViewFragment fragment = new TextureViewFragment();
-		fragment.setArguments( bundle );
+		fragment.setArguments( args );
 
 		return fragment;
 	}
@@ -58,13 +58,13 @@ public class TextureViewFragment extends Fragment
 
 		activity.setTitle( R.string.view_texture );
 
+		Bundle args;
 		Bitmap bitmap;
-		Bundle bundle;
 		View view;
 		ImageView imageView;
 
-		if( (bundle = getArguments()) == null ||
-			(textureId = bundle.getLong( TEXTURE_ID )) < 1 ||
+		if( (args = getArguments()) == null ||
+			(textureId = args.getLong( TEXTURE_ID )) < 1 ||
 			(bitmap = ShaderEditorApplication
 				.dataSource
 				.getTexture( textureId )) == null ||

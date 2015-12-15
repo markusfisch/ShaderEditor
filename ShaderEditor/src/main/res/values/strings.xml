@@ -57,6 +57,7 @@
 	<string name="input_texture_name">Give a name</string>
 	<string name="should_add_uniform">Add uniform sampler2D?</string>
 	<string name="cut_image">Cut image</string>
+	<string name="rotate_clockwise">Rotate clockwise</string>
 	<string name="save_texture">Save texture</string>
 	<string name="missing_name">You need to give a name</string>
 	<string name="invalid_texture_name">Invalid name, please choose a name you can use in a GLSL source</string>

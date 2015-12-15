@@ -4,7 +4,6 @@ import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
-import de.markusfisch.android.shadereditor.fragment.CropImageFragment;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.widget.TouchThruDrawerlayout;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
@@ -323,7 +322,6 @@ public class MainActivity
 
 		updateUiToPreferences();
 		queryShadersAsync();
-		CropImageFragment.recycle();
 	}
 
 	@Override

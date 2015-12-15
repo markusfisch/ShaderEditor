@@ -6,4 +6,9 @@
 		android:icon="@drawable/ic_action_cut"
 		android:title="@string/cut_image"
 		material:showAsAction="ifRoom"/>
+	<item
+		android:id="@+id/rotate_clockwise"
+		android:icon="@drawable/ic_action_rotate_clockwise"
+		android:title="@string/rotate_clockwise"
+		material:showAsAction="ifRoom"/>
 </menu>

@@ -13,18 +13,18 @@ import android.widget.ImageView;
 
 public class ScalingImageView extends ImageView
 {
-	private final Matrix originMatrix = new Matrix();
-	private final Matrix transformMatrix = new Matrix();
 	private final SparseArray<Float> originX = new SparseArray<Float>();
 	private final SparseArray<Float> originY = new SparseArray<Float>();
+	private final Matrix originMatrix = new Matrix();
+	private final Matrix transformMatrix = new Matrix();
 	private final Gesture originGesture = new Gesture();
 	private final Gesture transformGesture = new Gesture();
+	private final RectF srcRect = new RectF();
+	private final RectF dstRect = new RectF();
 	private final RectF bounds = new RectF();
-	private final float values[] = new float[9];
 
-	private float drawableWidth;
-	private float drawableHeight;
-	private float minScale;
+	private float minWidth;
+	private float rotation = 0f;
 	private ImageView.ScaleType scaleType =
 		ImageView.ScaleType.CENTER_INSIDE;
 
@@ -131,19 +131,42 @@ public class ScalingImageView extends ImageView
 		center( bounds );
 	}
 
+	public void setImageRotation( float degrees )
+	{
+		rotation = degrees;
+		center( bounds );
+	}
+
+	public float getImageRotation()
+	{
+		return rotation;
+	}
+
 	public Rect getRectInBounds()
 	{
-		transformMatrix.getValues( values );
+		transformMatrix.mapRect( dstRect, srcRect );
 
-		float scale = values[Matrix.MSCALE_X];
-		float x = values[Matrix.MTRANS_X];
-		float y = values[Matrix.MTRANS_Y];
+		float scale = dstRect.width()/srcRect.width();
 
 		return new Rect(
-			Math.round( (bounds.left-x)/scale ),
-			Math.round( (bounds.top-y)/scale ),
-			Math.round( (bounds.right-x)/scale ),
-			Math.round( (bounds.bottom-y)/scale ) );
+			Math.round( (bounds.left-dstRect.left)/scale ),
+			Math.round( (bounds.top-dstRect.top)/scale ),
+			Math.round( (bounds.right-dstRect.left)/scale ),
+			Math.round( (bounds.bottom-dstRect.top)/scale ) );
+	}
+
+	public RectF getNormalizedRectInBounds()
+	{
+		transformMatrix.mapRect( dstRect, srcRect );
+
+		float w = dstRect.width();
+		float h = dstRect.height();
+
+		return new RectF(
+			(bounds.left-dstRect.left)/w,
+			(bounds.top-dstRect.top)/h,
+			(bounds.right-dstRect.left)/w,
+			(bounds.bottom-dstRect.top)/h );
 	}
 
 	protected void setBounds(
@@ -173,27 +196,36 @@ public class ScalingImageView extends ImageView
 			(drawable = getDrawable()) == null )
 			return;
 
-		drawableWidth = drawable.getIntrinsicWidth();
-		drawableHeight = drawable.getIntrinsicHeight();
+		float dw = drawable.getIntrinsicWidth();
+		float dh = drawable.getIntrinsicHeight();
+		srcRect.set( 0f, 0f, dw, dh );
+
+		transformMatrix.setTranslate( dw*-.5f, dh*-.5f );
+		transformMatrix.postRotate( rotation );
+		transformMatrix.mapRect( dstRect, srcRect );
 
 		float rw = rect.width();
 		float rh = rect.height();
-		float xr = rw/drawableWidth;
-		float yr = rh/drawableHeight;
+		float xr = rw/dstRect.width();
+		float yr = rh/dstRect.height();
+		float scale;
 
 		if( scaleType == ImageView.ScaleType.CENTER )
-			minScale = 1f;
+			scale = 1f;
 		else if( scaleType == ImageView.ScaleType.CENTER_INSIDE )
-			minScale = Math.min( xr, yr );
+			scale = Math.min( xr, yr );
 		else if( scaleType == ImageView.ScaleType.CENTER_CROP )
-			minScale = Math.max( xr, yr );
+			scale = Math.max( xr, yr );
 		else
 			throw new UnsupportedOperationException();
 
-		transformMatrix.setScale( minScale, minScale );
+		transformMatrix.postScale( scale, scale );
 		transformMatrix.postTranslate(
-			rect.left+Math.round( (rw - drawableWidth*minScale)*.5f ),
-			rect.top+Math.round( (rh - drawableHeight*minScale)*.5f ) );
+			Math.round( rect.left+rw*.5f ),
+			Math.round( rect.top+rh*.5f ) );
+
+		transformMatrix.mapRect( dstRect, srcRect );
+		minWidth = dstRect.width();
 
 		setImageMatrix( transformMatrix );
 	}
@@ -276,23 +308,22 @@ public class ScalingImageView extends ImageView
 
 	private float fitScale( Matrix matrix, float scale )
 	{
-		matrix.getValues( values );
-		float originScale = values[Matrix.MSCALE_X];
+		matrix.mapRect( dstRect, srcRect );
+		float w = dstRect.width();
 
-		return originScale*scale < minScale ?
-			minScale/originScale :
+		return w*scale < minWidth ?
+			minWidth/w :
 			scale;
 	}
 
 	private boolean fitRect( Matrix matrix )
 	{
-		matrix.getValues( values );
+		matrix.mapRect( dstRect, srcRect );
 
-		float scale = values[Matrix.MSCALE_X];
-		float x = values[Matrix.MTRANS_X];
-		float y = values[Matrix.MTRANS_Y];
-		float w = Math.round( scale*drawableWidth );
-		float h = Math.round( scale*drawableHeight );
+		float x = dstRect.left;
+		float y = dstRect.top;
+		float w = dstRect.width();
+		float h = dstRect.height();
 		float bw = bounds.width();
 		float bh = bounds.height();
 		float minX = bounds.right-w;

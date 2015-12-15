@@ -34,10 +34,11 @@ public class EditorFragment extends Fragment
 		Bundle state )
 	{
 		Activity activity;
-		View view;
 
 		if( (activity = getActivity()) == null )
 			return null;
+
+		View view;
 
 		if( (imm = (InputMethodManager)activity.getSystemService(
 				Context.INPUT_METHOD_SERVICE )) == null ||
