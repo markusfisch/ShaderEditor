@@ -390,20 +390,21 @@ public class DataSource
 			DataSource.insertShader(
 				db,
 				loadRawResource(
-					R.raw.shader_laser_lines ),
+					R.raw.shader_color_hole ),
 				loadBitmapResource(
-					R.drawable.thumbnail_laser_lines ) );
+					R.drawable.thumbnail_color_hole ) );
 
 			DataSource.insertShader(
 				db,
 				loadRawResource(
-					R.raw.shader_color_hole ),
+					R.raw.shader_laser_lines ),
 				loadBitmapResource(
-					R.drawable.thumbnail_color_hole ) );
+					R.drawable.thumbnail_laser_lines ) );
 		}
 		catch( IOException e )
 		{
-			// fail silently
+			// shouldn't ever happen in production
+			// and nothing can be done if it does
 		}
 	}
 
