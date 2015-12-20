@@ -6,38 +6,38 @@ precision mediump float;
 
 uniform float time;
 uniform vec2 resolution;
-uniform sampler2D backbuffer;
 uniform vec2 offset;
+uniform sampler2D backbuffer;
 
 void main( void )
 {
 	float mx = max( resolution.x, resolution.y );
-	vec2 uv = (gl_FragCoord.xy-resolution.xy*.5)/mx;
+	vec2 uv = (gl_FragCoord.xy - resolution.xy*0.5)/mx;
 
-	uv += offset*.1;
+	uv += offset*0.1;
 
-	float angle = .7;
+	float r = 0.7;
 	uv *= mat2(
-		angle, -angle,
-		angle, angle );
+		r, -r,
+		r, r );
 
-	float y = uv.y*mx*.05+time*.6;
-	float i = fract( y );
-	i = (max( .4, min( i, 1.-i ) )-.4)*10.;
+	float y = uv.y*mx*0.05 + time;
+	float f = fract( y );
+	f = (max( 0.4, min( f, 1.0 - f ) ) - 0.4)*10.0;
 
-	vec3 c =
+	vec3 color =
 		vec3(
-			mod( y, 6. )*i,
-			mod( y, 2. )*i,
-			mod( y, .9 )*i )*
-		abs( sin( mod( 30.+time+uv.x, uv.y+1. ) ) );
+			mod( y, 6.0 )*f,
+			mod( y, 2.0 )*f,
+			mod( y, 0.9 )*f )*
+		abs( sin( mod( 30.0 + uv.x, uv.y + 1.0 ) ) );
 
-	c = mix(
+	color = mix(
 		texture2D(
 			backbuffer,
 			gl_FragCoord.xy/mx ).rgb,
-		c,
-		.5 );
+		color,
+		0.5 );
 
-	gl_FragColor = vec4( c, 1.0 );
+	gl_FragColor = vec4( color, 1.0 );
 }
