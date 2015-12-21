@@ -79,7 +79,7 @@ public class DataSource
 		return true;
 	}
 
-	public Cursor queryShaders()
+	public Cursor getShaders()
 	{
 		return db.rawQuery(
 			"SELECT "+
@@ -91,7 +91,7 @@ public class DataSource
 			null );
 	}
 
-	public Cursor queryTextures()
+	public Cursor getTextures()
 	{
 		return db.rawQuery(
 			"SELECT "+

@@ -321,7 +321,7 @@ public class MainActivity
 		super.onResume();
 
 		updateUiToPreferences();
-		queryShadersAsync();
+		getShadersAsync();
 	}
 
 	@Override
@@ -494,7 +494,7 @@ public class MainActivity
 			invalidateOptionsMenu();
 	}
 
-	private void queryShadersAsync()
+	private void getShadersAsync()
 	{
 		if( !ShaderEditorApplication.dataSource.isOpen() )
 		{
@@ -504,7 +504,7 @@ public class MainActivity
 					@Override
 					public void run()
 					{
-						queryShadersAsync();
+						getShadersAsync();
 					}
 				},
 				500 );
@@ -519,7 +519,7 @@ public class MainActivity
 			{
 				return ShaderEditorApplication
 					.dataSource
-					.queryShaders();
+					.getShaders();
 			}
 
 			@Override
@@ -676,7 +676,7 @@ public class MainActivity
 					thumbnail );
 
 		// update thumbnails
-		queryShadersAsync();
+		getShadersAsync();
 	}
 
 	private void toggleCode()
@@ -715,7 +715,7 @@ public class MainActivity
 						.getThumbnail( id ) ) );
 
 		// update thumbnails
-		queryShadersAsync();
+		getShadersAsync();
 	}
 
 	private void deleteShader( final long id )
@@ -819,7 +819,7 @@ public class MainActivity
 
 		// update list
 		shaderAdapter.setSelectedId( id );
-		queryShadersAsync();
+		getShadersAsync();
 	}
 
 	private long loadShader( long id )

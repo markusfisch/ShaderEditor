@@ -79,7 +79,7 @@ public class TexturesFragment extends Fragment
 	{
 		super.onResume();
 
-		queryTexturesAsync( getActivity() );
+		getTexturesAsync( getActivity() );
 	}
 
 	@Override
@@ -138,7 +138,7 @@ public class TexturesFragment extends Fragment
 			TextureViewFragment.newInstance( id ) );
 	}
 
-	private void queryTexturesAsync( final Context context )
+	private void getTexturesAsync( final Context context )
 	{
 		if( context == null )
 			return;
@@ -150,7 +150,7 @@ public class TexturesFragment extends Fragment
 			{
 				return ShaderEditorApplication
 					.dataSource
-					.queryTextures();
+					.getTextures();
 			}
 
 			@Override
