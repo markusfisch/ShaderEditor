@@ -36,8 +36,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		public void onFramesPerSecond( int fps );
 	}
 
-	private static final float NANO = 1000000000f;
-	private static final long FPS_UPDATE_FREQUENCY = 200000000;
+	private static final float NS_PER_SECOND = 1000000000f;
+	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000;
 	private static final Pattern SAMPLER_2D = Pattern.compile(
 		"uniform[ \t]+sampler2D[ \t]+([a-zA-Z0-9]+);" );
 	private static final String VERTEX_SHADER =
@@ -179,10 +179,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		if( timeLoc > -1 )
 			GLES20.glUniform1f(
 				timeLoc,
-				// wrap time early to avoid rounding
-				// errors when the value becomes too
-				// big for a mere mediump float
-				(now-startTime)/NANO % 60000f );
+				(now-startTime)/NS_PER_SECOND );
 
 		if( resolutionLoc > -1 )
 			GLES20.glUniform2fv(
@@ -542,7 +539,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	private void updateFps( long now )
 	{
-		sum += Math.min( NANO/(now-lastRender), 60f );
+		sum += Math.min( NS_PER_SECOND/(now-lastRender), 60f );
 
 		if( ++samples > 0xffff )
 		{
@@ -560,7 +557,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				lastFps = fps;
 			}
 
-			nextFpsUpdate = now+FPS_UPDATE_FREQUENCY;
+			nextFpsUpdate = now+FPS_UPDATE_FREQUENCY_NS;
 		}
 
 		lastRender = now;
