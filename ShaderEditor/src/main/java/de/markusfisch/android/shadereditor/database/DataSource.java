@@ -400,6 +400,20 @@ public class DataSource
 					R.raw.shader_laser_lines ),
 				loadBitmapResource(
 					R.drawable.thumbnail_laser_lines ) );
+
+			DataSource.insertShader(
+				db,
+				loadRawResource(
+					R.raw.shader_conway ),
+				loadBitmapResource(
+					R.drawable.thumbnail_conway ) );
+
+			DataSource.insertShader(
+				db,
+				loadRawResource(
+					R.raw.shader_gravity ),
+				loadBitmapResource(
+					R.drawable.thumbnail_gravity ) );
 		}
 		catch( IOException e )
 		{
@@ -463,7 +477,10 @@ public class DataSource
 			int newVersion )
 		{
 			if( oldVersion == 1 )
+			{
 				createTexturesTable( db );
+				insertInitalShaders( db );
+			}
 		}
 	}
 }

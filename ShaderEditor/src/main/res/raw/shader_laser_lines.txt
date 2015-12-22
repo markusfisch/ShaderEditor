@@ -30,7 +30,9 @@ void main( void )
 			mod( y, 6.0 )*f,
 			mod( y, 2.0 )*f,
 			mod( y, 0.9 )*f )*
-		abs( sin( mod( 30.0 + uv.x, uv.y + 1.0 ) ) );
+		abs( sin( mod(
+			30.0 + uv.x,
+			uv.y + 1.0 ) ) );
 
 	color = mix(
 		texture2D(
