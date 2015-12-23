@@ -1,6 +1,7 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.AbstractSecondaryActivity;
+import de.markusfisch.android.shadereditor.activity.CropImageActivity;
+import de.markusfisch.android.shadereditor.activity.TextureViewActivity;
 import de.markusfisch.android.shadereditor.adapter.TexturesAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.R;
@@ -133,9 +134,9 @@ public class TexturesFragment extends Fragment
 
 	private void showTexture( long id )
 	{
-		AbstractSecondaryActivity.addFragment(
-			getFragmentManager(),
-			TextureViewFragment.newInstance( id ) );
+		TextureViewActivity.startActivityForTexture(
+			getActivity(),
+			id );
 	}
 
 	private void getTexturesAsync( final Context context )
@@ -200,8 +201,8 @@ public class TexturesFragment extends Fragment
 
 	private void cropImage( Uri imageUri )
 	{
-		AbstractSecondaryActivity.addFragment(
-			getFragmentManager(),
-			CropImageFragment.newInstance( imageUri ) );
+		CropImageActivity.startActivityForImage(
+			getActivity(),
+			imageUri );
 	}
 }

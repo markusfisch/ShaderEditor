@@ -76,5 +76,11 @@
 				<data android:mimeType="image/*"/>
 			</intent-filter>
 		</activity>
+		<activity
+			android:name=".activity.TextureViewActivity"
+			android:label="@string/view_texture"/>
+		<activity
+			android:name=".activity.CropImageActivity"
+			android:label="@string/crop_image"/>
 	</application>
 </manifest>

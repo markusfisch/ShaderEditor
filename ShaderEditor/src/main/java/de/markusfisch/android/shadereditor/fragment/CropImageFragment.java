@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.AbstractSecondaryActivity;
+import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
 import de.markusfisch.android.shadereditor.widget.CropImageView;
 import de.markusfisch.android.shadereditor.R;
 
@@ -28,6 +28,11 @@ public class CropImageFragment extends Fragment
 {
 	public static final String IMAGE_URI = "image_uri";
 
+	public interface CropImageViewProvider
+	{
+		public CropImageView getCropImageView();
+	}
+
 	private static boolean inProgress = false;
 
 	private CropImageView cropImageView;
@@ -35,17 +40,6 @@ public class CropImageFragment extends Fragment
 	private Uri imageUri;
 	private Bitmap bitmap;
 	private Rect rect;
-
-	public static CropImageFragment newInstance( Uri uri )
-	{
-		Bundle args = new Bundle();
-		args.putParcelable( IMAGE_URI, uri );
-
-		CropImageFragment fragment = new CropImageFragment();
-		fragment.setArguments( args );
-
-		return fragment;
-	}
 
 	public static Bitmap getBitmapFromUri(
 		Context context,
@@ -109,24 +103,38 @@ public class CropImageFragment extends Fragment
 
 		activity.setTitle( R.string.crop_image );
 
+		try
+		{
+			cropImageView = ((CropImageViewProvider)activity)
+				.getCropImageView();
+		}
+		catch( ClassCastException e )
+		{
+			throw new ClassCastException(
+				activity.toString()+
+				" must implement "+
+				"CropImageFragment.CropImageViewProvider" );
+		}
+
 		Bundle args;
 		View view;
 
-		if( (args = getArguments()) == null ||
+		if( cropImageView == null ||
+			(args = getArguments()) == null ||
 			(imageUri = (Uri)args.getParcelable(
 				IMAGE_URI )) == null ||
 			(view = inflater.inflate(
 				R.layout.fragment_crop_image,
 				container,
 				false )) == null ||
-			(cropImageView = (CropImageView)view.findViewById(
-				R.id.texture_image )) == null ||
 			(progressView = view.findViewById(
 				R.id.progress_view )) == null )
 		{
 			activity.finish();
 			return null;
 		}
+
+		cropImageView.setVisibility( View.VISIBLE );
 
 		return view;
 	}
@@ -244,15 +252,18 @@ public class CropImageFragment extends Fragment
 
 	private void cutImage()
 	{
-		bitmap.recycle();
-		bitmap = null;
-
-		AbstractSecondaryActivity.addFragment(
+		AbstractSubsequentActivity.addFragment(
 			getFragmentManager(),
 			TexturePropertiesFragment.newInstance(
 				imageUri,
 				cropImageView.getNormalizedRectInBounds(),
 				cropImageView.getImageRotation() ) );
+
+		bitmap.recycle();
+		bitmap = null;
+
+		cropImageView.setImageBitmap( null );
+		cropImageView.setVisibility( View.GONE );
 	}
 
 	private void rotateClockwise()

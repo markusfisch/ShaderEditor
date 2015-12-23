@@ -117,6 +117,19 @@ public class MainActivity
 		return true;
 	}
 
+	public static void initSystemBars( AppCompatActivity activity )
+	{
+		if( setSystemBarColor(
+				activity.getWindow(),
+				ShaderEditorApplication.systemBarColor,
+				true ) )
+			activity.findViewById( R.id.main_layout ).setPadding(
+				0,
+				getStatusBarHeight( activity.getResources() ),
+				0,
+				0 );
+	}
+
 	@Override
 	public void onConfigurationChanged( Configuration newConfig )
 	{
@@ -263,7 +276,7 @@ public class MainActivity
 		super.onCreate( state );
 		setContentView( R.layout.activity_main );
 
-		initSystemBars();
+		initSystemBars( this );
 		initToolbar();
 		initDrawer();
 		initListView();
@@ -365,19 +378,6 @@ public class MainActivity
 			return;
 
 		drawerLayout.openDrawer( menuFrame );
-	}
-
-	private void initSystemBars()
-	{
-		if( setSystemBarColor(
-				getWindow(),
-				ShaderEditorApplication.systemBarColor,
-				true ) )
-			findViewById( R.id.main_layout ).setPadding(
-				0,
-				getStatusBarHeight( getResources() ),
-				0,
-				0 );
 	}
 
 	private static int getStatusBarHeight( Resources res )

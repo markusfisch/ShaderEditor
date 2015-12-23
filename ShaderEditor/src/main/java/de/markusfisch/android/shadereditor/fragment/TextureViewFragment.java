@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.activity.TexturesActivity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.widget.ScalingImageView;
 import de.markusfisch.android.shadereditor.R;
 
 import android.app.Activity;
@@ -18,24 +19,17 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 public class TextureViewFragment extends Fragment
 {
-	private static final String TEXTURE_ID = "texture_id";
+	public static final String TEXTURE_ID = "texture_id";
+
+	public interface ScalingImageViewProvider
+	{
+		public ScalingImageView getScalingImageView();
+	}
 
 	private long textureId;
-
-	public static TextureViewFragment newInstance( long id )
-	{
-		Bundle args = new Bundle();
-		args.putLong( TEXTURE_ID, id );
-
-		TextureViewFragment fragment = new TextureViewFragment();
-		fragment.setArguments( args );
-
-		return fragment;
-	}
 
 	@Override
 	public void onCreate( Bundle state )
@@ -58,22 +52,30 @@ public class TextureViewFragment extends Fragment
 
 		activity.setTitle( R.string.view_texture );
 
+		ScalingImageView imageView;
+
+		try
+		{
+			imageView = ((ScalingImageViewProvider)activity)
+				.getScalingImageView();
+		}
+		catch( ClassCastException e )
+		{
+			throw new ClassCastException(
+				activity.toString()+
+				" must implement "+
+				"TextureViewFragment.ScalingImageViewProvider" );
+		}
+
 		Bundle args;
 		Bitmap bitmap;
-		View view;
-		ImageView imageView;
 
-		if( (args = getArguments()) == null ||
+		if( imageView == null ||
+			(args = getArguments()) == null ||
 			(textureId = args.getLong( TEXTURE_ID )) < 1 ||
 			(bitmap = ShaderEditorApplication
 				.dataSource
-				.getTexture( textureId )) == null ||
-			(view = inflater.inflate(
-				R.layout.fragment_view_texture,
-				container,
-				false )) == null ||
-			(imageView = (ImageView)view.findViewById(
-				R.id.texture_image )) == null )
+				.getTexture( textureId )) == null )
 		{
 			activity.finish();
 			return null;
@@ -81,7 +83,7 @@ public class TextureViewFragment extends Fragment
 
 		imageView.setImageBitmap( bitmap );
 
-		return view;
+		return null;
 	}
 
 	@Override

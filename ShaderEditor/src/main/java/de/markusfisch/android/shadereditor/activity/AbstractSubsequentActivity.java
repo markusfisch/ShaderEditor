@@ -9,7 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-public abstract class AbstractSecondaryActivity extends AppCompatActivity
+public abstract class AbstractSubsequentActivity extends AppCompatActivity
 {
 	private FragmentManager fm;
 
@@ -23,6 +23,21 @@ public abstract class AbstractSecondaryActivity extends AppCompatActivity
 				fragment )
 			.addToBackStack( null )
 			.commit();
+	}
+
+	public static void initToolbar( AppCompatActivity activity )
+	{
+		Toolbar toolbar = (Toolbar)activity.findViewById( R.id.toolbar );
+		activity.setSupportActionBar( toolbar );
+		activity.getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+	}
+
+	public static void initSystemBars( AppCompatActivity activity )
+	{
+		MainActivity.setSystemBarColor(
+			activity.getWindow(),
+			ShaderEditorApplication.systemBarColor,
+			false );
 	}
 
 	@Override
@@ -40,35 +55,6 @@ public abstract class AbstractSecondaryActivity extends AppCompatActivity
 	protected void onCreate( Bundle state )
 	{
 		super.onCreate( state );
-		setContentView( R.layout.activity_secondary );
-
-		initSystemBars();
-		initToolbar();
-
 		fm = getSupportFragmentManager();
-
-		if( state == null )
-			fm.beginTransaction()
-				.replace(
-					R.id.content_frame,
-					defaultFragment() )
-				.commit();
-	}
-
-	protected abstract Fragment defaultFragment();
-
-	private void initSystemBars()
-	{
-		MainActivity.setSystemBarColor(
-			getWindow(),
-			ShaderEditorApplication.systemBarColor,
-			false );
-	}
-
-	private void initToolbar()
-	{
-		Toolbar toolbar = (Toolbar)findViewById( R.id.toolbar );
-		setSupportActionBar( toolbar );
-		getSupportActionBar().setDisplayHomeAsUpEnabled( true );
 	}
 }
