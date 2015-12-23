@@ -397,23 +397,16 @@ public class DataSource
 			DataSource.insertShader(
 				db,
 				loadRawResource(
-					R.raw.shader_laser_lines ),
-				loadBitmapResource(
-					R.drawable.thumbnail_laser_lines ) );
-
-			DataSource.insertShader(
-				db,
-				loadRawResource(
-					R.raw.shader_conway ),
-				loadBitmapResource(
-					R.drawable.thumbnail_conway ) );
-
-			DataSource.insertShader(
-				db,
-				loadRawResource(
 					R.raw.shader_gravity ),
 				loadBitmapResource(
 					R.drawable.thumbnail_gravity ) );
+
+			DataSource.insertShader(
+				db,
+				loadRawResource(
+					R.raw.shader_laser_lines ),
+				loadBitmapResource(
+					R.drawable.thumbnail_laser_lines ) );
 		}
 		catch( IOException e )
 		{
