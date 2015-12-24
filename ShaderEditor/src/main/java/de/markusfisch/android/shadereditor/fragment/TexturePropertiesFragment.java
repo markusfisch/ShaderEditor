@@ -233,7 +233,9 @@ public class TexturePropertiesFragment extends Fragment
 					CropImageFragment.getBitmapFromUri(
 						context,
 						imageUri,
-						2048 ),
+						// which doesn't work for some devices;
+						// 2048 is too much => out of memory
+						1024 ),
 					cropRect,
 					imageRotation,
 					name,
@@ -281,6 +283,8 @@ public class TexturePropertiesFragment extends Fragment
 		if( bitmap == null )
 			return 0;
 
+		System.gc();
+
 		try
 		{
 			if( rotation % 360 != 0 )
@@ -311,6 +315,10 @@ public class TexturePropertiesFragment extends Fragment
 		catch( IllegalArgumentException e )
 		{
 			return R.string.illegal_rectangle;
+		}
+		catch( OutOfMemoryError e )
+		{
+			return R.string.out_of_memory;
 		}
 
 		if( ShaderEditorApplication

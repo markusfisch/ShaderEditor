@@ -61,6 +61,7 @@
 	<string name="missing_name">You need to give a name</string>
 	<string name="invalid_texture_name">Invalid name, please choose a name you can use in a GLSL source</string>
 	<string name="illegal_rectangle">Illegal rectangle</string>
+	<string name="out_of_memory">Image too big</string>
 	<string name="name_already_taken">Name already taken</string>
 	<string name="view_texture">View texture</string>
 	<string name="insert_uniform_sampler">Insert uniform sampler2D statement</string>
