@@ -5,8 +5,7 @@
 	<string name="no_shaders">No shaders</string>
 	<string name="settings">Settings</string>
 	<string name="error_database">Cannot open database!</string>
-	<string name="error_pick_image">Cannot open image!</string>
-	<string name="error_no_permission">The app you chose did not grant permission for the selected image. Please use another app to choose an image.</string>
+	<string name="error_pick_image">Cannot open image. Please try another app to choose an image.</string>
 	<string name="insert_tab">Insert tab</string>
 	<string name="run_code">Run code</string>
 	<string name="toggle_code">Toggle code</string>

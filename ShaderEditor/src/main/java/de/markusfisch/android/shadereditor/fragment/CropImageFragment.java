@@ -66,17 +66,11 @@ public class CropImageFragment extends Fragment
 		}
 		catch( SecurityException e )
 		{
-			Toast.makeText(
-				context,
-				R.string.error_no_permission,
-				Toast.LENGTH_SHORT ).show();
+			// fall through
 		}
 		catch( IOException e )
 		{
-			Toast.makeText(
-				context,
-				R.string.error_pick_image,
-				Toast.LENGTH_SHORT ).show();
+			// fall through
 		}
 
 		return null;
@@ -218,9 +212,9 @@ public class CropImageFragment extends Fragment
 
 	private void loadBitmapAsync()
 	{
-		final Context context = getActivity();
+		final Activity activity = getActivity();
 
-		if( context == null ||
+		if( activity == null ||
 			inProgress )
 			return;
 
@@ -233,7 +227,7 @@ public class CropImageFragment extends Fragment
 			protected Bitmap doInBackground( Void... nothings )
 			{
 				return getBitmapFromUri(
-					context,
+					activity,
 					imageUri,
 					1024 );
 			}
@@ -243,6 +237,17 @@ public class CropImageFragment extends Fragment
 			{
 				inProgress = false;
 				progressView.setVisibility( View.GONE );
+
+				if( bmp == null )
+				{
+					Toast.makeText(
+						activity,
+						R.string.error_pick_image,
+						Toast.LENGTH_SHORT ).show();
+
+					activity.finish();
+					return;
+				}
 
 				bitmap = bmp;
 				cropImageView.setImageBitmap( bitmap );
