@@ -95,6 +95,19 @@ public class MainActivity
 			} );
 	}
 
+	public static void initSystemBars( AppCompatActivity activity )
+	{
+		if( setSystemBarColor(
+				activity.getWindow(),
+				ShaderEditorApplication.systemBarColor,
+				true ) )
+			activity.findViewById( R.id.main_layout ).setPadding(
+				0,
+				getStatusBarHeight( activity.getResources() ),
+				0,
+				0 );
+	}
+
 	@TargetApi( 22 )
 	public static boolean setSystemBarColor(
 		Window window,
@@ -115,19 +128,6 @@ public class MainActivity
 		window.setNavigationBarColor( color );
 
 		return true;
-	}
-
-	public static void initSystemBars( AppCompatActivity activity )
-	{
-		if( setSystemBarColor(
-				activity.getWindow(),
-				ShaderEditorApplication.systemBarColor,
-				true ) )
-			activity.findViewById( R.id.main_layout ).setPadding(
-				0,
-				getStatusBarHeight( activity.getResources() ),
-				0,
-				0 );
 	}
 
 	@Override
