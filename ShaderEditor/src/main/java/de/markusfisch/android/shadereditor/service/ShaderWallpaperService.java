@@ -8,6 +8,7 @@ import de.markusfisch.android.shadereditor.widget.ShaderView;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.opengl.GLSurfaceView;
+import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -32,8 +33,9 @@ public class ShaderWallpaperService extends WallpaperService
 		extends Engine
 		implements SharedPreferences.OnSharedPreferenceChangeListener
 	{
+		private final Handler handler = new Handler();
+
 		private ShaderWallpaperView view;
-		private String fragmentShader;
 
 		public ShaderWallpaperEngine()
 		{
@@ -119,10 +121,9 @@ public class ShaderWallpaperService extends WallpaperService
 
 		private void setShader()
 		{
-			if( !ShaderEditorApplication.dataSource.isOpen() &&
-				view != null )
+			if( !ShaderEditorApplication.dataSource.isOpen() )
 			{
-				view.postDelayed(
+				handler.postDelayed(
 					new Runnable()
 					{
 						@Override
@@ -136,15 +137,16 @@ public class ShaderWallpaperService extends WallpaperService
 				return;
 			}
 
-			final long id = ShaderEditorApplication
-				.preferences
-				.getWallpaperShader();
+			if( view == null )
+				return;
 
 			Cursor cursor = ShaderEditorApplication
 				.dataSource
-				.getShader( id );
+				.getShader( ShaderEditorApplication
+					.preferences
+					.getWallpaperShader() );
 
-			boolean isRandom = false;
+			boolean randomShader = false;
 
 			while( cursor == null ||
 				!cursor.moveToFirst() )
@@ -152,29 +154,30 @@ public class ShaderWallpaperService extends WallpaperService
 				if( cursor != null )
 					cursor.close();
 
-				if( isRandom )
+				if( randomShader )
 					return;
 
-				isRandom = true;
+				randomShader = true;
 				cursor = ShaderEditorApplication
 					.dataSource
 					.getRandomShader();
 			}
 
-			fragmentShader = cursor.getString(
-				cursor.getColumnIndex(
-					DataSource.SHADERS_FRAGMENT_SHADER ) );
-
-			if( isRandom )
+			if( randomShader )
 				ShaderEditorApplication
 					.preferences
 					.setWallpaperShader( cursor.getLong(
 						cursor.getColumnIndex(
 							DataSource.SHADERS_ID ) ) );
 
-			if( view != null )
-				view.getRenderer().setFragmentShader(
-					fragmentShader );
+			// check view again to make sure it hasn't
+			// been destroyed; is that even possible?
+			if( view == null )
+				return;
+
+			view.getRenderer().setFragmentShader(
+				cursor.getString( cursor.getColumnIndex(
+					DataSource.SHADERS_FRAGMENT_SHADER ) ) );
 		}
 
 		private class ShaderWallpaperView extends ShaderView
