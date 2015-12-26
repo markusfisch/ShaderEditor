@@ -39,6 +39,8 @@ public class MainActivity
 	private static final String SELECTED_SHADER = "selected_shader";
 	private static final int PREVIEW_SHADER = 1;
 	private static final int ADD_TEXTURE = 2;
+	private static final int FIRST_SHADER = -1;
+	private static final int NO_SHADER = 0;
 
 	private static MainActivity instance;
 	private static EditorFragment editorFragment;
@@ -63,7 +65,7 @@ public class MainActivity
 	private ListView listView;
 	private ShaderAdapter shaderAdapter;
 	private ShaderView shaderView;
-	private long selectedShaderId = 0;
+	private long selectedShaderId = FIRST_SHADER;
 	private volatile int fps;
 
 	public static void postUpdateFps( int fps )
@@ -260,7 +262,7 @@ public class MainActivity
 
 		// update thumbnail after shader ran
 		if( requestCode == PREVIEW_SHADER &&
-			selectedShaderId != 0 &&
+			selectedShaderId > 0 &&
 			PreviewActivity.thumbnail != null &&
 			ShaderEditorApplication
 				.preferences
@@ -306,7 +308,7 @@ public class MainActivity
 
 		selectedShaderId = state != null ?
 			state.getLong( SELECTED_SHADER ) :
-			0;
+			FIRST_SHADER;
 	}
 
 	@Override
@@ -532,6 +534,8 @@ public class MainActivity
 
 	private void updateShaderAdapter( Cursor cursor )
 	{
+		handleSendText( getIntent() );
+
 		if( cursor == null ||
 			cursor.getCount() < 1 )
 		{
@@ -553,19 +557,19 @@ public class MainActivity
 			this,
 			cursor );
 
-		if( !handleSendText( getIntent() ) &&
+		/*if( !handleSendText( getIntent() ) &&
+			shaderAdapter.getCount() > 0 )*/
+
+		if( selectedShaderId < 0 &&
 			shaderAdapter.getCount() > 0 )
 		{
-			if( selectedShaderId < 1 )
-			{
-				selectedShaderId = shaderAdapter.getItemId( 0 );
-				selectShader( selectedShaderId );
-			}
-			else
-			{
-				shaderAdapter.setSelectedId( selectedShaderId );
-				setToolbarTitle( selectedShaderId );
-			}
+			selectedShaderId = shaderAdapter.getItemId( 0 );
+			selectShader( selectedShaderId );
+		}
+		else if( selectedShaderId > 0 )
+		{
+			shaderAdapter.setSelectedId( selectedShaderId );
+			setToolbarTitle( selectedShaderId );
 		}
 
 		listView.setAdapter( shaderAdapter );
@@ -589,10 +593,10 @@ public class MainActivity
 			shaderAdapter.changeCursor( null );
 	}
 
-	private boolean handleSendText( Intent intent )
+	private void handleSendText( Intent intent )
 	{
 		if( intent == null )
-			return false;
+			return;
 
 		String action = intent.getAction();
 		String type = intent.getType();
@@ -603,18 +607,21 @@ public class MainActivity
 			!"text/plain".equals( type ) ||
 			(text = intent.getStringExtra(
 				Intent.EXTRA_TEXT )) == null )
-			return false;
+			return;
+
+		// consume this intent; this is necessary because
+		// a orientation change will start a new activity
+		// with the exact same intent
+		intent.setAction( null );
 
 		if( ShaderEditorApplication
 				.preferences
 				.doesRunInBackground() )
 			setFragmentShader( text );
 
-		selectedShaderId = 0;
+		selectedShaderId = NO_SHADER;
 		editorFragment.setText( text );
 		setDefaultToolbarTitle();
-
-		return true;
 	}
 
 	private void insertTab()
