@@ -103,6 +103,13 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			new GyroscopeListener( context );
 
 		flipMatrix.postScale( 1f, -1f );
+
+		vertexBuffer = ByteBuffer.allocateDirect( 8 );
+		vertexBuffer.put( new byte[]{
+			-1, 1,
+			-1, -1,
+			1, 1,
+			1, -1 } ).position( 0 );
 	}
 
 	public void setFragmentShader( String source )
@@ -122,14 +129,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	public void onSurfaceCreated( GL10 gl, EGLConfig config )
 	{
 		startTime = lastRender = System.nanoTime();
-
-		final byte screenCoords[] = {
-			-1, 1,
-			-1, -1,
-			1, 1,
-			1, -1 };
-		vertexBuffer = ByteBuffer.allocateDirect( 8 );
-		vertexBuffer.put( screenCoords ).position( 0 );
 
 		GLES20.glDisable( GLES20.GL_CULL_FACE );
 		GLES20.glDisable( GLES20.GL_BLEND );
