@@ -15,20 +15,19 @@ public class CropImageActivity
 {
 	private CropImageView cropImageView;
 
-	public static void startActivityForImage(
+	public static Intent getIntentForImage(
 		Context context,
 		Uri imageUri )
 	{
-		if( context == null )
-			return;
-
 		Intent intent = new Intent(
 			context,
 			CropImageActivity.class );
 
-		intent.putExtra( CropImageFragment.IMAGE_URI, imageUri );
+		intent.putExtra(
+			CropImageFragment.IMAGE_URI,
+			imageUri );
 
-		context.startActivity( intent );
+		return intent;
 	}
 
 	@Override

@@ -48,9 +48,12 @@ public class TexturesActivity extends AbstractContentActivity
 		Uri imageUri = (Uri)intent.getParcelableExtra(
 			Intent.EXTRA_STREAM );
 
-		if( imageUri != null )
-			CropImageActivity.startActivityForImage(
+		if( imageUri == null )
+			return;
+
+		startActivity(
+			CropImageActivity.getIntentForImage(
 				this,
-				imageUri );
+				imageUri ) );
 	}
 }

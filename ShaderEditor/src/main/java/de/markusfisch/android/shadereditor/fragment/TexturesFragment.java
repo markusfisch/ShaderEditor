@@ -22,7 +22,9 @@ import android.widget.ListView;
 
 public class TexturesFragment extends Fragment
 {
-	public static final int PICK_IMAGE_REQUEST = 1;
+	public static final int PICK_IMAGE = 1;
+	public static final int CROP_IMAGE = 2;
+	public static final int PICK_TEXTURE = 3;
 
 	private ListView listView;
 	private TexturesAdapter texturesAdapter;
@@ -103,14 +105,29 @@ public class TexturesFragment extends Fragment
 	{
 		super.onActivityResult( requestCode, resultCode, data );
 
-		Activity activity;
+		if( resultCode != Activity.RESULT_OK )
+			return;
+
 		Uri uri;
 
-		if( requestCode == PICK_IMAGE_REQUEST &&
-			resultCode == Activity.RESULT_OK &&
+		if( requestCode == PICK_IMAGE &&
 			data != null &&
 			(uri = data.getData()) != null )
+		{
 			cropImage( uri );
+		}
+		else if(
+			requestCode == CROP_IMAGE ||
+			requestCode == PICK_TEXTURE )
+		{
+			Activity activity = getActivity();
+
+			if( activity == null )
+				return;
+
+			activity.setResult( Activity.RESULT_OK, data );
+			activity.finish();
+		}
 	}
 
 	private void initListView( View view )
@@ -134,9 +151,20 @@ public class TexturesFragment extends Fragment
 
 	private void showTexture( long id )
 	{
-		TextureViewActivity.startActivityForTexture(
-			getActivity(),
-			id );
+		Activity activity = getActivity();
+
+		if( activity == null )
+			return;
+
+		Intent intent = new Intent(
+			activity,
+			TextureViewActivity.class );
+
+		intent.putExtra( TextureViewFragment.TEXTURE_ID, id );
+
+		startActivityForResult(
+			intent,
+			PICK_TEXTURE );
 	}
 
 	private void getTexturesAsync( final Context context )
@@ -196,13 +224,20 @@ public class TexturesFragment extends Fragment
 			Intent.createChooser(
 				intent,
 				getString( R.string.choose_image ) ),
-			PICK_IMAGE_REQUEST );
+			PICK_IMAGE );
 	}
 
 	private void cropImage( Uri imageUri )
 	{
-		CropImageActivity.startActivityForImage(
-			getActivity(),
-			imageUri );
+		Activity activity = getActivity();
+
+		if( activity == null )
+			return;
+
+		startActivityForResult(
+			CropImageActivity.getIntentForImage(
+				activity,
+				imageUri ),
+			CROP_IMAGE );
 	}
 }

@@ -4,7 +4,6 @@ import de.markusfisch.android.shadereditor.fragment.TextureViewFragment;
 import de.markusfisch.android.shadereditor.widget.ScalingImageView;
 import de.markusfisch.android.shadereditor.R;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -13,22 +12,6 @@ public class TextureViewActivity
 	implements TextureViewFragment.ScalingImageViewProvider
 {
 	private ScalingImageView scalingImageView;
-
-	public static void startActivityForTexture(
-		Context context,
-		long id )
-	{
-		if( context == null )
-			return;
-
-		Intent intent = new Intent(
-			context,
-			TextureViewActivity.class );
-
-		intent.putExtra( TextureViewFragment.TEXTURE_ID, id );
-
-		context.startActivity( intent );
-	}
 
 	@Override
 	public ScalingImageView getScalingImageView()
