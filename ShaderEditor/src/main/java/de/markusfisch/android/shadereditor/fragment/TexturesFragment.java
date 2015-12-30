@@ -104,13 +104,13 @@ public class TexturesFragment extends Fragment
 		super.onActivityResult( requestCode, resultCode, data );
 
 		Activity activity;
+		Uri uri;
 
 		if( requestCode == PICK_IMAGE_REQUEST &&
 			resultCode == Activity.RESULT_OK &&
 			data != null &&
-			data.getData() != null &&
-			(activity = getActivity()) != null )
-			cropImage( data.getData() );
+			(uri = data.getData()) != null )
+			cropImage( uri );
 	}
 
 	private void initListView( View view )
@@ -196,7 +196,7 @@ public class TexturesFragment extends Fragment
 			Intent.createChooser(
 				intent,
 				getString( R.string.choose_image ) ),
-			PICK_IMAGE_REQUEST);
+			PICK_IMAGE_REQUEST );
 	}
 
 	private void cropImage( Uri imageUri )
