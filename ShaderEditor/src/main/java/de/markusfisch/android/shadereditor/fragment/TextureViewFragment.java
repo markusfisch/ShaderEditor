@@ -154,11 +154,12 @@ public class TextureViewFragment extends Fragment
 			@Override
 			protected void onPostExecute( Void nothing )
 			{
-				FragmentManager fragmentManager =
-					getFragmentManager();
+				Activity activity = getActivity();
 
-				if( fragmentManager != null )
-					fragmentManager.popBackStack();
+				if( activity == null )
+					return;
+
+				activity.finish();
 			}
 		}.execute();
 	}
