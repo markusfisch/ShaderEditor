@@ -31,6 +31,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 public class MainActivity
 	extends AppCompatActivity
@@ -557,9 +558,6 @@ public class MainActivity
 			this,
 			cursor );
 
-		/*if( !handleSendText( getIntent() ) &&
-			shaderAdapter.getCount() > 0 )*/
-
 		if( selectedShaderId < 0 &&
 			shaderAdapter.getCount() > 0 )
 		{
@@ -614,10 +612,25 @@ public class MainActivity
 		// with the exact same intent
 		intent.setAction( null );
 
+		int len = text.length();
+
+		if( len < 1 ||
+			len > 65536 )
+		{
+			Toast.makeText(
+				this,
+				R.string.error_text_unsuitable,
+				Toast.LENGTH_SHORT ).show();
+
+			return;
+		}
+
 		if( ShaderEditorApplication
 				.preferences
 				.doesRunInBackground() )
-			setFragmentShader( text );
+			setFragmentShader( text.replaceAll(
+				"\\p{C}",
+				"" ) );
 
 		selectedShaderId = NO_SHADER;
 		editorFragment.setText( text );
