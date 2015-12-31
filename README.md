@@ -19,6 +19,7 @@ Features
 * Support for __wallpaper offset__
 * Exposure of __battery level__
 * Supports __multiple touches__
+* Supports multiple render resolutions
 * Previous rendered frame in __backbuffer__ texture
 * Import and use __arbitrary textures__
 * Disables rendering when battery is low
