@@ -9,7 +9,7 @@
 		android:layout_height="match_parent"
 		android:fitsSystemWindows="true"
 		android:orientation="vertical">
-		<include layout="@layout/toolbar"/>
+		<include layout="@layout/toolbar_main"/>
 		<de.markusfisch.android.shadereditor.widget.TouchThruDrawerlayout
 			android:id="@+id/drawer_layout"
 			android:layout_width="match_parent"

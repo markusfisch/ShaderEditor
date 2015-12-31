@@ -1,0 +1,16 @@
+<resources>
+	<string-array name="quality_names">
+		<item>1/8</item>
+		<item>1/4</item>
+		<item>1/2</item>
+		<item>1/1</item>
+		<item>2/1</item>
+	</string-array>
+	<string-array name="quality_values">
+		<item>.125</item>
+		<item>.25</item>
+		<item>.5</item>
+		<item>1</item>
+		<item>2</item>
+	</string-array>
+</resources>

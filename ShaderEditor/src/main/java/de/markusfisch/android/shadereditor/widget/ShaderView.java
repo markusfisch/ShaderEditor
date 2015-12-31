@@ -54,8 +54,13 @@ public class ShaderView extends GLSurfaceView
 
 	public void setFragmentShader( String src )
 	{
+		setFragmentShader( src, 1f );
+	}
+
+	public void setFragmentShader( String src, float quality )
+	{
 		onPause();
-		renderer.setFragmentShader( src );
+		renderer.setFragmentShader( src, quality );
 		onResume();
 	}
 

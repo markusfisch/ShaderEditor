@@ -41,6 +41,10 @@ public class InfoLog
 					errorLine = Integer.valueOf(
 						infoLog.substring( from, to ).trim() );
 				}
+				catch( NumberFormatException e )
+				{
+					// can't do anything about it
+				}
 				catch( NullPointerException e )
 				{
 					// can't do anything about it

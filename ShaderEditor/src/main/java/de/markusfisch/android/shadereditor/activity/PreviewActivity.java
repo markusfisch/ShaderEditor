@@ -3,16 +3,17 @@ package de.markusfisch.android.shadereditor.activity;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 public class PreviewActivity extends AppCompatActivity
 {
 	public static final String FRAGMENT_SHADER = "fragment_shader";
+	public static final String QUALITY = "quality";
 	public static byte thumbnail[];
 
-	private ShaderView shaderView;
-	private Runnable finishRunnable =
+	private final Runnable finishRunnable =
 		new Runnable()
 		{
 			@Override
@@ -21,7 +22,7 @@ public class PreviewActivity extends AppCompatActivity
 				finish();
 			}
 		};
-	private Runnable thumbnailRunnable =
+	private final Runnable thumbnailRunnable =
 		new Runnable()
 		{
 			@Override
@@ -36,22 +37,28 @@ public class PreviewActivity extends AppCompatActivity
 			}
 		};
 
+	private ShaderView shaderView;
+
 	@Override
 	protected void onCreate( Bundle state )
 	{
 		super.onCreate( state );
 
-		String fragmentShader = getIntent().getStringExtra(
-			FRAGMENT_SHADER );
+		Intent intent = getIntent();
+		String fragmentShader;
 
-		if( fragmentShader == null )
+		if( (intent = getIntent()) == null ||
+			(fragmentShader = intent.getStringExtra(
+				FRAGMENT_SHADER )) == null )
 		{
 			finish();
 			return;
 		}
 
+		float quality = intent.getFloatExtra( QUALITY, 1f );
+
 		shaderView = new ShaderView( this );
-		shaderView.setFragmentShader( fragmentShader );
+		shaderView.setFragmentShader( fragmentShader, quality );
 		shaderView.getRenderer().setOnRendererListener(
 			new ShaderRenderer.OnRendererListener()
 			{

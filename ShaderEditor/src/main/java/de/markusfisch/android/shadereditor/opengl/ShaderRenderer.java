@@ -46,11 +46,26 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		"{"+
 			"gl_Position = vec4( position, 0., 1. );"+
 		"}";
+	private static final String FRAGMENT_SHADER =
+		"#ifdef GL_FRAGMENT_PRECISION_HIGH\n"+
+		"precision highp float;\n"+
+		"#else\n"+
+		"precision mediump float;\n"+
+		"#endif\n"+
+		"uniform vec2 resolution;"+
+		"uniform sampler2D frame;"+
+		"void main( void )"+
+		"{"+
+			"gl_FragColor = texture2D( "+
+				"frame,"+
+				"gl_FragCoord.xy/resolution.xy ).rgba;"+
+		"}";
 
 	private final ArrayList<String> textureNames = new ArrayList<String>();
 	private final Matrix flipMatrix = new Matrix();
 	private final int fb[] = new int[]{ 0, 0 };
 	private final int tx[] = new int[]{ 0, 0 };
+	private final float surfaceResolution[] = new float[]{ 0, 0 };
 	private final float resolution[] = new float[]{ 0, 0 };
 	private final float touch[] = new float[]{ 0, 0 };
 	private final float mouse[] = new float[]{ 0, 0 };
@@ -63,7 +78,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private OnRendererListener onRendererListener;
 	private String fragmentShader;
 	private ByteBuffer vertexBuffer;
+	private int surfaceProgram = 0;
+	private int surfacePositionLoc;
+	private int surfaceResolutionLoc;
+	private int surfaceFrameLoc;
 	private int program = 0;
+	private int positionLoc;
 	private int timeLoc;
 	private int resolutionLoc;
 	private int touchLoc;
@@ -74,7 +94,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int linearLoc;
 	private int rotationLoc;
 	private int offsetLoc;
-	private int positionLoc;
 	private int batteryLoc;
 	private int backBufferLoc;
 	private int textureLocs[] = new int[4];
@@ -86,6 +105,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private long startTime;
 	private long lastRender;
 	private Intent batteryStatus;
+	private float quality = 1f;
 
 	private volatile byte thumbnail[] = new byte[1];
 	private volatile long nextFpsUpdate = 0;
@@ -112,12 +132,23 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			1, -1 } ).position( 0 );
 	}
 
+	public void setFragmentShader( String source, float quality )
+	{
+		setQuality( quality );
+		setFragmentShader( source );
+	}
+
 	public void setFragmentShader( String source )
 	{
 		resetFps();
 		fragmentShader = source;
 
 		indexTextureNames( source );
+	}
+
+	public void setQuality( float quality )
+	{
+		this.quality = quality;
 	}
 
 	public void setOnRendererListener( OnRendererListener listener )
@@ -135,6 +166,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		GLES20.glDisable( GLES20.GL_DEPTH_TEST );
 
 		GLES20.glClearColor( 0f, 0f, 0f, 1f );
+
+		if( surfaceProgram != 0 )
+		{
+			GLES20.glDeleteProgram( surfaceProgram );
+			surfaceProgram = 0;
+		}
 
 		if( program != 0 )
 		{
@@ -156,12 +193,15 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	@Override
 	public void onDrawFrame( GL10 gl )
 	{
-		GLES20.glClear(
-			GLES20.GL_COLOR_BUFFER_BIT |
-			GLES20.GL_DEPTH_BUFFER_BIT );
+		if( surfaceProgram == 0 ||
+			program == 0 )
+		{
+			GLES20.glClear(
+				GLES20.GL_COLOR_BUFFER_BIT |
+				GLES20.GL_DEPTH_BUFFER_BIT );
 
-		if( program == 0 )
 			return;
+		}
 
 		final long now = System.nanoTime();
 
@@ -253,13 +293,19 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				(float)level/scale );
 		}
 
+		GLES20.glViewport(
+			0,
+			0,
+			(int)resolution[0],
+			(int)resolution[1] );
+
+		if( fb[0] == 0 )
+			createTargets(
+				(int)resolution[0],
+				(int)resolution[1] );
+
 		if( backBufferLoc > -1 )
 		{
-			if( fb[0] == 0 )
-				createTargets(
-					(int)resolution[0],
-					(int)resolution[1] );
-
 			GLES20.glUniform1i(
 				backBufferLoc,
 				0 );
@@ -272,47 +318,64 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		if( numberOfTextures > 0 )
 			bindTextures();
 
+		GLES20.glBindFramebuffer(
+			GLES20.GL_FRAMEBUFFER,
+			fb[frontTarget] );
+
+		GLES20.glClear(
+			GLES20.GL_COLOR_BUFFER_BIT );
 		GLES20.glDrawArrays(
 			GLES20.GL_TRIANGLE_STRIP,
 			0,
 			4 );
 
-		if( backBufferLoc > -1 )
-		{
-			// for some drivers it's important to bind
-			// the texture again after glDrawArrays()
-			GLES20.glBindTexture(
-				GLES20.GL_TEXTURE_2D,
-				tx[backTarget] );
+		GLES20.glBindFramebuffer(
+			GLES20.GL_FRAMEBUFFER,
+			0 );
 
-			if( numberOfTextures > 0 )
-				bindTextures();
+		GLES20.glViewport(
+			0,
+			0,
+			(int)surfaceResolution[0],
+			(int)surfaceResolution[1] );
 
-			GLES20.glBindFramebuffer(
-				GLES20.GL_FRAMEBUFFER,
-				fb[frontTarget] );
+		GLES20.glUseProgram( surfaceProgram );
 
-			GLES20.glClear(
-				GLES20.GL_COLOR_BUFFER_BIT );
-			GLES20.glDrawArrays(
-				GLES20.GL_TRIANGLE_STRIP,
-				0,
-				4 );
+		GLES20.glVertexAttribPointer(
+			surfacePositionLoc,
+			2,
+			GLES20.GL_BYTE,
+			false,
+			0,
+			vertexBuffer );
 
-			GLES20.glBindFramebuffer(
-				GLES20.GL_FRAMEBUFFER,
-				0 );
-			GLES20.glBindTexture(
-				GLES20.GL_TEXTURE_2D,
-				0 );
+		GLES20.glUniform2fv(
+			surfaceResolutionLoc,
+			1,
+			surfaceResolution,
+			0 );
 
-			// swap buffers so the next image will be rendered
-			// over the current backbuffer and the current image
-			// will be the backbuffer for the next image
-			int t = frontTarget;
-			frontTarget = backTarget;
-			backTarget = t;
-		}
+		GLES20.glUniform1i(
+			surfaceFrameLoc,
+			0 );
+
+		GLES20.glBindTexture(
+			GLES20.GL_TEXTURE_2D,
+			tx[frontTarget] );
+
+		GLES20.glClear(
+			GLES20.GL_COLOR_BUFFER_BIT );
+		GLES20.glDrawArrays(
+			GLES20.GL_TRIANGLE_STRIP,
+			0,
+			4 );
+
+		// swap buffers so the next image will be rendered
+		// over the current backbuffer and the current image
+		// will be the backbuffer for the next image
+		int t = frontTarget;
+		frontTarget = backTarget;
+		backTarget = t;
 
 		if( thumbnail == null )
 			thumbnail = saveThumbnail();
@@ -324,14 +387,18 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	@Override
 	public void onSurfaceChanged( GL10 gl, int width, int height )
 	{
-		GLES20.glViewport( 0, 0, width, height );
+		surfaceResolution[0] = width;
+		surfaceResolution[1] = height;
 
-		if( width != resolution[0] ||
-			height != resolution[1] )
+		float w = Math.round( width*quality );
+		float h = Math.round( height*quality );
+
+		if( w != resolution[0] ||
+			h != resolution[1] )
 			deleteTargets();
 
-		resolution[0] = width;
-		resolution[1] = height;
+		resolution[0] = w;
+		resolution[1] = h;
 
 		resetFps();
 	}
@@ -344,8 +411,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	public void touchAt( MotionEvent e )
 	{
-		float x = e.getX();
-		float y = e.getY();
+		float x = e.getX()*quality;
+		float y = e.getY()*quality;
 
 		touch[0] = x;
 		touch[1] = resolution[1]-y;
@@ -370,8 +437,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			n < pointerCount;
 			++n )
 		{
-			pointers[offset++] = e.getX( n );
-			pointers[offset++] = resolution[1]-e.getY( n );
+			pointers[offset++] = e.getX( n )*quality;
+			pointers[offset++] = resolution[1]-e.getY( n )*quality;
 			pointers[offset++] = e.getTouchMajor( n );
 		}
 	}
@@ -411,6 +478,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	private void loadProgram()
 	{
+		if( (surfaceProgram = Program.loadProgram(
+			VERTEX_SHADER,
+			FRAGMENT_SHADER )) == 0 )
+			return;
+
 		if( (program = Program.loadProgram(
 			VERTEX_SHADER,
 			fragmentShader )) == 0 )
@@ -424,6 +496,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 		indexLocations();
 
+		GLES20.glEnableVertexAttribArray( surfacePositionLoc );
 		GLES20.glEnableVertexAttribArray( positionLoc );
 
 		if( gravityLoc > -1 ||
@@ -443,9 +516,15 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	private void indexLocations()
 	{
+		surfacePositionLoc = GLES20.glGetAttribLocation(
+			surfaceProgram, "position" );
+		surfaceResolutionLoc = GLES20.glGetUniformLocation(
+			surfaceProgram, "resolution" );
+		surfaceFrameLoc = GLES20.glGetUniformLocation(
+			surfaceProgram, "frame" );
+
 		positionLoc = GLES20.glGetAttribLocation(
 			program, "position" );
-
 		timeLoc = GLES20.glGetUniformLocation(
 			program, "time" );
 		resolutionLoc = GLES20.glGetUniformLocation(
@@ -478,7 +557,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	private byte[] saveThumbnail()
 	{
-		final int min = (int)Math.min( resolution[0], resolution[1] );
+		final int min = (int)Math.min(
+			surfaceResolution[0],
+			surfaceResolution[1] );
 		final int pixels = min*min;
 		final int rgba[] = new int[pixels];
 		final int bgra[] = new int[pixels];

@@ -26,6 +26,7 @@ public class DataSource
 	public static final String SHADERS_THUMB = "thumb";
 	public static final String SHADERS_CREATED = "created";
 	public static final String SHADERS_MODIFIED = "modified";
+	public static final String SHADERS_QUALITY = "quality";
 
 	public static final String TEXTURES = "textures";
 	public static final String TEXTURES_ID = "_id";
@@ -109,7 +110,8 @@ public class DataSource
 			"SELECT "+
 				SHADERS_ID+","+
 				SHADERS_FRAGMENT_SHADER+","+
-				SHADERS_MODIFIED+
+				SHADERS_MODIFIED+","+
+				SHADERS_QUALITY+
 				" FROM "+SHADERS+
 				" WHERE "+SHADERS_ID+"="+id,
 			null );
@@ -121,7 +123,8 @@ public class DataSource
 			"SELECT "+
 				SHADERS_ID+","+
 				SHADERS_FRAGMENT_SHADER+","+
-				SHADERS_MODIFIED+
+				SHADERS_MODIFIED+","+
+				SHADERS_QUALITY+
 				" FROM "+SHADERS+
 				" ORDER BY RANDOM() LIMIT 1",
 			null );
@@ -232,7 +235,8 @@ public class DataSource
 	public static long insertShader(
 		SQLiteDatabase db,
 		String shader,
-		byte thumbnail[] )
+		byte thumbnail[],
+		float quality )
 	{
 		String now = currentTime();
 
@@ -241,13 +245,17 @@ public class DataSource
 		cv.put( SHADERS_THUMB, thumbnail );
 		cv.put( SHADERS_CREATED, now );
 		cv.put( SHADERS_MODIFIED, now );
+		cv.put( SHADERS_QUALITY, quality );
 
 		return db.insert( SHADERS, null, cv );
 	}
 
-	public long insertShader( String shader, byte[] thumbnail )
+	public long insertShader(
+		String shader,
+		byte[] thumbnail,
+		float quality )
 	{
-		return insertShader( db, shader, thumbnail );
+		return insertShader( db, shader, thumbnail, quality );
 	}
 
 	public long insertShader()
@@ -257,7 +265,8 @@ public class DataSource
 			return insertShader(
 				db,
 				loadRawResource( R.raw.shader_new_shader ),
-				loadBitmapResource( R.drawable.thumbnail_new_shader ) );
+				loadBitmapResource( R.drawable.thumbnail_new_shader ),
+				1f );
 		}
 		catch( IOException e )
 		{
@@ -303,14 +312,33 @@ public class DataSource
 			textureThumbnailSize );
 	}
 
-	public void updateShader( long id, String shader, byte thumbnail[] )
+	public void updateShader(
+		long id,
+		String shader,
+		byte thumbnail[],
+		float quality )
 	{
 		ContentValues cv = new ContentValues();
 		cv.put( SHADERS_FRAGMENT_SHADER, shader );
 		cv.put( SHADERS_MODIFIED, currentTime() );
+		cv.put( SHADERS_QUALITY, quality );
 
 		if( thumbnail != null )
 			cv.put( SHADERS_THUMB, thumbnail );
+
+		db.update(
+			SHADERS,
+			cv,
+			SHADERS_ID+"="+id,
+			null );
+	}
+
+	public void updateShaderQuality(
+		long id,
+		float quality )
+	{
+		ContentValues cv = new ContentValues();
+		cv.put( SHADERS_QUALITY, quality );
 
 		db.update(
 			SHADERS,
@@ -378,9 +406,20 @@ public class DataSource
 				SHADERS_FRAGMENT_SHADER+" TEXT NOT NULL,"+
 				SHADERS_THUMB+" BLOB,"+
 				SHADERS_CREATED+" DATETIME,"+
-				SHADERS_MODIFIED+" DATETIME );" );
+				SHADERS_MODIFIED+" DATETIME,"+
+				SHADERS_QUALITY+" REAL );" );
 
 		insertInitalShaders( db );
+	}
+
+	private void addShadersQuality( SQLiteDatabase db )
+	{
+		db.execSQL(
+			"ALTER TABLE "+SHADERS+
+				" ADD COLUMN "+SHADERS_QUALITY+" REAL;" );
+		db.execSQL(
+			"UPDATE "+SHADERS+
+				" SET "+SHADERS_QUALITY+" = 1;" );
 	}
 
 	private void insertInitalShaders( SQLiteDatabase db )
@@ -392,21 +431,24 @@ public class DataSource
 				loadRawResource(
 					R.raw.shader_color_hole ),
 				loadBitmapResource(
-					R.drawable.thumbnail_color_hole ) );
+					R.drawable.thumbnail_color_hole ),
+				1f );
 
 			DataSource.insertShader(
 				db,
 				loadRawResource(
 					R.raw.shader_gravity ),
 				loadBitmapResource(
-					R.drawable.thumbnail_gravity ) );
+					R.drawable.thumbnail_gravity ),
+				1f );
 
 			DataSource.insertShader(
 				db,
 				loadRawResource(
 					R.raw.shader_laser_lines ),
 				loadBitmapResource(
-					R.drawable.thumbnail_laser_lines ) );
+					R.drawable.thumbnail_laser_lines ),
+				1f );
 		}
 		catch( IOException e )
 		{
@@ -443,7 +485,7 @@ public class DataSource
 	{
 		public OpenHelper( Context c )
 		{
-			super( c, "shaders.db", null, 2 );
+			super( c, "shaders.db", null, 3 );
 		}
 
 		@Override
@@ -473,6 +515,11 @@ public class DataSource
 			{
 				createTexturesTable( db );
 				insertInitalShaders( db );
+			}
+
+			if( oldVersion < 3 )
+			{
+				addShadersQuality( db );
 			}
 		}
 	}

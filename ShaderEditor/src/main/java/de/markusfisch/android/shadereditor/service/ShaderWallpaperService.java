@@ -177,7 +177,9 @@ public class ShaderWallpaperService extends WallpaperService
 
 			view.getRenderer().setFragmentShader(
 				cursor.getString( cursor.getColumnIndex(
-					DataSource.SHADERS_FRAGMENT_SHADER ) ) );
+					DataSource.SHADERS_FRAGMENT_SHADER ) ),
+				cursor.getFloat( cursor.getColumnIndex(
+					DataSource.SHADERS_QUALITY ) ) );
 		}
 
 		private class ShaderWallpaperView extends ShaderView

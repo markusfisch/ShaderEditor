@@ -30,7 +30,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 public class MainActivity
@@ -60,6 +62,7 @@ public class MainActivity
 		};
 
 	private Toolbar toolbar;
+	private Spinner qualitySpinner;
 	private TouchThruDrawerlayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
 	private View menuFrame;
@@ -68,6 +71,8 @@ public class MainActivity
 	private ShaderView shaderView;
 	private long selectedShaderId = FIRST_SHADER;
 	private volatile int fps;
+	private float qualityValues[];
+	private float quality = 1f;
 
 	public static void postUpdateFps( int fps )
 	{
@@ -281,6 +286,7 @@ public class MainActivity
 
 		initSystemBars( this );
 		initToolbar();
+		initQualitySpinner();
 		initDrawer();
 		initListView();
 		initShaderView();
@@ -399,6 +405,74 @@ public class MainActivity
 	{
 		toolbar = (Toolbar)findViewById( R.id.toolbar );
 		setSupportActionBar( toolbar );
+	}
+
+	private void initQualitySpinner()
+	{
+		setQualityValues();
+
+		qualitySpinner = (Spinner)findViewById( R.id.quality );
+		ArrayAdapter<CharSequence> adapter =
+			ArrayAdapter.createFromResource(
+				this,
+				R.array.quality_names,
+				android.R.layout.simple_spinner_item );
+		adapter.setDropDownViewResource(
+			android.R.layout.simple_spinner_dropdown_item );
+		qualitySpinner.setAdapter( adapter );
+		qualitySpinner.setOnItemSelectedListener(
+			new Spinner.OnItemSelectedListener()
+			{
+				@Override
+				public void onItemSelected(
+					AdapterView<?> parent,
+					View view,
+					int position,
+					long id )
+				{
+					float q = qualityValues[position];
+
+					if( q == quality )
+						return;
+
+					quality = q;
+
+					if( selectedShaderId > 0 )
+						ShaderEditorApplication
+							.dataSource
+							.updateShaderQuality(
+								selectedShaderId,
+								quality );
+
+					if( shaderView.getVisibility() != View.VISIBLE )
+						return;
+
+					shaderView.getRenderer().setQuality( quality );
+					shaderView.onPause();
+					shaderView.onResume();
+				}
+
+				@Override
+				public void onNothingSelected(
+					AdapterView<?> parent )
+				{
+				}
+			} );
+	}
+
+	private void setQualityValues()
+	{
+		if( qualityValues != null )
+			return;
+
+		String qualityStringValues[] = getResources().getStringArray(
+			R.array.quality_values );
+		int len = qualityStringValues.length;
+		qualityValues = new float[len];
+
+		for( int n = 0; n < len; ++n )
+			qualityValues[n] = Float.valueOf(
+				qualityStringValues[n] );
 	}
 
 	private void initDrawer()
@@ -687,13 +761,15 @@ public class MainActivity
 				.updateShader(
 					id,
 					fragmentShader,
-					thumbnail );
+					thumbnail,
+					quality );
 		else
 			ShaderEditorApplication
 				.dataSource
 				.insertShader(
 					fragmentShader,
-					thumbnail );
+					thumbnail,
+					quality );
 
 		// update thumbnails
 		getShadersAsync();
@@ -732,7 +808,8 @@ public class MainActivity
 					editorFragment.getText(),
 					ShaderEditorApplication
 						.dataSource
-						.getThumbnail( id ) ) );
+						.getThumbnail( id ),
+					quality ) );
 
 		// update thumbnails
 		getShadersAsync();
@@ -844,11 +921,14 @@ public class MainActivity
 
 	private long loadShader( long id )
 	{
-		Cursor cursor = getShader( id );
+		Cursor cursor = ShaderEditorApplication
+			.dataSource
+			.getShader( id );
 
 		if( DataSource.closeIfEmpty( cursor ) )
 			return 0;
 
+		setQualitySpinner( cursor );
 		loadShader( cursor );
 		cursor.close();
 
@@ -874,16 +954,6 @@ public class MainActivity
 			setFragmentShader( fragmentShader );
 	}
 
-	private Cursor getShader( long id )
-	{
-		if( id < 1 )
-			return null;
-
-		return ShaderEditorApplication
-			.dataSource
-			.getShader( id );
-	}
-
 	private void setDefaultToolbarTitle()
 	{
 		setToolbarTitle( getString( R.string.app_name ) );
@@ -891,11 +961,14 @@ public class MainActivity
 
 	private void setToolbarTitle( long id )
 	{
-		Cursor cursor = getShader( id );
+		Cursor cursor = ShaderEditorApplication
+			.dataSource
+			.getShader( id );
 
 		if( DataSource.closeIfEmpty( cursor ) )
 			return;
 
+		setQualitySpinner( cursor );
 		setToolbarTitle( cursor );
 		cursor.close();
 	}
@@ -917,9 +990,23 @@ public class MainActivity
 		toolbar.setSubtitle( null );
 	}
 
+	private void setQualitySpinner( Cursor cursor )
+	{
+		float q = cursor.getFloat( cursor.getColumnIndex(
+			DataSource.SHADERS_QUALITY ) );
+
+		for( int n = 0, l = qualityValues.length; n < l; ++n )
+			if( qualityValues[n] == q )
+			{
+				qualitySpinner.setSelection( n );
+				quality = q;
+				return;
+			}
+	}
+
 	private void setFragmentShader( String src )
 	{
-		shaderView.setFragmentShader( src );
+		shaderView.setFragmentShader( src, quality );
 	}
 
 	private void showPreview( String src )
@@ -930,6 +1017,9 @@ public class MainActivity
 			this,
 			PreviewActivity.class );
 
+		intent.putExtra(
+			PreviewActivity.QUALITY,
+			quality );
 		intent.putExtra(
 			PreviewActivity.FRAGMENT_SHADER,
 			src );
