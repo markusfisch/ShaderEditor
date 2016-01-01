@@ -1,4 +1,6 @@
-<resources>
+<resources
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:ignore="TypographyFractions">
 	<string-array name="quality_names">
 		<item>1/8</item>
 		<item>1/4</item>
