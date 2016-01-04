@@ -293,16 +293,17 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				(float)level/scale );
 		}
 
+		if( fb[0] == 0 )
+			createTargets(
+				(int)resolution[0],
+				(int)resolution[1] );
+
+		// first draw custom shader in framebuffer
 		GLES20.glViewport(
 			0,
 			0,
 			(int)resolution[0],
 			(int)resolution[1] );
-
-		if( fb[0] == 0 )
-			createTargets(
-				(int)resolution[0],
-				(int)resolution[1] );
 
 		if( backBufferLoc > -1 )
 		{
@@ -322,13 +323,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			GLES20.GL_FRAMEBUFFER,
 			fb[frontTarget] );
 
-		GLES20.glClear(
-			GLES20.GL_COLOR_BUFFER_BIT );
 		GLES20.glDrawArrays(
 			GLES20.GL_TRIANGLE_STRIP,
 			0,
 			4 );
 
+		// then draw framebuffer on screen
 		GLES20.glBindFramebuffer(
 			GLES20.GL_FRAMEBUFFER,
 			0 );
@@ -664,8 +664,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		createTarget( frontTarget, width, height );
 		createTarget( backTarget, width, height );
 
+		// unbind textures that were bound in createTarget()
 		GLES20.glBindTexture( GLES20.GL_TEXTURE_2D, 0 );
-		GLES20.glBindFramebuffer( GLES20.GL_FRAMEBUFFER, 0 );
 	}
 
 	private void createTarget( int idx, int width, int height )
