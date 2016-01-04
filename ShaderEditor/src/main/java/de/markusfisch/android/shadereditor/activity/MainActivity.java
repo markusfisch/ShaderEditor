@@ -189,6 +189,11 @@ public class MainActivity
 				.preferences
 				.doesRunInBackground() );
 
+		menu.findItem( R.id.update_wallpaper ).setVisible(
+			ShaderEditorApplication
+				.preferences
+				.getWallpaperShader() == selectedShaderId );
+
 		return true;
 	}
 
