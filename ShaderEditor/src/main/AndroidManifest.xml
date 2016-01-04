@@ -82,5 +82,8 @@
 		<activity
 			android:name=".activity.CropImageActivity"
 			android:label="@string/crop_image"/>
+		<activity
+			android:name=".activity.UniformsActivity"
+			android:label="@string/uniforms"/>
 	</application>
 </manifest>

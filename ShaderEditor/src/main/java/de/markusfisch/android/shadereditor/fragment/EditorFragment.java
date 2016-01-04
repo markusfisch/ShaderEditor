@@ -131,9 +131,9 @@ public class EditorFragment extends Fragment
 		shaderEditor.insertTab();
 	}
 
-	public void addSampler2DUniform( String name )
+	public void addUniform( String name )
 	{
-		shaderEditor.addSampler2DUniform( name );
+		shaderEditor.addUniform( name );
 	}
 
 	public boolean isCodeVisible()

@@ -4,45 +4,11 @@ precision highp float;
 precision mediump float;
 #endif
 
-// resolution in pixels
-//uniform vec2 resolution;
-
-// time in seconds since load
-//uniform float time;
-
-// touch position in pixels
-//uniform vec2 touch;
-
-// number of touches
-//uniform int pointerCount;
-
-// positions of touches
-//uniform vec3 pointers[10];
-
-// linear acceleration vector in m/s^2
-//uniform vec3 linear;
-
-// gravity vector in m/s^2
-//uniform vec3 gravity;
-
-// device rotation on the x, y and z axis
-//uniform vec3 rotation;
-
-// battery level from 0.0 to 1.0
-//uniform float battery;
-
-// wallpaper offset from 0.0 to 1.0
-//uniform vec2 offset;
-
-// previous frame, i.e. texture2D( backbuffer, uv ).rgb
-//uniform sampler2D backbuffer;
-
-// use a texture, i.e. texture2D( name, uv ).rgb
-//uniform sampler2D name;
+uniform vec2 resolution;
 
 void main( void )
 {
-	//vec2 uv = gl_FragCoord.xy/resolution.xy;
+	vec2 uv = gl_FragCoord.xy/resolution.xy;
 
-	gl_FragColor = vec4( vec3( 0.2 ), 1.0 );
+	gl_FragColor = vec4( uv, 1.0, 1.0 );
 }

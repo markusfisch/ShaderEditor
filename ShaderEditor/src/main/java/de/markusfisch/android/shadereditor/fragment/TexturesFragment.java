@@ -53,6 +53,8 @@ public class TexturesFragment extends Fragment
 				false )) == null ||
 			(fab = view.findViewById(
 				R.id.add_texture )) == null ||
+			(listView = (ListView)view.findViewById(
+				R.id.textures )) == null ||
 			(progessBar = view.findViewById(
 				R.id.progress_bar )) == null ||
 			(noTextureMessage = view.findViewById(
@@ -132,7 +134,6 @@ public class TexturesFragment extends Fragment
 
 	private void initListView( View view )
 	{
-		listView = (ListView)view.findViewById( R.id.textures );
 		listView.setEmptyView( view.findViewById( R.id.no_textures ) );
 		listView.setOnItemClickListener(
 			new AdapterView.OnItemClickListener()

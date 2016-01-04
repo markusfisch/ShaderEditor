@@ -165,9 +165,9 @@ public class ShaderEditor extends EditText
 			1 );
 	}
 
-	public void addSampler2DUniform( String name )
+	public void addUniform( String statement )
 	{
-		if( name == null )
+		if( statement == null )
 			return;
 
 		Editable e = getText();
@@ -176,7 +176,7 @@ public class ShaderEditor extends EditText
 			Math.max( 0, m.end()-1 ) :
 			0;
 
-		e.insert( start, "uniform sampler2D "+name+";\n" );
+		e.insert( start, statement+";\n" );
 	}
 
 	private void init( Context context )

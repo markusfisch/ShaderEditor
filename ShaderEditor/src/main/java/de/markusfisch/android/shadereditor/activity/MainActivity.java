@@ -41,7 +41,8 @@ public class MainActivity
 {
 	private static final String SELECTED_SHADER = "selected_shader";
 	private static final int PREVIEW_SHADER = 1;
-	private static final int ADD_TEXTURE = 2;
+	private static final int ADD_UNIFORM = 2;
+	private static final int ADD_TEXTURE = 3;
 	private static final int FIRST_SHADER = -1;
 	private static final int NO_SHADER = 0;
 
@@ -229,6 +230,9 @@ public class MainActivity
 			case R.id.update_wallpaper:
 				updateWallpaper( selectedShaderId );
 				return true;
+			case R.id.uniforms:
+				showUniforms();
+				return true;
 			case R.id.textures:
 				showTextures();
 				return true;
@@ -262,13 +266,22 @@ public class MainActivity
 	{
 		super.onActivityResult( requestCode, resultCode, data );
 
+		// add uniform statement
+		if( editorFragment != null &&
+			requestCode == ADD_UNIFORM &&
+			resultCode == RESULT_OK &&
+			data != null )
+			editorFragment.addUniform(
+				data.getStringExtra(
+					UniformsActivity.UNIFORM_NAME ) );
+
 		// add uniform sampler2D statement
 		if( editorFragment != null &&
 			requestCode == ADD_TEXTURE &&
 			resultCode == RESULT_OK &&
 			data != null )
-			editorFragment.addSampler2DUniform(
-				data.getStringExtra(
+			editorFragment.addUniform(
+				"uniform sampler2D "+data.getStringExtra(
 					TexturesActivity.TEXTURE_NAME ) );
 
 		// update thumbnail after shader ran
@@ -892,6 +905,13 @@ public class MainActivity
 		ShaderEditorApplication
 			.preferences
 			.setWallpaperShader( id );
+	}
+
+	private void showUniforms()
+	{
+		startActivityForResult(
+			new Intent( this, UniformsActivity.class ),
+			ADD_UNIFORM );
 	}
 
 	private void showTextures()
