@@ -686,6 +686,9 @@ public class MainActivity
 				Intent.EXTRA_TEXT )) == null )
 			return;
 
+		// don't use an old thumbnail
+		PreviewActivity.thumbnail = null;
+
 		// consume this intent; this is necessary because
 		// a orientation change will start a new activity
 		// with the exact same intent
@@ -769,12 +772,12 @@ public class MainActivity
 					thumbnail,
 					quality );
 		else
-			ShaderEditorApplication
+			setToolbarTitle( ShaderEditorApplication
 				.dataSource
 				.insertShader(
 					fragmentShader,
 					thumbnail,
-					quality );
+					quality ) );
 
 		// update thumbnails
 		getShadersAsync();
