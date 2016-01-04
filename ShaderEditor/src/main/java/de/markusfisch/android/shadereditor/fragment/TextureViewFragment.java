@@ -118,7 +118,7 @@ public class TextureViewFragment extends Fragment
 
 		new AlertDialog.Builder( activity )
 			.setTitle( R.string.remove_texture )
-			.setMessage( R.string.want_to_remove_texture )
+			.setMessage( R.string.sure_remove_texture )
 			.setPositiveButton(
 				android.R.string.yes,
 				new DialogInterface.OnClickListener()

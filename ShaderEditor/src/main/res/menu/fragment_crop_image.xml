@@ -2,9 +2,9 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:material="http://schemas.android.com/apk/res-auto">
 	<item
-		android:id="@+id/cut"
+		android:id="@+id/crop"
 		android:icon="@drawable/ic_action_cut"
-		android:title="@string/cut_image"
+		android:title="@string/crop_image"
 		material:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/rotate_clockwise"

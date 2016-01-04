@@ -693,7 +693,7 @@ public class MainActivity
 		{
 			Toast.makeText(
 				this,
-				R.string.error_text_unsuitable,
+				R.string.unsuitable_text,
 				Toast.LENGTH_SHORT ).show();
 
 			return;
@@ -821,7 +821,7 @@ public class MainActivity
 			return;
 
 		new AlertDialog.Builder( this )
-			.setMessage( R.string.are_you_sure )
+			.setMessage( R.string.sure_remove_shader )
 			.setPositiveButton(
 				android.R.string.yes,
 				new DialogInterface.OnClickListener()

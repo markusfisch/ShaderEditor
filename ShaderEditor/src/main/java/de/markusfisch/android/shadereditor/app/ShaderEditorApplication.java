@@ -64,7 +64,7 @@ public class ShaderEditorApplication extends Application
 
 				Toast.makeText(
 					ShaderEditorApplication.this,
-					R.string.error_database,
+					R.string.cannot_open_database,
 					Toast.LENGTH_LONG ).show();
 			}
 		}.execute();

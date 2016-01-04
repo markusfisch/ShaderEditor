@@ -154,8 +154,8 @@ public class CropImageFragment extends Fragment
 	{
 		switch( item.getItemId() )
 		{
-			case R.id.cut:
-				cutImage();
+			case R.id.crop:
+				cropImage();
 				return true;
 			case R.id.rotate_clockwise:
 				rotateClockwise();
@@ -242,7 +242,7 @@ public class CropImageFragment extends Fragment
 				{
 					Toast.makeText(
 						activity,
-						R.string.error_pick_image,
+						R.string.cannot_pick_image,
 						Toast.LENGTH_SHORT ).show();
 
 					activity.finish();
@@ -255,7 +255,7 @@ public class CropImageFragment extends Fragment
 		}.execute();
 	}
 
-	private void cutImage()
+	private void cropImage()
 	{
 		AbstractSubsequentActivity.addFragment(
 			getFragmentManager(),
