@@ -114,6 +114,12 @@ public class TexturePropertiesFragment extends Fragment
 		imm = (InputMethodManager)activity.getSystemService(
 			Context.INPUT_METHOD_SERVICE );
 
+		if( activity.getCallingActivity() == null )
+		{
+			addUniformView.setVisibility( View.GONE );
+			addUniformView.setChecked( false );
+		}
+
 		initSizeView();
 
 		return view;
