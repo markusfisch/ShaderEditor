@@ -16,6 +16,8 @@ Features
 * FPS display
 * Use any shader as __live wallpaper__
 * Exposure of __accelerometer sensors__
+* Exposure of __gyroscope sensor__
+* Exposure of __magnetic field sensor__
 * Support for __wallpaper offset__
 * Exposure of __battery level__
 * Supports __multiple touches__

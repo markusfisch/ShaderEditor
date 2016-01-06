@@ -3,6 +3,7 @@ package de.markusfisch.android.shadereditor.opengl;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.hardware.AccelerometerListener;
 import de.markusfisch.android.shadereditor.hardware.GyroscopeListener;
+import de.markusfisch.android.shadereditor.hardware.MagneticFieldListener;
 
 import android.content.Context;
 import android.content.Intent;
@@ -76,6 +77,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private Context context;
 	private AccelerometerListener accelerometerListener;
 	private GyroscopeListener gyroscopeListener;
+	private MagneticFieldListener magneticFieldListener;
 	private OnRendererListener onRendererListener;
 	private String fragmentShader;
 	private ByteBuffer vertexBuffer;
@@ -94,6 +96,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int gravityLoc;
 	private int linearLoc;
 	private int rotationLoc;
+	private int magneticLoc;
 	private int offsetLoc;
 	private int batteryLoc;
 	private int backBufferLoc;
@@ -123,6 +126,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			new AccelerometerListener( context );
 		gyroscopeListener =
 			new GyroscopeListener( context );
+		magneticFieldListener =
+			new MagneticFieldListener( context );
 
 		flipMatrix.postScale( 1f, -1f );
 
@@ -276,6 +281,13 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				gyroscopeListener.rotation,
 				0 );
 
+		if( magneticLoc > -1 )
+			GLES20.glUniform3fv(
+				magneticLoc,
+				1,
+				magneticFieldListener.values,
+				0 );
+
 		if( offsetLoc > -1 )
 			GLES20.glUniform2fv(
 				offsetLoc,
@@ -413,6 +425,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	{
 		accelerometerListener.unregister();
 		gyroscopeListener.unregister();
+		magneticFieldListener.unregister();
 	}
 
 	public void touchAt( MotionEvent e )
@@ -511,6 +524,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 		if( rotationLoc > -1 )
 			gyroscopeListener.register();
+
+		if( magneticLoc > -1 )
+			magneticFieldListener.register();
 	}
 
 	private void indexLocations()
@@ -542,6 +558,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			program, "linear" );
 		rotationLoc = GLES20.glGetUniformLocation(
 			program, "rotation" );
+		magneticLoc = GLES20.glGetUniformLocation(
+			program, "magnetic" );
 		offsetLoc = GLES20.glGetUniformLocation(
 			program, "offset" );
 		batteryLoc = GLES20.glGetUniformLocation(

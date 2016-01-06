@@ -41,6 +41,9 @@ public class UniformsAdapter extends BaseAdapter
 				"uniform vec3 rotation",
 				context.getString( R.string.device_rotation ) ),
 			new Uniform(
+				"uniform vec3 magnetic",
+				context.getString( R.string.magnetic_field ) ),
+			new Uniform(
 				"uniform float battery",
 				context.getString( R.string.battery_level ) ),
 			new Uniform(
