@@ -37,7 +37,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	}
 
 	private static final float NS_PER_SECOND = 1000000000f;
-	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000;
+	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000l;
+	private static final long BATTERY_UPDATE_INTERVAL = 10000000000l;
 	private static final Pattern SAMPLER_2D = Pattern.compile(
 		"uniform[ \t]+sampler2D[ \t]+([a-zA-Z0-9]+);" );
 	private static final String VERTEX_SHADER =
@@ -104,7 +105,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int backTarget = 1;
 	private long startTime;
 	private long lastRender;
-	private Intent batteryStatus;
+	private long lastBatteryUpdate;
+	private float batteryLevel;
 	private float quality = 1f;
 
 	private volatile byte thumbnail[] = new byte[1];
@@ -283,14 +285,18 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 		if( batteryLoc > -1 )
 		{
-			int level = batteryStatus.getIntExtra(
-				BatteryManager.EXTRA_LEVEL, -1 );
-			int scale = batteryStatus.getIntExtra(
-				BatteryManager.EXTRA_SCALE, -1 );
+			if( now-lastBatteryUpdate > BATTERY_UPDATE_INTERVAL )
+			{
+				// profiled getBatteryLevel() on slow/old devices
+				// and it can take up to 6ms, so better do that
+				// not for every frame but only once in a while
+				batteryLevel = getBatteryLevel();
+				lastBatteryUpdate = now;
+			}
 
 			GLES20.glUniform1f(
 				batteryLoc,
-				(float)level/scale );
+				batteryLevel );
 		}
 
 		if( fb[0] == 0 )
@@ -505,13 +511,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 		if( rotationLoc > -1 )
 			gyroscopeListener.register();
-
-		if( batteryLoc > -1 &&
-			batteryStatus == null )
-			batteryStatus = context.registerReceiver(
-				null,
-				new IntentFilter(
-					Intent.ACTION_BATTERY_CHANGED ) );
 	}
 
 	private void indexLocations()
@@ -839,5 +838,19 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				!name.equals( "backbuffer" ) )
 				textureNames.add( name );
 		}
+	}
+
+	private float getBatteryLevel()
+	{
+		Intent batteryStatus = context.registerReceiver(
+			null,
+			new IntentFilter(
+				Intent.ACTION_BATTERY_CHANGED ) );
+		int level = batteryStatus.getIntExtra(
+			BatteryManager.EXTRA_LEVEL, -1 );
+		int scale = batteryStatus.getIntExtra(
+			BatteryManager.EXTRA_SCALE, -1 );
+
+		return (float)level/scale;
 	}
 }
