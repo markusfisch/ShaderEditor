@@ -83,11 +83,11 @@ public class ShaderEditor extends EditText
 	private int errorLine = 0;
 	private boolean dirty = false;
 	private boolean modified = true;
-	private int colorError = 0x880000;
-	private int colorNumber = 0x7ba212;
-	private int colorKeyword = 0x399ed7;
-	private int colorBuiltin = 0xd79e39;
-	private int colorComment = 0x808080;
+	private int colorError;
+	private int colorNumber;
+	private int colorKeyword;
+	private int colorBuiltin;
+	private int colorComment;
 
 	public ShaderEditor( Context context )
 	{
