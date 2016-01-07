@@ -91,6 +91,9 @@
 	<string name="gravity_vector">Gravity vector in m/s^2</string>
 	<string name="device_rotation">Device rotation on the x, y and z axis</string>
 	<string name="magnetic_field">Geomagnetic field strength along the x, y and z axis</string>
+	<string name="light">Ambient light level in SI lux units</string>
+	<string name="pressure">Atmospheric pressure in hPa (millibar)</string>
+	<string name="proximity">Proximity sensor distance measured in centimeters</string>
 	<string name="battery_level">Batterly level from 0.0 to 1.0</string>
 	<string name="wallpaper_offset">Wallpaper offset in pixels</string>
 	<string name="previous_frame">Previous rendered frame</string>

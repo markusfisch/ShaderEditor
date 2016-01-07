@@ -4,6 +4,9 @@ import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.hardware.AccelerometerListener;
 import de.markusfisch.android.shadereditor.hardware.GyroscopeListener;
 import de.markusfisch.android.shadereditor.hardware.MagneticFieldListener;
+import de.markusfisch.android.shadereditor.hardware.LightListener;
+import de.markusfisch.android.shadereditor.hardware.PressureListener;
+import de.markusfisch.android.shadereditor.hardware.ProximityListener;
 
 import android.content.Context;
 import android.content.Intent;
@@ -78,6 +81,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private AccelerometerListener accelerometerListener;
 	private GyroscopeListener gyroscopeListener;
 	private MagneticFieldListener magneticFieldListener;
+	private LightListener lightListener;
+	private PressureListener pressureListener;
+	private ProximityListener proximityListener;
 	private OnRendererListener onRendererListener;
 	private String fragmentShader;
 	private ByteBuffer vertexBuffer;
@@ -97,6 +103,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int linearLoc;
 	private int rotationLoc;
 	private int magneticLoc;
+	private int lightLoc;
+	private int pressureLoc;
+	private int proximityLoc;
 	private int offsetLoc;
 	private int batteryLoc;
 	private int backBufferLoc;
@@ -128,6 +137,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			new GyroscopeListener( context );
 		magneticFieldListener =
 			new MagneticFieldListener( context );
+		lightListener =
+			new LightListener( context );
+		pressureListener =
+			new PressureListener( context );
+		proximityListener =
+			new ProximityListener( context );
 
 		flipMatrix.postScale( 1f, -1f );
 
@@ -288,6 +303,21 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				magneticFieldListener.values,
 				0 );
 
+		if( lightLoc > -1 )
+			GLES20.glUniform1f(
+				lightLoc,
+				lightListener.ambient );
+
+		if( pressureLoc > -1 )
+			GLES20.glUniform1f(
+				pressureLoc,
+				pressureListener.pressure );
+
+		if( proximityLoc > -1 )
+			GLES20.glUniform1f(
+				proximityLoc,
+				proximityListener.centimeters );
+
 		if( offsetLoc > -1 )
 			GLES20.glUniform2fv(
 				offsetLoc,
@@ -426,6 +456,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		accelerometerListener.unregister();
 		gyroscopeListener.unregister();
 		magneticFieldListener.unregister();
+		lightListener.unregister();
+		pressureListener.unregister();
+		proximityListener.unregister();
 	}
 
 	public void touchAt( MotionEvent e )
@@ -518,15 +551,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		GLES20.glEnableVertexAttribArray( surfacePositionLoc );
 		GLES20.glEnableVertexAttribArray( positionLoc );
 
-		if( gravityLoc > -1 ||
-			linearLoc > -1 )
-			accelerometerListener.register();
-
-		if( rotationLoc > -1 )
-			gyroscopeListener.register();
-
-		if( magneticLoc > -1 )
-			magneticFieldListener.register();
+		registerListeners();
 	}
 
 	private void indexLocations()
@@ -560,6 +585,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			program, "rotation" );
 		magneticLoc = GLES20.glGetUniformLocation(
 			program, "magnetic" );
+		lightLoc = GLES20.glGetUniformLocation(
+			program, "light" );
+		pressureLoc = GLES20.glGetUniformLocation(
+			program, "pressure" );
+		proximityLoc = GLES20.glGetUniformLocation(
+			program, "proximity" );
 		offsetLoc = GLES20.glGetUniformLocation(
 			program, "offset" );
 		batteryLoc = GLES20.glGetUniformLocation(
@@ -570,6 +601,28 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		for( int n = textureNames.size(); n-- > 0; )
 			textureLocs[n] = GLES20.glGetUniformLocation(
 				program, textureNames.get( n ) );
+	}
+
+	private void registerListeners()
+	{
+		if( gravityLoc > -1 ||
+			linearLoc > -1 )
+			accelerometerListener.register();
+
+		if( rotationLoc > -1 )
+			gyroscopeListener.register();
+
+		if( magneticLoc > -1 )
+			magneticFieldListener.register();
+
+		if( lightLoc > -1 )
+			lightListener.register();
+
+		if( pressureLoc > -1 )
+			pressureListener.register();
+
+		if( proximityLoc > -1 )
+			proximityListener.register();
 	}
 
 	private byte[] saveThumbnail()

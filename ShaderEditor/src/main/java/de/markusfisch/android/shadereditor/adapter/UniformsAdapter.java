@@ -44,6 +44,15 @@ public class UniformsAdapter extends BaseAdapter
 				"uniform vec3 magnetic",
 				context.getString( R.string.magnetic_field ) ),
 			new Uniform(
+				"uniform float light",
+				context.getString( R.string.light ) ),
+			new Uniform(
+				"uniform float pressure",
+				context.getString( R.string.pressure ) ),
+			new Uniform(
+				"uniform float proximity",
+				context.getString( R.string.proximity ) ),
+			new Uniform(
 				"uniform float battery",
 				context.getString( R.string.battery_level ) ),
 			new Uniform(
