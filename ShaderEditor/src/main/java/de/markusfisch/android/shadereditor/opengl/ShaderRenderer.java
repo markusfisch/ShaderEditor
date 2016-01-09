@@ -165,19 +165,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	{
 		this.context = context;
 
-		accelerometerListener =
-			new AccelerometerListener( context );
-		gyroscopeListener =
-			new GyroscopeListener( context );
-		magneticFieldListener =
-			new MagneticFieldListener( context );
-		lightListener =
-			new LightListener( context );
-		pressureListener =
-			new PressureListener( context );
-		proximityListener =
-			new ProximityListener( context );
-
 		flipMatrix.postScale( 1f, -1f );
 
 		vertexBuffer = ByteBuffer.allocateDirect( 8 );
@@ -309,45 +296,52 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				pointers,
 				0 );
 
-		if( gravityLoc > -1 )
+		if( gravityLoc > -1 &&
+			accelerometerListener != null )
 			GLES20.glUniform3fv(
 				gravityLoc,
 				1,
 				accelerometerListener.gravity,
 				0 );
 
-		if( linearLoc > -1 )
+		if( linearLoc > -1 &&
+			accelerometerListener != null )
 			GLES20.glUniform3fv(
 				linearLoc,
 				1,
 				accelerometerListener.linear,
 				0 );
 
-		if( rotationLoc > -1 )
+		if( rotationLoc > -1 &&
+			gyroscopeListener != null )
 			GLES20.glUniform3fv(
 				rotationLoc,
 				1,
 				gyroscopeListener.rotation,
 				0 );
 
-		if( magneticLoc > -1 )
+		if( magneticLoc > -1 &&
+			magneticFieldListener != null )
 			GLES20.glUniform3fv(
 				magneticLoc,
 				1,
 				magneticFieldListener.values,
 				0 );
 
-		if( lightLoc > -1 )
+		if( lightLoc > -1 &&
+			lightListener != null )
 			GLES20.glUniform1f(
 				lightLoc,
 				lightListener.ambient );
 
-		if( pressureLoc > -1 )
+		if( pressureLoc > -1 &&
+			pressureListener != null )
 			GLES20.glUniform1f(
 				pressureLoc,
 				pressureListener.pressure );
 
-		if( proximityLoc > -1 )
+		if( proximityLoc > -1 &&
+			proximityListener != null )
 			GLES20.glUniform1f(
 				proximityLoc,
 				proximityListener.centimeters );
@@ -483,12 +477,23 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	public void unregisterListeners()
 	{
-		accelerometerListener.unregister();
-		gyroscopeListener.unregister();
-		magneticFieldListener.unregister();
-		lightListener.unregister();
-		pressureListener.unregister();
-		proximityListener.unregister();
+		if( accelerometerListener != null )
+			accelerometerListener.unregister();
+
+		if( gyroscopeListener != null )
+			gyroscopeListener.unregister();
+
+		if( magneticFieldListener != null )
+			magneticFieldListener.unregister();
+
+		if( lightListener != null )
+			lightListener.unregister();
+
+		if( pressureListener != null )
+			pressureListener.unregister();
+
+		if( proximityListener != null )
+			proximityListener.unregister();
 	}
 
 	public void touchAt( MotionEvent e )
@@ -637,22 +642,58 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	{
 		if( gravityLoc > -1 ||
 			linearLoc > -1 )
+		{
+			if( accelerometerListener == null )
+				accelerometerListener =
+					new AccelerometerListener( context );
+
 			accelerometerListener.register();
+		}
 
 		if( rotationLoc > -1 )
+		{
+			if( gyroscopeListener == null )
+				gyroscopeListener =
+					new GyroscopeListener( context );
+
 			gyroscopeListener.register();
+		}
 
 		if( magneticLoc > -1 )
+		{
+			if( magneticFieldListener == null )
+				magneticFieldListener =
+					new MagneticFieldListener( context );
+
 			magneticFieldListener.register();
+		}
 
 		if( lightLoc > -1 )
+		{
+			if( lightListener == null )
+				lightListener =
+					new LightListener( context );
+
 			lightListener.register();
+		}
 
 		if( pressureLoc > -1 )
+		{
+			if( pressureListener == null )
+				pressureListener =
+					new PressureListener( context );
+
 			pressureListener.register();
+		}
 
 		if( proximityLoc > -1 )
+		{
+			if( proximityListener == null )
+				proximityListener =
+					new ProximityListener( context );
+
 			proximityListener.register();
+		}
 	}
 
 	private byte[] saveThumbnail()
