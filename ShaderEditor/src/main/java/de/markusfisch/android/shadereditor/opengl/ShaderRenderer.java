@@ -40,6 +40,39 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		public void onFramesPerSecond( int fps );
 	}
 
+	private static final int textureUnits[] = {
+		GLES20.GL_TEXTURE0,
+		GLES20.GL_TEXTURE1,
+		GLES20.GL_TEXTURE2,
+		GLES20.GL_TEXTURE3,
+		GLES20.GL_TEXTURE4,
+		GLES20.GL_TEXTURE5,
+		GLES20.GL_TEXTURE6,
+		GLES20.GL_TEXTURE7,
+		GLES20.GL_TEXTURE8,
+		GLES20.GL_TEXTURE9,
+		GLES20.GL_TEXTURE10,
+		GLES20.GL_TEXTURE11,
+		GLES20.GL_TEXTURE12,
+		GLES20.GL_TEXTURE13,
+		GLES20.GL_TEXTURE14,
+		GLES20.GL_TEXTURE15,
+		GLES20.GL_TEXTURE16,
+		GLES20.GL_TEXTURE17,
+		GLES20.GL_TEXTURE18,
+		GLES20.GL_TEXTURE19,
+		GLES20.GL_TEXTURE20,
+		GLES20.GL_TEXTURE21,
+		GLES20.GL_TEXTURE22,
+		GLES20.GL_TEXTURE23,
+		GLES20.GL_TEXTURE24,
+		GLES20.GL_TEXTURE25,
+		GLES20.GL_TEXTURE26,
+		GLES20.GL_TEXTURE27,
+		GLES20.GL_TEXTURE28,
+		GLES20.GL_TEXTURE29,
+		GLES20.GL_TEXTURE30,
+		GLES20.GL_TEXTURE31 };
 	private static final float NS_PER_SECOND = 1000000000f;
 	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000l;
 	private static final long BATTERY_UPDATE_INTERVAL = 10000000000l;
@@ -66,6 +99,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				"gl_FragCoord.xy/resolution.xy ).rgba;"+
 		"}";
 
+	private final TextureBinder textureBinder = new TextureBinder();
 	private final ArrayList<String> textureNames = new ArrayList<String>();
 	private final Matrix flipMatrix = new Matrix();
 	private final int fb[] = new int[]{ 0, 0 };
@@ -109,8 +143,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int offsetLoc;
 	private int batteryLoc;
 	private int backBufferLoc;
-	private int textureLocs[] = new int[4];
-	private int textureIds[] = new int[4];
+	private int textureLocs[] = new int[32];
+	private int textureIds[] = new int[32];
 	private int numberOfTextures = 0;
 	private int pointerCount;
 	private int frontTarget = 0;
@@ -353,19 +387,17 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			(int)resolution[0],
 			(int)resolution[1] );
 
+		textureBinder.reset();
+
 		if( backBufferLoc > -1 )
-		{
-			GLES20.glUniform1i(
+			textureBinder.bind(
 				backBufferLoc,
-				0 );
-
-			GLES20.glBindTexture(
-				GLES20.GL_TEXTURE_2D,
 				tx[backTarget] );
-		}
 
-		if( numberOfTextures > 0 )
-			bindTextures();
+		for( int n = 0; n < numberOfTextures; ++n )
+			textureBinder.bind(
+				textureLocs[n],
+				textureIds[n] );
 
 		GLES20.glBindFramebuffer(
 			GLES20.GL_FRAMEBUFFER,
@@ -403,10 +435,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			surfaceResolution,
 			0 );
 
-		GLES20.glUniform1i(
-			surfaceFrameLoc,
-			0 );
-
+		GLES20.glUniform1i( surfaceFrameLoc, 0 );
+		GLES20.glActiveTexture( GLES20.GL_TEXTURE0 );
 		GLES20.glBindTexture(
 			GLES20.GL_TEXTURE_2D,
 			tx[frontTarget] );
@@ -787,25 +817,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			GLES20.GL_DEPTH_BUFFER_BIT );
 	}
 
-	private void bindTextures()
-	{
-		for( int n = numberOfTextures; n-- > 0; )
-		{
-			int id = textureLocs[n];
-
-			if( id < 0 )
-				continue;
-
-			GLES20.glUniform1i(
-				id,
-				0 );
-
-			GLES20.glBindTexture(
-				GLES20.GL_TEXTURE_2D,
-				textureIds[n] );
-		}
-	}
-
 	private void deleteTextures()
 	{
 		if( textureIds[0] == 1 ||
@@ -822,15 +833,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	{
 		deleteTextures();
 
-		numberOfTextures = textureNames.size();
-
-		if( numberOfTextures > textureIds.length )
-		{
-			int size = numberOfTextures*2;
-
-			textureLocs = new int[size];
-			textureIds = new int[size];
-		}
+		numberOfTextures = Math.min(
+			textureIds.length,
+			textureNames.size() );
 
 		GLES20.glGenTextures(
 			numberOfTextures,
@@ -923,5 +928,30 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			BatteryManager.EXTRA_SCALE, -1 );
 
 		return (float)level/scale;
+	}
+
+	private static class TextureBinder
+	{
+		private int index;
+
+		public void reset()
+		{
+			index = 0;
+		}
+
+		public void bind( int loc, int textureId )
+		{
+			if( loc < 0 ||
+				index >= textureUnits.length )
+				return;
+
+			GLES20.glUniform1i( loc, index );
+			GLES20.glActiveTexture( textureUnits[index] );
+			GLES20.glBindTexture(
+				GLES20.GL_TEXTURE_2D,
+				textureId );
+
+			++index;
+		}
 	}
 }
