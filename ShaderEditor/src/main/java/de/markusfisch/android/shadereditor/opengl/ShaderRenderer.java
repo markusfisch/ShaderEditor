@@ -202,8 +202,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	@Override
 	public void onSurfaceCreated( GL10 gl, EGLConfig config )
 	{
-		startTime = lastRender = System.nanoTime();
-
 		GLES20.glDisable( GLES20.GL_CULL_FACE );
 		GLES20.glDisable( GLES20.GL_BLEND );
 		GLES20.glDisable( GLES20.GL_DEPTH_TEST );
@@ -231,6 +229,27 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			loadProgram();
 			createTextures();
 		}
+	}
+
+	@Override
+	public void onSurfaceChanged( GL10 gl, int width, int height )
+	{
+		startTime = lastRender = System.nanoTime();
+
+		surfaceResolution[0] = width;
+		surfaceResolution[1] = height;
+
+		float w = Math.round( width*quality );
+		float h = Math.round( height*quality );
+
+		if( w != resolution[0] ||
+			h != resolution[1] )
+			deleteTargets();
+
+		resolution[0] = w;
+		resolution[1] = h;
+
+		resetFps();
 	}
 
 	@Override
@@ -454,25 +473,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 		if( onRendererListener != null )
 			updateFps( now );
-	}
-
-	@Override
-	public void onSurfaceChanged( GL10 gl, int width, int height )
-	{
-		surfaceResolution[0] = width;
-		surfaceResolution[1] = height;
-
-		float w = Math.round( width*quality );
-		float h = Math.round( height*quality );
-
-		if( w != resolution[0] ||
-			h != resolution[1] )
-			deleteTargets();
-
-		resolution[0] = w;
-		resolution[1] = h;
-
-		resetFps();
 	}
 
 	public void unregisterListeners()
