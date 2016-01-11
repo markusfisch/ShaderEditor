@@ -104,6 +104,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private final Matrix flipMatrix = new Matrix();
 	private final int fb[] = new int[]{ 0, 0 };
 	private final int tx[] = new int[]{ 0, 0 };
+	private final int textureLocs[] = new int[32];
+	private final int textureIds[] = new int[32];
 	private final float surfaceResolution[] = new float[]{ 0, 0 };
 	private final float resolution[] = new float[]{ 0, 0 };
 	private final float touch[] = new float[]{ 0, 0 };
@@ -143,8 +145,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int offsetLoc;
 	private int batteryLoc;
 	private int backBufferLoc;
-	private int textureLocs[] = new int[32];
-	private int textureIds[] = new int[32];
 	private int numberOfTextures = 0;
 	private int pointerCount;
 	private int frontTarget = 0;
