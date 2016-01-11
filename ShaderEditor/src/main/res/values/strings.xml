@@ -94,7 +94,7 @@
 	<string name="light">Ambient light level in SI lux units</string>
 	<string name="pressure">Atmospheric pressure in hPa (millibar)</string>
 	<string name="proximity">Proximity sensor distance measured in centimeters</string>
-	<string name="battery_level">Batterly level from 0.0 to 1.0</string>
+	<string name="battery_level">Battery level from 0.0 to 1.0</string>
 	<string name="wallpaper_offset">Wallpaper offset in pixels</string>
 	<string name="previous_frame">Previous rendered frame</string>
 </resources>
