@@ -75,35 +75,6 @@ public class MainActivity
 	private float qualityValues[];
 	private float quality = 1f;
 
-	public static void postUpdateFps( int fps )
-	{
-		if( instance == null )
-			return;
-
-		instance.fps = fps;
-		instance.toolbar.post(
-			instance.updateFpsRunnable );
-	}
-
-	public static void postInfoLog( final String infoLog )
-	{
-		if( instance == null )
-			return;
-
-		instance.runOnUiThread(
-			new Runnable()
-			{
-				@Override
-				public void run()
-				{
-					if( instance.editorFragment != null )
-						instance
-							.editorFragment
-							.showError( infoLog );
-				}
-			} );
-	}
-
 	public static void initSystemBars( AppCompatActivity activity )
 	{
 		if( setSystemBarColor(
@@ -284,14 +255,22 @@ public class MainActivity
 				"uniform sampler2D "+data.getStringExtra(
 					TexturesActivity.TEXTURE_NAME ) );
 
-		// update thumbnail after shader ran
-		if( requestCode == PREVIEW_SHADER &&
-			selectedShaderId > 0 &&
-			PreviewActivity.thumbnail != null &&
-			ShaderEditorApplication
-				.preferences
-				.doesSaveOnRun() )
-			saveShader( selectedShaderId );
+		// update fps, info log and thumbnail after shader ran
+		if( requestCode == PREVIEW_SHADER )
+		{
+			if( PreviewActivity.fps > 0 )
+				postUpdateFps( PreviewActivity.fps );
+
+			if( PreviewActivity.infoLog != null )
+				postInfoLog( PreviewActivity.infoLog );
+
+			if( selectedShaderId > 0 &&
+				PreviewActivity.thumbnail != null &&
+				ShaderEditorApplication
+					.preferences
+					.doesSaveOnRun() )
+				saveShader( selectedShaderId );
+		}
 	}
 
 	@Override
@@ -566,6 +545,32 @@ public class MainActivity
 			} );
 	}
 
+	private void postUpdateFps( int fps )
+	{
+		if( fps < 1 )
+			return;
+
+		this.fps = fps;
+		toolbar.post( updateFpsRunnable );
+	}
+
+	private void postInfoLog( final String infoLog )
+	{
+		if( infoLog == null )
+			return;
+
+		runOnUiThread(
+			new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					if( editorFragment != null )
+						editorFragment.showError( infoLog );
+				}
+			} );
+	}
+
 	private void updateUiToPreferences()
 	{
 		if( ShaderEditorApplication
@@ -700,7 +705,7 @@ public class MainActivity
 			return;
 
 		// don't use an old thumbnail
-		PreviewActivity.thumbnail = null;
+		PreviewActivity.reset();
 
 		// consume this intent; this is necessary because
 		// a orientation change will start a new activity
@@ -750,7 +755,7 @@ public class MainActivity
 			// don't save the old thumbnail;
 			// onActivityResult() will add an
 			// updated one
-			PreviewActivity.thumbnail = null;
+			PreviewActivity.reset();
 
 			saveShader( selectedShaderId );
 		}
@@ -931,7 +936,7 @@ public class MainActivity
 	private void selectShader( long id )
 	{
 		// remove thumbnail from previous shader
-		PreviewActivity.thumbnail = null;
+		PreviewActivity.reset();
 
 		if( (selectedShaderId = loadShader( id )) < 1 )
 		{
@@ -1040,6 +1045,7 @@ public class MainActivity
 	private void showPreview( String src )
 	{
 		toolbar.setSubtitle( null );
+		PreviewActivity.reset();
 
 		Intent intent = new Intent(
 			this,

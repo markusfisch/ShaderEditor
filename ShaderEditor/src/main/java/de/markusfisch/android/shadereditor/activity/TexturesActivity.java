@@ -19,10 +19,10 @@ public class TexturesActivity extends AbstractContentActivity
 		Bundle bundle = new Bundle();
 		bundle.putString( TEXTURE_NAME, name );
 
-		Intent intent = new Intent();
-		intent.putExtras( bundle );
+		Intent data = new Intent();
+		data.putExtras( bundle );
 
-		activity.setResult( RESULT_OK, intent );
+		activity.setResult( RESULT_OK, data );
 	}
 
 	@Override

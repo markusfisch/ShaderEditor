@@ -11,6 +11,8 @@ public class PreviewActivity extends AppCompatActivity
 {
 	public static final String FRAGMENT_SHADER = "fragment_shader";
 	public static final String QUALITY = "quality";
+	public static int fps;
+	public static String infoLog;
 	public static byte thumbnail[];
 
 	private final Runnable finishRunnable =
@@ -39,6 +41,13 @@ public class PreviewActivity extends AppCompatActivity
 
 	private ShaderView shaderView;
 
+	public static void reset()
+	{
+		fps = 0;
+		infoLog = null;
+		thumbnail = null;
+	}
+
 	@Override
 	protected void onCreate( Bundle state )
 	{
@@ -66,14 +75,14 @@ public class PreviewActivity extends AppCompatActivity
 				public void onFramesPerSecond( int fps )
 				{
 					// invoked from the GL thread
-					MainActivity.postUpdateFps( fps );
+					PreviewActivity.this.fps = fps;
 				}
 
 				@Override
 				public void onInfoLog( String infoLog )
 				{
 					// invoked from the GL thread
-					MainActivity.postInfoLog( infoLog );
+					PreviewActivity.this.infoLog = infoLog;
 					runOnUiThread( finishRunnable );
 				}
 			} );
