@@ -46,9 +46,6 @@ public class MainActivity
 	private static final int FIRST_SHADER = -1;
 	private static final int NO_SHADER = 0;
 
-	private static MainActivity instance;
-	private static EditorFragment editorFragment;
-
 	private final Runnable updateFpsRunnable =
 		new Runnable()
 		{
@@ -62,6 +59,7 @@ public class MainActivity
 			}
 		};
 
+	private EditorFragment editorFragment;
 	private Toolbar toolbar;
 	private Spinner qualitySpinner;
 	private TouchThruDrawerlayout drawerLayout;
@@ -276,8 +274,6 @@ public class MainActivity
 	@Override
 	protected void onCreate( Bundle state )
 	{
-		instance = this;
-
 		super.onCreate( state );
 		setContentView( R.layout.activity_main );
 
@@ -1045,7 +1041,6 @@ public class MainActivity
 	private void showPreview( String src )
 	{
 		toolbar.setSubtitle( null );
-		PreviewActivity.reset();
 
 		Intent intent = new Intent(
 			this,

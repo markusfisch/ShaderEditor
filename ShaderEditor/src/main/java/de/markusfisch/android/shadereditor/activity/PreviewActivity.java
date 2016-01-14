@@ -11,8 +11,9 @@ public class PreviewActivity extends AppCompatActivity
 {
 	public static final String FRAGMENT_SHADER = "fragment_shader";
 	public static final String QUALITY = "quality";
-	public static int fps;
-	public static String infoLog;
+
+	public static volatile int fps;
+	public static volatile String infoLog;
 	public static byte thumbnail[];
 
 	private final Runnable finishRunnable =
@@ -52,6 +53,8 @@ public class PreviewActivity extends AppCompatActivity
 	protected void onCreate( Bundle state )
 	{
 		super.onCreate( state );
+
+		reset();
 
 		Intent intent = getIntent();
 		String fragmentShader;
