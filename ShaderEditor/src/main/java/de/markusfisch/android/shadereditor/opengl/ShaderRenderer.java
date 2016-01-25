@@ -29,6 +29,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -76,6 +77,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private static final float NS_PER_SECOND = 1000000000f;
 	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000l;
 	private static final long BATTERY_UPDATE_INTERVAL = 10000000000l;
+	private static final long DATE_UPDATE_INTERVAL = 1000000000l;
 	private static final Pattern SAMPLER_2D = Pattern.compile(
 		"uniform[ \t]+sampler2D[ \t]+([a-zA-Z0-9]+);" );
 	private static final String VERTEX_SHADER =
@@ -102,6 +104,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private final TextureBinder textureBinder = new TextureBinder();
 	private final ArrayList<String> textureNames = new ArrayList<String>();
 	private final Matrix flipMatrix = new Matrix();
+	private final Calendar calendar = Calendar.getInstance();
 	private final int fb[] = new int[]{ 0, 0 };
 	private final int tx[] = new int[]{ 0, 0 };
 	private final int textureLocs[] = new int[32];
@@ -112,6 +115,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private final float mouse[] = new float[]{ 0, 0 };
 	private final float pointers[] = new float[30];
 	private final float offset[] = new float[]{ 0, 0 };
+	private final float dateTime[] = new float[]{ 0, 0, 0, 0 };
 
 	private Context context;
 	private AccelerometerListener accelerometerListener;
@@ -144,6 +148,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int proximityLoc;
 	private int offsetLoc;
 	private int batteryLoc;
+	private int dateTimeLoc;
+	private int startRandomLoc;
 	private int backBufferLoc;
 	private int numberOfTextures = 0;
 	private int pointerCount;
@@ -152,8 +158,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private long startTime;
 	private long lastRender;
 	private long lastBatteryUpdate;
+	private long lastDateUpdate;
 	private float batteryLevel;
 	private float quality = 1f;
+	private float startRandom;
 
 	private volatile byte thumbnail[] = new byte[1];
 	private volatile long nextFpsUpdate = 0;
@@ -235,6 +243,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	public void onSurfaceChanged( GL10 gl, int width, int height )
 	{
 		startTime = lastRender = System.nanoTime();
+		startRandom = (float)Math.random();
 
 		surfaceResolution[0] = width;
 		surfaceResolution[1] = height;
@@ -387,6 +396,31 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				batteryLoc,
 				batteryLevel );
 		}
+
+		if( dateTimeLoc > -1 )
+		{
+			if( now-lastDateUpdate > DATE_UPDATE_INTERVAL )
+			{
+				dateTime[0] = calendar.get( Calendar.YEAR );
+				dateTime[1] = calendar.get( Calendar.MONTH );
+				dateTime[2] = calendar.get( Calendar.DAY_OF_MONTH );
+				dateTime[3] =
+					calendar.get( Calendar.HOUR_OF_DAY )*3600f+
+					calendar.get( Calendar.MINUTE )*60f+
+					calendar.get( Calendar.SECOND );
+			}
+
+			GLES20.glUniform4fv(
+				dateTimeLoc,
+				1,
+				dateTime,
+				0 );
+		}
+
+		if( startRandomLoc > -1 )
+			GLES20.glUniform1f(
+				startRandomLoc,
+				startRandom );
 
 		if( fb[0] == 0 )
 			createTargets(
@@ -630,6 +664,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			program, "offset" );
 		batteryLoc = GLES20.glGetUniformLocation(
 			program, "battery" );
+		dateTimeLoc = GLES20.glGetUniformLocation(
+			program, "date" );
+		startRandomLoc = GLES20.glGetUniformLocation(
+			program, "startRandom" );
 		backBufferLoc = GLES20.glGetUniformLocation(
 			program, "backbuffer" );
 

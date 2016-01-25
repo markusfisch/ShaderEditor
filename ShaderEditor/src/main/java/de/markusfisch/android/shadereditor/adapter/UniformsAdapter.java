@@ -59,6 +59,12 @@ public class UniformsAdapter extends BaseAdapter
 				"uniform vec2 offset",
 				context.getString( R.string.wallpaper_offset ) ),
 			new Uniform(
+				"uniform vec4 date",
+				context.getString( R.string.date_time ) ),
+			new Uniform(
+				"uniform float startRandom",
+				context.getString( R.string.start_random ) ),
+			new Uniform(
 				"uniform sampler2D backbuffer",
 				context.getString( R.string.previous_frame ) ),
 		};
