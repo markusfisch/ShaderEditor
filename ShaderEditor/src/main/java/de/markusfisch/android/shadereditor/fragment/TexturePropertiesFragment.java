@@ -13,6 +13,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.view.inputmethod.InputMethodManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -26,11 +28,18 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 public class TexturePropertiesFragment extends Fragment
 {
+	public static final String TEXTURE_NAME = "[a-zA-Z0-9_-]+";
+
 	private static final String IMAGE_URI = "image_uri";
 	private static final String CROP_RECT = "crop_rect";
 	private static final String ROTATION = "rotation";
+	private static final Pattern NAME_PATTERN = Pattern.compile(
+		"^"+TEXTURE_NAME+"$" );
 
 	private static boolean inProgress = false;
 
@@ -121,6 +130,7 @@ public class TexturePropertiesFragment extends Fragment
 		}
 
 		initSizeView();
+		initNameView();
 
 		return view;
 	}
@@ -185,6 +195,27 @@ public class TexturePropertiesFragment extends Fragment
 			"%d x %d",
 			size,
 			size ) );
+	}
+
+	private void initNameView()
+	{
+		nameView.setFilters( new InputFilter[]{
+			new InputFilter()
+			{
+				@Override
+				public CharSequence filter(
+					CharSequence source,
+					int start,
+					int end,
+					Spanned dest,
+					int dstart,
+					int dend )
+				{
+					return NAME_PATTERN
+						.matcher( source )
+						.find() ? null : "";
+				}
+			} } );
 	}
 
 	private void saveTextureAsync()
