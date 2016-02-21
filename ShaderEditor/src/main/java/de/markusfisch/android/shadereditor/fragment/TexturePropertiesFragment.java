@@ -33,7 +33,7 @@ import java.util.regex.Matcher;
 
 public class TexturePropertiesFragment extends Fragment
 {
-	public static final String TEXTURE_NAME = "[a-zA-Z0-9_-]+";
+	public static final String TEXTURE_NAME = "[a-zA-Z0-9_]+";
 
 	private static final String IMAGE_URI = "image_uri";
 	private static final String CROP_RECT = "crop_rect";
@@ -239,7 +239,7 @@ public class TexturePropertiesFragment extends Fragment
 			return;
 		}
 		else if(
-			!name.matches( "[a-zA-Z0-9_]+" ) ||
+			!name.matches( TEXTURE_NAME ) ||
 			name.equals( "backbuffer" ) )
 		{
 			Toast.makeText(
