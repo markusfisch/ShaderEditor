@@ -12,6 +12,12 @@
 		android:largeScreens="true"
 		android:xlargeScreens="true"
 		android:anyDensity="true"/>
+	<!-- Required to import textures on API < 19 from gallery apps
+		that do not use grantUriPermission(); later API's will not
+		see that permission -->
+	<uses-permission
+		android:name="android.permission.READ_EXTERNAL_STORAGE"
+		android:maxSdkVersion="19"/>
 	<uses-feature android:glEsVersion="0x00020000"/>
 	<uses-feature android:name="android.software.live_wallpaper"/>
 	<application
