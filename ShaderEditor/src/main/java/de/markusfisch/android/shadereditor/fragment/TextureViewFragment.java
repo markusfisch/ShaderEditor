@@ -2,12 +2,14 @@ package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.activity.TexturesActivity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.widget.ScalingImageView;
 import de.markusfisch.android.shadereditor.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,6 +31,7 @@ public class TextureViewFragment extends Fragment
 	}
 
 	private long textureId;
+	private String textureName;
 
 	@Override
 	public void onCreate( Bundle state )
@@ -49,8 +52,6 @@ public class TextureViewFragment extends Fragment
 		if( (activity = getActivity()) == null )
 			return null;
 
-		activity.setTitle( R.string.view_texture );
-
 		ScalingImageView imageView;
 
 		try
@@ -67,20 +68,29 @@ public class TextureViewFragment extends Fragment
 		}
 
 		Bundle args;
-		Bitmap bitmap;
+		Cursor cursor;
 
 		if( imageView == null ||
 			(args = getArguments()) == null ||
 			(textureId = args.getLong( TEXTURE_ID )) < 1 ||
-			(bitmap = ShaderEditorApplication
-				.dataSource
-				.getTexture( textureId )) == null )
+			DataSource.closeIfEmpty(
+				(cursor = ShaderEditorApplication
+					.dataSource
+					.getTexture( textureId )) ) )
 		{
 			activity.finish();
 			return null;
 		}
 
-		imageView.setImageBitmap( bitmap );
+		textureName = cursor.getString( cursor.getColumnIndex(
+			DataSource.TEXTURES_NAME ) );
+
+		activity.setTitle( textureName );
+		imageView.setImageBitmap( ShaderEditorApplication
+			.dataSource
+			.getTextureBitmap( cursor ) );
+
+		cursor.close();
 
 		return null;
 	}
@@ -172,9 +182,7 @@ public class TextureViewFragment extends Fragment
 
 		TexturesActivity.setAddUniformResult(
 			activity,
-			ShaderEditorApplication
-				.dataSource
-				.getTextureName( textureId ) );
+			textureName );
 
 		activity.finish();
 	}

@@ -173,19 +173,20 @@ public class DataSource
 		return id;
 	}
 
-	public Bitmap getTexture( long id )
+	public Cursor getTexture( long id )
 	{
-		return getTexture( db.rawQuery(
+		return db.rawQuery(
 			"SELECT "+
+				TEXTURES_NAME+","+
 				TEXTURES_MATRIX+
 				" FROM "+TEXTURES+
 				" WHERE "+TEXTURES_ID+"=\""+id+"\"",
-			null ) );
+			null );
 	}
 
-	public Bitmap getTexture( String name )
+	public Bitmap getTextureBitmap( String name )
 	{
-		return getTexture( db.rawQuery(
+		return getTextureBitmap( db.rawQuery(
 			"SELECT "+
 				TEXTURES_MATRIX+
 				" FROM "+TEXTURES+
@@ -193,7 +194,7 @@ public class DataSource
 			null ) );
 	}
 
-	public Bitmap getTexture( Cursor cursor )
+	public Bitmap getTextureBitmap( Cursor cursor )
 	{
 		if( closeIfEmpty( cursor ) )
 			return null;
@@ -210,26 +211,6 @@ public class DataSource
 		cursor.close();
 
 		return bm;
-	}
-
-	public String getTextureName( long id )
-	{
-		Cursor cursor = db.rawQuery(
-			"SELECT "+
-				TEXTURES_NAME+
-				" FROM "+TEXTURES+
-				" WHERE "+TEXTURES_ID+"=\""+id+"\"",
-			null );
-
-		if( closeIfEmpty( cursor ) )
-			return null;
-
-		String name = cursor.getString(
-			cursor.getColumnIndex( TEXTURES_NAME ) );
-
-		cursor.close();
-
-		return name;
 	}
 
 	public static long insertShader(
