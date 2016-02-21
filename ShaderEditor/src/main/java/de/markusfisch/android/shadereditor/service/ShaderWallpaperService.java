@@ -18,9 +18,15 @@ public class ShaderWallpaperService extends WallpaperService
 	private static ShaderWallpaperEngine engine;
 
 	@Override
-	public final Engine onCreateEngine()
+	public Engine onCreateEngine()
 	{
 		return (engine = new ShaderWallpaperEngine());
+	}
+
+	@Override
+	public void onDestroy()
+	{
+		engine = null;
 	}
 
 	public static void setRenderMode( int renderMode )
