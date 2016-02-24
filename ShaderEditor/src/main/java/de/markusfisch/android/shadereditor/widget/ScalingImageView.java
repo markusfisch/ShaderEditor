@@ -91,6 +91,7 @@ public class ScalingImageView extends ImageView
 			case MotionEvent.ACTION_POINTER_UP:
 				// ignore the pointer that has gone up
 				ignoreIndex = event.getActionIndex();
+				// fall through
 			case MotionEvent.ACTION_DOWN:
 			case MotionEvent.ACTION_POINTER_DOWN:
 				initTransform(
