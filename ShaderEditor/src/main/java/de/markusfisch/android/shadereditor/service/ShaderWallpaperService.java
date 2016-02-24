@@ -143,9 +143,6 @@ public class ShaderWallpaperService extends WallpaperService
 				return;
 			}
 
-			if( view == null )
-				return;
-
 			Cursor cursor = ShaderEditorApplication
 				.dataSource
 				.getShader( ShaderEditorApplication
@@ -176,8 +173,6 @@ public class ShaderWallpaperService extends WallpaperService
 						cursor.getColumnIndex(
 							DataSource.SHADERS_ID ) ) );
 
-			// check view again to make sure it hasn't
-			// been destroyed; is that even possible?
 			if( view == null )
 				return;
 
