@@ -29,7 +29,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 public class TexturePropertiesFragment extends Fragment
 {
