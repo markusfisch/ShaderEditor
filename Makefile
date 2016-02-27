@@ -6,7 +6,7 @@ all: debug install start
 debug:
 	./gradlew assembleDebug
 
-release:
+release: lint
 	@./gradlew assembleRelease \
 		-Pandroid.injected.signing.store.file=$(ANDROID_KEYFILE) \
 		-Pandroid.injected.signing.store.password=$(ANDROID_STORE_PASSWORD) \
