@@ -10,6 +10,8 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -35,13 +37,12 @@ public class DataSource
 	public static final String TEXTURES_MATRIX = "matrix";
 
 	private SQLiteDatabase db;
-	private OpenHelper helper;
 	private Context context;
 	private int textureThumbnailSize;
 
 	public DataSource( Context context )
 	{
-		helper = new OpenHelper( context );
+		this.context = context;
 
 		textureThumbnailSize = Math.round(
 			context
@@ -49,23 +50,14 @@ public class DataSource
 				.getDisplayMetrics()
 				.density*48f );
 
-		this.context = context;
+		openAsync(
+			new OpenHelper( context ),
+			context );
 	}
 
 	public boolean isOpen()
 	{
 		return db != null;
-	}
-
-	public boolean open() throws SQLException
-	{
-		return (db = helper.getWritableDatabase()) != null;
-	}
-
-	public void close()
-	{
-		helper.close();
-		db = null;
 	}
 
 	public static boolean closeIfEmpty( Cursor cursor )
@@ -460,6 +452,39 @@ public class DataSource
 				context.getResources(),
 				R.drawable.texture_noise ),
 			textureThumbnailSize );
+	}
+
+	private void openAsync(
+		final OpenHelper helper,
+		final Context context )
+	{
+		new AsyncTask<Void, Void, Boolean>()
+		{
+			@Override
+			protected Boolean doInBackground( Void... nothings )
+			{
+				try
+				{
+					return (db = helper.getWritableDatabase()) != null;
+				}
+				catch( SQLException e )
+				{
+					return false;
+				}
+			}
+
+			@Override
+			protected void onPostExecute( Boolean success )
+			{
+				if( success )
+					return;
+
+				Toast.makeText(
+					context,
+					R.string.cannot_open_database,
+					Toast.LENGTH_LONG ).show();
+			}
+		}.execute();
 	}
 
 	private class OpenHelper extends SQLiteOpenHelper
