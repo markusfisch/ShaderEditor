@@ -38,7 +38,7 @@ public class InfoLog
 			{
 				try
 				{
-					errorLine = Integer.valueOf(
+					errorLine = Integer.parseInt(
 						infoLog.substring( from, to ).trim() );
 				}
 				catch( NumberFormatException e )
