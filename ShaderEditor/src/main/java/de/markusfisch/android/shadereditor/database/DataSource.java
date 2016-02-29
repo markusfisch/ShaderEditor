@@ -345,14 +345,14 @@ public class DataSource
 
 	private String loadRawResource( int id ) throws IOException
 	{
-		InputStream in = context.getResources().openRawResource( id );
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		byte[] buf = new byte[1024];
+		InputStream in = context
+			.getResources()
+			.openRawResource( id );
 
-		for( int r; (r = in.read( buf )) != -1; )
-			out.write( buf, 0, r );
+		byte b[] = new byte[in.available()];
+		in.read( b );
 
-		return out.toString();
+		return new String( b );
 	}
 
 	private byte[] loadBitmapResource( int id )
