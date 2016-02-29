@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -39,7 +38,6 @@ public class CropImageFragment extends Fragment
 	private View progressView;
 	private Uri imageUri;
 	private Bitmap bitmap;
-	private Rect rect;
 
 	public static Bitmap getBitmapFromUri(
 		Context context,

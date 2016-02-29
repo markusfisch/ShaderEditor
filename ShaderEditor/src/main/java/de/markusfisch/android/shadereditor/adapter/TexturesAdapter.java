@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 public class TexturesAdapter extends CursorAdapter
 {
-	private int idIndex;
 	private int nameIndex;
 	private int thumbIndex;
 
@@ -87,8 +86,6 @@ public class TexturesAdapter extends CursorAdapter
 
 	private void indexColumns( Cursor cursor )
 	{
-		idIndex = cursor.getColumnIndex(
-			DataSource.TEXTURES_ID );
 		nameIndex = cursor.getColumnIndex(
 			DataSource.TEXTURES_NAME );
 		thumbIndex = cursor.getColumnIndex(
