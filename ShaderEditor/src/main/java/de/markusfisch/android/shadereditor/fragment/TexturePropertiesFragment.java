@@ -317,8 +317,6 @@ public class TexturePropertiesFragment extends Fragment
 		if( bitmap == null )
 			return 0;
 
-		System.gc();
-
 		try
 		{
 			if( rotation % 360 != 0 )
