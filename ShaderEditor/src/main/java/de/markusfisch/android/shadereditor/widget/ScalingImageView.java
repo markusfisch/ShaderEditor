@@ -345,7 +345,7 @@ public class ScalingImageView extends ImageView
 		return false;
 	}
 
-	private class Gesture
+	private static class Gesture
 	{
 		public float length;
 		public float pivotX;
