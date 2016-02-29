@@ -1,9 +1,12 @@
 package de.markusfisch.android.shadereditor.preference;
 
+import de.markusfisch.android.shadereditor.R;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.SensorManager;
-import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.preference.PreferenceManager;
 
 import java.lang.NumberFormatException;
 
@@ -31,9 +34,21 @@ public class Preferences
 	private int textSize = 12;
 	private boolean showInsertTab = true;
 	private boolean saveOnRun = true;
+	private boolean batteryLow = false;
+	private int systemBarColor;
 
-	public Preferences( Context context )
+	public void init( Context context )
 	{
+		systemBarColor =
+			ContextCompat.getColor(
+				context,
+				R.color.primary_dark_translucent );
+
+		PreferenceManager.setDefaultValues(
+			context,
+			R.xml.preferences,
+			false );
+
 		preferences = PreferenceManager
 			.getDefaultSharedPreferences( context );
 
@@ -127,6 +142,21 @@ public class Preferences
 			WALLPAPER_SHADER,
 			String.valueOf( wallpaperShaderId ) );
 		editor.apply();
+	}
+
+	public boolean isBatteryLow()
+	{
+		return batteryLow;
+	}
+
+	public void setBatteryLow( boolean isLow )
+	{
+		batteryLow = isLow;
+	}
+
+	public int getSystemBarColor()
+	{
+		return systemBarColor;
 	}
 
 	public static int parseInt( String s, int preset )

@@ -77,7 +77,9 @@ public class MainActivity
 	{
 		if( setSystemBarColor(
 				activity.getWindow(),
-				ShaderEditorApplication.systemBarColor,
+				ShaderEditorApplication
+					.preferences
+					.getSystemBarColor(),
 				true ) )
 			activity.findViewById( R.id.main_layout ).setPadding(
 				0,

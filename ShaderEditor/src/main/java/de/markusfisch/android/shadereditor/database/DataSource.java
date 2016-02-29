@@ -40,7 +40,7 @@ public class DataSource
 	private Context context;
 	private int textureThumbnailSize;
 
-	public DataSource( Context context )
+	public void init( Context context )
 	{
 		this.context = context;
 

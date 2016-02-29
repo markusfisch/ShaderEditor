@@ -173,14 +173,14 @@ public class ShaderWallpaperService extends WallpaperService
 						cursor.getColumnIndex(
 							DataSource.SHADERS_ID ) ) );
 
-			if( view == null )
-				return;
+			if( view != null )
+				view.getRenderer().setFragmentShader(
+					cursor.getString( cursor.getColumnIndex(
+						DataSource.SHADERS_FRAGMENT_SHADER ) ),
+					cursor.getFloat( cursor.getColumnIndex(
+						DataSource.SHADERS_QUALITY ) ) );
 
-			view.getRenderer().setFragmentShader(
-				cursor.getString( cursor.getColumnIndex(
-					DataSource.SHADERS_FRAGMENT_SHADER ) ),
-				cursor.getFloat( cursor.getColumnIndex(
-					DataSource.SHADERS_QUALITY ) ) );
+			cursor.close();
 		}
 
 		private class ShaderWallpaperView extends ShaderView
@@ -189,7 +189,7 @@ public class ShaderWallpaperService extends WallpaperService
 			{
 				super(
 					ShaderWallpaperService.this,
-					ShaderEditorApplication.batteryLow ?
+					ShaderEditorApplication.preferences.isBatteryLow() ?
 						GLSurfaceView.RENDERMODE_WHEN_DIRTY :
 						GLSurfaceView.RENDERMODE_CONTINUOUSLY );
 			}

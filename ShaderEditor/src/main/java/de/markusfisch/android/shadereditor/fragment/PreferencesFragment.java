@@ -68,7 +68,7 @@ public class PreferencesFragment
 		setSummary( preference );
 
 		if( Preferences.SAVE_BATTERY.equals( key ) &&
-			ShaderEditorApplication.batteryLow )
+			ShaderEditorApplication.preferences.isBatteryLow() )
 			BatteryLevelReceiver.saveBattery(
 				ShaderEditorApplication
 					.preferences

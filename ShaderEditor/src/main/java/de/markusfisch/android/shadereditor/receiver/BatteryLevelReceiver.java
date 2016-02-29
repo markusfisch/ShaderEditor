@@ -33,7 +33,9 @@ public class BatteryLevelReceiver extends BroadcastReceiver
 			// render mode because the preference may
 			// have changed while battery is low
 
-		ShaderEditorApplication.batteryLow = low;
+		ShaderEditorApplication
+			.preferences
+			.setBatteryLow( low );
 
 		ShaderWallpaperService.setRenderMode( low ?
 			GLSurfaceView.RENDERMODE_WHEN_DIRTY :
