@@ -5,6 +5,7 @@ import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.opengl.GLSurfaceView;
@@ -15,24 +16,32 @@ import android.view.SurfaceHolder;
 
 public class ShaderWallpaperService extends WallpaperService
 {
-	private static ShaderWallpaperEngine engine;
+	public static final String RENDER_MODE = "render_mode";
+
+	private ShaderWallpaperEngine engine;
+
+	@Override
+	public int onStartCommand(
+		Intent intent,
+		int flags,
+		int startId )
+	{
+		if( intent != null &&
+			engine != null )
+		{
+			int renderMode = intent.getIntExtra( RENDER_MODE, -1 );
+
+			if( renderMode > -1 )
+				engine.setRenderMode( renderMode );
+		}
+
+		return super.onStartCommand( intent, flags, startId );
+	}
 
 	@Override
 	public Engine onCreateEngine()
 	{
 		return (engine = new ShaderWallpaperEngine());
-	}
-
-	@Override
-	public void onDestroy()
-	{
-		engine = null;
-	}
-
-	public static void setRenderMode( int renderMode )
-	{
-		if( engine != null )
-			engine.setRenderMode( renderMode );
 	}
 
 	private class ShaderWallpaperEngine
