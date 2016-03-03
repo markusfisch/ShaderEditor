@@ -16,6 +16,9 @@ release: lint
 lint:
 	./gradlew lintDebug
 
+findbugs:
+	./gradlew findBugs
+
 install:
 	adb $(TARGET) install -rk $(APK)
 
