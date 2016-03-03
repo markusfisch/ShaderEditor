@@ -575,6 +575,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	public byte[] getThumbnail()
 	{
+		// settings thumbnail to null triggers
+		// the capture on the OpenGL thread in
+		// onDrawFrame()
 		thumbnail = null;
 
 		try
@@ -590,6 +593,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			// thread got interrupted, ignore that
 		}
 
+		// don't clone() because the data doesn't need to be
+		// protected from modification what means copying would
+		// only mean using more memory than necessary
 		return thumbnail;
 	}
 
