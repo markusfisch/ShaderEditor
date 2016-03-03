@@ -258,14 +258,17 @@ public class MainActivity
 		// update fps, info log and thumbnail after shader ran
 		if( requestCode == PREVIEW_SHADER )
 		{
-			if( PreviewActivity.fps > 0 )
-				postUpdateFps( PreviewActivity.fps );
+			PreviewActivity.RenderStatus status =
+				PreviewActivity.renderStatus;
 
-			if( PreviewActivity.infoLog != null )
-				postInfoLog( PreviewActivity.infoLog );
+			if( status.fps > 0 )
+				postUpdateFps( status.fps );
+
+			if( status.infoLog != null )
+				postInfoLog( status.infoLog );
 
 			if( selectedShaderId > 0 &&
-				PreviewActivity.thumbnail != null &&
+				status.thumbnail != null &&
 				ShaderEditorApplication
 					.preferences
 					.doesSaveOnRun() )
@@ -703,7 +706,7 @@ public class MainActivity
 			return;
 
 		// don't use an old thumbnail
-		PreviewActivity.reset();
+		PreviewActivity.renderStatus.reset();
 
 		// consume this intent; this is necessary because
 		// a orientation change will start a new activity
@@ -753,7 +756,7 @@ public class MainActivity
 			// don't save the old thumbnail;
 			// onActivityResult() will add an
 			// updated one
-			PreviewActivity.reset();
+			PreviewActivity.renderStatus.reset();
 
 			saveShader( selectedShaderId );
 		}
@@ -777,7 +780,7 @@ public class MainActivity
 				.preferences
 				.doesRunInBackground() ?
 					shaderView.getRenderer().getThumbnail() :
-					PreviewActivity.thumbnail;
+					PreviewActivity.renderStatus.thumbnail;
 
 		if( id > 0 )
 			ShaderEditorApplication
@@ -934,7 +937,7 @@ public class MainActivity
 	private void selectShader( long id )
 	{
 		// remove thumbnail from previous shader
-		PreviewActivity.reset();
+		PreviewActivity.renderStatus.reset();
 
 		if( (selectedShaderId = loadShader( id )) < 1 )
 		{

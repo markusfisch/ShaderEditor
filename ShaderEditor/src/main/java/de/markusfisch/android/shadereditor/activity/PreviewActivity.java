@@ -9,12 +9,28 @@ import android.support.v7.app.AppCompatActivity;
 
 public class PreviewActivity extends AppCompatActivity
 {
+	public static class RenderStatus
+	{
+		public volatile int fps;
+		public volatile String infoLog;
+		public byte thumbnail[];
+
+		public RenderStatus()
+		{
+			reset();
+		}
+
+		public void reset()
+		{
+			fps = 0;
+			infoLog = null;
+			thumbnail = null;
+		}
+	}
+
 	public static final String FRAGMENT_SHADER = "fragment_shader";
 	public static final String QUALITY = "quality";
-
-	public static volatile int fps;
-	public static volatile String infoLog;
-	public static byte thumbnail[];
+	public static final RenderStatus renderStatus = new RenderStatus();
 
 	private final Runnable finishRunnable =
 		new Runnable()
@@ -34,7 +50,7 @@ public class PreviewActivity extends AppCompatActivity
 				if( shaderView == null )
 					return;
 
-				thumbnail = shaderView
+				renderStatus.thumbnail = shaderView
 					.getRenderer()
 					.getThumbnail();
 			}
@@ -42,19 +58,12 @@ public class PreviewActivity extends AppCompatActivity
 
 	private ShaderView shaderView;
 
-	public static void reset()
-	{
-		fps = 0;
-		infoLog = null;
-		thumbnail = null;
-	}
-
 	@Override
 	protected void onCreate( Bundle state )
 	{
 		super.onCreate( state );
 
-		reset();
+		renderStatus.reset();
 
 		Intent intent = getIntent();
 		String fragmentShader;
@@ -78,14 +87,14 @@ public class PreviewActivity extends AppCompatActivity
 				public void onFramesPerSecond( int fps )
 				{
 					// invoked from the GL thread
-					PreviewActivity.this.fps = fps;
+					renderStatus.fps = fps;
 				}
 
 				@Override
 				public void onInfoLog( String infoLog )
 				{
 					// invoked from the GL thread
-					PreviewActivity.this.infoLog = infoLog;
+					renderStatus.infoLog = infoLog;
 					runOnUiThread( finishRunnable );
 				}
 			} );
@@ -105,7 +114,7 @@ public class PreviewActivity extends AppCompatActivity
 
 		shaderView.onResume();
 
-		thumbnail = null;
+		renderStatus.reset();
 		shaderView.postDelayed(
 			thumbnailRunnable,
 			500 );
