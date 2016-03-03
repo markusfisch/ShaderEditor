@@ -352,7 +352,7 @@ public class DataSource
 		byte b[] = new byte[in.available()];
 		in.read( b );
 
-		return new String( b );
+		return new String( b, "UTF-8" );
 	}
 
 	private byte[] loadBitmapResource( int id )
