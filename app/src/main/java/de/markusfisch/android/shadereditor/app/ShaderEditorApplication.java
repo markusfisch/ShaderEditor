@@ -16,6 +16,6 @@ public class ShaderEditorApplication extends Application
 		super.onCreate();
 
 		preferences.init( this );
-		dataSource.init( this );
+		dataSource.openAsync( this );
 	}
 }

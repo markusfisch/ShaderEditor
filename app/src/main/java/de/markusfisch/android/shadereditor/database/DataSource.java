@@ -40,7 +40,7 @@ public class DataSource
 	private Context context;
 	private int textureThumbnailSize;
 
-	public void init( Context context )
+	public void openAsync( final Context context )
 	{
 		this.context = context;
 
@@ -50,9 +50,35 @@ public class DataSource
 				.getDisplayMetrics()
 				.density*48f );
 
-		openAsync(
-			new OpenHelper( context ),
-			context );
+		final OpenHelper helper = new OpenHelper( context );
+
+		new AsyncTask<Void, Void, Boolean>()
+		{
+			@Override
+			protected Boolean doInBackground( Void... nothings )
+			{
+				try
+				{
+					return (db = helper.getWritableDatabase()) != null;
+				}
+				catch( SQLException e )
+				{
+					return false;
+				}
+			}
+
+			@Override
+			protected void onPostExecute( Boolean success )
+			{
+				if( success )
+					return;
+
+				Toast.makeText(
+					context,
+					R.string.cannot_open_database,
+					Toast.LENGTH_LONG ).show();
+			}
+		}.execute();
 	}
 
 	public boolean isOpen()
@@ -452,39 +478,6 @@ public class DataSource
 				context.getResources(),
 				R.drawable.texture_noise ),
 			textureThumbnailSize );
-	}
-
-	private void openAsync(
-		final OpenHelper helper,
-		final Context context )
-	{
-		new AsyncTask<Void, Void, Boolean>()
-		{
-			@Override
-			protected Boolean doInBackground( Void... nothings )
-			{
-				try
-				{
-					return (db = helper.getWritableDatabase()) != null;
-				}
-				catch( SQLException e )
-				{
-					return false;
-				}
-			}
-
-			@Override
-			protected void onPostExecute( Boolean success )
-			{
-				if( success )
-					return;
-
-				Toast.makeText(
-					context,
-					R.string.cannot_open_database,
-					Toast.LENGTH_LONG ).show();
-			}
-		}.execute();
 	}
 
 	private class OpenHelper extends SQLiteOpenHelper
