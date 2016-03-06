@@ -1,0 +1,22 @@
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+	<string-array name="tab_width_names">
+		<item>Do not style tab characters</item>
+		<item>2 characters</item>
+		<item>3 characters</item>
+		<item>4 characters</item>
+		<item>5 characters</item>
+		<item>6 characters</item>
+		<item>7 characters</item>
+		<item>8 characters</item>
+	</string-array>
+	<string-array name="tab_width_values">
+		<item>0</item>
+		<item>2</item>
+		<item>3</item>
+		<item>4</item>
+		<item>5</item>
+		<item>6</item>
+		<item>7</item>
+		<item>8</item>
+	</string-array>
+</resources>

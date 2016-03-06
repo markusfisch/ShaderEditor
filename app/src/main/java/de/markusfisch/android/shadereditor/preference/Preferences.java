@@ -18,6 +18,7 @@ public class Preferences
 	public static final String UPDATE_DELAY = "update_delay";
 	public static final String SENSOR_DELAY = "sensor_delay";
 	public static final String TEXT_SIZE = "text_size";
+	public static final String TAB_WIDTH = "tab_width";
 	public static final String SHOW_INSERT_TAB = "show_insert_tab";
 	public static final String SAVE_ON_RUN = "save_on_run";
 
@@ -32,6 +33,7 @@ public class Preferences
 	private int updateDelay = 1000;
 	private int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
 	private int textSize = 12;
+	private int tabWidth = 4;
 	private boolean showInsertTab = true;
 	private boolean saveOnRun = true;
 	private boolean batteryLow = false;
@@ -80,6 +82,9 @@ public class Preferences
 		textSize = parseInt(
 			preferences.getString( TEXT_SIZE, null ),
 			textSize );
+		tabWidth = parseInt(
+			preferences.getString( TAB_WIDTH, null ),
+			tabWidth );
 		showInsertTab = preferences.getBoolean(
 			SHOW_INSERT_TAB,
 			showInsertTab );
@@ -116,6 +121,11 @@ public class Preferences
 	public int getTextSize()
 	{
 		return textSize;
+	}
+
+	public int getTabWidth()
+	{
+		return tabWidth;
 	}
 
 	public boolean doesShowInsertTab()

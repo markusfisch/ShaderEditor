@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.opengl.InfoLog;
+import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.R;
 
@@ -76,11 +77,7 @@ public class EditorFragment extends Fragment
 	{
 		super.onResume();
 
-		shaderEditor.setTextSize(
-			android.util.TypedValue.COMPLEX_UNIT_SP,
-			ShaderEditorApplication
-				.preferences
-				.getTextSize() );
+		updateToPreferences();
 	}
 
 	public void hideError()
@@ -155,6 +152,22 @@ public class EditorFragment extends Fragment
 				0 );
 
 		return visible;
+	}
+
+	private void updateToPreferences()
+	{
+		Preferences preferences =
+			ShaderEditorApplication.preferences;
+
+		shaderEditor.setUpdateDelay(
+			preferences.getUpdateDelay() );
+
+		shaderEditor.setTextSize(
+			android.util.TypedValue.COMPLEX_UNIT_SP,
+			preferences.getTextSize() );
+
+		shaderEditor.setTabWidth(
+			preferences.getTabWidth() );
 	}
 
 	private int getYOffset( Activity activity )

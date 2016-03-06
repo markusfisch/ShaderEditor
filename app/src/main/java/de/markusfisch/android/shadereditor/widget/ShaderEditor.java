@@ -4,6 +4,8 @@ import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
@@ -14,6 +16,7 @@ import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
@@ -88,6 +91,8 @@ public class ShaderEditor extends EditText
 	private int colorKeyword;
 	private int colorBuiltin;
 	private int colorComment;
+	private int tabWidthInCharacters = 0;
+	private int tabWidth = 0;
 
 	public ShaderEditor( Context context )
 	{
@@ -111,6 +116,17 @@ public class ShaderEditor extends EditText
 	public void setUpdateDelay( int ms )
 	{
 		updateDelay = ms;
+	}
+
+	public void setTabWidth( int characters )
+	{
+		if( tabWidthInCharacters == characters )
+			return;
+
+		tabWidthInCharacters = characters;
+		tabWidth = (int)Math.round(
+			getPaint().measureText( "m" )*
+			characters );
 	}
 
 	public void setErrorLine( int line )
@@ -244,6 +260,9 @@ public class ShaderEditor extends EditText
 		addTextChangedListener(
 			new TextWatcher()
 			{
+				private int start = 0;
+				private int count = 0;
+
 				@Override
 				public void onTextChanged(
 					CharSequence s,
@@ -251,6 +270,8 @@ public class ShaderEditor extends EditText
 					int before,
 					int count )
 				{
+					this.start = start;
+					this.count = count;
 				}
 
 				@Override
@@ -266,6 +287,7 @@ public class ShaderEditor extends EditText
 				public void afterTextChanged( Editable e )
 				{
 					cancelUpdate();
+					convertTabs( e, start, count );
 
 					if( !modified )
 						return;
@@ -278,10 +300,14 @@ public class ShaderEditor extends EditText
 			} );
 
 		setSyntaxColors( context );
-
-		updateDelay = ShaderEditorApplication
-			.preferences
-			.getUpdateDelay();
+		setUpdateDelay(
+			ShaderEditorApplication
+				.preferences
+				.getUpdateDelay() );
+		setTabWidth(
+			ShaderEditorApplication
+				.preferences
+				.getTabWidth() );
 	}
 
 	private void setSyntaxColors( Context context )
@@ -500,5 +526,50 @@ public class ShaderEditor extends EditText
 
 		// append white space of previous line and new indent
 		return source+indent;
+	}
+
+	public void convertTabs( Editable e, int start, int count )
+	{
+		if( tabWidth < 1 )
+			return;
+
+		String s = e.toString();
+
+		for( int stop = start+count;
+			(start = s.indexOf( "\t", start )) > -1 && start < stop;
+			++start )
+			e.setSpan(
+				new TabWidthSpan(),
+				start,
+				start+1,
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
+	}
+
+	private class TabWidthSpan extends ReplacementSpan
+	{
+		@Override
+		public int getSize(
+			Paint paint,
+			CharSequence text,
+			int start,
+			int end,
+			Paint.FontMetricsInt fm)
+		{
+			return tabWidth;
+		}
+
+		@Override
+		public void draw(
+			Canvas canvas,
+			CharSequence text,
+			int start,
+			int end,
+			float x,
+			int top,
+			int y,
+			int bottom,
+			Paint paint )
+		{
+		}
 	}
 }
