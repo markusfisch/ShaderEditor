@@ -31,7 +31,6 @@ public class ShaderEditorApplication extends Application
 			StrictMode.setVmPolicy(
 				new StrictMode.VmPolicy.Builder()
 					.detectLeakedSqlLiteObjects()
-					.detectLeakedClosableObjects()
 					.penaltyLog()
 					.penaltyDeath()
 					.build() );

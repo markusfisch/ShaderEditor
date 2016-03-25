@@ -500,7 +500,7 @@ public class MainActivity
 			};
 
 		drawerToggle.setDrawerIndicatorEnabled( true );
-		drawerLayout.setDrawerListener( drawerToggle );
+		drawerLayout.addDrawerListener( drawerToggle );
 	}
 
 	private void initListView()
