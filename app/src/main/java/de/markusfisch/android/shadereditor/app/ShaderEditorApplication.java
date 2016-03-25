@@ -2,8 +2,10 @@ package de.markusfisch.android.shadereditor.app;
 
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.preference.Preferences;
+import de.markusfisch.android.shadereditor.BuildConfig;
 
 import android.app.Application;
+import android.os.StrictMode;
 
 public class ShaderEditorApplication extends Application
 {
@@ -17,5 +19,22 @@ public class ShaderEditorApplication extends Application
 
 		preferences.init( this );
 		dataSource.openAsync( this );
+
+		if( BuildConfig.DEBUG )
+		{
+			StrictMode.setThreadPolicy(
+				new StrictMode.ThreadPolicy.Builder()
+					.detectAll()
+					.penaltyLog()
+					.build() );
+
+			StrictMode.setVmPolicy(
+				new StrictMode.VmPolicy.Builder()
+					.detectLeakedSqlLiteObjects()
+					.detectLeakedClosableObjects()
+					.penaltyLog()
+					.penaltyDeath()
+					.build() );
+		}
 	}
 }
