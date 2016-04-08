@@ -4,7 +4,7 @@ apply plugin: 'findbugs'
 android
 {
 	compileSdkVersion 23
-	buildToolsVersion "23.0.2"
+	buildToolsVersion "23.0.3"
 
 	defaultConfig
 	{
