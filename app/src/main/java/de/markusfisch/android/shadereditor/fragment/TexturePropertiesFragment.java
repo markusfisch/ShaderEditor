@@ -28,6 +28,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 public class TexturePropertiesFragment extends Fragment
@@ -189,6 +190,7 @@ public class TexturePropertiesFragment extends Fragment
 		int size = getPower( power );
 
 		sizeView.setText( String.format(
+			Locale.US,
 			"%d x %d",
 			size,
 			size ) );
