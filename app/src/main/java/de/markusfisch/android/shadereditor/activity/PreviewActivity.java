@@ -64,22 +64,14 @@ public class PreviewActivity extends AppCompatActivity
 		super.onCreate( state );
 
 		renderStatus.reset();
+		shaderView = new ShaderView( this );
 
-		Intent intent = getIntent();
-		String fragmentShader;
-
-		if( (intent = getIntent()) == null ||
-			(fragmentShader = intent.getStringExtra(
-				FRAGMENT_SHADER )) == null )
+		if( !setShaderFromIntent( getIntent() ) )
 		{
 			finish();
 			return;
 		}
 
-		float quality = intent.getFloatExtra( QUALITY, 1f );
-
-		shaderView = new ShaderView( this );
-		shaderView.setFragmentShader( fragmentShader, quality );
 		shaderView.getRenderer().setOnRendererListener(
 			new ShaderRenderer.OnRendererListener()
 			{
@@ -108,6 +100,15 @@ public class PreviewActivity extends AppCompatActivity
 	}
 
 	@Override
+	protected void onNewIntent( Intent intent )
+	{
+		super.onNewIntent( intent );
+
+		if( !setShaderFromIntent( intent ) )
+			finish();
+	}
+
+	@Override
 	protected void onResume()
 	{
 		super.onResume();
@@ -126,5 +127,22 @@ public class PreviewActivity extends AppCompatActivity
 		super.onPause();
 
 		shaderView.onPause();
+	}
+
+	private boolean setShaderFromIntent( Intent intent )
+	{
+		String fragmentShader;
+
+		if( intent == null ||
+			shaderView == null ||
+			(fragmentShader = intent.getStringExtra(
+				FRAGMENT_SHADER )) == null )
+			return false;
+
+		shaderView.setFragmentShader(
+			fragmentShader,
+			intent.getFloatExtra( QUALITY, 1f ) );
+
+		return true;
 	}
 }

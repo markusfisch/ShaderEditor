@@ -77,7 +77,8 @@
 		</activity>
 		<activity
 			android:name=".activity.PreviewActivity"
-			android:label="@string/preview"/>
+			android:label="@string/preview"
+			android:documentLaunchMode="intoExisting"/>
 		<activity
 			android:name=".activity.PreferencesActivity"
 			android:label="@string/preferences"
