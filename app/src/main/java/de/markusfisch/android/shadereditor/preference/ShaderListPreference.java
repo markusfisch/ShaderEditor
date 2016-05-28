@@ -12,7 +12,7 @@ public class ShaderListPreference extends ListPreference
 	{
 		super( context, attrs );
 
-		// is never used
+		// never used
 		setEntries( dummy );
 		setEntryValues( dummy );
 	}

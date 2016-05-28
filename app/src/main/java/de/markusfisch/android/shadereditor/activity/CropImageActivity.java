@@ -43,7 +43,7 @@ public class CropImageActivity
 		setContentView( R.layout.activity_crop_image );
 
 		if( (cropImageView = (CropImageView)findViewById(
-			R.id.texture_image )) == null )
+			R.id.crop_image_view )) == null )
 		{
 			finish();
 			return;
@@ -53,27 +53,8 @@ public class CropImageActivity
 		AbstractSubsequentActivity.initToolbar( this );
 
 		if( state == null )
-			setFragmentForIntent( getIntent() );
-	}
-
-	private void setFragmentForIntent( Intent intent )
-	{
-		if( intent == null )
-		{
-			finish();
-			return;
-		}
-
-		CropImageFragment fragment =
-			new CropImageFragment();
-
-		fragment.setArguments(
-			intent.getExtras() );
-
-		getSupportFragmentManager().beginTransaction()
-			.replace(
-				R.id.content_frame,
-				fragment )
-			.commit();
+			setFragmentForIntent(
+				new CropImageFragment(),
+				getIntent() );
 	}
 }

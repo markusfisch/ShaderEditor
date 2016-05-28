@@ -4,7 +4,6 @@ import de.markusfisch.android.shadereditor.fragment.TextureViewFragment;
 import de.markusfisch.android.shadereditor.widget.ScalingImageView;
 import de.markusfisch.android.shadereditor.R;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 public class TextureViewActivity
@@ -26,7 +25,7 @@ public class TextureViewActivity
 		setContentView( R.layout.activity_view_texture );
 
 		if( (scalingImageView = (ScalingImageView)findViewById(
-			R.id.texture_image )) == null )
+			R.id.scaling_image_view )) == null )
 		{
 			finish();
 			return;
@@ -36,27 +35,8 @@ public class TextureViewActivity
 		AbstractSubsequentActivity.initToolbar( this );
 
 		if( state == null )
-			setFragmentForIntent( getIntent() );
-	}
-
-	private void setFragmentForIntent( Intent intent )
-	{
-		if( intent == null )
-		{
-			finish();
-			return;
-		}
-
-		TextureViewFragment fragment =
-			new TextureViewFragment();
-
-		fragment.setArguments(
-			intent.getExtras() );
-
-		getSupportFragmentManager().beginTransaction()
-			.replace(
-				R.id.content_frame,
-				fragment )
-			.commit();
+			setFragmentForIntent(
+				new TextureViewFragment(),
+				getIntent() );
 	}
 }

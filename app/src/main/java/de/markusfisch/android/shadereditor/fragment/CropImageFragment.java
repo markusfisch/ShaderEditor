@@ -1,14 +1,12 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 import de.markusfisch.android.shadereditor.widget.CropImageView;
 import de.markusfisch.android.shadereditor.R;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -21,15 +19,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import java.io.IOException;
-
 public class CropImageFragment extends Fragment
 {
 	public static final String IMAGE_URI = "image_uri";
 
 	public interface CropImageViewProvider
 	{
-		public CropImageView getCropImageView();
+		CropImageView getCropImageView();
 	}
 
 	private static boolean inProgress = false;
@@ -38,41 +34,6 @@ public class CropImageFragment extends Fragment
 	private View progressView;
 	private Uri imageUri;
 	private Bitmap bitmap;
-
-	public static Bitmap getBitmapFromUri(
-		Context context,
-		Uri uri,
-		int maxSize )
-	{
-		try
-		{
-			AssetFileDescriptor fd = context
-				.getContentResolver()
-				.openAssetFileDescriptor( uri, "r" );
-
-			BitmapFactory.Options options =
-				new BitmapFactory.Options();
-			options.inSampleSize = getSampleSizeForBitmap(
-				fd,
-				maxSize,
-				maxSize );
-
-			return BitmapFactory.decodeFileDescriptor(
-				fd.getFileDescriptor(),
-				null,
-				options );
-		}
-		catch( SecurityException e )
-		{
-			// fall through
-		}
-		catch( IOException e )
-		{
-			// fall through
-		}
-
-		return null;
-	}
 
 	@Override
 	public void onCreate( Bundle state )
@@ -113,7 +74,7 @@ public class CropImageFragment extends Fragment
 
 		if( cropImageView == null ||
 			(args = getArguments()) == null ||
-			(imageUri = (Uri)args.getParcelable(
+			(imageUri = args.getParcelable(
 				IMAGE_URI )) == null ||
 			(view = inflater.inflate(
 				R.layout.fragment_crop_image,
@@ -126,6 +87,7 @@ public class CropImageFragment extends Fragment
 			return null;
 		}
 
+		// make cropImageView in activity visible (again)
 		cropImageView.setVisibility( View.VISIBLE );
 
 		return view;
@@ -163,51 +125,6 @@ public class CropImageFragment extends Fragment
 		}
 	}
 
-	private static int getSampleSizeForBitmap(
-		AssetFileDescriptor fd,
-		int maxWidth,
-		int maxHeight )
-	{
-		BitmapFactory.Options options =
-			new BitmapFactory.Options();
-
-		options.inJustDecodeBounds = true;
-
-		BitmapFactory.decodeFileDescriptor(
-			fd.getFileDescriptor(),
-			null,
-			options );
-
-		return calculateSampleSize(
-			options.outWidth,
-			options.outHeight,
-			maxWidth,
-			maxHeight );
-	}
-
-	private static int calculateSampleSize(
-		int width,
-		int height,
-		int maxWidth,
-		int maxHeight )
-	{
-		int size = 1;
-
-		if( width > maxWidth ||
-			height > maxHeight )
-		{
-			final int hw = width/2;
-			final int hh = height/2;
-
-			while(
-				hw/size > maxWidth &&
-				hh/size > maxHeight )
-				size *= 2;
-		}
-
-		return size;
-	}
-
 	private void loadBitmapAsync()
 	{
 		final Activity activity = getActivity();
@@ -224,7 +141,7 @@ public class CropImageFragment extends Fragment
 			@Override
 			protected Bitmap doInBackground( Void... nothings )
 			{
-				return getBitmapFromUri(
+				return BitmapEditor.getBitmapFromUri(
 					activity,
 					imageUri,
 					1024 );
@@ -257,7 +174,7 @@ public class CropImageFragment extends Fragment
 	{
 		AbstractSubsequentActivity.addFragment(
 			getFragmentManager(),
-			TexturePropertiesFragment.newInstance(
+			Sampler2dPropertiesFragment.newInstance(
 				imageUri,
 				cropImageView.getNormalizedRectInBounds(),
 				cropImageView.getImageRotation() ) );

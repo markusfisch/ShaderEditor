@@ -1,7 +1,7 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.UniformsActivity;
-import de.markusfisch.android.shadereditor.adapter.UniformsAdapter;
+import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
+import de.markusfisch.android.shadereditor.adapter.PresetUniformAdapter;
 import de.markusfisch.android.shadereditor.R;
 
 import android.app.Activity;
@@ -14,9 +14,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-public class UniformsFragment extends Fragment
+public class UniformPresetPageFragment extends Fragment
 {
-	private UniformsAdapter uniformsAdapter;
+	private PresetUniformAdapter uniformsAdapter;
 	private ListView listView;
 
 	@Override
@@ -33,7 +33,7 @@ public class UniformsFragment extends Fragment
 		View view;
 
 		if( (view = inflater.inflate(
-				R.layout.fragment_uniforms,
+				R.layout.fragment_uniform_preset_page,
 				container,
 				false )) == null ||
 			(listView = (ListView)view.findViewById(
@@ -50,7 +50,7 @@ public class UniformsFragment extends Fragment
 
 	private void initListView( Context context )
 	{
-		uniformsAdapter = new UniformsAdapter( context );
+		uniformsAdapter = new PresetUniformAdapter( context );
 
 		listView.setAdapter( uniformsAdapter );
 		listView.setOnItemClickListener(
@@ -68,7 +68,7 @@ public class UniformsFragment extends Fragment
 					if( activity == null )
 						return;
 
-					UniformsActivity.setAddUniformResult(
+					AddUniformActivity.setAddUniformResult(
 						activity,
 						uniformsAdapter.getItem( position ) );
 

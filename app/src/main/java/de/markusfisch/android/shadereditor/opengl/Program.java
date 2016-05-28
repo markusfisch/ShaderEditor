@@ -50,8 +50,8 @@ public class Program
 			return 0;
 		}
 
-		for( int n = 0, l = shaders.length; n < l; ++n )
-			GLES20.glAttachShader( p, shaders[n] );
+		for( int shader : shaders )
+			GLES20.glAttachShader( p, shader );
 
 		GLES20.glLinkProgram( p );
 

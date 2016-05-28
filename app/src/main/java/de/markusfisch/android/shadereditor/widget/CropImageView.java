@@ -1,8 +1,12 @@
 package de.markusfisch.android.shadereditor.widget;
 
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.preference.Preferences;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
 public class CropImageView extends ScalingImageView
@@ -10,10 +14,16 @@ public class CropImageView extends ScalingImageView
 	private final Paint paint = new Paint( Paint.ANTI_ALIAS_FLAG );
 
 	private int padding;
+	private int toolAndStatusbarHeight;
 
 	public CropImageView( Context context, AttributeSet attr )
 	{
 		super( context, attr );
+
+		paint.setColor( ContextCompat.getColor(
+			context,
+			R.color.crop_bound ) );
+		paint.setStyle( Paint.Style.STROKE );
 
 		padding = Math.round(
 			context
@@ -21,8 +31,8 @@ public class CropImageView extends ScalingImageView
 				.getDisplayMetrics()
 				.density*24f );
 
-		paint.setColor( 0x88ffffff );
-		paint.setStyle( Paint.Style.STROKE );
+		toolAndStatusbarHeight =
+			Preferences.getStatusAndToolBarHeight( context );
 
 		setScaleType( ScalingImageView.ScaleType.CENTER_CROP );
 	}
@@ -41,6 +51,9 @@ public class CropImageView extends ScalingImageView
 			top,
 			right,
 			bottom );
+
+		if( right-left > bottom-top )
+			top += toolAndStatusbarHeight;
 
 		int width = right-left;
 		int height = bottom-top;

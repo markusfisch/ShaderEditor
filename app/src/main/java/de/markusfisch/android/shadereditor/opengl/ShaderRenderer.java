@@ -1,7 +1,7 @@
 package de.markusfisch.android.shadereditor.opengl;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
-import de.markusfisch.android.shadereditor.fragment.TexturePropertiesFragment;
+import de.markusfisch.android.shadereditor.fragment.SamplerPropertiesFragment;
 import de.markusfisch.android.shadereditor.hardware.AccelerometerListener;
 import de.markusfisch.android.shadereditor.hardware.GyroscopeListener;
 import de.markusfisch.android.shadereditor.hardware.MagneticFieldListener;
@@ -28,6 +28,7 @@ import java.nio.IntBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+import javax.microedition.khronos.opengles.GL11ExtensionPack;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -38,11 +39,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 {
 	public interface OnRendererListener
 	{
-		public void onInfoLog( String error );
-		public void onFramesPerSecond( int fps );
+		void onInfoLog( String error );
+		void onFramesPerSecond( int fps );
 	}
 
-	private static final int textureUnits[] = {
+	private static final int TEXTURE_UNITS[] = {
 		GLES20.GL_TEXTURE0,
 		GLES20.GL_TEXTURE1,
 		GLES20.GL_TEXTURE2,
@@ -75,14 +76,37 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		GLES20.GL_TEXTURE29,
 		GLES20.GL_TEXTURE30,
 		GLES20.GL_TEXTURE31 };
+	private static final int CUBE_MAP_TARGETS[] = {
+		// all sides of a cube are stored in a single
+		// rectangular source image for compactness:
+		//
+		//      +----+         +----+----+
+		//     /| -Z |         | -X | -Z |
+		// -X + +----+      >  +----+----+      +----+----+
+		//    |/ -Y /               | -Y |      | -X | -Z |
+		//    +----+                +----+      +----+----+
+		//                                   >  | +Y | -Y |
+		//       +----+        +----+           +----+----+
+		//      / +Y /|        | +Y |           | +Z | +X |
+		//     +----+ + +X  >  +----+----+      +----+----+
+		//     | +Z |/         | +Z | +X |
+		//     +----+          +----+----+
+		//
+		// so, from left to right, top to bottom:
+		GL11ExtensionPack.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+		GL11ExtensionPack.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+		GL11ExtensionPack.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+		GL11ExtensionPack.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+		GL11ExtensionPack.GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+		GL11ExtensionPack.GL_TEXTURE_CUBE_MAP_POSITIVE_X };
 	private static final float NS_PER_SECOND = 1000000000f;
-	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000l;
-	private static final long BATTERY_UPDATE_INTERVAL = 10000000000l;
-	private static final long DATE_UPDATE_INTERVAL = 1000000000l;
-	private static final Pattern SAMPLER_2D = Pattern.compile(
-		"uniform[ \t]+sampler2D[ \t]+("+
-		TexturePropertiesFragment.TEXTURE_NAME+
-		");" );
+	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000L;
+	private static final long BATTERY_UPDATE_INTERVAL = 10000000000L;
+	private static final long DATE_UPDATE_INTERVAL = 1000000000L;
+	private static final Pattern SAMPLER = Pattern.compile(
+		String.format(
+			"uniform[ \t]+sampler(2D|Cube)+[ \t]+(%s);",
+			SamplerPropertiesFragment.TEXTURE_NAME_PATTERN ) );
 	private static final String VERTEX_SHADER =
 		"attribute vec2 position;"+
 		"void main()"+
@@ -105,12 +129,13 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		"}";
 
 	private final TextureBinder textureBinder = new TextureBinder();
-	private final ArrayList<String> textureNames = new ArrayList<String>();
+	private final ArrayList<String> textureNames = new ArrayList<>();
 	private final Matrix flipMatrix = new Matrix();
 	private final Calendar calendar = Calendar.getInstance();
 	private final int fb[] = new int[]{ 0, 0 };
 	private final int tx[] = new int[]{ 0, 0 };
 	private final int textureLocs[] = new int[32];
+	private final int textureTargets[] = new int[32];
 	private final int textureIds[] = new int[32];
 	private final float surfaceResolution[] = new float[]{ 0, 0 };
 	private final float resolution[] = new float[]{ 0, 0 };
@@ -221,13 +246,18 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 		if( surfaceProgram != 0 )
 		{
-			GLES20.glDeleteProgram( surfaceProgram );
+			// Don't glDeleteProgram( surfaceProgram ) because
+			// GLSurfaceView::onPause() destroys the GL context
+			// what also deletes all programs.
+			// With glDeleteProgram():
+			// <core_glDeleteProgram:594>: GL_INVALID_VALUE
 			surfaceProgram = 0;
 		}
 
 		if( program != 0 )
 		{
-			GLES20.glDeleteProgram( program );
+			// Don't glDeleteProgram( program );
+			// same as above
 			program = 0;
 
 			deleteTargets();
@@ -237,8 +267,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			fragmentShader.length() > 0 )
 		{
 			resetFps();
-			loadProgram();
 			createTextures();
+			loadProgram();
 		}
 	}
 
@@ -411,6 +441,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 					calendar.get( Calendar.HOUR_OF_DAY )*3600f+
 					calendar.get( Calendar.MINUTE )*60f+
 					calendar.get( Calendar.SECOND );
+
+				lastDateUpdate = now;
 			}
 
 			GLES20.glUniform4fv(
@@ -442,11 +474,13 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		if( backBufferLoc > -1 )
 			textureBinder.bind(
 				backBufferLoc,
+				GLES20.GL_TEXTURE_2D,
 				tx[backTarget] );
 
 		for( int n = 0; n < numberOfTextures; ++n )
 			textureBinder.bind(
 				textureLocs[n],
+				textureTargets[n],
 				textureIds[n] );
 
 		GLES20.glBindFramebuffer(
@@ -680,9 +714,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		backBufferLoc = GLES20.glGetUniformLocation(
 			program, "backbuffer" );
 
-		for( int n = textureNames.size(); n-- > 0; )
+		for( int n = numberOfTextures; n-- > 0; )
 			textureLocs[n] = GLES20.glGetUniformLocation(
-				program, textureNames.get( n ) );
+				program,
+				textureNames.get( n ) );
 	}
 
 	private void registerListeners()
@@ -921,10 +956,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	{
 		deleteTextures();
 
-		numberOfTextures = Math.min(
-			textureIds.length,
-			textureNames.size() );
-
 		GLES20.glGenTextures(
 			numberOfTextures,
 			textureIds,
@@ -939,7 +970,18 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			if( bitmap == null )
 				continue;
 
-			createTexture( textureIds[n], bitmap );
+			switch( textureTargets[n] )
+			{
+				default:
+					continue;
+				case GLES20.GL_TEXTURE_2D:
+					createTexture( textureIds[n], bitmap );
+					break;
+				case GLES20.GL_TEXTURE_CUBE_MAP:
+					createCubeTexture( textureIds[n], bitmap );
+					break;
+			}
+
 			bitmap.recycle();
 		}
 	}
@@ -966,24 +1008,83 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			GLES20.GL_TEXTURE_MAG_FILTER,
 			GLES20.GL_LINEAR );
 
+		// flip bitmap because 0/0 is bottom left in OpenGL
+		Bitmap flippedBitmap = Bitmap.createBitmap(
+			bitmap,
+			0,
+			0,
+			bitmap.getWidth(),
+			bitmap.getHeight(),
+			flipMatrix,
+			true );
+
 		GLUtils.texImage2D(
 			GLES20.GL_TEXTURE_2D,
 			0,
 			GLES20.GL_RGBA,
-			// flip bitmap because 0/0 is bottom left in OpenGL
-			Bitmap.createBitmap(
-				bitmap,
-				0,
-				0,
-				bitmap.getWidth(),
-				bitmap.getHeight(),
-				flipMatrix,
-				true ),
+			flippedBitmap,
 			GLES20.GL_UNSIGNED_BYTE,
 			0 );
 
+		flippedBitmap.recycle();
+
 		GLES20.glGenerateMipmap(
 			GLES20.GL_TEXTURE_2D );
+	}
+
+	private void createCubeTexture( int id, Bitmap bitmap )
+	{
+		GLES20.glBindTexture( GLES20.GL_TEXTURE_CUBE_MAP, id );
+
+		GLES20.glTexParameteri(
+			GLES20.GL_TEXTURE_CUBE_MAP,
+			GLES20.GL_TEXTURE_MAG_FILTER,
+			GLES20.GL_LINEAR );
+		GLES20.glTexParameteri(
+			GLES20.GL_TEXTURE_CUBE_MAP,
+			GLES20.GL_TEXTURE_MIN_FILTER,
+			GLES20.GL_LINEAR );
+
+		int bitmapWidth = bitmap.getWidth();
+		int bitmapHeight = bitmap.getHeight();
+		int sideWidth = (int)Math.ceil( bitmapWidth/2f );
+		int sideHeight = Math.round( bitmapHeight/3f );
+		int sideLength = Math.min( sideWidth, sideHeight );
+		int x = 0;
+		int y = 0;
+
+		for( int target : CUBE_MAP_TARGETS )
+		{
+			Bitmap side = Bitmap.createBitmap(
+				bitmap,
+				x,
+				y,
+				// cube textures need to be quadratic
+				sideLength,
+				sideLength,
+				// don't flip cube textures
+				null,
+				true );
+
+			GLUtils.texImage2D(
+				target,
+				0,
+				GLES20.GL_RGBA,
+				side,
+				GLES20.GL_UNSIGNED_BYTE,
+				0 );
+
+			side.recycle();
+
+			if( (x += sideWidth) >= bitmapWidth )
+			{
+				x = 0;
+				y += sideHeight;
+			}
+		}
+
+		GLES20.glGenerateMipmap(
+			GLES20.GL_TEXTURE_CUBE_MAP );
 	}
 
 	private void indexTextureNames( String source )
@@ -992,15 +1093,37 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			return;
 
 		textureNames.clear();
+		numberOfTextures = 0;
 
-		for( Matcher m = SAMPLER_2D.matcher( source );
-			m.find(); )
+		final int maxTextures = textureIds.length;
+
+		for( Matcher m = SAMPLER.matcher( source );
+			m.find() && numberOfTextures < maxTextures; )
 		{
-			String name = m.group( 1 );
+			String type = m.group( 1 );
+			String name = m.group( 2 );
 
-			if( name != null &&
-				!name.equals( "backbuffer" ) )
-				textureNames.add( name );
+			if( type == null ||
+				name == null ||
+				name.equals( "backbuffer" ) )
+				continue;
+
+			int target;
+
+			switch( type )
+			{
+				case "2D":
+					target = GLES20.GL_TEXTURE_2D;
+					break;
+				case "Cube":
+					target = GLES20.GL_TEXTURE_CUBE_MAP;
+					break;
+				default:
+					continue;
+			}
+
+			textureTargets[numberOfTextures++] = target;
+			textureNames.add( name );
 		}
 	}
 
@@ -1010,6 +1133,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			null,
 			new IntentFilter(
 				Intent.ACTION_BATTERY_CHANGED ) );
+
+		if( batteryStatus == null )
+			return 0;
+
 		int level = batteryStatus.getIntExtra(
 			BatteryManager.EXTRA_LEVEL, -1 );
 		int scale = batteryStatus.getIntExtra(
@@ -1027,17 +1154,15 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			index = 0;
 		}
 
-		public void bind( int loc, int textureId )
+		public void bind( int loc, int target, int textureId )
 		{
 			if( loc < 0 ||
-				index >= textureUnits.length )
+				index >= TEXTURE_UNITS.length )
 				return;
 
 			GLES20.glUniform1i( loc, index );
-			GLES20.glActiveTexture( textureUnits[index] );
-			GLES20.glBindTexture(
-				GLES20.GL_TEXTURE_2D,
-				textureId );
+			GLES20.glActiveTexture( TEXTURE_UNITS[index] );
+			GLES20.glBindTexture( target, textureId );
 
 			++index;
 		}

@@ -5,6 +5,7 @@ import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
+import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.widget.TouchThruDrawerlayout;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
@@ -15,7 +16,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -42,7 +42,6 @@ public class MainActivity
 	private static final String SELECTED_SHADER = "selected_shader";
 	private static final int PREVIEW_SHADER = 1;
 	private static final int ADD_UNIFORM = 2;
-	private static final int ADD_TEXTURE = 3;
 	private static final int FIRST_SHADER = -1;
 	private static final int NO_SHADER = 0;
 
@@ -75,17 +74,22 @@ public class MainActivity
 
 	public static void initSystemBars( AppCompatActivity activity )
 	{
-		if( setSystemBarColor(
+		View view;
+
+		if( activity != null &&
+			(view = activity.findViewById( R.id.main_layout )) != null &&
+			setSystemBarColor(
 				activity.getWindow(),
 				ShaderEditorApplication
 					.preferences
 					.getSystemBarColor(),
 				true ) )
-			activity.findViewById( R.id.main_layout ).setPadding(
+			view.setPadding(
 				0,
-				getStatusBarHeight( activity.getResources() ),
+				Preferences.getStatusBarHeight(
+					activity.getResources() ),
 				0,
-				0 );
+				0);
 	}
 
 	@TargetApi( 22 )
@@ -152,9 +156,9 @@ public class MainActivity
 				.doesShowInsertTab() );
 
 		menu.findItem( R.id.run_code ).setVisible(
-			ShaderEditorApplication
+			!ShaderEditorApplication
 				.preferences
-				.doesRunOnChange() ^ true );
+				.doesRunOnChange() );
 
 		menu.findItem( R.id.toggle_code ).setVisible(
 			ShaderEditorApplication
@@ -201,11 +205,8 @@ public class MainActivity
 			case R.id.update_wallpaper:
 				updateWallpaper( selectedShaderId );
 				return true;
-			case R.id.uniforms:
-				showUniforms();
-				return true;
-			case R.id.textures:
-				showTextures();
+			case R.id.add_uniform:
+				addUniform();
 				return true;
 			case R.id.settings:
 				showSettings();
@@ -244,16 +245,7 @@ public class MainActivity
 			data != null )
 			editorFragment.addUniform(
 				data.getStringExtra(
-					UniformsActivity.UNIFORM_NAME ) );
-
-		// add uniform sampler2D statement
-		if( editorFragment != null &&
-			requestCode == ADD_TEXTURE &&
-			resultCode == RESULT_OK &&
-			data != null )
-			editorFragment.addUniform(
-				"uniform sampler2D "+data.getStringExtra(
-					TexturesActivity.TEXTURE_NAME ) );
+					AddUniformActivity.STATEMENT ) );
 
 		// update fps, info log and thumbnail after shader ran
 		if( requestCode == PREVIEW_SHADER )
@@ -387,18 +379,6 @@ public class MainActivity
 		drawerLayout.openDrawer( menuFrame );
 	}
 
-	private static int getStatusBarHeight( Resources res )
-	{
-		int id = res.getIdentifier(
-			"status_bar_height",
-			"dimen",
-			"android" );
-
-		return id > 0 ?
-			res.getDimensionPixelSize( id ) :
-			0;
-	}
-
 	private void initToolbar()
 	{
 		toolbar = (Toolbar)findViewById( R.id.toolbar );
@@ -525,7 +505,9 @@ public class MainActivity
 
 	private void initShaderView()
 	{
-		shaderView = (ShaderView)findViewById( R.id.preview );
+		if( (shaderView = (ShaderView)findViewById(
+				R.id.preview )) == null )
+			return;
 
 		shaderView.getRenderer().setOnRendererListener(
 			new ShaderRenderer.OnRendererListener()
@@ -913,18 +895,11 @@ public class MainActivity
 			.setWallpaperShader( id );
 	}
 
-	private void showUniforms()
+	private void addUniform()
 	{
 		startActivityForResult(
-			new Intent( this, UniformsActivity.class ),
+			new Intent( this, AddUniformActivity.class ),
 			ADD_UNIFORM );
-	}
-
-	private void showTextures()
-	{
-		startActivityForResult(
-			new Intent( this, TexturesActivity.class ),
-			ADD_TEXTURE );
 	}
 
 	private void showSettings()

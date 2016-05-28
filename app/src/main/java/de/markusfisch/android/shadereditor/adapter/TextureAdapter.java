@@ -13,18 +13,24 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class TexturesAdapter extends CursorAdapter
+public class TextureAdapter extends CursorAdapter
 {
 	private int nameIndex;
+	private int widthIndex;
+	private int heightIndex;
 	private int thumbIndex;
+	private String sizeFormat;
 
-	public TexturesAdapter(
+	public TextureAdapter(
 		Context context,
 		Cursor cursor )
 	{
 		super( context, cursor, false );
 
 		indexColumns( cursor );
+
+		sizeFormat = context.getString(
+			R.string.texture_size_format );
 	}
 
 	@Override
@@ -64,6 +70,8 @@ public class TexturesAdapter extends CursorAdapter
 				R.id.texture_preview );
 			holder.name = (TextView)view.findViewById(
 				R.id.texture_name );
+			holder.size = (TextView)view.findViewById(
+				R.id.texture_size );
 		}
 
 		return holder;
@@ -82,12 +90,21 @@ public class TexturesAdapter extends CursorAdapter
 					bytes.length ) );
 
 		holder.name.setText( cursor.getString( nameIndex ) );
+		holder.size.setText(
+			String.format(
+				sizeFormat,
+				cursor.getInt( widthIndex ),
+				cursor.getInt( heightIndex ) ) );
 	}
 
 	private void indexColumns( Cursor cursor )
 	{
 		nameIndex = cursor.getColumnIndex(
 			DataSource.TEXTURES_NAME );
+		widthIndex = cursor.getColumnIndex(
+			DataSource.TEXTURES_WIDTH );
+		heightIndex = cursor.getColumnIndex(
+			DataSource.TEXTURES_HEIGHT );
 		thumbIndex = cursor.getColumnIndex(
 			DataSource.TEXTURES_THUMB );
 	}
@@ -96,5 +113,6 @@ public class TexturesAdapter extends CursorAdapter
 	{
 		public ImageView preview;
 		public TextView name;
+		public TextView size;
 	}
 }

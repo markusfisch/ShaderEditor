@@ -124,7 +124,7 @@ public class ShaderEditor extends EditText
 			return;
 
 		tabWidthInCharacters = characters;
-		tabWidth = (int)Math.round(
+		tabWidth = Math.round(
 			getPaint().measureText( "m" )*
 			characters );
 	}
@@ -246,8 +246,6 @@ public class ShaderEditor extends EditText
 						if( c == '\n' )
 							return autoIndent(
 								source,
-								start,
-								end,
 								dest,
 								dstart,
 								dend );
@@ -443,8 +441,6 @@ public class ShaderEditor extends EditText
 
 	private CharSequence autoIndent(
 		CharSequence source,
-		int start,
-		int end,
 		Spanned dest,
 		int dstart,
 		int dend )
@@ -528,7 +524,7 @@ public class ShaderEditor extends EditText
 		return source+indent;
 	}
 
-	public void convertTabs( Editable e, int start, int count )
+	private void convertTabs( Editable e, int start, int count )
 	{
 		if( tabWidth < 1 )
 			return;

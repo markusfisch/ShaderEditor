@@ -47,14 +47,9 @@
 		android:title="@string/update_wallpaper"
 		material:showAsAction="ifRoom"/>
 	<item
-		android:id="@+id/uniforms"
+		android:id="@+id/add_uniform"
 		android:icon="@drawable/ic_action_insert_code"
-		android:title="@string/uniforms"
-		material:showAsAction="ifRoom"/>
-	<item
-		android:id="@+id/textures"
-		android:icon="@drawable/ic_action_textures"
-		android:title="@string/textures"
+		android:title="@string/add_uniform"
 		material:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/settings"

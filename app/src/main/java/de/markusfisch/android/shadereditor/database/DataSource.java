@@ -33,6 +33,9 @@ public class DataSource
 	public static final String TEXTURES = "textures";
 	public static final String TEXTURES_ID = "_id";
 	public static final String TEXTURES_NAME = "name";
+	public static final String TEXTURES_WIDTH = "width";
+	public static final String TEXTURES_HEIGHT = "height";
+	public static final String TEXTURES_RATIO = "ratio";
 	public static final String TEXTURES_THUMB = "thumb";
 	public static final String TEXTURES_MATRIX = "matrix";
 
@@ -116,8 +119,26 @@ public class DataSource
 			"SELECT "+
 				TEXTURES_ID+","+
 				TEXTURES_NAME+","+
+				TEXTURES_WIDTH+","+
+				TEXTURES_HEIGHT+","+
 				TEXTURES_THUMB+
 				" FROM "+TEXTURES+
+				" WHERE "+TEXTURES_RATIO+" = 1"+
+				" ORDER BY "+TEXTURES_ID,
+			null );
+	}
+
+	public Cursor getSamplerCubeTextures()
+	{
+		return db.rawQuery(
+			"SELECT "+
+				TEXTURES_ID+","+
+				TEXTURES_NAME+","+
+				TEXTURES_WIDTH+","+
+				TEXTURES_HEIGHT+","+
+				TEXTURES_THUMB+
+				" FROM "+TEXTURES+
+				" WHERE "+TEXTURES_RATIO+" = 1.5"+
 				" ORDER BY "+TEXTURES_ID,
 			null );
 	}
@@ -196,6 +217,8 @@ public class DataSource
 		return db.rawQuery(
 			"SELECT "+
 				TEXTURES_NAME+","+
+				TEXTURES_WIDTH+","+
+				TEXTURES_HEIGHT+","+
 				TEXTURES_MATRIX+
 				" FROM "+TEXTURES+
 				" WHERE "+TEXTURES_ID+"=\""+id+"\"",
@@ -217,15 +240,7 @@ public class DataSource
 		if( closeIfEmpty( cursor ) )
 			return null;
 
-		byte data[] = cursor.getBlob(
-			cursor.getColumnIndex(
-				TEXTURES_MATRIX ) );
-
-		Bitmap bm = BitmapFactory.decodeByteArray(
-			data,
-			0,
-			data.length );
-
+		Bitmap bm = textureFromCursor( cursor );
 		cursor.close();
 
 		return bm;
@@ -294,8 +309,14 @@ public class DataSource
 			return 0;
 		}
 
+		int w = bitmap.getWidth();
+		int h = bitmap.getHeight();
+
 		ContentValues cv = new ContentValues();
 		cv.put( TEXTURES_NAME, name );
+		cv.put( TEXTURES_WIDTH, w );
+		cv.put( TEXTURES_HEIGHT, h );
+		cv.put( TEXTURES_RATIO, calculateRatio( w, h ) );
 		cv.put( TEXTURES_THUMB, bitmapToPng( thumbnail ) );
 		cv.put( TEXTURES_MATRIX, bitmapToPng( bitmap ) );
 
@@ -369,16 +390,30 @@ public class DataSource
 			Locale.US ).format( new Date() );
 	}
 
+	private static Bitmap textureFromCursor( Cursor cursor )
+	{
+		byte data[] = cursor.getBlob(
+			cursor.getColumnIndex(
+				TEXTURES_MATRIX ) );
+
+		return BitmapFactory.decodeByteArray(
+			data,
+			0,
+			data.length );
+	}
+
 	private String loadRawResource( int id ) throws IOException
 	{
 		InputStream in = context
 			.getResources()
 			.openRawResource( id );
 
-		byte b[] = new byte[in.available()];
-		in.read( b );
+		int l = in.available();
+		byte b[] = new byte[l];
 
-		return new String( b, "UTF-8" );
+		return in.read( b ) == l ?
+			new String( b, "UTF-8" ) :
+			null;
 	}
 
 	private byte[] loadBitmapResource( int id )
@@ -396,6 +431,13 @@ public class DataSource
 		return out.toByteArray();
 	}
 
+	private static float calculateRatio( int width, int height )
+	{
+		// round to two decimal places to avoid problems with
+		// rounding errors; the query will filter precisely 1 or 1.5
+		return Math.round( ((float)height/width)*100f )/100f;
+	}
+
 	private void createShadersTable( SQLiteDatabase db )
 	{
 		db.execSQL( "DROP TABLE IF EXISTS "+SHADERS );
@@ -411,7 +453,7 @@ public class DataSource
 		insertInitalShaders( db );
 	}
 
-	private void addShadersQuality( SQLiteDatabase db )
+	private static void addShadersQuality( SQLiteDatabase db )
 	{
 		db.execSQL(
 			"ALTER TABLE "+SHADERS+
@@ -463,10 +505,61 @@ public class DataSource
 			"CREATE TABLE "+TEXTURES+" ("+
 				TEXTURES_ID+" INTEGER PRIMARY KEY AUTOINCREMENT,"+
 				TEXTURES_NAME+" TEXT NOT NULL UNIQUE,"+
+				TEXTURES_WIDTH+" INTEGER,"+
+				TEXTURES_HEIGHT+" INTEGER,"+
+				TEXTURES_RATIO+" REAL,"+
 				TEXTURES_THUMB+" BLOB,"+
 				TEXTURES_MATRIX+" BLOB );" );
 
 		insertInitalTextures( db );
+	}
+
+	private static void addTexturesWidthHeightRatio( SQLiteDatabase db )
+	{
+		db.execSQL(
+			"ALTER TABLE "+TEXTURES+
+				" ADD COLUMN "+TEXTURES_WIDTH+" INTEGER;" );
+		db.execSQL(
+			"ALTER TABLE "+TEXTURES+
+				" ADD COLUMN "+TEXTURES_HEIGHT+" INTEGER;" );
+		db.execSQL(
+			"ALTER TABLE "+TEXTURES+
+				" ADD COLUMN "+TEXTURES_RATIO+" REAL;" );
+
+		Cursor cursor = db.rawQuery(
+			"SELECT "+
+				TEXTURES_ID+","+
+				TEXTURES_MATRIX+
+				" FROM "+TEXTURES,
+			null );
+
+		if( closeIfEmpty( cursor ) )
+			return;
+
+		do
+		{
+			Bitmap bm = textureFromCursor( cursor );
+
+			if( bm == null )
+				continue;
+
+			int width = bm.getWidth();
+			int height = bm.getHeight();
+			float ratio = calculateRatio( width, height );
+			bm.recycle();
+
+			db.execSQL(
+				"UPDATE "+TEXTURES+
+					" SET "+
+						TEXTURES_WIDTH+" = "+width+", "+
+						TEXTURES_HEIGHT+" = "+height+", "+
+						TEXTURES_RATIO+" = "+ratio+
+					" WHERE "+TEXTURES_ID+" = "+cursor.getLong(
+						cursor.getColumnIndex( TEXTURES_ID ) )+";" );
+
+		} while( cursor.moveToNext() );
+
+		cursor.close();
 	}
 
 	private void insertInitalTextures( SQLiteDatabase db )
@@ -482,9 +575,9 @@ public class DataSource
 
 	private class OpenHelper extends SQLiteOpenHelper
 	{
-		public OpenHelper( Context c )
+		public OpenHelper( Context context )
 		{
-			super( c, "shaders.db", null, 3 );
+			super( context, "shaders.db", null, 4 );
 		}
 
 		@Override
@@ -501,7 +594,7 @@ public class DataSource
 			int newVersion )
 		{
 			// without onDowngrade(), a downgrade will throw
-			// an exception
+			// an exception; can never happen in production
 		}
 
 		@Override
@@ -510,16 +603,17 @@ public class DataSource
 			int oldVersion,
 			int newVersion )
 		{
-			if( oldVersion == 1 )
+			if( oldVersion < 2 )
 			{
 				createTexturesTable( db );
 				insertInitalShaders( db );
 			}
 
 			if( oldVersion < 3 )
-			{
 				addShadersQuality( db );
-			}
+
+			if( oldVersion < 4 )
+				addTexturesWidthHeightRatio( db );
 		}
 	}
 }

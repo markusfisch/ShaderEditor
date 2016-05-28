@@ -1,19 +1,8 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 	<de.markusfisch.android.shadereditor.widget.ScalingImageView
-		android:id="@+id/texture_image"
+		android:id="@+id/scaling_image_view"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:contentDescription="@string/texture_preview"/>
-	<LinearLayout
-		android:id="@+id/main_layout"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:fitsSystemWindows="true"
-		android:orientation="vertical">
-		<include layout="@layout/toolbar"/>
-		<FrameLayout
-			android:id="@+id/content_frame"
-			android:layout_width="match_parent"
-			android:layout_height="match_parent"/>
-	</LinearLayout>
+	<include layout="@layout/main_layout"/>
 </merge>

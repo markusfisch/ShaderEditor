@@ -84,8 +84,8 @@
 			android:label="@string/preferences"
 			android:exported="true"/>
 		<activity
-			android:name=".activity.TexturesActivity"
-			android:label="@string/textures">
+			android:name=".activity.AddUniformActivity"
+			android:label="@string/add_uniform">
 			<intent-filter>
 				<action android:name="android.intent.action.SEND"/>
 				<category android:name="android.intent.category.DEFAULT"/>
@@ -99,7 +99,7 @@
 			android:name=".activity.CropImageActivity"
 			android:label="@string/crop_image"/>
 		<activity
-			android:name=".activity.UniformsActivity"
-			android:label="@string/uniforms"/>
+			android:name=".activity.CubeMapActivity"
+			android:label="@string/add_uniform"/>
 	</application>
 </manifest>

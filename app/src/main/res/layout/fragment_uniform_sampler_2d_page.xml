@@ -9,7 +9,7 @@
 		android:choiceMode="singleChoice"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:divider="@android:color/transparent"
+		android:divider="@color/primary"
 		android:dividerHeight="1px"/>
 	<FrameLayout
 		android:id="@+id/no_textures"

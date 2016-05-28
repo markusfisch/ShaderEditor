@@ -10,6 +10,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
@@ -178,9 +179,11 @@ public class EditorFragment extends Fragment
 
 			try
 			{
-				yOffset = ((AppCompatActivity)activity)
-					.getSupportActionBar()
-					.getHeight();
+				ActionBar actionBar = ((AppCompatActivity)activity)
+					.getSupportActionBar();
+
+				if( actionBar != null )
+					yOffset = actionBar.getHeight();
 			}
 			catch( ClassCastException e )
 			{

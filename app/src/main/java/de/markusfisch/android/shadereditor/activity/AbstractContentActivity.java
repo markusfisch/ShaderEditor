@@ -18,12 +18,9 @@ public abstract class AbstractContentActivity
 		initToolbar( this );
 
 		if( state == null )
-			getSupportFragmentManager()
-				.beginTransaction()
-				.replace(
-					R.id.content_frame,
-					defaultFragment() )
-				.commit();
+			AbstractSubsequentActivity.setFragment(
+				getSupportFragmentManager(),
+				defaultFragment() );
 	}
 
 	protected abstract Fragment defaultFragment();

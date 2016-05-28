@@ -15,12 +15,25 @@
 		android:layout_marginEnd="24dp"
 		android:layout_width="48dp"
 		android:layout_height="48dp"/>
-	<TextView
-		android:id="@+id/texture_name"
+	<LinearLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:textColor="@drawable/drawer_item_selector"
-		android:textSize="14sp"
-		android:lines="1"
-		android:ellipsize="end"/>
+		android:orientation="vertical">
+		<TextView
+			android:id="@+id/texture_name"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textColor="@drawable/drawer_item_selector"
+			android:textSize="14sp"
+			android:lines="1"
+			android:ellipsize="end"/>
+		<TextView
+			android:id="@+id/texture_size"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:textColor="@drawable/drawer_item_selector"
+			android:textSize="12sp"
+			android:lines="1"
+			android:ellipsize="end"/>
+	</LinearLayout>
 </LinearLayout>

@@ -3,10 +3,13 @@ package de.markusfisch.android.shadereditor.preference;
 import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.content.SharedPreferences;
 import android.hardware.SensorManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.PreferenceManager;
+import android.util.TypedValue;
 
 import java.lang.NumberFormatException;
 
@@ -169,6 +172,56 @@ public class Preferences
 		return systemBarColor;
 	}
 
+	public static int getStatusAndToolBarHeight( Context context )
+	{
+		return
+			getStatusBarHeight( context.getResources() )+
+			getToolBarHeight( context );
+	}
+
+	public static int getStatusBarHeight( Resources res )
+	{
+		// don't store status bar height because it may be
+		// different for each context
+		return getIdentifierDimen( res, "status_bar_height" );
+	}
+
+	public static int getNavigationBarHeight( Resources res )
+	{
+		// don't store navigation bar height because it may be
+		// different for each context
+		if( !getIdentifierBoolean( res, "config_showNavigationBar" ) )
+			return 0;
+
+		Configuration conf = res.getConfiguration();
+
+		if( conf.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+			// according to https://developer.android.com/training/multiscreen/screensizes.html#TaskUseSWQuali
+			// only a screen < 600 dp is considered to be a phone and
+			// can move its navigation bar to the side
+			conf.smallestScreenWidthDp < 600 )
+			return 0;
+
+		return getIdentifierDimen( res, "navigation_bar_height" );
+	}
+
+	public static int getToolBarHeight( Context context )
+	{
+		// don't store toolbar bar height because it may be
+		// different for each context
+		TypedValue tv = new TypedValue();
+
+		return
+			context.getTheme().resolveAttribute(
+				android.R.attr.actionBarSize,
+				tv,
+				true ) ?
+			TypedValue.complexToDimensionPixelSize(
+				tv.data,
+				context.getResources().getDisplayMetrics() ) :
+			0;
+	}
+
 	public static int parseInt( String s, int preset )
 	{
 		try
@@ -201,19 +254,48 @@ public class Preferences
 		return preset;
 	}
 
+	private static boolean getIdentifierBoolean(
+		Resources res,
+		String name )
+	{
+		int id = res.getIdentifier(
+			name,
+			"bool",
+			"android" );
+
+		return id > 0 && res.getBoolean( id );
+	}
+
+	private static int getIdentifierDimen(
+		Resources res,
+		String name )
+	{
+		int id = res.getIdentifier(
+			name,
+			"dimen",
+			"android" );
+
+		return id > 0 ?
+			res.getDimensionPixelSize( id ) :
+			0;
+	}
+
 	private static int parseSensorDelay( String s, int preset )
 	{
 		if( s == null )
 			return preset;
 
-		if( s.equals( "Fastest" ) )
-			return SensorManager.SENSOR_DELAY_FASTEST;
-		else if( s.equals( "Game" ) )
-			return SensorManager.SENSOR_DELAY_GAME;
-		else if( s.equals( "Normal" ) )
-			return SensorManager.SENSOR_DELAY_NORMAL;
-		else if( s.equals( "UI" ) )
-			return SensorManager.SENSOR_DELAY_UI;
+		switch( s )
+		{
+			case "Fastest":
+				return SensorManager.SENSOR_DELAY_FASTEST;
+			case "Game":
+				return SensorManager.SENSOR_DELAY_GAME;
+			case "Normal":
+				return SensorManager.SENSOR_DELAY_NORMAL;
+			case "UI":
+				return SensorManager.SENSOR_DELAY_UI;
+		}
 
 		return preset;
 	}

@@ -13,17 +13,16 @@ import android.widget.ImageView;
 
 public class ScalingImageView extends ImageView
 {
-	private final SparseArray<Float> originX = new SparseArray<Float>();
-	private final SparseArray<Float> originY = new SparseArray<Float>();
+	private final SparseArray<Float> originX = new SparseArray<>();
+	private final SparseArray<Float> originY = new SparseArray<>();
 	private final Matrix originMatrix = new Matrix();
 	private final Matrix transformMatrix = new Matrix();
 	private final Gesture originGesture = new Gesture();
 	private final Gesture transformGesture = new Gesture();
-	private final RectF srcRect = new RectF();
-	private final RectF dstRect = new RectF();
+	private final RectF originRect = new RectF();
 	private final RectF bounds = new RectF();
 
-	private float minWidth;
+	private float minWidth = 0f;
 	private float rotation = 0f;
 	private ImageView.ScaleType scaleType =
 		ImageView.ScaleType.CENTER_INSIDE;
@@ -61,6 +60,16 @@ public class ScalingImageView extends ImageView
 	}
 
 	@Override
+	public void setImageMatrix( Matrix matrix )
+	{
+		transformMatrix.set( matrix );
+		setMinWidth( bounds, new Matrix() );
+		fitMatrix( transformMatrix, getDrawableRect(), bounds );
+
+		super.setImageMatrix( transformMatrix );
+	}
+
+	@Override
 	public void setScaleType( ImageView.ScaleType scaleType )
 	{
 		if( scaleType != ImageView.ScaleType.CENTER &&
@@ -70,6 +79,7 @@ public class ScalingImageView extends ImageView
 
 		this.scaleType = scaleType;
 		center( bounds );
+		invalidate();
 	}
 
 	@Override
@@ -110,7 +120,49 @@ public class ScalingImageView extends ImageView
 				return true;
 		}
 
-		return onTouchEvent( event );
+		return super.onTouchEvent( event );
+	}
+
+	public void setImageRotation( float degrees )
+	{
+		if( degrees == rotation )
+			return;
+
+		rotation = degrees;
+		requestLayout();
+	}
+
+	public float getImageRotation()
+	{
+		return rotation;
+	}
+
+	public Rect getRectInBounds()
+	{
+		RectF srcRect = getDrawableRect();
+		RectF dstRect = new RectF();
+		transformMatrix.mapRect( dstRect, srcRect );
+
+		float scale = dstRect.width()/srcRect.width();
+		return new Rect(
+			Math.round( (bounds.left-dstRect.left)/scale ),
+			Math.round( (bounds.top-dstRect.top)/scale ),
+			Math.round( (bounds.right-dstRect.left)/scale ),
+			Math.round( (bounds.bottom-dstRect.top)/scale ) );
+	}
+
+	public RectF getNormalizedRectInBounds()
+	{
+		RectF dstRect = new RectF();
+		transformMatrix.mapRect( dstRect, getDrawableRect() );
+
+		float w = dstRect.width();
+		float h = dstRect.height();
+		return new RectF(
+			(bounds.left-dstRect.left)/w,
+			(bounds.top-dstRect.top)/h,
+			(bounds.right-dstRect.left)/w,
+			(bounds.bottom-dstRect.top)/h );
 	}
 
 	@Override
@@ -121,53 +173,21 @@ public class ScalingImageView extends ImageView
 		int right,
 		int bottom )
 	{
-		super.onLayout(
-			changed,
-			left,
-			top,
-			right,
-			bottom );
+		super.onLayout( changed, left, top, right, bottom );
 
+		// use a separate method to layout the image so it's possible
+		// to override this behaviour without skipping super.onLayout()
+		layoutImage( left, top, right, bottom );
+	}
+
+	protected void layoutImage(
+		int left,
+		int top,
+		int right,
+		int bottom )
+	{
 		setBounds( left, top, right, bottom );
 		center( bounds );
-	}
-
-	public void setImageRotation( float degrees )
-	{
-		rotation = degrees;
-		center( bounds );
-	}
-
-	public float getImageRotation()
-	{
-		return rotation;
-	}
-
-	public Rect getRectInBounds()
-	{
-		transformMatrix.mapRect( dstRect, srcRect );
-
-		float scale = dstRect.width()/srcRect.width();
-
-		return new Rect(
-			Math.round( (bounds.left-dstRect.left)/scale ),
-			Math.round( (bounds.top-dstRect.top)/scale ),
-			Math.round( (bounds.right-dstRect.left)/scale ),
-			Math.round( (bounds.bottom-dstRect.top)/scale ) );
-	}
-
-	public RectF getNormalizedRectInBounds()
-	{
-		transformMatrix.mapRect( dstRect, srcRect );
-
-		float w = dstRect.width();
-		float h = dstRect.height();
-
-		return new RectF(
-			(bounds.left-dstRect.left)/w,
-			(bounds.top-dstRect.top)/h,
-			(bounds.right-dstRect.left)/w,
-			(bounds.bottom-dstRect.top)/h );
 	}
 
 	protected void setBounds(
@@ -191,22 +211,37 @@ public class ScalingImageView extends ImageView
 
 	protected void center( RectF rect )
 	{
-		Drawable drawable;
+		setMinWidth( rect, transformMatrix );
+		super.setImageMatrix( transformMatrix );
+	}
+
+	protected void setMinWidth( RectF rect, Matrix matrix )
+	{
+		// don't try to store the drawable dimensions by overriding
+		// setImageDrawable() since it is called in the ImageView's
+		// constructor and no referenced member of this object will
+		// have been initialized yet. So it's best to simply request
+		// the dimensions when they are required only.
+		RectF srcRect = new RectF( getDrawableRect() );
 
 		if( rect == null ||
-			(drawable = getDrawable()) == null )
+			matrix == null )
 			return;
 
-		float dw = drawable.getIntrinsicWidth();
-		float dh = drawable.getIntrinsicHeight();
-		srcRect.set( 0f, 0f, dw, dh );
-
-		transformMatrix.setTranslate( dw*-.5f, dh*-.5f );
-		transformMatrix.postRotate( rotation );
-		transformMatrix.mapRect( dstRect, srcRect );
-
+		float dw = srcRect.width();
+		float dh = srcRect.height();
 		float rw = rect.width();
 		float rh = rect.height();
+
+		if( dw < 1 || dh < 1 ||
+			rw < 1 || rh < 1 )
+			return;
+
+		RectF dstRect = new RectF();
+		matrix.setTranslate( dw*-.5f, dh*-.5f );
+		matrix.postRotate( rotation );
+		matrix.mapRect( dstRect, srcRect );
+
 		float xr = rw/dstRect.width();
 		float yr = rh/dstRect.height();
 		float scale;
@@ -220,20 +255,34 @@ public class ScalingImageView extends ImageView
 		else
 			throw new UnsupportedOperationException();
 
-		transformMatrix.postScale( scale, scale );
-		transformMatrix.postTranslate(
+		matrix.postScale( scale, scale );
+		matrix.postTranslate(
 			Math.round( rect.left+rw*.5f ),
 			Math.round( rect.top+rh*.5f ) );
 
-		transformMatrix.mapRect( dstRect, srcRect );
-		minWidth = dstRect.width();
+		matrix.mapRect( dstRect, srcRect );
 
-		setImageMatrix( transformMatrix );
+		minWidth = dstRect.width();
 	}
 
 	private void init()
 	{
 		super.setScaleType( ImageView.ScaleType.MATRIX );
+	}
+
+	private RectF getDrawableRect()
+	{
+		Drawable drawable;
+		int w = 0;
+		int h = 0;
+
+		if( (drawable = getDrawable()) != null )
+		{
+			w = drawable.getIntrinsicWidth();
+			h = drawable.getIntrinsicHeight();
+		}
+
+		return new RectF( 0, 0, w, h );
 	}
 
 	private void initTransform(
@@ -242,6 +291,7 @@ public class ScalingImageView extends ImageView
 		int ignoreIndex )
 	{
 		originMatrix.set( transformMatrix );
+		originRect.set( getDrawableRect() );
 
 		// try to find two pointers that are down;
 		// pointerCount may include a pointer that
@@ -262,7 +312,7 @@ public class ScalingImageView extends ImageView
 
 			if( p1 == 0xffff )
 				p1 = n;
-			else if( p2 == 0xffff )
+			else
 				p2 = n;
 		}
 
@@ -288,6 +338,7 @@ public class ScalingImageView extends ImageView
 
 			float scale = fitScale(
 				originMatrix,
+				originRect,
 				transformGesture.length/originGesture.length );
 
 			transformMatrix.postScale(
@@ -301,40 +352,48 @@ public class ScalingImageView extends ImageView
 				transformGesture.pivotY-originGesture.pivotY );
 		}
 
-		if( fitRect( transformMatrix ) )
+		if( fitMatrix( transformMatrix, originRect, bounds ) )
 			initTransform( event, pointerCount, -1 );
 
-		setImageMatrix( transformMatrix );
+		super.setImageMatrix( transformMatrix );
 	}
 
-	private float fitScale( Matrix matrix, float scale )
+	private float fitScale(
+		Matrix matrix,
+		RectF rect,
+		float scale )
 	{
-		matrix.mapRect( dstRect, srcRect );
-		float w = dstRect.width();
+		RectF dstRect = new RectF();
+		matrix.mapRect( dstRect, rect );
 
+		float w = dstRect.width();
 		return w*scale < minWidth ?
 			minWidth/w :
 			scale;
 	}
 
-	private boolean fitRect( Matrix matrix )
+	private static boolean fitMatrix(
+		Matrix matrix,
+		RectF rect,
+		RectF frame )
 	{
-		matrix.mapRect( dstRect, srcRect );
+		RectF dstRect = new RectF();
+		matrix.mapRect( dstRect, rect );
 
 		float x = dstRect.left;
 		float y = dstRect.top;
 		float w = dstRect.width();
 		float h = dstRect.height();
-		float bw = bounds.width();
-		float bh = bounds.height();
-		float minX = bounds.right-w;
-		float minY = bounds.bottom-h;
+		float bw = frame.width();
+		float bh = frame.height();
+		float minX = frame.right-w;
+		float minY = frame.bottom-h;
 		float dx = w > bw ?
-			Math.max( minX-x, Math.min( bounds.left-x, 0 ) ) :
-			(bounds.left+Math.round( (bw-w)*.5f ))-x;
+			Math.max( minX-x, Math.min( frame.left-x, 0 ) ) :
+			(frame.left+Math.round( (bw-w)*.5f ))-x;
 		float dy = h > bh ?
-			Math.max( minY-y, Math.min( bounds.top-y, 0 ) ) :
-			(bounds.top+Math.round( (bh-h)*.5f ))-y;
+			Math.max( minY-y, Math.min( frame.top-y, 0 ) ) :
+			(frame.top+Math.round( (bh-h)*.5f ))-y;
 
 		if( dx != 0 || dy != 0 )
 		{
@@ -347,9 +406,9 @@ public class ScalingImageView extends ImageView
 
 	private static class Gesture
 	{
-		public float length;
-		public float pivotX;
-		public float pivotY;
+		private float length;
+		private float pivotX;
+		private float pivotY;
 
 		public void set( MotionEvent event, int p1, int p2 )
 		{

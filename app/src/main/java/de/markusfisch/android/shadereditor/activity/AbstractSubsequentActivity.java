@@ -3,6 +3,7 @@ package de.markusfisch.android.shadereditor.activity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.R;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -22,6 +23,17 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity
 				R.id.content_frame,
 				fragment )
 			.addToBackStack( null )
+			.commit();
+	}
+
+	public static void setFragment(
+		FragmentManager fm,
+		Fragment fragment )
+	{
+		fm.beginTransaction()
+			.replace(
+				R.id.content_frame,
+				fragment )
 			.commit();
 	}
 
@@ -58,5 +70,24 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity
 	{
 		super.onCreate( state );
 		fm = getSupportFragmentManager();
+	}
+
+	protected void setFragmentForIntent(
+		Fragment fragment,
+		Intent intent )
+	{
+		if( fragment == null ||
+			intent == null )
+		{
+			finish();
+			return;
+		}
+
+		fragment.setArguments(
+			intent.getExtras() );
+
+		setFragment(
+			getSupportFragmentManager(),
+			fragment );
 	}
 }

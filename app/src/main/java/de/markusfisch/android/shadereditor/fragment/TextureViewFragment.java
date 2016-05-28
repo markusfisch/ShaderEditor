@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.TexturesActivity;
+import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.widget.ScalingImageView;
@@ -26,7 +26,7 @@ public class TextureViewFragment extends Fragment
 
 	public interface ScalingImageViewProvider
 	{
-		public ScalingImageView getScalingImageView();
+		ScalingImageView getScalingImageView();
 	}
 
 	private long textureId;
@@ -81,14 +81,21 @@ public class TextureViewFragment extends Fragment
 			return null;
 		}
 
-		textureName = cursor.getString( cursor.getColumnIndex(
-			DataSource.TEXTURES_NAME ) );
+		try
+		{
+			textureName = cursor.getString( cursor.getColumnIndex(
+				DataSource.TEXTURES_NAME ) );
+			imageView.setImageBitmap( ShaderEditorApplication
+				.dataSource
+				.getTextureBitmap( cursor ) );
+		}
+		catch( IllegalStateException e )
+		{
+			if( textureName == null )
+				textureName = getString( R.string.image_too_big );
+		}
 
 		activity.setTitle( textureName );
-		imageView.setImageBitmap( ShaderEditorApplication
-			.dataSource
-			.getTextureBitmap( cursor ) );
-
 		cursor.close();
 
 		return null;
@@ -179,9 +186,9 @@ public class TextureViewFragment extends Fragment
 		if( activity == null )
 			return;
 
-		TexturesActivity.setAddUniformResult(
+		AddUniformActivity.setAddUniformResult(
 			activity,
-			textureName );
+			"uniform sampler2D "+textureName );
 
 		activity.finish();
 	}

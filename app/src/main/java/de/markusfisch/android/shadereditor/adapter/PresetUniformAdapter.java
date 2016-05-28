@@ -9,63 +9,63 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-public class UniformsAdapter extends BaseAdapter
+public class PresetUniformAdapter extends BaseAdapter
 {
 	private final Uniform uniforms[];
 
-	public UniformsAdapter( Context context )
+	public PresetUniformAdapter( Context context )
 	{
 		uniforms = new Uniform[]{
 			new Uniform(
-				"uniform vec2 resolution",
+				"vec2 resolution",
 				context.getString( R.string.resolution_in_pixels ) ),
 			new Uniform(
-				"uniform float time",
+				"float time",
 				context.getString( R.string.time_in_seconds_since_load ) ),
 			new Uniform(
-				"uniform vec2 touch",
+				"vec2 touch",
 				context.getString( R.string.touch_position_in_pixels ) ),
 			new Uniform(
-				"uniform int pointerCount",
+				"int pointerCount",
 				context.getString( R.string.number_of_touches ) ),
 			new Uniform(
-				"uniform vec3 pointers[10]",
+				"vec3 pointers[10]",
 				context.getString( R.string.positions_of_touches ) ),
 			new Uniform(
-				"uniform vec3 linear",
+				"vec3 linear",
 				context.getString( R.string.linear_acceleration_vector ) ),
 			new Uniform(
-				"uniform vec3 gravity",
+				"vec3 gravity",
 				context.getString( R.string.gravity_vector ) ),
 			new Uniform(
-				"uniform vec3 rotation",
+				"vec3 rotation",
 				context.getString( R.string.device_rotation ) ),
 			new Uniform(
-				"uniform vec3 magnetic",
+				"vec3 magnetic",
 				context.getString( R.string.magnetic_field ) ),
 			new Uniform(
-				"uniform float light",
+				"float light",
 				context.getString( R.string.light ) ),
 			new Uniform(
-				"uniform float pressure",
+				"float pressure",
 				context.getString( R.string.pressure ) ),
 			new Uniform(
-				"uniform float proximity",
+				"float proximity",
 				context.getString( R.string.proximity ) ),
 			new Uniform(
-				"uniform float battery",
+				"float battery",
 				context.getString( R.string.battery_level ) ),
 			new Uniform(
-				"uniform vec2 offset",
+				"vec2 offset",
 				context.getString( R.string.wallpaper_offset ) ),
 			new Uniform(
-				"uniform vec4 date",
+				"vec4 date",
 				context.getString( R.string.date_time ) ),
 			new Uniform(
-				"uniform float startRandom",
+				"float startRandom",
 				context.getString( R.string.start_random ) ),
 			new Uniform(
-				"uniform sampler2D backbuffer",
+				"sampler2D backbuffer",
 				context.getString( R.string.previous_frame ) ),
 		};
 	}
@@ -79,7 +79,7 @@ public class UniformsAdapter extends BaseAdapter
 	@Override
 	public String getItem( int position )
 	{
-		return uniforms[position].name;
+		return "uniform "+uniforms[position].name;
 	}
 
 	@Override

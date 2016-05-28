@@ -113,6 +113,5 @@ svg/ic_action_run.svg 24 1
 svg/ic_action_save.svg 24 1
 svg/ic_action_settings.svg 24 1
 svg/ic_action_share.svg 24 1
-svg/ic_action_textures.svg 24 1
 svg/ic_action_update.svg 24 1
 EOF

@@ -1,15 +1,10 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.TexturesActivity;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
 import de.markusfisch.android.shadereditor.R;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.graphics.RectF;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -31,44 +26,23 @@ import android.widget.Toast;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-public class TexturePropertiesFragment extends Fragment
+public abstract class SamplerPropertiesFragment extends Fragment
 {
-	public static final String TEXTURE_NAME = "[a-zA-Z0-9_]+";
+	public static final String TEXTURE_NAME_PATTERN = "[a-zA-Z0-9_]+";
 
-	private static final String IMAGE_URI = "image_uri";
-	private static final String CROP_RECT = "crop_rect";
-	private static final String ROTATION = "rotation";
 	private static final Pattern NAME_PATTERN = Pattern.compile(
-		"^"+TEXTURE_NAME+"$" );
+		"^"+TEXTURE_NAME_PATTERN+"$" );
 
 	private static boolean inProgress = false;
 
 	private InputMethodManager imm;
+	private TextView sizeCaption;
 	private SeekBar sizeBarView;
 	private TextView sizeView;
 	private EditText nameView;
 	private CheckBox addUniformView;
 	private View progressView;
-	private Uri imageUri;
-	private RectF cropRect;
-	private float imageRotation;
-
-	public static Fragment newInstance(
-		Uri uri,
-		RectF rect,
-		float rotation )
-	{
-		Bundle args = new Bundle();
-		args.putParcelable( IMAGE_URI, uri );
-		args.putParcelable( CROP_RECT, rect );
-		args.putFloat( ROTATION, rotation );
-
-		TexturePropertiesFragment fragment =
-			new TexturePropertiesFragment();
-		fragment.setArguments( args );
-
-		return fragment;
-	}
+	private String samplerType = "sampler2D";
 
 	@Override
 	public void onCreate( Bundle state )
@@ -79,30 +53,59 @@ public class TexturePropertiesFragment extends Fragment
 	}
 
 	@Override
-	public View onCreateView(
-		LayoutInflater inflater,
-		ViewGroup container,
-		Bundle state )
+	public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
 	{
-		Activity activity;
+		inflater.inflate(
+			R.menu.fragment_sampler_properties,
+			menu );
+	}
 
-		if( (activity = getActivity()) == null )
-			return null;
+	@Override
+	public boolean onOptionsItemSelected( MenuItem item )
+	{
+		switch( item.getItemId() )
+		{
+			case R.id.save:
+				saveSamplerAsync();
+				return true;
+			default:
+				return super.onOptionsItemSelected( item );
+		}
+	}
 
-		activity.setTitle( R.string.texture_properties );
+	protected void setSizeCaption( String caption )
+	{
+		sizeCaption.setText( caption );
+	}
 
-		Bundle args;
+	protected void setMaxValue( int max )
+	{
+		sizeBarView.setMax( max );
+	}
+
+	protected void setSamplerType( String name )
+	{
+		samplerType = name;
+	}
+
+	protected abstract int saveSampler(
+		Context context,
+		String name,
+		int size );
+
+	protected View initView(
+		Activity activity,
+		LayoutInflater inflater,
+		ViewGroup container )
+	{
 		View view;
 
-		if( (args = getArguments()) == null ||
-			(imageUri = (Uri)args.getParcelable(
-				IMAGE_URI )) == null ||
-			(cropRect = (RectF)args.getParcelable(
-				CROP_RECT )) == null ||
-			(view = inflater.inflate(
-				R.layout.fragment_texture_properties,
+		if( (view = inflater.inflate(
+				R.layout.fragment_sampler_properties,
 				container,
 				false )) == null ||
+			(sizeCaption = (TextView)view.findViewById(
+				R.id.size_caption )) == null ||
 			(sizeBarView = (SeekBar)view.findViewById(
 				R.id.size_bar )) == null ||
 			(sizeView = (TextView)view.findViewById(
@@ -113,12 +116,7 @@ public class TexturePropertiesFragment extends Fragment
 				R.id.should_add_uniform )) == null ||
 			(progressView = view.findViewById(
 				R.id.progress_view )) == null )
-		{
-			activity.finish();
 			return null;
-		}
-
-		imageRotation = args.getFloat( ROTATION );
 
 		imm = (InputMethodManager)activity.getSystemService(
 			Context.INPUT_METHOD_SERVICE );
@@ -135,27 +133,6 @@ public class TexturePropertiesFragment extends Fragment
 		return view;
 	}
 
-	@Override
-	public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
-	{
-		inflater.inflate(
-			R.menu.fragment_texture_properties,
-			menu );
-	}
-
-	@Override
-	public boolean onOptionsItemSelected( MenuItem item )
-	{
-		switch( item.getItemId() )
-		{
-			case R.id.save:
-				saveTextureAsync();
-				return true;
-			default:
-				return super.onOptionsItemSelected( item );
-		}
-	}
-
 	private void initSizeView()
 	{
 		setSizeView( sizeBarView.getProgress() );
@@ -165,10 +142,10 @@ public class TexturePropertiesFragment extends Fragment
 				@Override
 				public void onProgressChanged(
 					SeekBar seekBar,
-					int progresValue,
+					int progressValue,
 					boolean fromUser )
 				{
-					setSizeView( progresValue );
+					setSizeView( progressValue );
 				}
 
 				@Override
@@ -217,7 +194,7 @@ public class TexturePropertiesFragment extends Fragment
 			} } );
 	}
 
-	private void saveTextureAsync()
+	private void saveSamplerAsync()
 	{
 		final Context context = getActivity();
 
@@ -227,8 +204,7 @@ public class TexturePropertiesFragment extends Fragment
 
 		final String name = nameView.getText().toString();
 
-		if( name == null ||
-			name.trim().length() < 1 )
+		if( name.trim().length() < 1 )
 		{
 			Toast.makeText(
 				context,
@@ -238,7 +214,7 @@ public class TexturePropertiesFragment extends Fragment
 			return;
 		}
 		else if(
-			!name.matches( TEXTURE_NAME ) ||
+			!name.matches( TEXTURE_NAME_PATTERN ) ||
 			name.equals( "backbuffer" ) )
 		{
 			Toast.makeText(
@@ -263,19 +239,7 @@ public class TexturePropertiesFragment extends Fragment
 			@Override
 			protected Integer doInBackground( Void... nothings )
 			{
-				return saveTexture(
-					// try to get a bigger source image in
-					// case the cut out is quite small
-					CropImageFragment.getBitmapFromUri(
-						context,
-						imageUri,
-						// which doesn't work for some devices;
-						// 2048 is too much => out of memory
-						1024 ),
-					cropRect,
-					imageRotation,
-					name,
-					size );
+				return saveSampler( context, name, size );
 			}
 
 			@Override
@@ -300,73 +264,13 @@ public class TexturePropertiesFragment extends Fragment
 				}
 
 				if( addUniformView.isChecked() )
-					TexturesActivity.setAddUniformResult(
+					AddUniformActivity.setAddUniformResult(
 						activity,
-						name );
+						"uniform "+samplerType+" "+name );
 
 				activity.finish();
 			}
 		}.execute();
-	}
-
-	private int saveTexture(
-		Bitmap bitmap,
-		RectF rect,
-		float rotation,
-		String name,
-		int size )
-	{
-		if( bitmap == null )
-			return 0;
-
-		try
-		{
-			if( rotation % 360 != 0 )
-			{
-				Matrix matrix = new Matrix();
-				matrix.setRotate( rotation );
-
-				bitmap = Bitmap.createBitmap(
-					bitmap,
-					0,
-					0,
-					bitmap.getWidth(),
-					bitmap.getHeight(),
-					matrix,
-					true );
-			}
-
-			float w = bitmap.getWidth();
-			float h = bitmap.getHeight();
-
-			bitmap = Bitmap.createBitmap(
-				bitmap,
-				Math.round( rect.left*w ),
-				Math.round( rect.top*h ),
-				Math.round( rect.width()*w ),
-				Math.round( rect.height()*h ) );
-		}
-		catch( IllegalArgumentException e )
-		{
-			return R.string.illegal_rectangle;
-		}
-		catch( OutOfMemoryError e )
-		{
-			return R.string.out_of_memory;
-		}
-
-		if( ShaderEditorApplication
-			.dataSource
-			.insertTexture(
-				name,
-				Bitmap.createScaledBitmap(
-					bitmap,
-					size,
-					size,
-					true ) ) < 1 )
-			return R.string.name_already_taken;
-
-		return 0;
 	}
 
 	private static int getPower( int power )

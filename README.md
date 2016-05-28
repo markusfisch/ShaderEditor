@@ -42,7 +42,7 @@ A live wallpaper should only consume battery when you see it.
 So it generally depends on how often and how long you look at it.
 With normal use, you shouldn't note a difference in battery consumption.
 
-### Errors are not highlighted
+### What if errors are not highlighted?
 
 Unfortunately error information is disabled on some devices (e.g. Huawei
 Ideos X3, Asus Transformer). Error highlighting/reporting is not possible

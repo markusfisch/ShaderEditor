@@ -2,7 +2,6 @@ package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.database.DataSource;
-import de.markusfisch.android.shadereditor.fragment.ShaderListPreferenceDialogFragment;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.preference.ShaderListPreference;
 import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
@@ -37,7 +36,7 @@ public class PreferencesFragment
 			.registerOnSharedPreferenceChangeListener(
 				this );
 
-		setSummaries( (PreferenceGroup)getPreferenceScreen() );
+		setSummaries( getPreferenceScreen() );
 	}
 
 	@Override

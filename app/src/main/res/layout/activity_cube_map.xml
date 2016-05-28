@@ -1,6 +1,6 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
-	<de.markusfisch.android.shadereditor.widget.CropImageView
-		android:id="@+id/crop_image_view"
+	<de.markusfisch.android.shadereditor.widget.CubeMapView
+		android:id="@+id/cube_map_view"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:contentDescription="@string/texture_preview"/>
