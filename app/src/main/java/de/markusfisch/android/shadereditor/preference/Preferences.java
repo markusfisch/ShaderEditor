@@ -7,6 +7,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.SharedPreferences;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.util.TypedValue;
@@ -193,14 +194,17 @@ public class Preferences
 		if( !getIdentifierBoolean( res, "config_showNavigationBar" ) )
 			return 0;
 
-		Configuration conf = res.getConfiguration();
+		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2 )
+		{
+			Configuration conf = res.getConfiguration();
 
-		if( conf.orientation == Configuration.ORIENTATION_LANDSCAPE &&
-			// according to https://developer.android.com/training/multiscreen/screensizes.html#TaskUseSWQuali
-			// only a screen < 600 dp is considered to be a phone and
-			// can move its navigation bar to the side
-			conf.smallestScreenWidthDp < 600 )
-			return 0;
+			if( conf.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+				// according to https://developer.android.com/training/multiscreen/screensizes.html#TaskUseSWQuali
+				// only a screen < 600 dp is considered to be a phone and
+				// can move its navigation bar to the side
+				conf.smallestScreenWidthDp < 600 )
+				return 0;
+		}
 
 		return getIdentifierDimen( res, "navigation_bar_height" );
 	}
