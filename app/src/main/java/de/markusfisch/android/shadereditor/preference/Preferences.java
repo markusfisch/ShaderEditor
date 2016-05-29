@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.SharedPreferences;
+import android.graphics.Point;
 import android.hardware.SensorManager;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
@@ -187,12 +188,14 @@ public class Preferences
 		return getIdentifierDimen( res, "status_bar_height" );
 	}
 
-	public static int getNavigationBarHeight( Resources res )
+	public static void getNavigationBarHeight( Resources res, Point size )
 	{
 		// don't store navigation bar height because it may be
 		// different for each context
+		size.x = size.y = 0;
+
 		if( !getIdentifierBoolean( res, "config_showNavigationBar" ) )
-			return 0;
+			return;
 
 		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2 )
 		{
@@ -203,10 +206,16 @@ public class Preferences
 				// only a screen < 600 dp is considered to be a phone and
 				// can move its navigation bar to the side
 				conf.smallestScreenWidthDp < 600 )
-				return 0;
+			{
+				size.x = getIdentifierDimen(
+					res,
+					"navigation_bar_height_landscape" );
+
+				return;
+			}
 		}
 
-		return getIdentifierDimen( res, "navigation_bar_height" );
+		size.y = getIdentifierDimen( res, "navigation_bar_height" );
 	}
 
 	public static int getToolBarHeight( Context context )

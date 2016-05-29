@@ -177,16 +177,19 @@ public class ScalingImageView extends ImageView
 
 		// use a separate method to layout the image so it's possible
 		// to override this behaviour without skipping super.onLayout()
-		layoutImage( left, top, right, bottom );
+		layoutImage( changed, left, top, right, bottom );
 	}
 
 	protected void layoutImage(
+		boolean changed,
 		int left,
 		int top,
 		int right,
 		int bottom )
 	{
-		setBounds( left, top, right, bottom );
+		if( changed )
+			setBounds( left, top, right, bottom );
+
 		center( bounds );
 	}
 

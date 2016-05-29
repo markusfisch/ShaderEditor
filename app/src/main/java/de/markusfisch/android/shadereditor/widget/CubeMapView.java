@@ -11,6 +11,7 @@ import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Parcel;
@@ -105,11 +106,11 @@ public class CubeMapView extends ScalingImageView
 	private final Paint selectedPaint = new Paint( Paint.ANTI_ALIAS_FLAG );
 	private final Paint unselectedPaint = new Paint( Paint.ANTI_ALIAS_FLAG );
 	private final Paint textPaint = new Paint( Paint.ANTI_ALIAS_FLAG );
+	private final Point navigationBarSize = new Point( 0, 0 );
 
 	private int mapPadding;
 	private int textPadding;
 	private int toolAndStatusBarHeight;
-	private int navigationBarHeight;
 	private int tapTimeout = ViewConfiguration.getTapTimeout();
 	private Bitmap selectedBitmap;
 	private int selectedFace = 0;
@@ -250,16 +251,18 @@ public class CubeMapView extends ScalingImageView
 
 	@Override
 	protected void layoutImage(
+		boolean changed,
 		int left,
 		int top,
 		int right,
 		int bottom )
 	{
-		calculateFaceRects( calculateMapRect(
-			left,
-			top+toolAndStatusBarHeight,
-			right,
-			bottom-navigationBarHeight ) );
+		if( changed )
+			calculateFaceRects(
+				left,
+				top+toolAndStatusBarHeight,
+				right-navigationBarSize.x,
+				bottom-navigationBarSize.y );
 
 		Face face = faces[selectedFace];
 		setBounds( face.bounds );
@@ -325,8 +328,7 @@ public class CubeMapView extends ScalingImageView
 		textPadding = Math.round( 8f*dp );
 		toolAndStatusBarHeight =
 			Preferences.getStatusAndToolBarHeight( context );
-		navigationBarHeight =
-			Preferences.getNavigationBarHeight( res );
+		Preferences.getNavigationBarHeight( res, navigationBarSize );
 	}
 
 	private void restoreFace( int idx, Face from )
@@ -390,17 +392,35 @@ public class CubeMapView extends ScalingImageView
 		return matrix;
 	}
 
-	private RectF calculateMapRect(
+	private void calculateFaceRects(
 		int left,
 		int top,
 		int right,
 		int bottom )
 	{
-		int viewWidth = right-left;
-		int viewHeight = bottom-top;
-		int mapWidth = 2;
-		int mapHeight = 3;
+		left += mapPadding;
+		top += mapPadding;
+		right -= mapPadding;
+		bottom -= mapPadding;
 
+		float viewWidth = right-left;
+		float viewHeight = bottom-top;
+
+		int cols = 2;
+		int rows = 3;
+
+		// prefer 3 by 2 for landscape layouts
+		if( viewWidth > viewHeight )
+		{
+			cols = 3;
+			rows = 2;
+		}
+
+		float mapWidth = cols;
+		float mapHeight = rows;
+
+		// calculate a map rectangle that fits inside the
+		// view rectangle
 		if( viewWidth*mapHeight > viewHeight*mapWidth )
 		{
 			mapWidth = mapWidth*viewHeight/mapHeight;
@@ -412,38 +432,34 @@ public class CubeMapView extends ScalingImageView
 			mapWidth = viewWidth;
 		}
 
-		mapWidth -= mapPadding*2;
-		mapHeight -= mapPadding*2;
+		// center map inside view
+		{
+			int h = Math.round( (viewWidth-mapWidth)/2f );
+			int v = Math.round( (viewHeight-mapHeight)/2f );
 
-		int hpad = (viewWidth-mapWidth)/2;
-		int vpad = (viewHeight-mapHeight)/2;
+			left += h;
+			top += v;
+			right -= h;
+			// bottom is never used below this point
+		}
 
-		return new RectF(
-			left+hpad,
-			top+vpad,
-			right-hpad,
-			bottom-vpad );
-	}
-
-	private void calculateFaceRects( RectF mapRect )
-	{
-		float sideWidth = Math.round( mapRect.width()/2f );
-		float sideHeight = Math.round( mapRect.height()/3f );
-		float x = mapRect.left;
-		float y = mapRect.top;
+		// lay out face bounds
+		int faceSize = Math.round( mapWidth/cols );
+		int x = left;
+		int y = top;
 
 		for( Face face : faces )
 		{
 			face.bounds.set(
 				x,
 				y,
-				x+sideWidth,
-				y+sideHeight );
+				x+faceSize,
+				y+faceSize );
 
-			if( (x += sideWidth) >= mapRect.right )
+			if( (x += faceSize) >= right )
 			{
-				x = mapRect.left;
-				y += sideHeight;
+				x = left;
+				y += faceSize;
 			}
 		}
 	}
