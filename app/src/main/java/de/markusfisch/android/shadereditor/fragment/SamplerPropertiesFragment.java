@@ -29,6 +29,8 @@ import java.util.regex.Pattern;
 public abstract class SamplerPropertiesFragment extends Fragment
 {
 	public static final String TEXTURE_NAME_PATTERN = "[a-zA-Z0-9_]+";
+	public static final String SAMPLER_2D = "sampler2D";
+	public static final String SAMPLER_CUBE = "samplerCube";
 
 	private static final Pattern NAME_PATTERN = Pattern.compile(
 		"^"+TEXTURE_NAME_PATTERN+"$" );
@@ -42,7 +44,7 @@ public abstract class SamplerPropertiesFragment extends Fragment
 	private EditText nameView;
 	private CheckBox addUniformView;
 	private View progressView;
-	private String samplerType = "sampler2D";
+	private String samplerType = SAMPLER_2D;
 
 	@Override
 	public void onCreate( Bundle state )

@@ -25,6 +25,7 @@ public class UniformSampler2dPageFragment extends Fragment
 	private TextureAdapter texturesAdapter;
 	private View progressBar;
 	private View noTexturesMessage;
+	private String samplerType = SamplerPropertiesFragment.SAMPLER_2D;
 
 	@Override
 	public View onCreateView(
@@ -92,6 +93,11 @@ public class UniformSampler2dPageFragment extends Fragment
 		}
 	}
 
+	public void setSamplerType( String type )
+	{
+		samplerType = type;
+	}
+
 	protected void addTexture()
 	{
 		Activity activity = getActivity();
@@ -118,6 +124,28 @@ public class UniformSampler2dPageFragment extends Fragment
 		return ShaderEditorApplication
 			.dataSource
 			.getTextures();
+	}
+
+	protected void showTexture( long id )
+	{
+		Activity activity = getActivity();
+
+		if( activity == null )
+			return;
+
+		Intent intent = new Intent(
+			activity,
+			TextureViewActivity.class );
+
+		intent.putExtra( TextureViewFragment.TEXTURE_ID, id );
+		intent.putExtra( TextureViewFragment.SAMPLER_TYPE, samplerType );
+
+		// use Activity.startActivityForResult() to keep
+		// requestCode; Fragment.startActivityForResult()
+		// will modify the requestCode
+		activity.startActivityForResult(
+			intent,
+			AddUniformActivity.PICK_TEXTURE );
 	}
 
 	private void loadTexturesAsync( final Context context )
@@ -183,26 +211,5 @@ public class UniformSampler2dPageFragment extends Fragment
 					showTexture( id );
 				}
 			} );
-	}
-
-	private void showTexture( long id )
-	{
-		Activity activity = getActivity();
-
-		if( activity == null )
-			return;
-
-		Intent intent = new Intent(
-			activity,
-			TextureViewActivity.class );
-
-		intent.putExtra( TextureViewFragment.TEXTURE_ID, id );
-
-		// use Activity.startActivityForResult() to keep
-		// requestCode; Fragment.startActivityForResult()
-		// will modify the requestCode
-		activity.startActivityForResult(
-			intent,
-			AddUniformActivity.PICK_TEXTURE );
 	}
 }

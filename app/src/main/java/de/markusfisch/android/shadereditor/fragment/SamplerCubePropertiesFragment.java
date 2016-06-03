@@ -64,7 +64,7 @@ public class SamplerCubePropertiesFragment extends SamplerPropertiesFragment
 
 		setSizeCaption( getString( R.string.face_size ) );
 		setMaxValue( 7 );
-		setSamplerType( "samplerCube" );
+		setSamplerType( SAMPLER_CUBE );
 
 		return view;
 	}

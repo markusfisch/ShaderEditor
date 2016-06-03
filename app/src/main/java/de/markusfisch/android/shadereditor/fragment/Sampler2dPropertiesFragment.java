@@ -74,8 +74,6 @@ public class Sampler2dPropertiesFragment extends SamplerPropertiesFragment
 
 		imageRotation = args.getFloat( ROTATION );
 
-		setSamplerType( "sampler2D" );
-
 		return view;
 	}
 

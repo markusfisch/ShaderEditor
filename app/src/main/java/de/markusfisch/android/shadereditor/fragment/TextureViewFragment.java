@@ -23,6 +23,7 @@ import android.view.ViewGroup;
 public class TextureViewFragment extends Fragment
 {
 	public static final String TEXTURE_ID = "texture_id";
+	public static final String SAMPLER_TYPE = "sampler_type";
 
 	public interface ScalingImageViewProvider
 	{
@@ -31,6 +32,7 @@ public class TextureViewFragment extends Fragment
 
 	private long textureId;
 	private String textureName;
+	private String samplerType;
 
 	@Override
 	public void onCreate( Bundle state )
@@ -72,6 +74,7 @@ public class TextureViewFragment extends Fragment
 		if( imageView == null ||
 			(args = getArguments()) == null ||
 			(textureId = args.getLong( TEXTURE_ID )) < 1 ||
+			(samplerType = args.getString( SAMPLER_TYPE )) == null ||
 			DataSource.closeIfEmpty(
 				(cursor = ShaderEditorApplication
 					.dataSource
@@ -188,7 +191,7 @@ public class TextureViewFragment extends Fragment
 
 		AddUniformActivity.setAddUniformResult(
 			activity,
-			"uniform sampler2D "+textureName );
+			"uniform "+samplerType+" "+textureName );
 
 		activity.finish();
 	}
