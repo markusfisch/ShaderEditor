@@ -14,20 +14,20 @@ Features
 * Live preview in background or on an extra screen
 * Syntax highlighting
 * Error highlighting
-* FPS display
-* Use any shader as __live wallpaper__
-* Exposure of __sensors__ (accelerometer, gyroscope, magnetic field, light,
+* Use any shader as live wallpaper
+* Exposure of sensors (accelerometer, gyroscope, magnetic field, light,
 	pressure, proximity)
-* Support for __wallpaper offset__
-* Exposure of __battery level__
-* Supports __multiple touches__
+* Exposure of battery level
+* Supports wallpaper offset
+* Supports multiple touches
 * Supports multiple render resolutions
-* Previous rendered frame in __backbuffer__ texture
-* Import and use __arbitrary textures__
+* Previous rendered frame in backbuffer texture
+* Import and use arbitrary textures
+* Create and use cube maps
 * Disables rendering when battery is low
 
-Tips
-----
+FAQ
+---
 
 ### How many FPS should I get to set my shader as live wallpaper?
 
