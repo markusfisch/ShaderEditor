@@ -6,7 +6,7 @@ import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.preference.Preferences;
-import de.markusfisch.android.shadereditor.widget.TouchThruDrawerlayout;
+import de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 import de.markusfisch.android.shadereditor.R;
@@ -61,7 +61,7 @@ public class MainActivity
 	private EditorFragment editorFragment;
 	private Toolbar toolbar;
 	private Spinner qualitySpinner;
-	private TouchThruDrawerlayout drawerLayout;
+	private TouchThruDrawerLayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
 	private View menuFrame;
 	private ListView listView;
@@ -455,7 +455,7 @@ public class MainActivity
 
 	private void initDrawer()
 	{
-		drawerLayout = (TouchThruDrawerlayout)findViewById(
+		drawerLayout = (TouchThruDrawerLayout)findViewById(
 			R.id.drawer_layout );
 
 		menuFrame = findViewById( R.id.menu_frame );
