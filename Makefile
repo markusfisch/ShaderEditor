@@ -20,7 +20,7 @@ findbugs:
 	./gradlew findBugs
 
 install:
-	adb $(TARGET) install -rk $(APK)
+	adb $(TARGET) install -r $(APK)
 
 start:
 	adb $(TARGET) shell 'am start -n $(PACKAGE)/.activity.MainActivity'
