@@ -92,7 +92,7 @@ public class MainActivity
 				0);
 	}
 
-	@TargetApi( 22 )
+	@TargetApi( Build.VERSION_CODES.LOLLIPOP )
 	public static boolean setSystemBarColor(
 		Window window,
 		int color,

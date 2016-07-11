@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.MotionEvent;
@@ -48,7 +49,7 @@ public class ScalingImageView extends ImageView
 		init();
 	}
 
-	@TargetApi( 21 )
+	@TargetApi( Build.VERSION_CODES.LOLLIPOP )
 	public ScalingImageView(
 		Context context,
 		AttributeSet attrs,
