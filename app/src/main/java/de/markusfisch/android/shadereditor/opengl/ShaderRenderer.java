@@ -131,7 +131,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private final TextureBinder textureBinder = new TextureBinder();
 	private final ArrayList<String> textureNames = new ArrayList<>();
 	private final Matrix flipMatrix = new Matrix();
-	private final Calendar calendar = Calendar.getInstance();
 	private final int fb[] = new int[]{ 0, 0 };
 	private final int tx[] = new int[]{ 0, 0 };
 	private final int textureLocs[] = new int[32];
@@ -152,6 +151,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private LightListener lightListener;
 	private PressureListener pressureListener;
 	private ProximityListener proximityListener;
+	private Calendar calendar;
 	private OnRendererListener onRendererListener;
 	private String fragmentShader;
 	private ByteBuffer vertexBuffer;
@@ -434,6 +434,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		{
 			if( now-lastDateUpdate > DATE_UPDATE_INTERVAL )
 			{
+				calendar = Calendar.getInstance();
 				dateTime[0] = calendar.get( Calendar.YEAR );
 				dateTime[1] = calendar.get( Calendar.MONTH );
 				dateTime[2] = calendar.get( Calendar.DAY_OF_MONTH );
