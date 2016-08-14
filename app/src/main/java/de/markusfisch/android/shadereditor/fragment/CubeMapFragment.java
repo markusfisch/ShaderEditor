@@ -1,7 +1,6 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
-import de.markusfisch.android.shadereditor.activity.CubeMapActivity;
 import de.markusfisch.android.shadereditor.widget.CubeMapView;
 import de.markusfisch.android.shadereditor.R;
 
@@ -52,7 +51,7 @@ public class CubeMapFragment extends Fragment
 
 		try
 		{
-			cubeMapView = ((CubeMapActivity)activity)
+			cubeMapView = ((CubeMapViewProvider)activity)
 				.getCubeMapView();
 		}
 		catch( ClassCastException e )

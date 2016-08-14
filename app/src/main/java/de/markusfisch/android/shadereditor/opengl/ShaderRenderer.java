@@ -151,7 +151,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private LightListener lightListener;
 	private PressureListener pressureListener;
 	private ProximityListener proximityListener;
-	private Calendar calendar;
 	private OnRendererListener onRendererListener;
 	private String fragmentShader;
 	private ByteBuffer vertexBuffer;
@@ -434,7 +433,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		{
 			if( now-lastDateUpdate > DATE_UPDATE_INTERVAL )
 			{
-				calendar = Calendar.getInstance();
+				Calendar calendar = Calendar.getInstance();
 				dateTime[0] = calendar.get( Calendar.YEAR );
 				dateTime[1] = calendar.get( Calendar.MONTH );
 				dateTime[2] = calendar.get( Calendar.DAY_OF_MONTH );

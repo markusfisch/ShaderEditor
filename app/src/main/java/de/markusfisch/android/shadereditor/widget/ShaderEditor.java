@@ -28,7 +28,7 @@ public class ShaderEditor extends EditText
 {
 	public interface OnTextChangedListener
 	{
-		public void onTextChanged( String text );
+		void onTextChanged( String text );
 	}
 
 	private static final Pattern PATTERN_LINE = Pattern.compile(
@@ -190,7 +190,7 @@ public class ShaderEditor extends EditText
 
 		Editable e = getText();
 		Matcher m = PATTERN_INSERT_UNIFORM.matcher( e );
-		int start = 0;
+		int start;
 
 		if( m.find() )
 			start = Math.max( 0, m.end()-1 );
@@ -447,7 +447,6 @@ public class ShaderEditor extends EditText
 	{
 		String indent = "";
 		int istart = dstart-1;
-		int iend = -1;
 
 		// find start of this line
 		boolean dataBefore = false;
@@ -491,6 +490,7 @@ public class ShaderEditor extends EditText
 		if( istart > -1 )
 		{
 			char charAtCursor = dest.charAt( dstart );
+			int iend;
 
 			for( iend = ++istart;
 				iend < dend;
