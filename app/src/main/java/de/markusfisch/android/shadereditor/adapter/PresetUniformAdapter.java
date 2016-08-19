@@ -23,8 +23,14 @@ public class PresetUniformAdapter extends BaseAdapter
 				"float time",
 				context.getString( R.string.time_in_seconds_since_load ) ),
 			new Uniform(
+				"int second",
+				context.getString( R.string.int_seconds_since_load ) ),
+			new Uniform(
+				"float subsecond",
+				context.getString( R.string.fractional_part_of_seconds_since_load ) ),
+			new Uniform(
 				"float ftime",
-				context.getString( R.string.fractional_part_of_time ) ),
+				context.getString( R.string.time_in_cycle ) ),
 			new Uniform(
 				"vec2 touch",
 				context.getString( R.string.touch_position_in_pixels ) ),

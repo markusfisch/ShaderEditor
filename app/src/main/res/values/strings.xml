@@ -65,7 +65,9 @@
 	<!-- UniformPresetPageFragment -->
 	<string name="resolution_in_pixels">Surface resolution in pixels</string>
 	<string name="time_in_seconds_since_load">Time in seconds since load</string>
-	<string name="fractional_part_of_time">Fractional part of time</string>
+	<string name="int_seconds_since_load">Time in integer seconds since load</string>
+	<string name="fractional_part_of_seconds_since_load">Fractional part of seconds since load</string>
+	<string name="time_in_cycle">Time within a cycle of 3.1415 seconds from -1.0 to +1.0</string>
 	<string name="touch_position_in_pixels">Touch position of first touch in pixels</string>
 	<string name="number_of_touches">Number of touches</string>
 	<string name="positions_of_touches">Positions of touches in pixels</string>
