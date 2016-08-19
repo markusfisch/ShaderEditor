@@ -161,6 +161,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int program = 0;
 	private int positionLoc;
 	private int timeLoc;
+	private int fTimeLoc;
 	private int resolutionLoc;
 	private int touchLoc;
 	private int mouseLoc;
@@ -318,10 +319,17 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			0,
 			vertexBuffer );
 
+		float delta = (now-startTime)/NS_PER_SECOND;
+
 		if( timeLoc > -1 )
 			GLES20.glUniform1f(
 				timeLoc,
-				(now-startTime)/NS_PER_SECOND );
+				delta );
+
+		if( fTimeLoc > -1 )
+			GLES20.glUniform1f(
+				fTimeLoc,
+				delta-(int)delta );
 
 		if( resolutionLoc > -1 )
 			GLES20.glUniform2fv(
@@ -679,6 +687,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			program, "position" );
 		timeLoc = GLES20.glGetUniformLocation(
 			program, "time" );
+		fTimeLoc = GLES20.glGetUniformLocation(
+			program, "ftime" );
 		resolutionLoc = GLES20.glGetUniformLocation(
 			program, "resolution" );
 		touchLoc = GLES20.glGetUniformLocation(
