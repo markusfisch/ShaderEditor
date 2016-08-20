@@ -224,8 +224,11 @@ public class MainActivity
 				.doesRunOnChange() )
 			return;
 
-		if( editorFragment != null )
-			editorFragment.hideError();
+		if( editorFragment.hasErrorLine() )
+		{
+			editorFragment.clearError();
+			editorFragment.updateHighlighting();
+		}
 
 		setFragmentShader( text );
 	}
@@ -729,7 +732,7 @@ public class MainActivity
 	{
 		String src = editorFragment.getText();
 
-		editorFragment.hideError();
+		editorFragment.clearError();
 
 		if( ShaderEditorApplication
 				.preferences

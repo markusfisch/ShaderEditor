@@ -129,10 +129,19 @@ public class ShaderEditor extends EditText
 			characters );
 	}
 
+	public boolean hasErrorLine()
+	{
+		return errorLine > 0;
+	}
+
 	public void setErrorLine( int line )
 	{
 		errorLine = line;
-		refresh();
+	}
+
+	public void updateHighlighting()
+	{
+		highlightWithoutChange( getText() );
 	}
 
 	public boolean isModified()
@@ -163,11 +172,6 @@ public class ShaderEditor extends EditText
 		return PATTERN_TRAILING_WHITE_SPACE
 			.matcher( getText() )
 			.replaceAll( "" );
-	}
-
-	public void refresh()
-	{
-		highlightWithoutChange( getText() );
 	}
 
 	public void insertTab()

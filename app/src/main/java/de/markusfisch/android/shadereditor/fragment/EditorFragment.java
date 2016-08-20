@@ -81,9 +81,19 @@ public class EditorFragment extends Fragment
 		updateToPreferences();
 	}
 
-	public void hideError()
+	public boolean hasErrorLine()
+	{
+		return shaderEditor.hasErrorLine();
+	}
+
+	public void clearError()
 	{
 		shaderEditor.setErrorLine( 0 );
+	}
+
+	public void updateHighlighting()
+	{
+		shaderEditor.updateHighlighting();
 	}
 
 	public void showError( String infoLog )
@@ -120,7 +130,7 @@ public class EditorFragment extends Fragment
 
 	public void setText( String text )
 	{
-		hideError();
+		clearError();
 		shaderEditor.setTextHighlighted( text );
 	}
 
