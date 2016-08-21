@@ -958,9 +958,9 @@ public class MainActivity
 			cursor.getColumnIndex( DataSource.SHADERS_FRAGMENT_SHADER ) );
 
 		if( editorFragment != null )
+			// runs setFragmentShader() in onTextChanged()
 			editorFragment.setText( fragmentShader );
-
-		if( ShaderEditorApplication
+		else if( ShaderEditorApplication
 				.preferences
 				.doesRunInBackground() )
 			setFragmentShader( fragmentShader );
