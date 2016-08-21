@@ -103,10 +103,13 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000L;
 	private static final long BATTERY_UPDATE_INTERVAL = 10000000000L;
 	private static final long DATE_UPDATE_INTERVAL = 1000000000L;
-	private static final Pattern SAMPLER = Pattern.compile(
+	private static final Pattern PATTERN_SAMPLER = Pattern.compile(
 		String.format(
 			"uniform[ \t]+sampler(2D|Cube)+[ \t]+(%s);",
 			SamplerPropertiesFragment.TEXTURE_NAME_PATTERN ) );
+	private static final Pattern PATTERN_FTIME = Pattern.compile(
+		"^#define[ \\t]+FTIME_PERIOD[ \\t]+([0-9\\.]+)[ \\t]*$",
+		Pattern.MULTILINE );
 	private static final String VERTEX_SHADER =
 		"attribute vec2 position;"+
 		"void main()"+
@@ -192,6 +195,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private float batteryLevel;
 	private float quality = 1f;
 	private float startRandom;
+	private float fTimeMax;
 
 	private volatile byte thumbnail[] = new byte[1];
 	private volatile long nextFpsUpdate = 0;
@@ -221,6 +225,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 	public void setFragmentShader( String source )
 	{
+		Matcher m = PATTERN_FTIME.matcher( source );
+		fTimeMax = m.find() && m.groupCount() > 0 ?
+			Float.parseFloat( m.group( 1 ) ) :
+			3;
+
 		resetFps();
 		fragmentShader = source;
 
@@ -341,7 +350,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		if( fTimeLoc > -1 )
 			GLES20.glUniform1f(
 				fTimeLoc,
-				(float)((delta % Math.PI)/Math.PI*2.0-1.0) );
+				((delta % fTimeMax)/fTimeMax*2f-1f) );
 
 		if( resolutionLoc > -1 )
 			GLES20.glUniform2fv(
@@ -1123,7 +1132,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 		final int maxTextures = textureIds.length;
 
-		for( Matcher m = SAMPLER.matcher( source );
+		for( Matcher m = PATTERN_SAMPLER.matcher( source );
 			m.find() && numberOfTextures < maxTextures; )
 		{
 			String type = m.group( 1 );
