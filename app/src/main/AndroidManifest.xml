@@ -2,8 +2,8 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	package="de.markusfisch.android.shadereditor"
-	android:versionCode="23"
-	android:versionName="2.4.2"
+	android:versionCode="24"
+	android:versionName="2.4.3"
 	android:installLocation="auto">
 	<supports-screens
 		android:resizeable="true"
