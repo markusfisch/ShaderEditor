@@ -418,7 +418,7 @@ public class ShaderEditor extends EditText
 		return e;
 	}
 
-	private void clearSpans( Editable e )
+	private static void clearSpans( Editable e )
 	{
 		// remove foreground color spans
 		{

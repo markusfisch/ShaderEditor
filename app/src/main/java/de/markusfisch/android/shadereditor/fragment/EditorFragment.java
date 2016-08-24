@@ -105,6 +105,7 @@ public class EditorFragment extends Fragment
 
 		InfoLog.parse( infoLog );
 		shaderEditor.setErrorLine( InfoLog.getErrorLine() );
+		updateHighlighting();
 
 		Toast errorToast = Toast.makeText(
 			activity,
