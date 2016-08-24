@@ -1,22 +1,16 @@
-<ScrollView
+<de.markusfisch.android.shadereditor.widget.ShaderEditor
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	tools:ignore="Overdraw"
-	android:id="@+id/scroll_view"
+	android:id="@+id/editor"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@color/background_editor">
-	<de.markusfisch.android.shadereditor.widget.ShaderEditor
-		android:id="@+id/editor"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:padding="8dp"
-		android:gravity="start|top"
-		android:typeface="monospace"
-		android:textSize="12sp"
-		android:textColor="@color/editor_text"
-		android:ellipsize="end"
-		android:imeOptions="flagNoExtractUi"
-		android:inputType="textVisiblePassword|textMultiLine"
-		android:background="@android:color/transparent"/>
-</ScrollView>
+	android:scrollbars="vertical"
+	android:padding="8dp"
+	android:gravity="start|top"
+	android:typeface="monospace"
+	android:textSize="12sp"
+	android:textColor="@color/editor_text"
+	android:imeOptions="flagNoExtractUi"
+	android:inputType="textVisiblePassword|textMultiLine"
+	android:background="@color/background_editor"/>

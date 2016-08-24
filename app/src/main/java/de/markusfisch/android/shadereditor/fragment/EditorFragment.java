@@ -17,7 +17,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ScrollView;
 import android.widget.Toast;
 
 public class EditorFragment extends Fragment
@@ -25,7 +24,6 @@ public class EditorFragment extends Fragment
 	public static final String TAG = "EditorFragment";
 
 	private InputMethodManager imm;
-	private ScrollView scrollView;
 	private ShaderEditor shaderEditor;
 	private int yOffset;
 
@@ -48,8 +46,6 @@ public class EditorFragment extends Fragment
 				R.layout.fragment_editor,
 				container,
 				false )) == null ||
-			(scrollView = (ScrollView)view.findViewById(
-				R.id.scroll_view )) == null ||
 			(shaderEditor = (ShaderEditor)view.findViewById(
 				R.id.editor )) == null )
 		{
@@ -147,14 +143,14 @@ public class EditorFragment extends Fragment
 
 	public boolean isCodeVisible()
 	{
-		return scrollView.getVisibility() == View.VISIBLE;
+		return shaderEditor.getVisibility() == View.VISIBLE;
 	}
 
 	public boolean toggleCode()
 	{
 		boolean visible = isCodeVisible();
 
-		scrollView.setVisibility( visible ?
+		shaderEditor.setVisibility( visible ?
 			View.GONE :
 			View.VISIBLE );
 
