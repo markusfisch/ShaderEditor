@@ -1036,6 +1036,11 @@ public class MainActivity
 			PreviewActivity.FRAGMENT_SHADER,
 			src );
 
+		intent.addFlags(
+			Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT |
+			// FLAG_ACTIVITY_NEW_DOCUMENT does not work here - why?
+			Intent.FLAG_ACTIVITY_NEW_TASK );
+
 		startActivityForResult( intent, PREVIEW_SHADER );
 	}
 }

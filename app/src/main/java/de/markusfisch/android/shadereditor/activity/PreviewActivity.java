@@ -109,9 +109,11 @@ public class PreviewActivity extends AppCompatActivity
 	}
 
 	@Override
-	protected void onResume()
+	protected void onStart()
 	{
-		super.onResume();
+		// don't use onResume()/onPause() because in multi window mode
+		// an activity may be paused but should still show animations
+		super.onStart();
 
 		shaderView.onResume();
 
@@ -122,9 +124,9 @@ public class PreviewActivity extends AppCompatActivity
 	}
 
 	@Override
-	protected void onPause()
+	protected void onStop()
 	{
-		super.onPause();
+		super.onStop();
 
 		shaderView.onPause();
 	}
