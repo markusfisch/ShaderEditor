@@ -30,6 +30,7 @@ public class Preferences
 	private static final int RUN_AUTO = 1;
 	private static final int RUN_MANUALLY = 2;
 	private static final int RUN_MANUALLY_EXTRA = 3;
+	private static final int RUN_MANUALLY_EXTRA_NEW = 4;
 
 	private SharedPreferences preferences;
 	private long wallpaperShaderId = 1;
@@ -110,7 +111,14 @@ public class Preferences
 
 	public boolean doesRunInBackground()
 	{
-		return runMode != RUN_MANUALLY_EXTRA;
+		return
+			runMode != RUN_MANUALLY_EXTRA &&
+			runMode != RUN_MANUALLY_EXTRA_NEW;
+	}
+
+	public boolean doesRunInNewTask()
+	{
+		return runMode == RUN_MANUALLY_EXTRA_NEW;
 	}
 
 	public int getUpdateDelay()

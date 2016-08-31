@@ -1021,6 +1021,7 @@ public class MainActivity
 		shaderView.setFragmentShader( src, quality );
 	}
 
+	@TargetApi( Build.VERSION_CODES.N )
 	private void showPreview( String src )
 	{
 		toolbar.setSubtitle( null );
@@ -1036,11 +1037,18 @@ public class MainActivity
 			PreviewActivity.FRAGMENT_SHADER,
 			src );
 
-		intent.addFlags(
-			Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT |
-			// FLAG_ACTIVITY_NEW_DOCUMENT does not work here - why?
-			Intent.FLAG_ACTIVITY_NEW_TASK );
+		if( ShaderEditorApplication.preferences.doesRunInNewTask() &&
+			Build.VERSION.SDK_INT >= Build.VERSION_CODES.N )
+		{
+			intent.setFlags(
+				Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT |
+				Intent.FLAG_ACTIVITY_NEW_TASK );
 
-		startActivityForResult( intent, PREVIEW_SHADER );
+			startActivity( intent );
+		}
+		else
+		{
+			startActivityForResult( intent, PREVIEW_SHADER );
+		}
 	}
 }

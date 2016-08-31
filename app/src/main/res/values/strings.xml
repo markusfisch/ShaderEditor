@@ -42,6 +42,7 @@
 	<string name="run_auto">Auto run on change</string>
 	<string name="run_manually">Run manually</string>
 	<string name="run_manually_extra">Run in extra activity</string>
+	<string name="run_manually_new">Run as a new task</string>
 	<string name="fastest">Fastest</string>
 	<string name="game">Game</string>
 	<string name="normal">Normal</string>
