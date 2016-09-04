@@ -64,4 +64,4 @@ precision mediump float;
 ```
 
 Or use the `second`/`subsecond`/`ftime` uniforms instead.
-See issue (#10)[https://github.com/markusfisch/ShaderEditor/issues/10#issuecomment-160463706] for details.
+See issue [#10](https://github.com/markusfisch/ShaderEditor/issues/10#issuecomment-160463706) for details.
