@@ -47,3 +47,21 @@ With normal use, you shouldn't note a difference in battery consumption.
 Unfortunately error information is disabled on some devices (e.g. Huawei
 Ideos X3, Asus Transformer). Error highlighting/reporting is not possible
 on these devices.
+
+### `time` uniform loses accuracy / framerate drops over time
+
+Most probably it's because `time` is just a float of medium precision
+(unfortunately the default for fragment shaders).
+Either try to specify high precision (what may not be available on your
+hardware):
+
+```glsl
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+```
+
+Or use the `second`/`subsecond`/`ftime` uniforms instead.
+See issue [#10][https://github.com/markusfisch/ShaderEditor/issues/10#issuecomment-160463706] for details.
