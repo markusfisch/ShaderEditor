@@ -165,10 +165,12 @@ public class MainActivity
 				.preferences
 				.doesRunInBackground() );
 
-		menu.findItem( R.id.update_wallpaper ).setVisible(
+		menu.findItem( R.id.update_wallpaper ).setTitle(
 			ShaderEditorApplication
 				.preferences
-				.getWallpaperShader() == selectedShaderId );
+				.getWallpaperShader() == selectedShaderId ?
+					R.string.update_wallpaper :
+					R.string.set_as_wallpaper );
 
 		return true;
 	}
@@ -879,11 +881,11 @@ public class MainActivity
 
 	private void updateWallpaper( long id )
 	{
-		if( editorFragment == null ||
-			id < 1 )
+		if( id < 1 )
 			return;
 
-		if( editorFragment.isModified() )
+		if( editorFragment != null &&
+			editorFragment.isModified() )
 			saveShader( id );
 
 		// the onSharedPreferenceChanged() listener
