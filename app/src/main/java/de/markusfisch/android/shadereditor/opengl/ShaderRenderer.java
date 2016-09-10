@@ -279,7 +279,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		{
 			resetFps();
 			createTextures();
-			loadProgram();
+			loadPrograms();
+			indexLocations();
+			enableAttribArrays();
+			registerListeners();
 		}
 	}
 
@@ -669,7 +672,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 		nextFpsUpdate = 0;
 	}
 
-	private void loadProgram()
+	private void loadPrograms()
 	{
 		if( (surfaceProgram = Program.loadProgram(
 			VERTEX_SHADER,
@@ -686,13 +689,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 
 			return;
 		}
-
-		indexLocations();
-
-		GLES20.glEnableVertexAttribArray( surfacePositionLoc );
-		GLES20.glEnableVertexAttribArray( positionLoc );
-
-		registerListeners();
 	}
 
 	private void indexLocations()
@@ -753,6 +749,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 			textureLocs[n] = GLES20.glGetUniformLocation(
 				program,
 				textureNames.get( n ) );
+	}
+
+	private void enableAttribArrays()
+	{
+		GLES20.glEnableVertexAttribArray( surfacePositionLoc );
+		GLES20.glEnableVertexAttribArray( positionLoc );
 	}
 
 	private void registerListeners()
