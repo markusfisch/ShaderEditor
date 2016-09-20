@@ -18,6 +18,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.os.BatteryManager;
+import android.util.Log;
 import android.view.MotionEvent;
 
 import java.io.ByteArrayOutputStream;
@@ -37,7 +38,10 @@ import java.util.regex.Matcher;
 
 public class ShaderRenderer implements GLSurfaceView.Renderer
 {
-	public interface OnRendererListener
+    private static final String TAG = "ShaderRenderer";
+    private static final boolean DEBUG = false;
+
+    public interface OnRendererListener
 	{
 		void onInfoLog( String error );
 		void onFramesPerSecond( int fps );
@@ -138,7 +142,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private final int textureTargets[] = new int[32];
 	private final int textureIds[] = new int[32];
 	private final float surfaceResolution[] = new float[]{ 0, 0 };
-	private final float resolution[] = new float[]{ 0, 0 };
+    private final float resolution[] = new float[]{ 0, 0 };
+    private final float iResolution[] = new float[]{ 0, 0 , 0};
 	private final float touch[] = new float[]{ 0, 0 };
 	private final float mouse[] = new float[]{ 0, 0 };
 	private final float pointers[] = new float[30];
@@ -162,7 +167,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	private int program = 0;
 	private int positionLoc;
 	private int timeLoc;
-	private int resolutionLoc;
+    private int resolutionLoc;
+    private int iResolutionLoc;
 	private int touchLoc;
 	private int mouseLoc;
 	private int pointerCountLoc;
@@ -220,12 +226,68 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	public void setFragmentShader( String source )
 	{
 		resetFps();
-		fragmentShader = source;
+		fragmentShader = convertShaderSource(source);
 
 		indexTextureNames( source );
 	}
 
-	public void setQuality( float quality )
+    /***
+     * Converts a source from ShaderToy format to ShaderEditor format.
+     *
+     * @param source
+     * @return the modified source, or source if it was not in ShaderToy format
+     */
+    private String convertShaderSource(String source) {
+
+        //if (!source.matches(".*void\\s+mainImage\\s*\\(.*")) return source;
+        if (!source.contains("mainImage(")) return source;
+
+        String prefix =
+                        //"{{GLSL_VERSION}}" + "\n" +
+                        "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
+                        "precision highp float;\n" +
+                        "#else\n" +
+                        "precision mediump float;\n" +
+                        "#endif\n" +
+
+                        "//ShaderToy Inputs\n" +
+                        "uniform vec3      iResolution;           // viewport resolution (in pixels)\n" +
+                        "uniform float     iGlobalTime;           // shader playback time (in seconds)\n" +
+                        "uniform float     iTimeDelta;            // render time (in seconds)\n" +
+                        "uniform int       iFrame;                // shader playback frame\n" +
+                        "uniform float     iChannelTime[4];       // channel playback time (in seconds)\n" +
+                        "uniform vec3      iChannelResolution[4]; // channel resolution (in pixels)\n" +
+                        "uniform vec4      iMouse;                // mouse pixel coords. xy: current (if MLB down), zw: click\n" +
+                        //"uniform samplerXX iChannel0..3;          // input channel. XX = 2D/Cube\n" +
+                        "uniform vec4      iDate;                 // (year, month, day, time in seconds)\n" +
+                        "uniform float     iSampleRate;           // sound sample rate (i.e., 44100)\n" +
+//
+//                                uniform sampler2D iChannel0;
+//        uniform sampler2D iChannel1;
+//        uniform sampler2D iChannel2;
+//        uniform sampler2D iChannel3;
+
+                        "" + "\n" +
+                        "void mainImage( out vec4 fragColor, in vec2 fragCoord );" + "\n" +
+                        "" + "\n" +
+                        //"out vec4 fragment_color;" + "\n" +
+                        "" + "\n" +
+                        "void main( void )" + "\n" +
+                        "{" + "\n" +
+                        "   vec4 fragment_color;" + "\n" +
+                        "	mainImage(fragment_color, gl_FragCoord.xy);" + "\n" +
+                        "   gl_FragColor = fragment_color;\n" +
+                        "}" + "\n";
+
+        final String result = prefix + source;
+
+        Log.v(TAG, "Converted ShaderToy source:\n" + 
+                (DEBUG ? result : ""));
+
+        return result;
+    }
+
+    public void setQuality( float quality )
 	{
 		this.quality = quality;
 	}
@@ -330,6 +392,15 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 				1,
 				resolution,
 				0 );
+
+        iResolution[0] = resolution[0];
+        iResolution[1] = resolution[1];
+        if( iResolutionLoc > -1 )
+            GLES20.glUniform3fv(
+                    iResolutionLoc,
+                    1,
+                    iResolution,
+                    0 );
 
 		if( touchLoc > -1 )
 			GLES20.glUniform2fv(
@@ -670,57 +741,69 @@ public class ShaderRenderer implements GLSurfaceView.Renderer
 	{
 		surfacePositionLoc = GLES20.glGetAttribLocation(
 			surfaceProgram, "position" );
-		surfaceResolutionLoc = GLES20.glGetUniformLocation(
-			surfaceProgram, "resolution" );
-		surfaceFrameLoc = GLES20.glGetUniformLocation(
-			surfaceProgram, "frame" );
+		surfaceResolutionLoc = getUniformLocation(surfaceProgram, "resolution", "iResolution");
+		surfaceFrameLoc = getUniformLocation(surfaceProgram, "frame", "iFrame");
+
+//
+//        ShaderToy Inputs
+//        uniform vec3      iResolution;           // viewport resolution (in pixels)
+//        uniform float     iGlobalTime;           // shader playback time (in seconds)
+//        uniform float     iTimeDelta;            // render time (in seconds)
+//        uniform int       iFrame;                // shader playback frame
+//        uniform float     iChannelTime[4];       // channel playback time (in seconds)
+//        uniform vec3      iChannelResolution[4]; // channel resolution (in pixels)
+//        uniform vec4      iMouse;                // mouse pixel coords. xy: current (if MLB down), zw: click
+//        uniform samplerXX iChannel0..3;          // input channel. XX = 2D/Cube
+//        uniform vec4      iDate;                 // (year, month, day, time in seconds)
+//        uniform float     iSampleRate;           // sound sample rate (i.e., 44100)
+
 
 		positionLoc = GLES20.glGetAttribLocation(
 			program, "position" );
-		timeLoc = GLES20.glGetUniformLocation(
-			program, "time" );
-		resolutionLoc = GLES20.glGetUniformLocation(
-			program, "resolution" );
-		touchLoc = GLES20.glGetUniformLocation(
-			program, "touch" );
-		mouseLoc = GLES20.glGetUniformLocation(
-			program, "mouse" );
-		pointerCountLoc = GLES20.glGetUniformLocation(
-			program, "pointerCount" );
-		pointersLoc = GLES20.glGetUniformLocation(
-			program, "pointers" );
-		gravityLoc = GLES20.glGetUniformLocation(
-			program, "gravity" );
-		linearLoc = GLES20.glGetUniformLocation(
-			program, "linear" );
-		rotationLoc = GLES20.glGetUniformLocation(
-			program, "rotation" );
-		magneticLoc = GLES20.glGetUniformLocation(
-			program, "magnetic" );
-		lightLoc = GLES20.glGetUniformLocation(
-			program, "light" );
-		pressureLoc = GLES20.glGetUniformLocation(
-			program, "pressure" );
-		proximityLoc = GLES20.glGetUniformLocation(
-			program, "proximity" );
-		offsetLoc = GLES20.glGetUniformLocation(
-			program, "offset" );
-		batteryLoc = GLES20.glGetUniformLocation(
-			program, "battery" );
-		dateTimeLoc = GLES20.glGetUniformLocation(
-			program, "date" );
-		startRandomLoc = GLES20.glGetUniformLocation(
-			program, "startRandom" );
-		backBufferLoc = GLES20.glGetUniformLocation(
-			program, "backbuffer" );
+		timeLoc = getUniformLocation(program, "time", "iGlobalTime");
+        resolutionLoc = getUniformLocation(program, "resolution");
+        iResolutionLoc = getUniformLocation(program, "iResolution");
+		touchLoc = getUniformLocation(program, "touch");
+		mouseLoc = getUniformLocation(program, "mouse", "iMouse");
+		pointerCountLoc = getUniformLocation(program, "pointerCount");
+		pointersLoc = getUniformLocation(program, "pointers");
+		gravityLoc = getUniformLocation(program, "gravity");
+		linearLoc = getUniformLocation(program, "linear");
+		rotationLoc = getUniformLocation(program, "rotation");
+		magneticLoc = getUniformLocation(program, "magnetic");
+		lightLoc = getUniformLocation(program, "light");
+		pressureLoc = getUniformLocation(program, "pressure");
+		proximityLoc = getUniformLocation(program, "proximity");
+		offsetLoc = getUniformLocation(program, "offset");
+		batteryLoc = getUniformLocation(program, "battery");
+		dateTimeLoc = getUniformLocation(program, "date", "iDate");
+		startRandomLoc = getUniformLocation(program, "startRandom");
+		backBufferLoc = getUniformLocation(program, "backbuffer");
 
 		for( int n = numberOfTextures; n-- > 0; )
-			textureLocs[n] = GLES20.glGetUniformLocation(
-				program,
-				textureNames.get( n ) );
+			textureLocs[n] = getUniformLocation(program, textureNames.get( n ));
 	}
 
-	private void registerListeners()
+    /***
+     * Tries to find a matching uniform location for the given variable and all its aliases
+     * @param program
+     * @param names One or more names of the variable to search for.
+     * @return
+     */
+    private int getUniformLocation(int program, String... names) {
+        int result = -1;
+
+        for (String name : names) {
+            result = GLES20.glGetUniformLocation(
+                    program, name);
+
+            if (result != -1) break;
+        }
+
+        return result;
+    }
+
+    private void registerListeners()
 	{
 		if( gravityLoc > -1 ||
 			linearLoc > -1 )

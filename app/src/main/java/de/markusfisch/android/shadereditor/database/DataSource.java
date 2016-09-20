@@ -483,13 +483,21 @@ public class DataSource
 					R.drawable.thumbnail_gravity ),
 				1f );
 
-			DataSource.insertShader(
-				db,
-				loadRawResource(
-					R.raw.shader_laser_lines ),
-				loadBitmapResource(
-					R.drawable.thumbnail_laser_lines ),
-				1f );
+            DataSource.insertShader(
+                    db,
+                    loadRawResource(
+                            R.raw.shader_laser_lines ),
+                    loadBitmapResource(
+                            R.drawable.thumbnail_laser_lines ),
+                    1f );
+
+            DataSource.insertShader(
+                    db,
+                    loadRawResource(
+                            R.raw.shader_fountain_of_time ),
+                    loadBitmapResource(
+                            R.drawable.thumbnail_laser_lines ),
+                    1f );
 		}
 		catch( IOException e )
 		{
