@@ -20,13 +20,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class TextureViewFragment extends Fragment
-{
+public class TextureViewFragment extends Fragment {
 	public static final String TEXTURE_ID = "texture_id";
 	public static final String SAMPLER_TYPE = "sampler_type";
 
-	public interface ScalingImageViewProvider
-	{
+	public interface ScalingImageViewProvider {
 		ScalingImageView getScalingImageView();
 	}
 
@@ -35,163 +33,146 @@ public class TextureViewFragment extends Fragment
 	private String samplerType;
 
 	@Override
-	public void onCreate( Bundle state )
-	{
-		super.onCreate( state );
+	public void onCreate(Bundle state) {
+		super.onCreate(state);
 
-		setHasOptionsMenu( true );
+		setHasOptionsMenu(true);
 	}
 
 	@Override
 	public View onCreateView(
-		LayoutInflater inflater,
-		ViewGroup container,
-		Bundle state )
-	{
+			LayoutInflater inflater,
+			ViewGroup container,
+			Bundle state) {
 		Activity activity;
 
-		if( (activity = getActivity()) == null )
+		if ((activity = getActivity()) == null) {
 			return null;
+		}
 
 		ScalingImageView imageView;
 
-		try
-		{
-			imageView = ((ScalingImageViewProvider)activity)
-				.getScalingImageView();
-		}
-		catch( ClassCastException e )
-		{
+		try {
+			imageView = ((ScalingImageViewProvider) activity)
+					.getScalingImageView();
+		} catch (ClassCastException e) {
 			throw new ClassCastException(
-				activity.toString()+
-				" must implement "+
-				"TextureViewFragment.ScalingImageViewProvider" );
+					activity.toString() +
+							" must implement " +
+							"TextureViewFragment.ScalingImageViewProvider");
 		}
 
 		Bundle args;
 		Cursor cursor;
 
-		if( imageView == null ||
-			(args = getArguments()) == null ||
-			(textureId = args.getLong( TEXTURE_ID )) < 1 ||
-			(samplerType = args.getString( SAMPLER_TYPE )) == null ||
-			DataSource.closeIfEmpty(
-				(cursor = ShaderEditorApplication
-					.dataSource
-					.getTexture( textureId )) ) )
-		{
+		if (imageView == null ||
+				(args = getArguments()) == null ||
+				(textureId = args.getLong(TEXTURE_ID)) < 1 ||
+				(samplerType = args.getString(SAMPLER_TYPE)) == null ||
+				DataSource.closeIfEmpty(
+						(cursor = ShaderEditorApplication
+								.dataSource
+								.getTexture(textureId)))) {
 			activity.finish();
 			return null;
 		}
 
-		try
-		{
-			textureName = cursor.getString( cursor.getColumnIndex(
-				DataSource.TEXTURES_NAME ) );
-			imageView.setImageBitmap( ShaderEditorApplication
-				.dataSource
-				.getTextureBitmap( cursor ) );
-		}
-		catch( IllegalStateException e )
-		{
-			if( textureName == null )
-				textureName = getString( R.string.image_too_big );
+		try {
+			textureName = cursor.getString(cursor.getColumnIndex(
+					DataSource.TEXTURES_NAME));
+			imageView.setImageBitmap(ShaderEditorApplication
+					.dataSource
+					.getTextureBitmap(cursor));
+		} catch (IllegalStateException e) {
+			if (textureName == null) {
+				textureName = getString(R.string.image_too_big);
+			}
 		}
 
-		activity.setTitle( textureName );
+		activity.setTitle(textureName);
 		cursor.close();
 
 		return null;
 	}
 
 	@Override
-	public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
-	{
-		inflater.inflate(
-			R.menu.fragment_view_texture,
-			menu );
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.fragment_view_texture, menu);
 	}
 
 	@Override
-	public boolean onOptionsItemSelected( MenuItem item )
-	{
-		switch( item.getItemId() )
-		{
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
 			case R.id.insert_code:
 				insertUniformSamplerStatement();
 				return true;
 			case R.id.remove_texture:
-				askToRemoveTexture( textureId );
+				askToRemoveTexture(textureId);
 				return true;
 			default:
-				return super.onOptionsItemSelected( item );
+				return super.onOptionsItemSelected(item);
 		}
 	}
 
-	private void askToRemoveTexture( final long id )
-	{
+	private void askToRemoveTexture(final long id) {
 		Activity activity = getActivity();
 
-		if( activity == null )
+		if (activity == null) {
 			return;
+		}
 
-		new AlertDialog.Builder( activity )
-			.setTitle( R.string.remove_texture )
-			.setMessage( R.string.sure_remove_texture )
-			.setPositiveButton(
-				android.R.string.yes,
-				new DialogInterface.OnClickListener()
-				{
-					@Override
-					public void onClick(
-						DialogInterface dialog,
-						int whichButton )
-					{
-						removeTextureAsync( id );
-					}
-				} )
-			.setNegativeButton(
-				android.R.string.no,
-				null ).show();
+		new AlertDialog.Builder(activity)
+				.setTitle(R.string.remove_texture)
+				.setMessage(R.string.sure_remove_texture)
+				.setPositiveButton(
+						android.R.string.yes,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(
+									DialogInterface dialog,
+									int whichButton) {
+								removeTextureAsync(id);
+							}
+						})
+				.setNegativeButton(
+						android.R.string.no,
+						null).show();
 	}
 
-	private void removeTextureAsync( final long id )
-	{
-		new AsyncTask<Void, Void, Void>()
-		{
+	private void removeTextureAsync(final long id) {
+		new AsyncTask<Void, Void, Void>() {
 			@Override
-			protected Void doInBackground( Void... nothings )
-			{
+			protected Void doInBackground(Void... nothings) {
 				ShaderEditorApplication
-					.dataSource
-					.removeTexture( id );
+						.dataSource
+						.removeTexture(id);
 
 				return null;
 			}
 
 			@Override
-			protected void onPostExecute( Void nothing )
-			{
+			protected void onPostExecute(Void nothing) {
 				Activity activity = getActivity();
 
-				if( activity == null )
+				if (activity == null) {
 					return;
+				}
 
 				activity.finish();
 			}
 		}.execute();
 	}
 
-	private void insertUniformSamplerStatement()
-	{
+	private void insertUniformSamplerStatement() {
 		Activity activity = getActivity();
 
-		if( activity == null )
+		if (activity == null) {
 			return;
+		}
 
 		AddUniformActivity.setAddUniformResult(
-			activity,
-			"uniform "+samplerType+" "+textureName );
+				activity,
+				"uniform " + samplerType + " " + textureName);
 
 		activity.finish();
 	}

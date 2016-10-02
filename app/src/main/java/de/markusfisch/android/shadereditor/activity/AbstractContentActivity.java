@@ -6,21 +6,20 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 public abstract class AbstractContentActivity
-	extends AbstractSubsequentActivity
-{
+		extends AbstractSubsequentActivity {
 	@Override
-	protected void onCreate( Bundle state )
-	{
-		super.onCreate( state );
-		setContentView( R.layout.activity_subsequent );
+	protected void onCreate(Bundle state) {
+		super.onCreate(state);
+		setContentView(R.layout.activity_subsequent);
 
-		initSystemBars( this );
-		initToolbar( this );
+		initSystemBars(this);
+		initToolbar(this);
 
-		if( state == null )
+		if (state == null) {
 			AbstractSubsequentActivity.setFragment(
-				getSupportFragmentManager(),
-				defaultFragment() );
+					getSupportFragmentManager(),
+					defaultFragment());
+		}
 	}
 
 	protected abstract Fragment defaultFragment();

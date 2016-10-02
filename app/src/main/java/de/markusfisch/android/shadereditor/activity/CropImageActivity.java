@@ -10,51 +10,47 @@ import android.net.Uri;
 import android.os.Bundle;
 
 public class CropImageActivity
-	extends AbstractSubsequentActivity
-	implements CropImageFragment.CropImageViewProvider
-{
+		extends AbstractSubsequentActivity
+		implements CropImageFragment.CropImageViewProvider {
 	private CropImageView cropImageView;
 
 	public static Intent getIntentForImage(
-		Context context,
-		Uri imageUri )
-	{
+			Context context,
+			Uri imageUri) {
 		Intent intent = new Intent(
-			context,
-			CropImageActivity.class );
+				context,
+				CropImageActivity.class);
 
 		intent.putExtra(
-			CropImageFragment.IMAGE_URI,
-			imageUri );
+				CropImageFragment.IMAGE_URI,
+				imageUri);
 
 		return intent;
 	}
 
 	@Override
-	public CropImageView getCropImageView()
-	{
+	public CropImageView getCropImageView() {
 		return cropImageView;
 	}
 
 	@Override
-	protected void onCreate( Bundle state )
-	{
-		super.onCreate( state );
-		setContentView( R.layout.activity_crop_image );
+	protected void onCreate(Bundle state) {
+		super.onCreate(state);
+		setContentView(R.layout.activity_crop_image);
 
-		if( (cropImageView = (CropImageView)findViewById(
-			R.id.crop_image_view )) == null )
-		{
+		if ((cropImageView = (CropImageView) findViewById(
+				R.id.crop_image_view)) == null) {
 			finish();
 			return;
 		}
 
-		MainActivity.initSystemBars( this );
-		AbstractSubsequentActivity.initToolbar( this );
+		MainActivity.initSystemBars(this);
+		AbstractSubsequentActivity.initToolbar(this);
 
-		if( state == null )
+		if (state == null) {
 			setFragmentForIntent(
-				new CropImageFragment(),
-				getIntent() );
+					new CropImageFragment(),
+					getIntent());
+		}
 	}
 }

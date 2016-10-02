@@ -10,84 +10,71 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
-public abstract class AbstractSubsequentActivity extends AppCompatActivity
-{
+public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 	private FragmentManager fm;
 
 	public static void addFragment(
-		FragmentManager fm,
-		Fragment fragment )
-	{
+			FragmentManager fm,
+			Fragment fragment) {
 		fm.beginTransaction()
-			.replace(
-				R.id.content_frame,
-				fragment )
-			.addToBackStack( null )
-			.commit();
+				.replace(
+						R.id.content_frame,
+						fragment)
+				.addToBackStack(null)
+				.commit();
 	}
 
 	public static void setFragment(
-		FragmentManager fm,
-		Fragment fragment )
-	{
+			FragmentManager fm,
+			Fragment fragment) {
 		fm.beginTransaction()
-			.replace(
-				R.id.content_frame,
-				fragment )
-			.commit();
+				.replace(
+						R.id.content_frame,
+						fragment)
+				.commit();
 	}
 
-	public static void initToolbar( AppCompatActivity activity )
-	{
-		Toolbar toolbar = (Toolbar)activity.findViewById( R.id.toolbar );
-		activity.setSupportActionBar( toolbar );
-		activity.getSupportActionBar().setDisplayHomeAsUpEnabled( true );
+	public static void initToolbar(AppCompatActivity activity) {
+		Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
+		activity.setSupportActionBar(toolbar);
+		activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 	}
 
-	public static void initSystemBars( AppCompatActivity activity )
-	{
+	public static void initSystemBars(AppCompatActivity activity) {
 		MainActivity.setSystemBarColor(
-			activity.getWindow(),
-			ShaderEditorApplication
-				.preferences
-				.getSystemBarColor(),
-			false );
+				activity.getWindow(),
+				ShaderEditorApplication
+						.preferences
+						.getSystemBarColor(),
+				false);
 	}
 
 	@Override
-	public boolean onSupportNavigateUp()
-	{
-		if( fm.getBackStackEntryCount() > 0 )
+	public boolean onSupportNavigateUp() {
+		if (fm.getBackStackEntryCount() > 0) {
 			fm.popBackStack();
-		else
+		} else {
 			finish();
+		}
 
 		return true;
 	}
 
 	@Override
-	protected void onCreate( Bundle state )
-	{
-		super.onCreate( state );
+	protected void onCreate(Bundle state) {
+		super.onCreate(state);
 		fm = getSupportFragmentManager();
 	}
 
 	protected void setFragmentForIntent(
-		Fragment fragment,
-		Intent intent )
-	{
-		if( fragment == null ||
-			intent == null )
-		{
+			Fragment fragment,
+			Intent intent) {
+		if (fragment == null || intent == null) {
 			finish();
 			return;
 		}
 
-		fragment.setArguments(
-			intent.getExtras() );
-
-		setFragment(
-			getSupportFragmentManager(),
-			fragment );
+		fragment.setArguments(intent.getExtras());
+		setFragment(getSupportFragmentManager(), fragment);
 	}
 }

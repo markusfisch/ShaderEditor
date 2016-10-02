@@ -4,11 +4,9 @@ import de.markusfisch.android.shadereditor.fragment.PreferencesFragment;
 
 import android.support.v4.app.Fragment;
 
-public class PreferencesActivity extends AbstractContentActivity
-{
+public class PreferencesActivity extends AbstractContentActivity {
 	@Override
-	protected Fragment defaultFragment()
-	{
+	protected Fragment defaultFragment() {
 		return new PreferencesFragment();
 	}
 }

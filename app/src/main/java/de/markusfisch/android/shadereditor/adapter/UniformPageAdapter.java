@@ -10,30 +10,23 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-public class UniformPageAdapter extends FragmentStatePagerAdapter
-{
+public class UniformPageAdapter extends FragmentStatePagerAdapter {
 	private Context context;
 
-	public UniformPageAdapter(
-		Context context,
-		FragmentManager fm )
-	{
-		super( fm );
+	public UniformPageAdapter(Context context, FragmentManager fm) {
+		super(fm);
 
 		this.context = context;
 	}
 
 	@Override
-	public int getCount()
-	{
+	public int getCount() {
 		return 3;
 	}
 
 	@Override
-	public Fragment getItem( int position )
-	{
-		switch( position )
-		{
+	public Fragment getItem(int position) {
+		switch (position) {
 			default:
 			case 0:
 				return new UniformPresetPageFragment();
@@ -45,12 +38,10 @@ public class UniformPageAdapter extends FragmentStatePagerAdapter
 	}
 
 	@Override
-	public CharSequence getPageTitle( int position )
-	{
+	public CharSequence getPageTitle(int position) {
 		int id;
 
-		switch( position )
-		{
+		switch (position) {
 			default:
 			case 0:
 				id = R.string.preset;
@@ -63,6 +54,6 @@ public class UniformPageAdapter extends FragmentStatePagerAdapter
 				break;
 		}
 
-		return context.getString( id );
+		return context.getString(id);
 	}
 }

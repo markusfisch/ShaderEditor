@@ -7,21 +7,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-public class PreviewActivity extends AppCompatActivity
-{
-	public static class RenderStatus
-	{
+public class PreviewActivity extends AppCompatActivity {
+	public static class RenderStatus {
 		public volatile int fps;
 		public volatile String infoLog;
 		public byte thumbnail[];
 
-		public RenderStatus()
-		{
+		public RenderStatus() {
 			reset();
 		}
 
-		public void reset()
-		{
+		public void reset() {
 			fps = 0;
 			infoLog = null;
 			thumbnail = null;
@@ -32,85 +28,74 @@ public class PreviewActivity extends AppCompatActivity
 	public static final String QUALITY = "quality";
 	public static final RenderStatus renderStatus = new RenderStatus();
 
-	private final Runnable finishRunnable =
-		new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				finish();
+	private final Runnable finishRunnable = new Runnable() {
+		@Override
+		public void run() {
+			finish();
+		}
+	};
+	private final Runnable thumbnailRunnable = new Runnable() {
+		@Override
+		public void run() {
+			if (shaderView == null) {
+				return;
 			}
-		};
-	private final Runnable thumbnailRunnable =
-		new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				if( shaderView == null )
-					return;
 
-				renderStatus.thumbnail = shaderView
+			renderStatus.thumbnail = shaderView
 					.getRenderer()
 					.getThumbnail();
-			}
-		};
+		}
+	};
 
 	private ShaderView shaderView;
 
 	@Override
-	protected void onCreate( Bundle state )
-	{
-		super.onCreate( state );
+	protected void onCreate(Bundle state) {
+		super.onCreate(state);
 
 		renderStatus.reset();
-		shaderView = new ShaderView( this );
+		shaderView = new ShaderView(this);
 
-		if( !setShaderFromIntent( getIntent() ) )
-		{
+		if (!setShaderFromIntent(getIntent())) {
 			finish();
 			return;
 		}
 
 		shaderView.getRenderer().setOnRendererListener(
-			new ShaderRenderer.OnRendererListener()
-			{
-				@Override
-				public void onFramesPerSecond( int fps )
-				{
-					// invoked from the GL thread
-					renderStatus.fps = fps;
-				}
+				new ShaderRenderer.OnRendererListener() {
+					@Override
+					public void onFramesPerSecond(int fps) {
+						// invoked from the GL thread
+						renderStatus.fps = fps;
+					}
 
-				@Override
-				public void onInfoLog( String infoLog )
-				{
-					// invoked from the GL thread
-					renderStatus.infoLog = infoLog;
-					runOnUiThread( finishRunnable );
-				}
-			} );
+					@Override
+					public void onInfoLog(String infoLog) {
+						// invoked from the GL thread
+						renderStatus.infoLog = infoLog;
+						runOnUiThread(finishRunnable);
+					}
+				});
 
-		setContentView( shaderView );
+		setContentView(shaderView);
 
 		MainActivity.setSystemBarColor(
-			getWindow(),
-			0,
-			true );
+				getWindow(),
+				0,
+				true);
 	}
 
 	@Override
-	protected void onNewIntent( Intent intent )
-	{
-		super.onNewIntent( intent );
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
 
-		if( !setShaderFromIntent( intent ) )
+		if (!setShaderFromIntent(intent)) {
 			finish();
+		}
 	}
 
 	@Override
-	protected void onStart()
-	{
+	protected void onStart() {
 		// don't use onResume()/onPause() because in multi window mode
 		// an activity may be paused but should still show animations
 		super.onStart();
@@ -118,32 +103,29 @@ public class PreviewActivity extends AppCompatActivity
 		shaderView.onResume();
 
 		renderStatus.reset();
-		shaderView.postDelayed(
-			thumbnailRunnable,
-			500 );
+		shaderView.postDelayed(thumbnailRunnable, 500);
 	}
 
 	@Override
-	protected void onStop()
-	{
+	protected void onStop() {
 		super.onStop();
 
 		shaderView.onPause();
 	}
 
-	private boolean setShaderFromIntent( Intent intent )
-	{
+	private boolean setShaderFromIntent(Intent intent) {
 		String fragmentShader;
 
-		if( intent == null ||
-			shaderView == null ||
-			(fragmentShader = intent.getStringExtra(
-				FRAGMENT_SHADER )) == null )
+		if (intent == null ||
+				shaderView == null ||
+				(fragmentShader = intent.getStringExtra(
+						FRAGMENT_SHADER)) == null) {
 			return false;
+		}
 
 		shaderView.setFragmentShader(
-			fragmentShader,
-			intent.getFloatExtra( QUALITY, 1f ) );
+				fragmentShader,
+				intent.getFloatExtra(QUALITY, 1f));
 
 		return true;
 	}

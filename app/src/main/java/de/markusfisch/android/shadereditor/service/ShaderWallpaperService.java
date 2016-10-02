@@ -14,70 +14,63 @@ import android.service.wallpaper.WallpaperService;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
-public class ShaderWallpaperService extends WallpaperService
-{
+public class ShaderWallpaperService extends WallpaperService {
 	public static final String RENDER_MODE = "render_mode";
 
 	private ShaderWallpaperEngine engine;
 
 	@Override
 	public int onStartCommand(
-		Intent intent,
-		int flags,
-		int startId )
-	{
-		if( intent != null &&
-			engine != null )
-		{
-			int renderMode = intent.getIntExtra( RENDER_MODE, -1 );
+			Intent intent,
+			int flags,
+			int startId) {
+		if (intent != null && engine != null) {
+			int renderMode = intent.getIntExtra(RENDER_MODE, -1);
 
-			if( renderMode > -1 )
-				engine.setRenderMode( renderMode );
+			if (renderMode > -1) {
+				engine.setRenderMode(renderMode);
+			}
 		}
 
-		return super.onStartCommand( intent, flags, startId );
+		return super.onStartCommand(intent, flags, startId);
 	}
 
 	@Override
-	public Engine onCreateEngine()
-	{
+	public Engine onCreateEngine() {
 		return (engine = new ShaderWallpaperEngine());
 	}
 
 	private class ShaderWallpaperEngine
-		extends Engine
-		implements SharedPreferences.OnSharedPreferenceChangeListener
-	{
+			extends Engine
+			implements SharedPreferences.OnSharedPreferenceChangeListener {
 		private final Handler handler = new Handler();
 
 		private ShaderWallpaperView view;
 
-		public ShaderWallpaperEngine()
-		{
+		public ShaderWallpaperEngine() {
 			super();
 
 			ShaderEditorApplication
-				.preferences
-				.getSharedPreferences()
-				.registerOnSharedPreferenceChangeListener(
-					this );
+					.preferences
+					.getSharedPreferences()
+					.registerOnSharedPreferenceChangeListener(
+							this);
 
-			setTouchEventsEnabled( true );
+			setTouchEventsEnabled(true);
 		}
 
 		@Override
 		public void onSharedPreferenceChanged(
-			SharedPreferences preferences,
-			String key )
-		{
-			if( Preferences.WALLPAPER_SHADER.equals( key ) )
+				SharedPreferences preferences,
+				String key) {
+			if (Preferences.WALLPAPER_SHADER.equals(key)) {
 				setShader();
+			}
 		}
 
 		@Override
-		public void onCreate( SurfaceHolder holder )
-		{
-			super.onCreate( holder );
+		public void onCreate(SurfaceHolder holder) {
+			super.onCreate(holder);
 
 			view = new ShaderWallpaperView();
 
@@ -85,8 +78,7 @@ public class ShaderWallpaperService extends WallpaperService
 		}
 
 		@Override
-		public void onDestroy()
-		{
+		public void onDestroy() {
 			super.onDestroy();
 
 			view.destroy();
@@ -94,125 +86,117 @@ public class ShaderWallpaperService extends WallpaperService
 		}
 
 		@Override
-		public void onVisibilityChanged( boolean visible )
-		{
-			super.onVisibilityChanged( visible );
+		public void onVisibilityChanged(boolean visible) {
+			super.onVisibilityChanged(visible);
 
-			if( visible )
+			if (visible) {
 				view.onResume();
-			else
+			} else {
 				view.onPause();
+			}
 		}
 
 		@Override
-		public void onTouchEvent( MotionEvent e )
-		{
-			super.onTouchEvent( e );
+		public void onTouchEvent(MotionEvent e) {
+			super.onTouchEvent(e);
 
-			view.getRenderer().touchAt( e );
+			view.getRenderer().touchAt(e);
 		}
 
 		@Override
 		public void onOffsetsChanged(
-			float xOffset,
-			float yOffset,
-			float xStep,
-			float yStep,
-			int xPixels,
-			int yPixels )
-		{
+				float xOffset,
+				float yOffset,
+				float xStep,
+				float yStep,
+				int xPixels,
+				int yPixels) {
 			view.getRenderer().setOffset(
-				xOffset,
-				yOffset );
+					xOffset,
+					yOffset);
 		}
 
-		public void setRenderMode( int renderMode )
-		{
-			if( view == null )
+		public void setRenderMode(int renderMode) {
+			if (view == null) {
 				return;
+			}
 
-			view.setRenderMode( renderMode );
+			view.setRenderMode(renderMode);
 		}
 
-		private void setShader()
-		{
-			if( !ShaderEditorApplication.dataSource.isOpen() )
-			{
+		private void setShader() {
+			if (!ShaderEditorApplication.dataSource.isOpen()) {
 				handler.postDelayed(
-					new Runnable()
-					{
-						@Override
-						public void run()
-						{
-							setShader();
-						}
-					},
-					100 );
+						new Runnable() {
+							@Override
+							public void run() {
+								setShader();
+							}
+						},
+						100);
 
 				return;
 			}
 
 			Cursor cursor = ShaderEditorApplication
-				.dataSource
-				.getShader( ShaderEditorApplication
-					.preferences
-					.getWallpaperShader() );
+					.dataSource
+					.getShader(ShaderEditorApplication
+							.preferences
+							.getWallpaperShader());
 
 			boolean randomShader = false;
 
-			while( cursor == null ||
-				!cursor.moveToFirst() )
-			{
-				if( cursor != null )
+			while (cursor == null || !cursor.moveToFirst()) {
+				if (cursor != null) {
 					cursor.close();
+				}
 
-				if( randomShader )
+				if (randomShader) {
 					return;
+				}
 
 				randomShader = true;
 				cursor = ShaderEditorApplication
-					.dataSource
-					.getRandomShader();
+						.dataSource
+						.getRandomShader();
 			}
 
-			if( randomShader )
+			if (randomShader) {
 				ShaderEditorApplication
-					.preferences
-					.setWallpaperShader( cursor.getLong(
-						cursor.getColumnIndex(
-							DataSource.SHADERS_ID ) ) );
+						.preferences
+						.setWallpaperShader(cursor.getLong(
+								cursor.getColumnIndex(
+										DataSource.SHADERS_ID)));
+			}
 
-			if( view != null )
+			if (view != null) {
 				view.getRenderer().setFragmentShader(
-					cursor.getString( cursor.getColumnIndex(
-						DataSource.SHADERS_FRAGMENT_SHADER ) ),
-					cursor.getFloat( cursor.getColumnIndex(
-						DataSource.SHADERS_QUALITY ) ) );
+						cursor.getString(cursor.getColumnIndex(
+								DataSource.SHADERS_FRAGMENT_SHADER)),
+						cursor.getFloat(cursor.getColumnIndex(
+								DataSource.SHADERS_QUALITY)));
+			}
 
 			cursor.close();
 		}
 
-		private class ShaderWallpaperView extends ShaderView
-		{
-			public ShaderWallpaperView()
-			{
+		private class ShaderWallpaperView extends ShaderView {
+			public ShaderWallpaperView() {
 				super(
-					ShaderWallpaperService.this,
-					ShaderEditorApplication.preferences.isBatteryLow() ?
-						GLSurfaceView.RENDERMODE_WHEN_DIRTY :
-						GLSurfaceView.RENDERMODE_CONTINUOUSLY );
+						ShaderWallpaperService.this,
+						ShaderEditorApplication.preferences.isBatteryLow() ?
+								GLSurfaceView.RENDERMODE_WHEN_DIRTY :
+								GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 			}
 
 			@Override
-			public final SurfaceHolder getHolder()
-			{
+			public final SurfaceHolder getHolder() {
 				return ShaderWallpaperEngine
-					.this
-					.getSurfaceHolder();
+						.this
+						.getSurfaceHolder();
 			}
 
-			public void destroy()
-			{
+			public void destroy() {
 				super.onDetachedFromWindow();
 			}
 		}

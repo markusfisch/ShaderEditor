@@ -8,62 +8,56 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-public abstract class AbstractListener implements SensorEventListener
-{
+public abstract class AbstractListener implements SensorEventListener {
 	protected long last = 0;
 
 	private SensorManager sensorManager;
 	private boolean listening = false;
 	private Sensor sensor;
 
-	public AbstractListener( Context context )
-	{
+	public AbstractListener(Context context) {
 		sensorManager = (SensorManager)
-			context.getSystemService( Context.SENSOR_SERVICE );
+				context.getSystemService(Context.SENSOR_SERVICE);
 	}
 
-	public void unregister()
-	{
-		if( sensor == null ||
-			!listening )
+	public void unregister() {
+		if (sensor == null || !listening) {
 			return;
+		}
 
-		sensorManager.unregisterListener( this );
+		sensorManager.unregisterListener(this);
 		listening = false;
 	}
 
 	@Override
-	public void onAccuracyChanged( Sensor sensor, int accuracy )
-	{
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 	}
 
 	@Override
-	public void onSensorChanged( SensorEvent event )
-	{
+	public void onSensorChanged(SensorEvent event) {
 		last = event.timestamp;
 	}
 
-	protected boolean register( int type )
-	{
-		if( listening ||
-			sensorManager == null ||
-			(sensor == null &&
-				(sensor = sensorManager.getDefaultSensor(
-					type )) == null) )
+	protected boolean register(int type) {
+		if (listening ||
+				sensorManager == null ||
+				(sensor == null &&
+						(sensor = sensorManager.getDefaultSensor(
+								type)) == null)) {
 			return false;
+		}
 
 		reset();
 
 		return (listening = sensorManager.registerListener(
-			this,
-			sensor,
-			ShaderEditorApplication
-				.preferences
-				.getSensorDelay() ));
+				this,
+				sensor,
+				ShaderEditorApplication
+						.preferences
+						.getSensorDelay()));
 	}
 
-	protected void reset()
-	{
+	protected void reset() {
 		last = 0;
 	}
 }

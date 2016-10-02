@@ -9,33 +9,30 @@ import android.database.Cursor;
 import android.os.Bundle;
 
 public class UniformSamplerCubePageFragment
-	extends UniformSampler2dPageFragment
-{
+		extends UniformSampler2dPageFragment {
 	@Override
-	public void onCreate(Bundle state)
-	{
+	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		setSamplerType( SamplerPropertiesFragment.SAMPLER_CUBE );
+		setSamplerType(SamplerPropertiesFragment.SAMPLER_CUBE);
 	}
 
 	@Override
-	protected void addTexture()
-	{
+	protected void addTexture() {
 		Activity activity = getActivity();
 
-		if( activity == null )
+		if (activity == null) {
 			return;
+		}
 
-		startActivity( new Intent(
-			activity,
-			CubeMapActivity.class ) );
+		startActivity(new Intent(
+				activity,
+				CubeMapActivity.class));
 	}
 
 	@Override
-	protected Cursor loadTextures()
-	{
+	protected Cursor loadTextures() {
 		return ShaderEditorApplication
-			.dataSource
-			.getSamplerCubeTextures();
+				.dataSource
+				.getSamplerCubeTextures();
 	}
 }

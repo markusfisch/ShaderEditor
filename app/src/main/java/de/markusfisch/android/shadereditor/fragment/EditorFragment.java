@@ -19,8 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-public class EditorFragment extends Fragment
-{
+public class EditorFragment extends Fragment {
 	public static final String TAG = "EditorFragment";
 
 	private InputMethodManager imm;
@@ -29,175 +28,156 @@ public class EditorFragment extends Fragment
 
 	@Override
 	public View onCreateView(
-		LayoutInflater inflater,
-		ViewGroup container,
-		Bundle state )
-	{
+			LayoutInflater inflater,
+			ViewGroup container,
+			Bundle state) {
 		Activity activity;
 
-		if( (activity = getActivity()) == null )
+		if ((activity = getActivity()) == null) {
 			return null;
+		}
 
 		View view;
 
-		if( (imm = (InputMethodManager)activity.getSystemService(
-				Context.INPUT_METHOD_SERVICE )) == null ||
-			(view = inflater.inflate(
-				R.layout.fragment_editor,
-				container,
-				false )) == null ||
-			(shaderEditor = (ShaderEditor)view.findViewById(
-				R.id.editor )) == null )
-		{
+		if ((imm = (InputMethodManager) activity.getSystemService(
+				Context.INPUT_METHOD_SERVICE)) == null ||
+				(view = inflater.inflate(
+						R.layout.fragment_editor,
+						container,
+						false)) == null ||
+				(shaderEditor = (ShaderEditor) view.findViewById(
+						R.id.editor)) == null) {
 			activity.finish();
 			return null;
 		}
 
-		try
-		{
+		try {
 			shaderEditor.setOnTextChangedListener(
-				(ShaderEditor.OnTextChangedListener)activity );
-		}
-		catch( ClassCastException e )
-		{
+					(ShaderEditor.OnTextChangedListener) activity);
+		} catch (ClassCastException e) {
 			throw new ClassCastException(
-				activity.toString()+
-				" must implement "+
-				"ShaderEditor.OnTextChangedListener" );
+					activity.toString() +
+							" must implement " +
+							"ShaderEditor.OnTextChangedListener");
 		}
 
 		return view;
 	}
 
 	@Override
-	public void onResume()
-	{
+	public void onResume() {
 		super.onResume();
 
 		updateToPreferences();
 	}
 
-	public boolean hasErrorLine()
-	{
+	public boolean hasErrorLine() {
 		return shaderEditor.hasErrorLine();
 	}
 
-	public void clearError()
-	{
-		shaderEditor.setErrorLine( 0 );
+	public void clearError() {
+		shaderEditor.setErrorLine(0);
 	}
 
-	public void updateHighlighting()
-	{
+	public void updateHighlighting() {
 		shaderEditor.updateHighlighting();
 	}
 
-	public void showError( String infoLog )
-	{
+	public void showError(String infoLog) {
 		Activity activity = getActivity();
 
-		if( activity == null )
+		if (activity == null) {
 			return;
+		}
 
-		InfoLog.parse( infoLog );
-		shaderEditor.setErrorLine( InfoLog.getErrorLine() );
+		InfoLog.parse(infoLog);
+		shaderEditor.setErrorLine(InfoLog.getErrorLine());
 		updateHighlighting();
 
 		Toast errorToast = Toast.makeText(
-			activity,
-			InfoLog.getMessage(),
-			Toast.LENGTH_SHORT );
+				activity,
+				InfoLog.getMessage(),
+				Toast.LENGTH_SHORT);
 
 		errorToast.setGravity(
-			Gravity.TOP | Gravity.CENTER_HORIZONTAL,
-			0,
-			getYOffset( activity ) );
+				Gravity.TOP | Gravity.CENTER_HORIZONTAL,
+				0,
+				getYOffset(activity));
 		errorToast.show();
 	}
 
-	public boolean isModified()
-	{
+	public boolean isModified() {
 		return shaderEditor.isModified();
 	}
 
-	public String getText()
-	{
+	public String getText() {
 		return shaderEditor.getCleanText();
 	}
 
-	public void setText( String text )
-	{
+	public void setText(String text) {
 		clearError();
-		shaderEditor.setTextHighlighted( text );
+		shaderEditor.setTextHighlighted(text);
 	}
 
-	public void insertTab()
-	{
+	public void insertTab() {
 		shaderEditor.insertTab();
 	}
 
-	public void addUniform( String name )
-	{
-		shaderEditor.addUniform( name );
+	public void addUniform(String name) {
+		shaderEditor.addUniform(name);
 	}
 
-	public boolean isCodeVisible()
-	{
+	public boolean isCodeVisible() {
 		return shaderEditor.getVisibility() == View.VISIBLE;
 	}
 
-	public boolean toggleCode()
-	{
+	public boolean toggleCode() {
 		boolean visible = isCodeVisible();
 
-		shaderEditor.setVisibility( visible ?
-			View.GONE :
-			View.VISIBLE );
+		shaderEditor.setVisibility(visible ?
+				View.GONE :
+				View.VISIBLE);
 
-		if( visible )
+		if (visible) {
 			imm.hideSoftInputFromWindow(
-				shaderEditor.getWindowToken(),
-				0 );
+					shaderEditor.getWindowToken(),
+					0);
+		}
 
 		return visible;
 	}
 
-	private void updateToPreferences()
-	{
+	private void updateToPreferences() {
 		Preferences preferences =
-			ShaderEditorApplication.preferences;
+				ShaderEditorApplication.preferences;
 
 		shaderEditor.setUpdateDelay(
-			preferences.getUpdateDelay() );
+				preferences.getUpdateDelay());
 
 		shaderEditor.setTextSize(
-			android.util.TypedValue.COMPLEX_UNIT_SP,
-			preferences.getTextSize() );
+				android.util.TypedValue.COMPLEX_UNIT_SP,
+				preferences.getTextSize());
 
 		shaderEditor.setTabWidth(
-			preferences.getTabWidth() );
+				preferences.getTabWidth());
 	}
 
-	private int getYOffset( Activity activity )
-	{
-		if( yOffset == 0 )
-		{
+	private int getYOffset(Activity activity) {
+		if (yOffset == 0) {
 			float dp = getResources().getDisplayMetrics().density;
 
-			try
-			{
-				ActionBar actionBar = ((AppCompatActivity)activity)
-					.getSupportActionBar();
+			try {
+				ActionBar actionBar = ((AppCompatActivity) activity)
+						.getSupportActionBar();
 
-				if( actionBar != null )
+				if (actionBar != null) {
 					yOffset = actionBar.getHeight();
-			}
-			catch( ClassCastException e )
-			{
-				yOffset = Math.round( 48f*dp );
+				}
+			} catch (ClassCastException e) {
+				yOffset = Math.round(48f * dp);
 			}
 
-			yOffset += Math.round( 16f*dp );
+			yOffset += Math.round(16f * dp);
 		}
 
 		return yOffset;

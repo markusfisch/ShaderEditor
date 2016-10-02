@@ -15,8 +15,7 @@ import android.util.TypedValue;
 
 import java.lang.NumberFormatException;
 
-public class Preferences
-{
+public class Preferences {
 	public static final String WALLPAPER_SHADER = "shader";
 	public static final String SAVE_BATTERY = "save_battery";
 	public static final String RUN_MODE = "run_mode";
@@ -45,230 +44,195 @@ public class Preferences
 	private boolean batteryLow = false;
 	private int systemBarColor;
 
-	public void init( Context context )
-	{
-		systemBarColor =
-			ContextCompat.getColor(
+	public void init(Context context) {
+		systemBarColor = ContextCompat.getColor(
 				context,
-				R.color.primary_dark_translucent );
+				R.color.primary_dark_translucent);
 
 		PreferenceManager.setDefaultValues(
-			context,
-			R.xml.preferences,
-			false );
+				context,
+				R.xml.preferences,
+				false);
 
 		preferences = PreferenceManager
-			.getDefaultSharedPreferences( context );
+				.getDefaultSharedPreferences(context);
 
 		update();
 	}
 
-	public SharedPreferences getSharedPreferences()
-	{
+	public SharedPreferences getSharedPreferences() {
 		return preferences;
 	}
 
-	public void update()
-	{
+	public void update() {
 		wallpaperShaderId = parseLong(
-			preferences.getString( WALLPAPER_SHADER, null ),
-			wallpaperShaderId );
+				preferences.getString(WALLPAPER_SHADER, null),
+				wallpaperShaderId);
 		saveBattery = preferences.getBoolean(
-			SAVE_BATTERY,
-			saveBattery );
+				SAVE_BATTERY,
+				saveBattery);
 		runMode = parseInt(
-			preferences.getString( RUN_MODE, null ),
-			runMode );
+				preferences.getString(RUN_MODE, null),
+				runMode);
 		updateDelay = parseInt(
-			preferences.getString( UPDATE_DELAY, null ),
-			updateDelay );
+				preferences.getString(UPDATE_DELAY, null),
+				updateDelay);
 		sensorDelay = parseSensorDelay(
-			preferences.getString( SENSOR_DELAY, null ),
-			sensorDelay );
+				preferences.getString(SENSOR_DELAY, null),
+				sensorDelay);
 		textSize = parseInt(
-			preferences.getString( TEXT_SIZE, null ),
-			textSize );
+				preferences.getString(TEXT_SIZE, null),
+				textSize);
 		tabWidth = parseInt(
-			preferences.getString( TAB_WIDTH, null ),
-			tabWidth );
+				preferences.getString(TAB_WIDTH, null),
+				tabWidth);
 		showInsertTab = preferences.getBoolean(
-			SHOW_INSERT_TAB,
-			showInsertTab );
+				SHOW_INSERT_TAB,
+				showInsertTab);
 		saveOnRun = preferences.getBoolean(
-			SAVE_ON_RUN,
-			saveOnRun );
+				SAVE_ON_RUN,
+				saveOnRun);
 	}
 
-	public boolean saveBattery()
-	{
+	public boolean saveBattery() {
 		return saveBattery;
 	}
 
-	public boolean doesRunOnChange()
-	{
+	public boolean doesRunOnChange() {
 		return runMode == RUN_AUTO;
 	}
 
-	public boolean doesRunInBackground()
-	{
-		return
-			runMode != RUN_MANUALLY_EXTRA &&
-			runMode != RUN_MANUALLY_EXTRA_NEW;
+	public boolean doesRunInBackground() {
+		return runMode != RUN_MANUALLY_EXTRA &&
+				runMode != RUN_MANUALLY_EXTRA_NEW;
 	}
 
-	public boolean doesRunInNewTask()
-	{
+	public boolean doesRunInNewTask() {
 		return runMode == RUN_MANUALLY_EXTRA_NEW;
 	}
 
-	public int getUpdateDelay()
-	{
+	public int getUpdateDelay() {
 		return updateDelay;
 	}
 
-	public int getSensorDelay()
-	{
+	public int getSensorDelay() {
 		return sensorDelay;
 	}
 
-	public int getTextSize()
-	{
+	public int getTextSize() {
 		return textSize;
 	}
 
-	public int getTabWidth()
-	{
+	public int getTabWidth() {
 		return tabWidth;
 	}
 
-	public boolean doesShowInsertTab()
-	{
+	public boolean doesShowInsertTab() {
 		return showInsertTab;
 	}
 
-	public boolean doesSaveOnRun()
-	{
+	public boolean doesSaveOnRun() {
 		return saveOnRun;
 	}
 
-	public long getWallpaperShader()
-	{
+	public long getWallpaperShader() {
 		return wallpaperShaderId;
 	}
 
-	public void setWallpaperShader( long id )
-	{
+	public void setWallpaperShader(long id) {
 		wallpaperShaderId = id;
 
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putString(
-			WALLPAPER_SHADER,
-			String.valueOf( wallpaperShaderId ) );
+				WALLPAPER_SHADER,
+				String.valueOf(wallpaperShaderId));
 		editor.apply();
 	}
 
-	public boolean isBatteryLow()
-	{
+	public boolean isBatteryLow() {
 		return batteryLow;
 	}
 
-	public void setBatteryLow( boolean isLow )
-	{
+	public void setBatteryLow(boolean isLow) {
 		batteryLow = isLow;
 	}
 
-	public int getSystemBarColor()
-	{
+	public int getSystemBarColor() {
 		return systemBarColor;
 	}
 
-	public static int getStatusAndToolBarHeight( Context context )
-	{
-		return
-			getStatusBarHeight( context.getResources() )+
-			getToolBarHeight( context );
+	public static int getStatusAndToolBarHeight(Context context) {
+		return getStatusBarHeight(context.getResources()) +
+				getToolBarHeight(context);
 	}
 
-	public static int getStatusBarHeight( Resources res )
-	{
+	public static int getStatusBarHeight(Resources res) {
 		// don't store status bar height because it may be
 		// different for each context
-		return getIdentifierDimen( res, "status_bar_height" );
+		return getIdentifierDimen(res, "status_bar_height");
 	}
 
-	public static void getNavigationBarHeight( Resources res, Point size )
-	{
+	public static void getNavigationBarHeight(Resources res, Point size) {
 		// don't store navigation bar height because it may be
 		// different for each context
 		size.x = size.y = 0;
 
-		if( !getIdentifierBoolean( res, "config_showNavigationBar" ) )
+		if (!getIdentifierBoolean(res, "config_showNavigationBar")) {
 			return;
+		}
 
-		if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2 )
-		{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
 			Configuration conf = res.getConfiguration();
 
-			if( conf.orientation == Configuration.ORIENTATION_LANDSCAPE &&
-				// according to https://developer.android.com/training/multiscreen/screensizes.html#TaskUseSWQuali
-				// only a screen < 600 dp is considered to be a phone and
-				// can move its navigation bar to the side
-				conf.smallestScreenWidthDp < 600 )
-			{
+			if (conf.orientation == Configuration.ORIENTATION_LANDSCAPE &&
+					// according to https://developer.android.com/training/multiscreen/screensizes.html#TaskUseSWQuali
+					// only a screen < 600 dp is considered to be a phone and
+					// can move its navigation bar to the side
+					conf.smallestScreenWidthDp < 600) {
 				size.x = getIdentifierDimen(
-					res,
-					"navigation_bar_height_landscape" );
+						res,
+						"navigation_bar_height_landscape");
 
 				return;
 			}
 		}
 
-		size.y = getIdentifierDimen( res, "navigation_bar_height" );
+		size.y = getIdentifierDimen(res, "navigation_bar_height");
 	}
 
-	public static int getToolBarHeight( Context context )
-	{
+	public static int getToolBarHeight(Context context) {
 		// don't store toolbar bar height because it may be
 		// different for each context
 		TypedValue tv = new TypedValue();
 
-		return
-			context.getTheme().resolveAttribute(
+		return context.getTheme().resolveAttribute(
 				android.R.attr.actionBarSize,
 				tv,
-				true ) ?
-			TypedValue.complexToDimensionPixelSize(
-				tv.data,
-				context.getResources().getDisplayMetrics() ) :
-			0;
+				true) ?
+				TypedValue.complexToDimensionPixelSize(
+						tv.data,
+						context.getResources().getDisplayMetrics()) :
+				0;
 	}
 
-	public static int parseInt( String s, int preset )
-	{
-		try
-		{
-			if( s != null &&
-				s.length() > 0 )
-				return Integer.parseInt( s );
-		}
-		catch( NumberFormatException e )
-		{
+	public static int parseInt(String s, int preset) {
+		try {
+			if (s != null && s.length() > 0) {
+				return Integer.parseInt(s);
+			}
+		} catch (NumberFormatException e) {
 			// use preset
 		}
 
 		return preset;
 	}
 
-	public static long parseLong( String s, long preset )
-	{
-		try
-		{
-			if( s != null &&
-				s.length() > 0 )
-				return Long.parseLong( s );
-		}
-		catch( NumberFormatException e )
-		{
+	public static long parseLong(String s, long preset) {
+		try {
+			if (s != null && s.length() > 0) {
+				return Long.parseLong(s);
+			}
+		} catch (NumberFormatException e) {
 			// use preset
 		}
 
@@ -276,38 +240,35 @@ public class Preferences
 	}
 
 	private static boolean getIdentifierBoolean(
-		Resources res,
-		String name )
-	{
+			Resources res,
+			String name) {
 		int id = res.getIdentifier(
-			name,
-			"bool",
-			"android" );
+				name,
+				"bool",
+				"android");
 
-		return id > 0 && res.getBoolean( id );
+		return id > 0 && res.getBoolean(id);
 	}
 
 	private static int getIdentifierDimen(
-		Resources res,
-		String name )
-	{
+			Resources res,
+			String name) {
 		int id = res.getIdentifier(
-			name,
-			"dimen",
-			"android" );
+				name,
+				"dimen",
+				"android");
 
 		return id > 0 ?
-			res.getDimensionPixelSize( id ) :
-			0;
+				res.getDimensionPixelSize(id) :
+				0;
 	}
 
-	private static int parseSensorDelay( String s, int preset )
-	{
-		if( s == null )
+	private static int parseSensorDelay(String s, int preset) {
+		if (s == null) {
 			return preset;
+		}
 
-		switch( s )
-		{
+		switch (s) {
 			case "Fastest":
 				return SensorManager.SENSOR_DELAY_FASTEST;
 			case "Game":
