@@ -3,10 +3,12 @@ package de.markusfisch.android.shadereditor.activity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.R;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -16,10 +18,7 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 	public static void addFragment(
 			FragmentManager fm,
 			Fragment fragment) {
-		fm.beginTransaction()
-				.replace(
-						R.id.content_frame,
-						fragment)
+		getReplaceFragmentTransaction(fm, fragment)
 				.addToBackStack(null)
 				.commit();
 	}
@@ -27,11 +26,7 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 	public static void setFragment(
 			FragmentManager fm,
 			Fragment fragment) {
-		fm.beginTransaction()
-				.replace(
-						R.id.content_frame,
-						fragment)
-				.commit();
+		getReplaceFragmentTransaction(fm, fragment).commit();
 	}
 
 	public static void initToolbar(AppCompatActivity activity) {
@@ -76,5 +71,12 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 
 		fragment.setArguments(intent.getExtras());
 		setFragment(getSupportFragmentManager(), fragment);
+	}
+
+	@SuppressLint("CommitTransaction")
+	private static FragmentTransaction getReplaceFragmentTransaction(
+			FragmentManager fm,
+			Fragment fragment) {
+		return fm.beginTransaction().replace(R.id.content_frame, fragment);
 	}
 }
