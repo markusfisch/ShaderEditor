@@ -745,7 +745,7 @@ public class MainActivity
 	private void addShader() {
 		selectShader(ShaderEditorApplication
 				.dataSource
-				.insertShader());
+				.insertNewShader(this));
 	}
 
 	private void duplicateShader(long id) {

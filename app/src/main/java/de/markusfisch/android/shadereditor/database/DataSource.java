@@ -39,12 +39,9 @@ public class DataSource {
 	public static final String TEXTURES_MATRIX = "matrix";
 
 	private SQLiteDatabase db;
-	private Context context;
 	private int textureThumbnailSize;
 
 	public void openAsync(final Context context) {
-		this.context = context;
-
 		textureThumbnailSize = Math.round(
 				context.getResources().getDisplayMetrics().density * 48f);
 
@@ -249,12 +246,16 @@ public class DataSource {
 		return insertShader(db, shader, thumbnail, quality);
 	}
 
-	public long insertShader() {
+	public long insertNewShader(Context context) {
 		try {
 			return insertShader(
 					db,
-					loadRawResource(R.raw.shader_new_shader),
-					loadBitmapResource(R.drawable.thumbnail_new_shader),
+					loadRawResource(
+							context,
+							R.raw.shader_new_shader),
+					loadBitmapResource(
+							context,
+							R.drawable.thumbnail_new_shader),
 					1f);
 		} catch (IOException e) {
 			return 0;
@@ -364,7 +365,9 @@ public class DataSource {
 				data.length);
 	}
 
-	private String loadRawResource(int id) throws IOException {
+	private static String loadRawResource(
+			Context context,
+			int id) throws IOException {
 		InputStream in = context
 				.getResources()
 				.openRawResource(id);
@@ -377,7 +380,7 @@ public class DataSource {
 				null;
 	}
 
-	private byte[] loadBitmapResource(int id) {
+	private static byte[] loadBitmapResource(Context context, int id) {
 		return bitmapToPng(BitmapFactory.decodeResource(
 				context.getResources(),
 				id));
@@ -396,7 +399,7 @@ public class DataSource {
 		return Math.round(((float) height / width) * 100f) / 100f;
 	}
 
-	private void createShadersTable(SQLiteDatabase db) {
+	private void createShadersTable(SQLiteDatabase db, Context context) {
 		db.execSQL("DROP TABLE IF EXISTS " + SHADERS);
 		db.execSQL(
 				"CREATE TABLE " + SHADERS + " (" +
@@ -407,7 +410,7 @@ public class DataSource {
 						SHADERS_MODIFIED + " DATETIME," +
 						SHADERS_QUALITY + " REAL );");
 
-		insertInitalShaders(db);
+		insertInitalShaders(db, context);
 	}
 
 	private static void addShadersQuality(SQLiteDatabase db) {
@@ -419,29 +422,35 @@ public class DataSource {
 						" SET " + SHADERS_QUALITY + " = 1;");
 	}
 
-	private void insertInitalShaders(SQLiteDatabase db) {
+	private void insertInitalShaders(SQLiteDatabase db, Context context) {
 		try {
 			DataSource.insertShader(
 					db,
 					loadRawResource(
+							context,
 							R.raw.shader_color_hole),
 					loadBitmapResource(
+							context,
 							R.drawable.thumbnail_color_hole),
 					1f);
 
 			DataSource.insertShader(
 					db,
 					loadRawResource(
+							context,
 							R.raw.shader_gravity),
 					loadBitmapResource(
+							context,
 							R.drawable.thumbnail_gravity),
 					1f);
 
 			DataSource.insertShader(
 					db,
 					loadRawResource(
+							context,
 							R.raw.shader_laser_lines),
 					loadBitmapResource(
+							context,
 							R.drawable.thumbnail_laser_lines),
 					1f);
 		} catch (IOException e) {
@@ -450,7 +459,7 @@ public class DataSource {
 		}
 	}
 
-	private void createTexturesTable(SQLiteDatabase db) {
+	private void createTexturesTable(SQLiteDatabase db, Context context) {
 		db.execSQL("DROP TABLE IF EXISTS " + TEXTURES);
 		db.execSQL(
 				"CREATE TABLE " + TEXTURES + " (" +
@@ -462,7 +471,7 @@ public class DataSource {
 						TEXTURES_THUMB + " BLOB," +
 						TEXTURES_MATRIX + " BLOB );");
 
-		insertInitalTextures(db);
+		insertInitalTextures(db, context);
 	}
 
 	private static void addTexturesWidthHeightRatio(SQLiteDatabase db) {
@@ -513,7 +522,7 @@ public class DataSource {
 		cursor.close();
 	}
 
-	private void insertInitalTextures(SQLiteDatabase db) {
+	private void insertInitalTextures(SQLiteDatabase db, Context context) {
 		DataSource.insertTexture(
 				db,
 				context.getString(R.string.texture_name_noise),
@@ -524,14 +533,17 @@ public class DataSource {
 	}
 
 	private class OpenHelper extends SQLiteOpenHelper {
+		private Context context;
+
 		public OpenHelper(Context context) {
 			super(context, "shaders.db", null, 4);
+			this.context = context;
 		}
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			createShadersTable(db);
-			createTexturesTable(db);
+			createShadersTable(db, context);
+			createTexturesTable(db, context);
 		}
 
 		@Override
@@ -549,8 +561,8 @@ public class DataSource {
 				int oldVersion,
 				int newVersion) {
 			if (oldVersion < 2) {
-				createTexturesTable(db);
-				insertInitalShaders(db);
+				createTexturesTable(db, context);
+				insertInitalShaders(db, context);
 			}
 
 			if (oldVersion < 3) {
