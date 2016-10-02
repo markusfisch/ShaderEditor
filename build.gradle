@@ -1,14 +1,10 @@
-allprojects
-{
-	repositories
-	{
+allprojects {
+	repositories {
 		jcenter()
 	}
 
-	gradle.projectsEvaluated
-	{
-		tasks.withType( JavaCompile )
-		{
+	gradle.projectsEvaluated {
+		tasks.withType(JavaCompile) {
 			options.compilerArgs \
 				<< "-Xlint:unchecked" \
 				<< "-Xlint:deprecation"
@@ -16,15 +12,12 @@ allprojects
 	}
 }
 
-buildscript
-{
-	repositories
-	{
+buildscript {
+	repositories {
 		jcenter()
 	}
 
-	dependencies
-	{
+	dependencies {
 		classpath 'com.android.tools.build:gradle:2.2.0'
 	}
 }

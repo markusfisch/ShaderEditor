@@ -1,29 +1,24 @@
 apply plugin: 'com.android.application'
 apply plugin: 'findbugs'
 
-android
-{
+android {
 	compileSdkVersion 24
 	buildToolsVersion "23.0.3"
 
-	defaultConfig
-	{
+	defaultConfig {
 		minSdkVersion 9
 		targetSdkVersion 24
 	}
 
-	buildTypes
-	{
-		release
-		{
+	buildTypes {
+		release {
 			minifyEnabled true
 			shrinkResources true
 		}
 	}
 }
 
-dependencies
-{
+dependencies {
 	compile 'com.android.support:appcompat-v7:24.2.1'
 	compile 'com.android.support:design:24.2.1'
 	compile 'com.android.support:preference-v7:24.2.1'
@@ -38,8 +33,7 @@ task findbugs(type: FindBugs, dependsOn: "assembleDebug") {
 
 	effort = 'default'
 
-	reports
-	{
+	reports {
 		xml.enabled = false
 		html.enabled = true
 	}
