@@ -81,20 +81,20 @@ public class SamplerCubePropertiesFragment extends SamplerPropertiesFragment {
 		int x = 0;
 		int y = 0;
 
-		for (int n = 0, l = 6; n < l; ++n) {
-			if (faces[n].getUri() == null) {
+		for (int i = 0, l = 6; i < l; ++i) {
+			if (faces[i].getUri() == null) {
 				return R.string.cannot_pick_image;
 			}
 
-			RectF clip = faces[n].getClip();
-			float rotation = faces[n].getRotation();
+			RectF clip = faces[i].getClip();
+			float rotation = faces[i].getRotation();
 
 			float nw = clip.width();
 			int max = Math.round(size + size / nw * (1f - nw));
 
 			Bitmap bitmap = BitmapEditor.getBitmapFromUri(
 					context,
-					faces[n].getUri(),
+					faces[i].getUri(),
 					max);
 
 			if (bitmap == null) {

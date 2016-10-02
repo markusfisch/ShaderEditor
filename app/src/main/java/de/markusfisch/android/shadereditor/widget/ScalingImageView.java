@@ -282,21 +282,21 @@ public class ScalingImageView extends ImageView {
 		int p1 = 0xffff;
 		int p2 = 0xffff;
 
-		for (int n = 0; n < pointerCount; ++n) {
-			int id = event.getPointerId(n);
+		for (int i = 0; i < pointerCount; ++i) {
+			int id = event.getPointerId(i);
 
-			originX.put(id, event.getX(n));
-			originY.put(id, event.getY(n));
+			originX.put(id, event.getX(i));
+			originY.put(id, event.getY(i));
 
-			if (n == ignoreIndex ||
+			if (i == ignoreIndex ||
 					p2 != 0xffff) {
 				continue;
 			}
 
 			if (p1 == 0xffff) {
-				p1 = n;
+				p1 = i;
 			} else {
-				p2 = n;
+				p2 = i;
 			}
 		}
 

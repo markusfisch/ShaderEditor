@@ -88,8 +88,8 @@ public class PreferencesFragment
 	}
 
 	private void setSummaries(PreferenceGroup screen) {
-		for (int n = screen.getPreferenceCount(); n-- > 0; ) {
-			setSummary(screen.getPreference(n));
+		for (int i = screen.getPreferenceCount(); i-- > 0; ) {
+			setSummary(screen.getPreference(i));
 		}
 	}
 

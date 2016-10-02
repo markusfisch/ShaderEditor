@@ -501,11 +501,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					tx[backTarget]);
 		}
 
-		for (int n = 0; n < numberOfTextures; ++n) {
+		for (int i = 0; i < numberOfTextures; ++i) {
 			textureBinder.bind(
-					textureLocs[n],
-					textureTargets[n],
-					textureIds[n]);
+					textureLocs[i],
+					textureTargets[i],
+					textureIds[i]);
 		}
 
 		GLES20.glBindFramebuffer(
@@ -621,10 +621,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				e.getPointerCount(),
 				pointers.length / 3);
 
-		for (int n = 0, offset = 0; n < pointerCount; ++n) {
-			pointers[offset++] = e.getX(n) * quality;
-			pointers[offset++] = resolution[1] - e.getY(n) * quality;
-			pointers[offset++] = e.getTouchMajor(n);
+		for (int i = 0, offset = 0; i < pointerCount; ++i) {
+			pointers[offset++] = e.getX(i) * quality;
+			pointers[offset++] = resolution[1] - e.getY(i) * quality;
+			pointers[offset++] = e.getTouchMajor(i);
 		}
 	}
 
@@ -732,10 +732,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		backBufferLoc = GLES20.glGetUniformLocation(
 				program, "backbuffer");
 
-		for (int n = numberOfTextures; n-- > 0; ) {
-			textureLocs[n] = GLES20.glGetUniformLocation(
+		for (int i = numberOfTextures; i-- > 0; ) {
+			textureLocs[i] = GLES20.glGetUniformLocation(
 					program,
-					textureNames.get(n));
+					textureNames.get(i));
 		}
 	}
 
@@ -818,11 +818,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				GLES20.GL_UNSIGNED_BYTE,
 				colorBuffer);
 
-		for (int n = 0, e = pixels; n < pixels; ) {
+		for (int i = 0, e = pixels; i < pixels; ) {
 			e -= min;
 
-			for (int x = min, b = e; x-- > 0; ++n, ++b) {
-				final int c = rgba[n];
+			for (int x = min, b = e; x-- > 0; ++i, ++b) {
+				final int c = rgba[i];
 
 				bgra[b] = ((c >> 16) & 0xff) |
 						((c << 16) & 0xff0000) |
@@ -965,23 +965,23 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				textureIds,
 				0);
 
-		for (int n = 0; n < numberOfTextures; ++n) {
+		for (int i = 0; i < numberOfTextures; ++i) {
 			Bitmap bitmap = ShaderEditorApplication
 					.dataSource
-					.getTextureBitmap(textureNames.get(n));
+					.getTextureBitmap(textureNames.get(i));
 
 			if (bitmap == null) {
 				continue;
 			}
 
-			switch (textureTargets[n]) {
+			switch (textureTargets[i]) {
 				default:
 					continue;
 				case GLES20.GL_TEXTURE_2D:
-					createTexture(textureIds[n], bitmap);
+					createTexture(textureIds[i], bitmap);
 					break;
 				case GLES20.GL_TEXTURE_CUBE_MAP:
-					createCubeTexture(textureIds[n], bitmap);
+					createCubeTexture(textureIds[i], bitmap);
 					break;
 			}
 

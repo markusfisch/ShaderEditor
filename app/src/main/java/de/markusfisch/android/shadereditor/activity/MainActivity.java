@@ -431,8 +431,8 @@ public class MainActivity
 		int len = qualityStringValues.length;
 		qualityValues = new float[len];
 
-		for (int n = 0; n < len; ++n) {
-			qualityValues[n] = Float.valueOf(qualityStringValues[n]);
+		for (int i = 0; i < len; ++i) {
+			qualityValues[i] = Float.valueOf(qualityStringValues[i]);
 		}
 	}
 
@@ -943,9 +943,9 @@ public class MainActivity
 		float q = cursor.getFloat(cursor.getColumnIndex(
 				DataSource.SHADERS_QUALITY));
 
-		for (int n = 0, l = qualityValues.length; n < l; ++n) {
-			if (qualityValues[n] == q) {
-				qualitySpinner.setSelection(n);
+		for (int i = 0, l = qualityValues.length; i < l; ++i) {
+			if (qualityValues[i] == q) {
+				qualitySpinner.setSelection(i);
 				quality = q;
 				return;
 			}

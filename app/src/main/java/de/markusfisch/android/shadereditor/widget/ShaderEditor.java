@@ -333,7 +333,7 @@ public class ShaderEditor extends EditText {
 			if (errorLine > 0) {
 				Matcher m = PATTERN_LINE.matcher(e);
 
-				for (int n = errorLine; n-- > 0 && m.find(); ) {
+				for (int i = errorLine; i-- > 0 && m.find(); ) {
 				}
 
 				e.setSpan(
@@ -399,8 +399,8 @@ public class ShaderEditor extends EditText {
 					e.length(),
 					ForegroundColorSpan.class);
 
-			for (int n = spans.length; n-- > 0; ) {
-				e.removeSpan(spans[n]);
+			for (int i = spans.length; i-- > 0; ) {
+				e.removeSpan(spans[i]);
 			}
 		}
 
@@ -411,8 +411,8 @@ public class ShaderEditor extends EditText {
 					e.length(),
 					BackgroundColorSpan.class);
 
-			for (int n = spans.length; n-- > 0; ) {
-				e.removeSpan(spans[n]);
+			for (int i = spans.length; i-- > 0; ) {
+				e.removeSpan(spans[i]);
 			}
 		}
 	}

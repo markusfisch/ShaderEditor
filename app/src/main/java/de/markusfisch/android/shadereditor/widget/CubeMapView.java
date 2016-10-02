@@ -161,12 +161,12 @@ public class CubeMapView extends ScalingImageView {
 
 		RectF selectedBounds = null;
 
-		for (int n = faces.length; n-- > 0; ) {
-			Face face = faces[n];
+		for (int i = faces.length; i-- > 0; ) {
+			Face face = faces[i];
 			RectF bounds = face.bounds;
 			Bitmap bitmap = face.bitmap;
 
-			if (n == selectedFace) {
+			if (i == selectedFace) {
 				selectedBounds = bounds;
 			} else if (bitmap != null) {
 				canvas.drawBitmap(
@@ -205,16 +205,16 @@ public class CubeMapView extends ScalingImageView {
 			SavedState savedState = (SavedState) state;
 			selectedFace = savedState.savedSelectedFace;
 
-			for (int n = faces.length; n-- > 0; ) {
-				Face face = savedState.savedFaces[n];
+			for (int i = faces.length; i-- > 0; ) {
+				Face face = savedState.savedFaces[i];
 
 				if (face.uri == null) {
 					continue;
 				}
 
-				restoreFace(n, face);
+				restoreFace(i, face);
 
-				if (n == selectedFace) {
+				if (i == selectedFace) {
 					setImageRotation(face.rotation);
 					setImageFromUri(face.uri);
 				}
@@ -268,8 +268,8 @@ public class CubeMapView extends ScalingImageView {
 	}
 
 	private void initFaces(Context context) {
-		for (int n = faces.length; n-- > 0; ) {
-			faces[n] = new Face(context.getString(LABEL_ID[n]));
+		for (int i = faces.length; i-- > 0; ) {
+			faces[i] = new Face(context.getString(LABEL_ID[i]));
 		}
 	}
 
@@ -428,9 +428,9 @@ public class CubeMapView extends ScalingImageView {
 	}
 
 	private boolean selectFaceAt(float x, float y) {
-		for (int n = 0, l = faces.length; n < l; ++n) {
-			if (faces[n].bounds.contains(x, y)) {
-				selectFace(n);
+		for (int i = 0, l = faces.length; i < l; ++i) {
+			if (faces[i].bounds.contains(x, y)) {
+				selectFace(i);
 				return true;
 			}
 		}

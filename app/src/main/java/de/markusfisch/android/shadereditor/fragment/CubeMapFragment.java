@@ -120,8 +120,8 @@ public class CubeMapFragment extends Fragment {
 	private void composeMap() {
 		CubeMapView.Face faces[] = cubeMapView.getFaces();
 
-		for (int n = faces.length; n-- > 0; ) {
-			if (faces[n].getUri() == null) {
+		for (int i = faces.length; i-- > 0; ) {
+			if (faces[i].getUri() == null) {
 				Activity activity = getActivity();
 
 				if (activity == null) {
