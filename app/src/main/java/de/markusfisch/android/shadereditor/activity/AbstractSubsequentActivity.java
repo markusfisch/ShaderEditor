@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -32,7 +33,12 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 	public static void initToolbar(AppCompatActivity activity) {
 		Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
 		activity.setSupportActionBar(toolbar);
-		activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+		ActionBar actionBar = activity.getSupportActionBar();
+		if (actionBar == null) {
+			return;
+		}
+		actionBar.setDisplayHomeAsUpEnabled(true);
 	}
 
 	public static void initSystemBars(AppCompatActivity activity) {
