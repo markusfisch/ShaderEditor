@@ -14,11 +14,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 public class TextureAdapter extends CursorAdapter {
+	private final String sizeFormat;
+
 	private int nameIndex;
 	private int widthIndex;
 	private int heightIndex;
 	private int thumbIndex;
-	private String sizeFormat;
 
 	public TextureAdapter(Context context, Cursor cursor) {
 		super(context, cursor, false);

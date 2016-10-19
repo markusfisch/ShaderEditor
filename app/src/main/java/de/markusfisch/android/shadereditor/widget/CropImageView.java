@@ -11,9 +11,8 @@ import android.util.AttributeSet;
 
 public class CropImageView extends ScalingImageView {
 	private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-	private int padding;
-	private int toolAndStatusbarHeight;
+	private final int padding;
+	private final int toolAndStatusbarHeight;
 
 	public CropImageView(Context context, AttributeSet attr) {
 		super(context, attr);

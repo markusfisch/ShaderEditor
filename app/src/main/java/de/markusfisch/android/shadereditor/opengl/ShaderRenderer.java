@@ -145,8 +145,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private final float pointers[] = new float[30];
 	private final float offset[] = new float[]{0, 0};
 	private final float dateTime[] = new float[]{0, 0, 0, 0};
+	private final Context context;
+	private final ByteBuffer vertexBuffer;
 
-	private Context context;
 	private AccelerometerListener accelerometerListener;
 	private GyroscopeListener gyroscopeListener;
 	private MagneticFieldListener magneticFieldListener;
@@ -155,7 +156,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private ProximityListener proximityListener;
 	private OnRendererListener onRendererListener;
 	private String fragmentShader;
-	private ByteBuffer vertexBuffer;
 	private int surfaceProgram = 0;
 	private int surfacePositionLoc;
 	private int surfaceResolutionLoc;

@@ -533,7 +533,7 @@ public class DataSource {
 	}
 
 	private class OpenHelper extends SQLiteOpenHelper {
-		private Context context;
+		private final Context context;
 
 		public OpenHelper(Context context) {
 			super(context, "shaders.db", null, 4);

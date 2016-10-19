@@ -95,11 +95,11 @@ public class CubeMapView extends ScalingImageView {
 	private final Paint unselectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	private final Point navigationBarSize = new Point(0, 0);
+	private final int tapTimeout = ViewConfiguration.getTapTimeout();
 
 	private int mapPadding;
 	private int textPadding;
 	private int toolAndStatusBarHeight;
-	private int tapTimeout = ViewConfiguration.getTapTimeout();
 	private Bitmap selectedBitmap;
 	private int selectedFace = 0;
 	private long touchDownTime = 0;
@@ -492,8 +492,8 @@ public class CubeMapView extends ScalingImageView {
 	}
 
 	private static class SavedState extends BaseSavedState {
-		private int savedSelectedFace;
-		private Face savedFaces[];
+		private final int savedSelectedFace;
+		private final Face savedFaces[];
 
 		public static final Parcelable.Creator<SavedState> CREATOR =
 				new Parcelable.Creator<SavedState>() {

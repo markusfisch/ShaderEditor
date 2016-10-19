@@ -11,7 +11,8 @@ import android.hardware.SensorManager;
 public abstract class AbstractListener implements SensorEventListener {
 	protected long last = 0;
 
-	private SensorManager sensorManager;
+	private final SensorManager sensorManager;
+
 	private boolean listening = false;
 	private Sensor sensor;
 

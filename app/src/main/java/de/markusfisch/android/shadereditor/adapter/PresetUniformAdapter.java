@@ -130,8 +130,8 @@ public class PresetUniformAdapter extends BaseAdapter {
 	}
 
 	private static final class Uniform {
-		private String name;
-		private String rationale;
+		private final String name;
+		private final String rationale;
 
 		public Uniform(String name, String rationale) {
 			this.name = name;

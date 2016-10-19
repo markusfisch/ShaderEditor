@@ -11,7 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 public class UniformPageAdapter extends FragmentStatePagerAdapter {
-	private Context context;
+	private final Context context;
 
 	public UniformPageAdapter(Context context, FragmentManager fm) {
 		super(fm);
