@@ -58,7 +58,7 @@ public abstract class AbstractListener implements SensorEventListener {
 						.getSensorDelay()));
 	}
 
-	protected void reset() {
+	private void reset() {
 		last = 0;
 	}
 }

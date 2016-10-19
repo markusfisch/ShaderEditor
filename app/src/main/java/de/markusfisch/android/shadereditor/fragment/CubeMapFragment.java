@@ -18,7 +18,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 public class CubeMapFragment extends Fragment {
-	public static final int PICK_IMAGE = 1;
+	private static final int PICK_IMAGE = 1;
 
 	public interface CubeMapViewProvider {
 		CubeMapView getCubeMapView();

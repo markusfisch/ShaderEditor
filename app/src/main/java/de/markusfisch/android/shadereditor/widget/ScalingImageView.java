@@ -202,7 +202,7 @@ public class ScalingImageView extends ImageView {
 		super.setImageMatrix(transformMatrix);
 	}
 
-	protected void setMinWidth(RectF rect, Matrix matrix) {
+	private void setMinWidth(RectF rect, Matrix matrix) {
 		// don't try to store the drawable dimensions by overriding
 		// setImageDrawable() since it is called in the ImageView's
 		// constructor and no referenced member of this object will

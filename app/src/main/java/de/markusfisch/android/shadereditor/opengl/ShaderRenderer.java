@@ -38,7 +38,6 @@ import java.util.regex.Matcher;
 public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public interface OnRendererListener {
 		void onInfoLog(String error);
-
 		void onFramesPerSecond(int fps);
 	}
 

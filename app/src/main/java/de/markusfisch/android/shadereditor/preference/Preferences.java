@@ -200,7 +200,7 @@ public class Preferences {
 		size.y = getIdentifierDimen(res, "navigation_bar_height");
 	}
 
-	public static int getToolBarHeight(Context context) {
+	private static int getToolBarHeight(Context context) {
 		// don't store toolbar bar height because it may be
 		// different for each context
 		TypedValue tv = new TypedValue();
@@ -215,7 +215,7 @@ public class Preferences {
 				0;
 	}
 
-	public static int parseInt(String s, int preset) {
+	private static int parseInt(String s, int preset) {
 		try {
 			if (s != null && s.length() > 0) {
 				return Integer.parseInt(s);
@@ -227,7 +227,7 @@ public class Preferences {
 		return preset;
 	}
 
-	public static long parseLong(String s, long preset) {
+	private static long parseLong(String s, long preset) {
 		try {
 			if (s != null && s.length() > 0) {
 				return Long.parseLong(s);

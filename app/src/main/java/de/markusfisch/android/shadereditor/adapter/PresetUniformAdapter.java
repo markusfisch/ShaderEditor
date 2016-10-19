@@ -115,7 +115,7 @@ public class PresetUniformAdapter extends BaseAdapter {
 		return convertView;
 	}
 
-	protected ViewHolder getViewHolder(View view) {
+	private ViewHolder getViewHolder(View view) {
 		ViewHolder holder;
 
 		if ((holder = (ViewHolder) view.getTag()) == null) {

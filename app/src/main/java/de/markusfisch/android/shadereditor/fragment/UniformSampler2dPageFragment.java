@@ -115,7 +115,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 				.getTextures();
 	}
 
-	protected void showTexture(long id) {
+	private void showTexture(long id) {
 		Activity activity = getActivity();
 
 		if (activity == null) {
