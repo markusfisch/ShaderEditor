@@ -1,4 +1,4 @@
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources>
 	<string-array name="update_delay_names">
 		<item>0.5s</item>
 		<item>1.0s</item>

@@ -1,4 +1,4 @@
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources>
 	<string-array name="text_size_names">
 		<item>@string/small</item>
 		<item>@string/medium</item>

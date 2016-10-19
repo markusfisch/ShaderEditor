@@ -1,4 +1,4 @@
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<resources>
 	<string-array name="run_mode_names">
 		<item>@string/run_auto</item>
 		<item>@string/run_manually</item>
