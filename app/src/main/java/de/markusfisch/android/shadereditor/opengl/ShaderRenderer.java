@@ -660,21 +660,14 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private void loadPrograms() {
-		if ((surfaceProgram = Program.loadProgram(
+		if (((surfaceProgram = Program.loadProgram(
 				VERTEX_SHADER,
-				FRAGMENT_SHADER)) == 0) {
-			return;
-		}
-
-		if ((program = Program.loadProgram(
-				VERTEX_SHADER,
-				fragmentShader)) == 0) {
-			if (onRendererListener != null) {
-				onRendererListener.onInfoLog(
-						Program.getInfoLog());
-			}
-
-			return;
+				FRAGMENT_SHADER)) == 0 ||
+				(program = Program.loadProgram(
+						VERTEX_SHADER,
+						fragmentShader)) == 0) &&
+				onRendererListener != null) {
+			onRendererListener.onInfoLog(Program.getInfoLog());
 		}
 	}
 
