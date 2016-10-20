@@ -15,9 +15,6 @@ public class ShaderEditorApplication extends Application {
 	public void onCreate() {
 		super.onCreate();
 
-		preferences.init(this);
-		dataSource.openAsync(this);
-
 		if (BuildConfig.DEBUG) {
 			StrictMode.setThreadPolicy(
 					new StrictMode.ThreadPolicy.Builder()
@@ -32,5 +29,8 @@ public class ShaderEditorApplication extends Application {
 							.penaltyDeath()
 							.build());
 		}
+
+		preferences.init(this);
+		dataSource.openAsync(this);
 	}
 }
