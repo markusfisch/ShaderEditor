@@ -65,3 +65,16 @@ precision mediump float;
 
 Or use the `second`/`subsecond`/`ftime` uniforms instead.
 See issue [#10](https://github.com/markusfisch/ShaderEditor/issues/10#issuecomment-160463706) for details.
+
+### Where can I learn more about Shaders?
+
+#### Basics
+
+* [The Book of Shaders](http://thebookofshaders.com/)
+* [An Introduction to Shaders](https://aerotwist.com/tutorials/an-introduction-to-shaders-part-1/)
+
+#### Advanced
+
+* [The OpenGL® ES Shading Language](https://www.khronos.org/files/opengles_shading_language.pdf)
+* [GLSL Programming](https://en.wikibooks.org/wiki/GLSL_Programming)
+* [Best Practices for Shaders](https://developer.apple.com/library/content/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/BestPracticesforShaders/BestPracticesforShaders.html)
