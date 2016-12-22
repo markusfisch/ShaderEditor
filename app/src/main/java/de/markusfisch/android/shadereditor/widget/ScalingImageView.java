@@ -96,10 +96,7 @@ public class ScalingImageView extends ImageView {
 				// fall through
 			case MotionEvent.ACTION_DOWN:
 			case MotionEvent.ACTION_POINTER_DOWN:
-				initTransform(
-						event,
-						pointerCount,
-						ignoreIndex);
+				initTransform(event, pointerCount, ignoreIndex);
 				return true;
 			// the position of the pointer(s) changed
 			// so transform accordingly
@@ -288,8 +285,7 @@ public class ScalingImageView extends ImageView {
 			originX.put(id, event.getX(i));
 			originY.put(id, event.getY(i));
 
-			if (i == ignoreIndex ||
-					p2 != 0xffff) {
+			if (i == ignoreIndex || p2 != 0xffff) {
 				continue;
 			}
 
@@ -388,7 +384,7 @@ public class ScalingImageView extends ImageView {
 		private float pivotX;
 		private float pivotY;
 
-		public void set(MotionEvent event, int p1, int p2) {
+		private void set(MotionEvent event, int p1, int p2) {
 			float x1 = event.getX(p1);
 			float y1 = event.getY(p1);
 			float x2 = event.getX(p2);
