@@ -213,83 +213,73 @@ public class ShaderEditor extends EditText {
 	private void init(Context context) {
 		setHorizontallyScrolling(true);
 
-		setFilters(new InputFilter[]{
-				new InputFilter() {
-					@Override
-					public CharSequence filter(
-							CharSequence source,
-							int start,
-							int end,
-							Spanned dest,
-							int dstart,
-							int dend) {
-						if (modified &&
-								end - start == 1 &&
-								start < source.length() &&
-								dstart < dest.length()) {
-							char c = source.charAt(start);
+		setFilters(new InputFilter[]{new InputFilter() {
+			@Override
+			public CharSequence filter(
+					CharSequence source,
+					int start,
+					int end,
+					Spanned dest,
+					int dstart,
+					int dend) {
+				if (modified &&
+						end - start == 1 &&
+						start < source.length() &&
+						dstart < dest.length()) {
+					char c = source.charAt(start);
 
-							if (c == '\n') {
-								return autoIndent(
-										source,
-										dest,
-										dstart,
-										dend);
-							}
-						}
-
-						return source;
+					if (c == '\n') {
+						return autoIndent(source, dest, dstart, dend);
 					}
-				}});
+				}
 
-		addTextChangedListener(
-				new TextWatcher() {
-					private int start = 0;
-					private int count = 0;
+				return source;
+			}
+		}});
 
-					@Override
-					public void onTextChanged(
-							CharSequence s,
-							int start,
-							int before,
-							int count) {
-						this.start = start;
-						this.count = count;
-					}
+		addTextChangedListener(new TextWatcher() {
+			private int start = 0;
+			private int count = 0;
 
-					@Override
-					public void beforeTextChanged(
-							CharSequence s,
-							int start,
-							int count,
-							int after) {
-					}
+			@Override
+			public void onTextChanged(
+					CharSequence s,
+					int start,
+					int before,
+					int count) {
+				this.start = start;
+				this.count = count;
+			}
 
-					@Override
-					public void afterTextChanged(Editable e) {
-						cancelUpdate();
-						convertTabs(e, start, count);
+			@Override
+			public void beforeTextChanged(
+					CharSequence s,
+					int start,
+					int count,
+					int after) {
+			}
 
-						if (!modified) {
-							return;
-						}
+			@Override
+			public void afterTextChanged(Editable e) {
+				cancelUpdate();
+				convertTabs(e, start, count);
 
-						dirty = true;
-						updateHandler.postDelayed(
-								updateRunnable,
-								updateDelay);
-					}
-				});
+				if (!modified) {
+					return;
+				}
+
+				dirty = true;
+				updateHandler.postDelayed(updateRunnable, updateDelay);
+			}
+		});
 
 		setSyntaxColors(context);
-		setUpdateDelay(
-				ShaderEditorApplication
-						.preferences
-						.getUpdateDelay());
-		setTabWidth(
-				ShaderEditorApplication
-						.preferences
-						.getTabWidth());
+		setUpdateDelay(ShaderEditorApplication
+				.preferences
+				.getUpdateDelay());
+		setTabWidth(ShaderEditorApplication
+				.preferences
+				.getTabWidth());
 	}
 
 	private void setSyntaxColors(Context context) {
@@ -334,6 +324,7 @@ public class ShaderEditor extends EditText {
 				Matcher m = PATTERN_LINE.matcher(e);
 
 				for (int i = errorLine; i-- > 0 && m.find(); ) {
+					// {} because analyzers don't like for (); statements
 				}
 
 				e.setSpan(
