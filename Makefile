@@ -23,10 +23,11 @@ install:
 	adb $(TARGET) install -r $(APK)
 
 start:
-	adb $(TARGET) shell 'am start -n $(PACKAGE)/.activity.MainActivity'
+	adb $(TARGET) shell 'am start --opengl-trace -n \
+		$(PACKAGE).debug/$(PACKAGE).activity.MainActivity'
 
 uninstall:
-	adb $(TARGET) uninstall $(PACKAGE)
+	adb $(TARGET) uninstall $(PACKAGE).debug
 
 images:
 	svg/update.sh
