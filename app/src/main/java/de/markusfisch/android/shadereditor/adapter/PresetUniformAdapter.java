@@ -117,7 +117,6 @@ public class PresetUniformAdapter extends BaseAdapter {
 
 	private ViewHolder getViewHolder(View view) {
 		ViewHolder holder;
-
 		if ((holder = (ViewHolder) view.getTag()) == null) {
 			holder = new ViewHolder();
 			holder.name = (TextView) view.findViewById(

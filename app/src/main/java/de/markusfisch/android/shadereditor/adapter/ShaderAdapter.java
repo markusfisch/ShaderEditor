@@ -22,9 +22,7 @@ public class ShaderAdapter extends CursorAdapter {
 	private int textColorUnselected;
 	private long selectedShaderId;
 
-	public ShaderAdapter(
-			Context context,
-			Cursor cursor) {
+	public ShaderAdapter(Context context, Cursor cursor) {
 		super(context, cursor, false);
 
 		indexColumns(cursor);
@@ -40,9 +38,7 @@ public class ShaderAdapter extends CursorAdapter {
 			Context context,
 			Cursor cursor,
 			ViewGroup parent) {
-		LayoutInflater inflater = LayoutInflater.from(
-				parent.getContext());
-
+		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 		return inflater.inflate(
 				R.layout.row_shader,
 				parent,
@@ -55,7 +51,6 @@ public class ShaderAdapter extends CursorAdapter {
 			Context context,
 			Cursor cursor) {
 		ViewHolder holder = getViewHolder(view);
-
 		setData(holder, cursor);
 
 		holder.title.setTextColor(
@@ -82,11 +77,10 @@ public class ShaderAdapter extends CursorAdapter {
 		byte bytes[] = cursor.getBlob(thumbIndex);
 
 		if (bytes != null && bytes.length > 0) {
-			holder.icon.setImageBitmap(
-					BitmapFactory.decodeByteArray(
-							bytes,
-							0,
-							bytes.length));
+			holder.icon.setImageBitmap(BitmapFactory.decodeByteArray(
+					bytes,
+					0,
+					bytes.length));
 		}
 
 		holder.title.setText(cursor.getString(modifiedIndex));

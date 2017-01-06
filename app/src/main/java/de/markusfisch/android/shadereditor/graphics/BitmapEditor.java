@@ -24,8 +24,7 @@ public class BitmapEditor {
 				return null;
 			}
 
-			BitmapFactory.Options options =
-					new BitmapFactory.Options();
+			BitmapFactory.Options options = new BitmapFactory.Options();
 			options.inSampleSize = getSampleSizeForBitmap(
 					fd,
 					maxSize,

@@ -23,18 +23,14 @@ public class BatteryLevelReceiver extends BroadcastReceiver {
 	}
 
 	public static void setLowPowerMode(Context context, boolean low) {
-		if (!ShaderEditorApplication
-				.preferences
-				.saveBattery()) {
+		if (!ShaderEditorApplication.preferences.saveBattery()) {
 			low = false;
 		}
 		// fall through to update battery flag and
 		// render mode because the preference may
 		// have changed while battery is low
 
-		ShaderEditorApplication
-				.preferences
-				.setBatteryLow(low);
+		ShaderEditorApplication.preferences.setBatteryLow(low);
 
 		if (context == null) {
 			return;
@@ -43,11 +39,9 @@ public class BatteryLevelReceiver extends BroadcastReceiver {
 		Intent intent = new Intent(
 				context,
 				ShaderWallpaperService.class);
-		intent.putExtra(
-				ShaderWallpaperService.RENDER_MODE,
-				low ?
-						GLSurfaceView.RENDERMODE_WHEN_DIRTY :
-						GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+		intent.putExtra(ShaderWallpaperService.RENDER_MODE, low ?
+				GLSurfaceView.RENDERMODE_WHEN_DIRTY :
+				GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
 		context.startService(intent);
 	}

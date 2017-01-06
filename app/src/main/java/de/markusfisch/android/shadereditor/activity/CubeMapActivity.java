@@ -31,9 +31,7 @@ public class CubeMapActivity
 		AbstractSubsequentActivity.initToolbar(this);
 
 		if (state == null) {
-			setFragment(
-					getSupportFragmentManager(),
-					new CubeMapFragment());
+			setFragment(getSupportFragmentManager(), new CubeMapFragment());
 		}
 	}
 }

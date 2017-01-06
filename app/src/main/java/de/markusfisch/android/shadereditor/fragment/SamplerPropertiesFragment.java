@@ -48,7 +48,6 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-
 		setHasOptionsMenu(true);
 	}
 
@@ -128,24 +127,24 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 		setSizeView(sizeBarView.getProgress());
 		sizeBarView.setOnSeekBarChangeListener(
 				new SeekBar.OnSeekBarChangeListener() {
-					@Override
-					public void onProgressChanged(
-							SeekBar seekBar,
-							int progressValue,
-							boolean fromUser) {
-						setSizeView(progressValue);
-					}
+			@Override
+			public void onProgressChanged(
+					SeekBar seekBar,
+					int progressValue,
+					boolean fromUser) {
+				setSizeView(progressValue);
+			}
 
-					@Override
-					public void onStartTrackingTouch(
-							SeekBar seekBar) {
-					}
+			@Override
+			public void onStartTrackingTouch(
+					SeekBar seekBar) {
+			}
 
-					@Override
-					public void onStopTrackingTouch(
-							SeekBar seekBar) {
-					}
-				});
+			@Override
+			public void onStopTrackingTouch(
+					SeekBar seekBar) {
+			}
+		});
 	}
 
 	private void setSizeView(int power) {

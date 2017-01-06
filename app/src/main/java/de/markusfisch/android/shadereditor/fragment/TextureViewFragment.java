@@ -35,7 +35,6 @@ public class TextureViewFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-
 		setHasOptionsMenu(true);
 	}
 
@@ -51,10 +50,9 @@ public class TextureViewFragment extends Fragment {
 			imageView = ((ScalingImageViewProvider) activity)
 					.getScalingImageView();
 		} catch (ClassCastException e) {
-			throw new ClassCastException(
-					activity.toString() +
-							" must implement " +
-							"TextureViewFragment.ScalingImageViewProvider");
+			throw new ClassCastException(activity.toString() +
+					" must implement " +
+					"TextureViewFragment.ScalingImageViewProvider");
 		}
 
 		Bundle args;
@@ -64,10 +62,9 @@ public class TextureViewFragment extends Fragment {
 				(args = getArguments()) == null ||
 				(textureId = args.getLong(TEXTURE_ID)) < 1 ||
 				(samplerType = args.getString(SAMPLER_TYPE)) == null ||
-				DataSource.closeIfEmpty(
-						(cursor = ShaderEditorApplication
-								.dataSource
-								.getTexture(textureId)))) {
+				DataSource.closeIfEmpty((cursor = ShaderEditorApplication
+						.dataSource
+						.getTexture(textureId)))) {
 			activity.finish();
 			return null;
 		}
@@ -128,9 +125,8 @@ public class TextureViewFragment extends Fragment {
 								removeTextureAsync(id);
 							}
 						})
-				.setNegativeButton(
-						android.R.string.no,
-						null).show();
+				.setNegativeButton(android.R.string.no, null)
+				.show();
 	}
 
 	private void removeTextureAsync(final long id) {
@@ -138,7 +134,6 @@ public class TextureViewFragment extends Fragment {
 			@Override
 			protected Void doInBackground(Void... nothings) {
 				ShaderEditorApplication.dataSource.removeTexture(id);
-
 				return null;
 			}
 

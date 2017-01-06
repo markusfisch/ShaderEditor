@@ -29,7 +29,6 @@ public class CubeMapFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-
 		setHasOptionsMenu(true);
 	}
 
@@ -38,22 +37,15 @@ public class CubeMapFragment extends Fragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity;
-
-		if ((activity = getActivity()) == null) {
-			return null;
-		}
-
+		Activity activity = getActivity();
 		activity.setTitle(R.string.compose_sampler_cube);
 
 		try {
-			cubeMapView = ((CubeMapViewProvider) activity)
-					.getCubeMapView();
+			cubeMapView = ((CubeMapViewProvider) activity).getCubeMapView();
 		} catch (ClassCastException e) {
-			throw new ClassCastException(
-					activity.toString() +
-							" must implement " +
-							"CubeMapFragment.CubeMapViewProvider");
+			throw new ClassCastException(activity.toString() +
+					" must implement " +
+					"CubeMapFragment.CubeMapViewProvider");
 		}
 
 		View view;
@@ -151,7 +143,6 @@ public class CubeMapFragment extends Fragment {
 
 	private void addTexture() {
 		Activity activity = getActivity();
-
 		if (activity == null) {
 			return;
 		}

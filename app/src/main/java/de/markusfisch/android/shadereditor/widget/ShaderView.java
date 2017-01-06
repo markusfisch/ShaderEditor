@@ -28,14 +28,12 @@ public class ShaderView extends GLSurfaceView {
 	@Override
 	public void onPause() {
 		super.onPause();
-
 		renderer.unregisterListeners();
 	}
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		renderer.touchAt(event);
-
 		return true;
 	}
 

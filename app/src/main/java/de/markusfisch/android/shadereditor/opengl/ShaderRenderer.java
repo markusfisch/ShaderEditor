@@ -260,7 +260,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			// Don't glDeleteProgram( program );
 			// same as above
 			program = 0;
-
 			deleteTargets();
 		}
 
@@ -307,7 +306,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		final long now = System.nanoTime();
 
 		GLES20.glUseProgram(program);
-
 		GLES20.glVertexAttribPointer(
 				positionLoc,
 				2,
@@ -739,8 +737,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private void registerListeners() {
 		if (gravityLoc > -1 || linearLoc > -1) {
 			if (accelerometerListener == null) {
-				accelerometerListener =
-						new AccelerometerListener(context);
+				accelerometerListener = new AccelerometerListener(context);
 			}
 
 			accelerometerListener.register();
@@ -748,8 +745,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 		if (rotationLoc > -1) {
 			if (gyroscopeListener == null) {
-				gyroscopeListener =
-						new GyroscopeListener(context);
+				gyroscopeListener = new GyroscopeListener(context);
 			}
 
 			gyroscopeListener.register();
@@ -757,8 +753,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 		if (magneticLoc > -1) {
 			if (magneticFieldListener == null) {
-				magneticFieldListener =
-						new MagneticFieldListener(context);
+				magneticFieldListener = new MagneticFieldListener(context);
 			}
 
 			magneticFieldListener.register();
@@ -766,8 +761,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 		if (lightLoc > -1) {
 			if (lightListener == null) {
-				lightListener =
-						new LightListener(context);
+				lightListener = new LightListener(context);
 			}
 
 			lightListener.register();
@@ -775,8 +769,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 		if (pressureLoc > -1) {
 			if (pressureListener == null) {
-				pressureListener =
-						new PressureListener(context);
+				pressureListener = new PressureListener(context);
 			}
 
 			pressureListener.register();
@@ -784,8 +777,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 		if (proximityLoc > -1) {
 			if (proximityListener == null) {
-				proximityListener =
-						new ProximityListener(context);
+				proximityListener = new ProximityListener(context);
 			}
 
 			proximityListener.register();
@@ -1074,8 +1066,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			}
 		}
 
-		GLES20.glGenerateMipmap(
-				GLES20.GL_TEXTURE_CUBE_MAP);
+		GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_CUBE_MAP);
 	}
 
 	private void indexTextureNames(String source) {
@@ -1120,8 +1111,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private float getBatteryLevel() {
 		Intent batteryStatus = context.registerReceiver(
 				null,
-				new IntentFilter(
-						Intent.ACTION_BATTERY_CHANGED));
+				new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
 
 		if (batteryStatus == null) {
 			return 0;

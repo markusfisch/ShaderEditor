@@ -17,9 +17,7 @@ public class CropImageView extends ScalingImageView {
 	public CropImageView(Context context, AttributeSet attr) {
 		super(context, attr);
 
-		paint.setColor(ContextCompat.getColor(
-				context,
-				R.color.crop_bound));
+		paint.setColor(ContextCompat.getColor(context, R.color.crop_bound));
 		paint.setStyle(Paint.Style.STROKE);
 
 		padding = Math.round(
@@ -38,12 +36,7 @@ public class CropImageView extends ScalingImageView {
 			int top,
 			int right,
 			int bottom) {
-		super.onLayout(
-				changed,
-				left,
-				top,
-				right,
-				bottom);
+		super.onLayout(changed, left, top, right, bottom);
 
 		if (right - left > bottom - top) {
 			top += toolAndStatusbarHeight;
@@ -69,7 +62,6 @@ public class CropImageView extends ScalingImageView {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-
 		canvas.drawRect(getBounds(), paint);
 	}
 }

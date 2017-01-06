@@ -23,10 +23,7 @@ public class ShaderSpinnerAdapter
 			ViewGroup parent) {
 		return LayoutInflater
 				.from(parent.getContext())
-				.inflate(
-						R.layout.row_shader,
-						parent,
-						false);
+				.inflate(R.layout.row_shader, parent, false);
 	}
 
 	@Override

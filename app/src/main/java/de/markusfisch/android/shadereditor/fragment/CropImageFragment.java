@@ -41,7 +41,6 @@ public class CropImageFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-
 		setHasOptionsMenu(true);
 	}
 
@@ -57,10 +56,9 @@ public class CropImageFragment extends Fragment {
 			cropImageView = ((CropImageViewProvider) activity)
 					.getCropImageView();
 		} catch (ClassCastException e) {
-			throw new ClassCastException(
-					activity.toString() +
-							" must implement " +
-							"CropImageFragment.CropImageViewProvider");
+			throw new ClassCastException(activity.toString() +
+					" must implement " +
+					"CropImageFragment.CropImageViewProvider");
 		}
 
 		Bundle args;
@@ -118,6 +116,10 @@ public class CropImageFragment extends Fragment {
 		updateListener = new UpdateListener() {
 			@Override
 			public void updateBitmap(Bitmap b) {
+				if (!isAdded()) {
+					return;
+				}
+
 				bitmap = b;
 				cropImageView.setImageBitmap(bitmap);
 			}

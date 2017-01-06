@@ -21,7 +21,6 @@ public class InfoLog {
 		}
 
 		int from;
-
 		if ((from = infoLog.indexOf("ERROR: 0:")) > -1) {
 			from += 9;
 		} else if ((from = infoLog.indexOf("0:")) > -1) {
@@ -30,7 +29,6 @@ public class InfoLog {
 
 		if (from > -1) {
 			int to;
-
 			if ((to = infoLog.indexOf(":", from)) > -1) {
 				try {
 					errorLine = Integer.parseInt(

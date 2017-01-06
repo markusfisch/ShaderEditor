@@ -37,12 +37,7 @@ public class SamplerCubePropertiesFragment extends SamplerPropertiesFragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity;
-
-		if ((activity = getActivity()) == null) {
-			return null;
-		}
-
+		Activity activity = getActivity();
 		activity.setTitle(R.string.texture_properties);
 
 		Bundle args;
@@ -126,7 +121,7 @@ public class SamplerCubePropertiesFragment extends SamplerPropertiesFragment {
 		return ShaderEditorApplication
 				.dataSource
 				.insertTexture(name, mapBitmap) < 1 ?
-				R.string.name_already_taken :
-				0;
+						R.string.name_already_taken :
+						0;
 	}
 }

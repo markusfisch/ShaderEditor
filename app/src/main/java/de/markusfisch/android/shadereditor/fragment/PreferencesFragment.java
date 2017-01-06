@@ -49,15 +49,11 @@ public class PreferencesFragment
 			SharedPreferences sharedPreferences,
 			String key) {
 		Preference preference = findPreference(key);
-
 		if (preference == null) {
 			return;
 		}
 
-		ShaderEditorApplication
-				.preferences
-				.update();
-
+		ShaderEditorApplication.preferences.update();
 		setSummary(preference);
 
 		if (Preferences.SAVE_BATTERY.equals(key) &&
@@ -77,8 +73,7 @@ public class PreferencesFragment
 					.newInstance(preference.getKey());
 
 			f.setTargetFragment(this, 0);
-			f.show(
-					getFragmentManager(),
+			f.show(getFragmentManager(),
 					"ShaderListPreferenceDialogFragment");
 
 			return;
@@ -107,12 +102,8 @@ public class PreferencesFragment
 	}
 
 	private String getWallpaperShaderSummary() {
-		long id = ShaderEditorApplication
-				.preferences
-				.getWallpaperShader();
-		Cursor cursor = ShaderEditorApplication
-				.dataSource
-				.getShader(id);
+		long id = ShaderEditorApplication.preferences.getWallpaperShader();
+		Cursor cursor = ShaderEditorApplication.dataSource.getShader(id);
 
 		if (DataSource.closeIfEmpty(cursor)) {
 			return getString(R.string.no_shader_selected);

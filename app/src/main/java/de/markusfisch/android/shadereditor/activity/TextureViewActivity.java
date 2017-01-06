@@ -31,9 +31,7 @@ public class TextureViewActivity
 		AbstractSubsequentActivity.initToolbar(this);
 
 		if (state == null) {
-			setFragmentForIntent(
-					new TextureViewFragment(),
-					getIntent());
+			setFragmentForIntent(new TextureViewFragment(), getIntent());
 		}
 	}
 }

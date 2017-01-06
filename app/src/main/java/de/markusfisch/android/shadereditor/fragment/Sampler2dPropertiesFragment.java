@@ -45,12 +45,7 @@ public class Sampler2dPropertiesFragment extends SamplerPropertiesFragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity;
-
-		if ((activity = getActivity()) == null) {
-			return null;
-		}
-
+		Activity activity = getActivity();
 		activity.setTitle(R.string.texture_properties);
 
 		Bundle args;

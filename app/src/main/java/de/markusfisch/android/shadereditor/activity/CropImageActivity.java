@@ -14,17 +14,9 @@ public class CropImageActivity
 		implements CropImageFragment.CropImageViewProvider {
 	private CropImageView cropImageView;
 
-	public static Intent getIntentForImage(
-			Context context,
-			Uri imageUri) {
-		Intent intent = new Intent(
-				context,
-				CropImageActivity.class);
-
-		intent.putExtra(
-				CropImageFragment.IMAGE_URI,
-				imageUri);
-
+	public static Intent getIntentForImage(Context context, Uri imageUri) {
+		Intent intent = new Intent(context, CropImageActivity.class);
+		intent.putExtra(CropImageFragment.IMAGE_URI, imageUri);
 		return intent;
 	}
 
@@ -48,9 +40,7 @@ public class CropImageActivity
 		AbstractSubsequentActivity.initToolbar(this);
 
 		if (state == null) {
-			setFragmentForIntent(
-					new CropImageFragment(),
-					getIntent());
+			setFragmentForIntent(new CropImageFragment(), getIntent());
 		}
 	}
 }

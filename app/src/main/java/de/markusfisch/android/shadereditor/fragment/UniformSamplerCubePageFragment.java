@@ -19,20 +19,15 @@ public class UniformSamplerCubePageFragment
 	@Override
 	protected void addTexture() {
 		Activity activity = getActivity();
-
 		if (activity == null) {
 			return;
 		}
 
-		startActivity(new Intent(
-				activity,
-				CubeMapActivity.class));
+		startActivity(new Intent(activity, CubeMapActivity.class));
 	}
 
 	@Override
 	protected Cursor loadTextures() {
-		return ShaderEditorApplication
-				.dataSource
-				.getSamplerCubeTextures();
+		return ShaderEditorApplication.dataSource.getSamplerCubeTextures();
 	}
 }

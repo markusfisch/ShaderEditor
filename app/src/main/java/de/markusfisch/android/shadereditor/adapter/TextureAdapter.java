@@ -25,9 +25,7 @@ public class TextureAdapter extends CursorAdapter {
 		super(context, cursor, false);
 
 		indexColumns(cursor);
-
-		sizeFormat = context.getString(
-				R.string.texture_size_format);
+		sizeFormat = context.getString(R.string.texture_size_format);
 	}
 
 	@Override
@@ -35,13 +33,8 @@ public class TextureAdapter extends CursorAdapter {
 			Context context,
 			Cursor cursor,
 			ViewGroup parent) {
-		LayoutInflater inflater = LayoutInflater.from(
-				parent.getContext());
-
-		return inflater.inflate(
-				R.layout.row_texture,
-				parent,
-				false);
+		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+		return inflater.inflate(R.layout.row_texture, parent, false);
 	}
 
 	@Override
@@ -50,13 +43,11 @@ public class TextureAdapter extends CursorAdapter {
 			Context context,
 			Cursor cursor) {
 		ViewHolder holder = getViewHolder(view);
-
 		setData(holder, cursor);
 	}
 
 	private ViewHolder getViewHolder(View view) {
 		ViewHolder holder;
-
 		if ((holder = (ViewHolder) view.getTag()) == null) {
 			holder = new ViewHolder();
 			holder.preview = (ImageView) view.findViewById(
@@ -74,19 +65,17 @@ public class TextureAdapter extends CursorAdapter {
 		byte bytes[] = cursor.getBlob(thumbIndex);
 
 		if (bytes != null && bytes.length > 0) {
-			holder.preview.setImageBitmap(
-					BitmapFactory.decodeByteArray(
-							bytes,
-							0,
-							bytes.length));
+			holder.preview.setImageBitmap(BitmapFactory.decodeByteArray(
+					bytes,
+					0,
+					bytes.length));
 		}
 
 		holder.name.setText(cursor.getString(nameIndex));
-		holder.size.setText(
-				String.format(
-						sizeFormat,
-						cursor.getInt(widthIndex),
-						cursor.getInt(heightIndex)));
+		holder.size.setText(String.format(
+				sizeFormat,
+				cursor.getInt(widthIndex),
+				cursor.getInt(heightIndex)));
 	}
 
 	private void indexColumns(Cursor cursor) {

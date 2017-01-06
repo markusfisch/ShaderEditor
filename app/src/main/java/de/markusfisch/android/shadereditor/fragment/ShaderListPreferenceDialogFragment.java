@@ -57,11 +57,9 @@ public class ShaderListPreferenceDialogFragment
 								.setWallpaperShader(
 										adapter.getItemId(which));
 
-						ShaderListPreferenceDialogFragment
-								.this
-								.onClick(
-										dialog,
-										DialogInterface.BUTTON_POSITIVE);
+						ShaderListPreferenceDialogFragment.this.onClick(
+								dialog,
+								DialogInterface.BUTTON_POSITIVE);
 
 						dialog.dismiss();
 					}

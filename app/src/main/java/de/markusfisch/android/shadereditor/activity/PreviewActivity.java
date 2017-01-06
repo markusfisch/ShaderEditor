@@ -41,9 +41,7 @@ public class PreviewActivity extends AppCompatActivity {
 				return;
 			}
 
-			renderStatus.thumbnail = shaderView
-					.getRenderer()
-					.getThumbnail();
+			renderStatus.thumbnail = shaderView.getRenderer().getThumbnail();
 		}
 	};
 
@@ -63,26 +61,22 @@ public class PreviewActivity extends AppCompatActivity {
 
 		shaderView.getRenderer().setOnRendererListener(
 				new ShaderRenderer.OnRendererListener() {
-					@Override
-					public void onFramesPerSecond(int fps) {
-						// invoked from the GL thread
-						renderStatus.fps = fps;
-					}
+			@Override
+			public void onFramesPerSecond(int fps) {
+				// invoked from the GL thread
+				renderStatus.fps = fps;
+			}
 
-					@Override
-					public void onInfoLog(String infoLog) {
-						// invoked from the GL thread
-						renderStatus.infoLog = infoLog;
-						runOnUiThread(finishRunnable);
-					}
-				});
+			@Override
+			public void onInfoLog(String infoLog) {
+				// invoked from the GL thread
+				renderStatus.infoLog = infoLog;
+				runOnUiThread(finishRunnable);
+			}
+		});
 
 		setContentView(shaderView);
-
-		MainActivity.setSystemBarColor(
-				getWindow(),
-				0,
-				true);
+		MainActivity.setSystemBarColor(getWindow(), 0, true);
 	}
 
 	@Override
@@ -101,7 +95,6 @@ public class PreviewActivity extends AppCompatActivity {
 		super.onStart();
 
 		shaderView.onResume();
-
 		renderStatus.reset();
 		shaderView.postDelayed(thumbnailRunnable, 500);
 	}

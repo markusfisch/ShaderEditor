@@ -53,8 +53,7 @@ public class ShaderWallpaperService extends WallpaperService {
 			ShaderEditorApplication
 					.preferences
 					.getSharedPreferences()
-					.registerOnSharedPreferenceChangeListener(
-							this);
+					.registerOnSharedPreferenceChangeListener(this);
 
 			setTouchEventsEnabled(true);
 		}
@@ -111,9 +110,7 @@ public class ShaderWallpaperService extends WallpaperService {
 				float yStep,
 				int xPixels,
 				int yPixels) {
-			view.getRenderer().setOffset(
-					xOffset,
-					yOffset);
+			view.getRenderer().setOffset(xOffset, yOffset);
 		}
 
 		public void setRenderMode(int renderMode) {
@@ -126,14 +123,12 @@ public class ShaderWallpaperService extends WallpaperService {
 
 		private void setShader() {
 			if (!ShaderEditorApplication.dataSource.isOpen()) {
-				handler.postDelayed(
-						new Runnable() {
-							@Override
-							public void run() {
-								setShader();
-							}
-						},
-						100);
+				handler.postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						setShader();
+					}
+				}, 100);
 
 				return;
 			}
@@ -162,11 +157,9 @@ public class ShaderWallpaperService extends WallpaperService {
 			}
 
 			if (randomShader) {
-				ShaderEditorApplication
-						.preferences
-						.setWallpaperShader(cursor.getLong(
-								cursor.getColumnIndex(
-										DataSource.SHADERS_ID)));
+				ShaderEditorApplication.preferences.setWallpaperShader(
+						cursor.getLong(cursor.getColumnIndex(
+								DataSource.SHADERS_ID)));
 			}
 
 			if (view != null) {
@@ -191,9 +184,7 @@ public class ShaderWallpaperService extends WallpaperService {
 
 			@Override
 			public final SurfaceHolder getHolder() {
-				return ShaderWallpaperEngine
-						.this
-						.getSurfaceHolder();
+				return ShaderWallpaperEngine.this.getSurfaceHolder();
 			}
 
 			public void destroy() {

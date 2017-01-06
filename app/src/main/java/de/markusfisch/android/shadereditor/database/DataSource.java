@@ -184,7 +184,6 @@ public class DataSource {
 		}
 
 		long id = cursor.getLong(cursor.getColumnIndex(SHADERS_ID));
-
 		cursor.close();
 
 		return id;
@@ -368,16 +367,10 @@ public class DataSource {
 	private static String loadRawResource(
 			Context context,
 			int id) throws IOException {
-		InputStream in = context
-				.getResources()
-				.openRawResource(id);
-
+		InputStream in = context.getResources().openRawResource(id);
 		int l = in.available();
 		byte b[] = new byte[l];
-
-		return in.read(b) == l ?
-				new String(b, "UTF-8") :
-				null;
+		return in.read(b) == l ? new String(b, "UTF-8") : null;
 	}
 
 	private static byte[] loadBitmapResource(Context context, int id) {
@@ -389,7 +382,6 @@ public class DataSource {
 	private static byte[] bitmapToPng(Bitmap bitmap) {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-
 		return out.toByteArray();
 	}
 

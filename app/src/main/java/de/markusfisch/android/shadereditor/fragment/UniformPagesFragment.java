@@ -17,12 +17,7 @@ public class UniformPagesFragment extends Fragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity;
-
-		if ((activity = getActivity()) == null) {
-			return null;
-		}
-
+		Activity activity = getActivity();
 		View view;
 		ViewPager viewPager;
 

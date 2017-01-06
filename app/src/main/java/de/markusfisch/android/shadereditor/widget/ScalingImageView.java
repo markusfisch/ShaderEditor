@@ -24,8 +24,7 @@ public class ScalingImageView extends ImageView {
 
 	private float minWidth = 0f;
 	private float rotation = 0f;
-	private ImageView.ScaleType scaleType =
-			ImageView.ScaleType.CENTER_INSIDE;
+	private ImageView.ScaleType scaleType = ImageView.ScaleType.CENTER_INSIDE;
 
 	public ScalingImageView(Context context) {
 		super(context);

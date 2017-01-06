@@ -93,13 +93,11 @@ public class ShaderEditor extends EditText {
 
 	public ShaderEditor(Context context) {
 		super(context);
-
 		init(context);
 	}
 
 	public ShaderEditor(Context context, AttributeSet attrs) {
 		super(context, attrs);
-
 		init(context);
 	}
 

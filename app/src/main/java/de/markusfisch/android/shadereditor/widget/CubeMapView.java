@@ -34,16 +34,16 @@ public class CubeMapView extends ScalingImageView {
 	public static class Face implements Parcelable {
 		public static final Parcelable.Creator<Face> CREATOR =
 				new Parcelable.Creator<Face>() {
-					@Override
-					public Face createFromParcel(Parcel in) {
-						return new Face(in);
-					}
+			@Override
+			public Face createFromParcel(Parcel in) {
+				return new Face(in);
+			}
 
-					@Override
-					public Face[] newArray(int size) {
-						return new Face[size];
-					}
-				};
+			@Override
+			public Face[] newArray(int size) {
+				return new Face[size];
+			}
+		};
 
 		private final RectF bounds = new RectF();
 		private final String label;
@@ -142,9 +142,7 @@ public class CubeMapView extends ScalingImageView {
 				if (now - touchDownTime <= tapTimeout) {
 					touchDownTime = 0;
 
-					if (selectFaceAt(
-							event.getX(),
-							event.getY())) {
+					if (selectFaceAt(event.getX(), event.getY())) {
 						performClick();
 						return true;
 					}
@@ -298,8 +296,8 @@ public class CubeMapView extends ScalingImageView {
 	private void initMetrics(Context context, float dp, Resources res) {
 		mapPadding = Math.round(24f * dp);
 		textPadding = Math.round(8f * dp);
-		toolAndStatusBarHeight =
-				Preferences.getStatusAndToolBarHeight(context);
+		toolAndStatusBarHeight = Preferences.getStatusAndToolBarHeight(
+				context);
 		Preferences.getNavigationBarHeight(res, navigationBarSize);
 	}
 
@@ -318,12 +316,10 @@ public class CubeMapView extends ScalingImageView {
 		}
 
 		Face face = faces[idx];
-
 		face.bitmap = BitmapEditor.crop(
 				bitmap,
 				from.clip,
 				from.rotation);
-
 		face.uri = from.uri;
 		face.clip = from.clip;
 		face.rotation = from.rotation;
@@ -356,8 +352,10 @@ public class CubeMapView extends ScalingImageView {
 		float scale = bounds.width() / (normalizedClip.width() * dw);
 		matrix.postScale(scale, scale);
 		matrix.postTranslate(
-				bounds.centerX() - (normalizedClip.centerX() - .5f) * dw * scale,
-				bounds.centerY() - (normalizedClip.centerY() - .5f) * dh * scale);
+				bounds.centerX() -
+						(normalizedClip.centerX() - .5f) * dw * scale,
+				bounds.centerY() -
+						(normalizedClip.centerY() - .5f) * dh * scale);
 
 		return matrix;
 	}
@@ -456,8 +454,7 @@ public class CubeMapView extends ScalingImageView {
 		setImageRotation(face.rotation);
 		setImageFromUri(face.uri);
 
-		if (face.matrix == null &&
-				selectedBitmap != null) {
+		if (face.matrix == null && selectedBitmap != null) {
 			setMatrixFromClip(face);
 		}
 
@@ -497,16 +494,16 @@ public class CubeMapView extends ScalingImageView {
 
 		public static final Parcelable.Creator<SavedState> CREATOR =
 				new Parcelable.Creator<SavedState>() {
-					@Override
-					public SavedState createFromParcel(Parcel in) {
-						return new SavedState(in);
-					}
+			@Override
+			public SavedState createFromParcel(Parcel in) {
+				return new SavedState(in);
+			}
 
-					@Override
-					public SavedState[] newArray(int size) {
-						return new SavedState[size];
-					}
-				};
+			@Override
+			public SavedState[] newArray(int size) {
+				return new SavedState[size];
+			}
+		};
 
 		@Override
 		public void writeToParcel(Parcel out, int flags) {

@@ -16,17 +16,13 @@ import android.support.v7.widget.Toolbar;
 public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 	private FragmentManager fm;
 
-	public static void addFragment(
-			FragmentManager fm,
-			Fragment fragment) {
+	public static void addFragment(FragmentManager fm, Fragment fragment) {
 		getReplaceFragmentTransaction(fm, fragment)
 				.addToBackStack(null)
 				.commit();
 	}
 
-	public static void setFragment(
-			FragmentManager fm,
-			Fragment fragment) {
+	public static void setFragment(FragmentManager fm, Fragment fragment) {
 		getReplaceFragmentTransaction(fm, fragment).commit();
 	}
 
@@ -67,9 +63,7 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 		fm = getSupportFragmentManager();
 	}
 
-	protected void setFragmentForIntent(
-			Fragment fragment,
-			Intent intent) {
+	protected void setFragmentForIntent(Fragment fragment, Intent intent) {
 		if (fragment == null || intent == null) {
 			finish();
 			return;

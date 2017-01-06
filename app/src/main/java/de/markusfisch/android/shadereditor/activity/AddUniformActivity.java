@@ -14,9 +14,7 @@ public class AddUniformActivity extends AbstractContentActivity {
 	public static final int CROP_IMAGE = 2;
 	public static final int PICK_TEXTURE = 3;
 
-	public static void setAddUniformResult(
-			Activity activity,
-			String name) {
+	public static void setAddUniformResult(Activity activity, String name) {
 		Bundle bundle = new Bundle();
 		bundle.putString(STATEMENT, name);
 
@@ -57,7 +55,6 @@ public class AddUniformActivity extends AbstractContentActivity {
 	@Override
 	protected Fragment defaultFragment() {
 		startActivityForIntent(getIntent());
-
 		return new UniformPagesFragment();
 	}
 
@@ -74,15 +71,11 @@ public class AddUniformActivity extends AbstractContentActivity {
 			return;
 		}
 
-		Uri imageUri = intent.getParcelableExtra(
-				Intent.EXTRA_STREAM);
-
+		Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
 		if (imageUri == null) {
 			return;
 		}
 
-		startActivity(CropImageActivity.getIntentForImage(
-				this,
-				imageUri));
+		startActivity(CropImageActivity.getIntentForImage(this, imageUri));
 	}
 }

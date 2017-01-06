@@ -33,12 +33,7 @@ public class EditorFragment extends Fragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity;
-
-		if ((activity = getActivity()) == null) {
-			return null;
-		}
-
+		Activity activity = getActivity();
 		View view;
 
 		if ((imm = (InputMethodManager) activity.getSystemService(
@@ -59,10 +54,9 @@ public class EditorFragment extends Fragment {
 			shaderEditor.setOnTextChangedListener(
 					(ShaderEditor.OnTextChangedListener) activity);
 		} catch (ClassCastException e) {
-			throw new ClassCastException(
-					activity.toString() +
-							" must implement " +
-							"ShaderEditor.OnTextChangedListener");
+			throw new ClassCastException(activity.toString() +
+					" must implement " +
+					"ShaderEditor.OnTextChangedListener");
 		}
 
 		return view;
@@ -71,7 +65,6 @@ public class EditorFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-
 		updateToPreferences();
 	}
 
@@ -89,7 +82,6 @@ public class EditorFragment extends Fragment {
 
 	public void showError(String infoLog) {
 		Activity activity = getActivity();
-
 		if (activity == null) {
 			return;
 		}
@@ -102,7 +94,6 @@ public class EditorFragment extends Fragment {
 				activity,
 				InfoLog.getMessage(),
 				Toast.LENGTH_SHORT);
-
 		errorToast.setGravity(
 				Gravity.TOP | Gravity.CENTER_HORIZONTAL,
 				0,

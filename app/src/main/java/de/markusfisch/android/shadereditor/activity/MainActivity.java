@@ -85,8 +85,7 @@ public class MainActivity
 						true)) {
 			view.setPadding(
 					0,
-					Preferences.getStatusBarHeight(
-							activity.getResources()),
+					Preferences.getStatusBarHeight(activity.getResources()),
 					0,
 					0);
 		}
@@ -117,7 +116,6 @@ public class MainActivity
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-
 		drawerToggle.onConfigurationChanged(newConfig);
 	}
 
@@ -165,8 +163,8 @@ public class MainActivity
 				ShaderEditorApplication
 						.preferences
 						.getWallpaperShader() == selectedShaderId ?
-						R.string.update_wallpaper :
-						R.string.set_as_wallpaper);
+								R.string.update_wallpaper :
+								R.string.set_as_wallpaper);
 
 		return true;
 	}
@@ -214,9 +212,7 @@ public class MainActivity
 
 	@Override
 	public void onTextChanged(String text) {
-		if (!ShaderEditorApplication
-				.preferences
-				.doesRunOnChange()) {
+		if (!ShaderEditorApplication.preferences.doesRunOnChange()) {
 			return;
 		}
 
@@ -240,9 +236,8 @@ public class MainActivity
 				requestCode == ADD_UNIFORM &&
 				resultCode == RESULT_OK &&
 				data != null) {
-			editorFragment.addUniform(
-					data.getStringExtra(
-							AddUniformActivity.STATEMENT));
+			editorFragment.addUniform(data.getStringExtra(
+					AddUniformActivity.STATEMENT));
 		}
 
 		// update fps, info log and thumbnail after shader ran
@@ -260,9 +255,7 @@ public class MainActivity
 
 			if (selectedShaderId > 0 &&
 					status.thumbnail != null &&
-					ShaderEditorApplication
-							.preferences
-							.doesSaveOnRun()) {
+					ShaderEditorApplication.preferences.doesSaveOnRun()) {
 				saveShader(selectedShaderId);
 			}
 		}
@@ -379,52 +372,48 @@ public class MainActivity
 		setQualityValues();
 
 		qualitySpinner = (Spinner) findViewById(R.id.quality);
-		ArrayAdapter<CharSequence> adapter =
-				ArrayAdapter.createFromResource(
-						this,
-						R.array.quality_names,
-						android.R.layout.simple_spinner_item);
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+				this,
+				R.array.quality_names,
+				android.R.layout.simple_spinner_item);
 		adapter.setDropDownViewResource(
 				android.R.layout.simple_spinner_dropdown_item);
 		qualitySpinner.setAdapter(adapter);
 		qualitySpinner.setOnItemSelectedListener(
 				new Spinner.OnItemSelectedListener() {
-					@Override
-					public void onItemSelected(
-							AdapterView<?> parent,
-							View view,
-							int position,
-							long id) {
-						float q = qualityValues[position];
+			@Override
+			public void onItemSelected(
+					AdapterView<?> parent,
+					View view,
+					int position,
+					long id) {
+				float q = qualityValues[position];
 
-						if (q == quality) {
-							return;
-						}
+				if (q == quality) {
+					return;
+				}
 
-						quality = q;
+				quality = q;
 
-						if (selectedShaderId > 0) {
-							ShaderEditorApplication
-									.dataSource
-									.updateShaderQuality(
-											selectedShaderId,
-											quality);
-						}
+				if (selectedShaderId > 0) {
+					ShaderEditorApplication.dataSource.updateShaderQuality(
+							selectedShaderId,
+							quality);
+				}
 
-						if (shaderView.getVisibility() != View.VISIBLE) {
-							return;
-						}
+				if (shaderView.getVisibility() != View.VISIBLE) {
+					return;
+				}
 
-						shaderView.getRenderer().setQuality(quality);
-						shaderView.onPause();
-						shaderView.onResume();
-					}
+				shaderView.getRenderer().setQuality(quality);
+				shaderView.onPause();
+				shaderView.onResume();
+			}
 
-					@Override
-					public void onNothingSelected(
-							AdapterView<?> parent) {
-					}
-				});
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+			}
+		});
 	}
 
 	private void setQualityValues() {
@@ -448,21 +437,20 @@ public class MainActivity
 
 		menuFrame = findViewById(R.id.menu_frame);
 
-		drawerToggle =
-				new ActionBarDrawerToggle(
-						this,
-						drawerLayout,
-						toolbar,
-						R.string.drawer_open,
-						R.string.drawer_close) {
-					public void onDrawerClosed(View view) {
-						supportInvalidateOptionsMenu();
-					}
+		drawerToggle = new ActionBarDrawerToggle(
+				this,
+				drawerLayout,
+				toolbar,
+				R.string.drawer_open,
+				R.string.drawer_close) {
+			public void onDrawerClosed(View view) {
+				supportInvalidateOptionsMenu();
+			}
 
-					public void onDrawerOpened(View view) {
-						supportInvalidateOptionsMenu();
-					}
-				};
+			public void onDrawerOpened(View view) {
+				supportInvalidateOptionsMenu();
+			}
+		};
 
 		drawerToggle.setDrawerIndicatorEnabled(true);
 		drawerLayout.addDrawerListener(drawerToggle);
@@ -590,14 +578,12 @@ public class MainActivity
 
 	private void getShadersAsync() {
 		if (!ShaderEditorApplication.dataSource.isOpen()) {
-			listView.postDelayed(
-					new Runnable() {
-						@Override
-						public void run() {
-							getShadersAsync();
-						}
-					},
-					500);
+			listView.postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					getShadersAsync();
+				}
+			}, 500);
 
 			return;
 		}
@@ -618,11 +604,10 @@ public class MainActivity
 	}
 
 	private void showNoShadersAvailable() {
-		View progressView;
-		View textView;
+		View progressView = findViewById(R.id.progress_bar);
+		View textView = findViewById(R.id.no_shaders_message);
 
-		if ((progressView = findViewById(R.id.progress_bar)) == null ||
-				(textView = findViewById(R.id.no_shaders_message)) == null) {
+		if (progressView == null || textView == null) {
 			return;
 		}
 
@@ -659,7 +644,6 @@ public class MainActivity
 		intent.setAction(null);
 
 		int len = text.length();
-
 		if (len < 1 || len > 65536) {
 			Toast.makeText(
 					this,
@@ -672,9 +656,7 @@ public class MainActivity
 		if (ShaderEditorApplication
 				.preferences
 				.doesRunInBackground()) {
-			setFragmentShader(text.replaceAll(
-					"\\p{C}",
-					""));
+			setFragmentShader(text.replaceAll("\\p{C}", ""));
 		}
 
 		selectedShaderId = NO_SHADER;
@@ -717,28 +699,23 @@ public class MainActivity
 		}
 
 		String fragmentShader = editorFragment.getText();
-		byte thumbnail[] =
-				ShaderEditorApplication
-						.preferences
-						.doesRunInBackground() ?
+		byte thumbnail[] = ShaderEditorApplication
+				.preferences
+				.doesRunInBackground() ?
 						shaderView.getRenderer().getThumbnail() :
 						PreviewActivity.renderStatus.thumbnail;
 
 		if (id > 0) {
-			ShaderEditorApplication
-					.dataSource
-					.updateShader(
-							id,
-							fragmentShader,
-							thumbnail,
-							quality);
+			ShaderEditorApplication.dataSource.updateShader(
+					id,
+					fragmentShader,
+					thumbnail,
+					quality);
 		} else {
-			setToolbarTitle(ShaderEditorApplication
-					.dataSource
-					.insertShader(
-							fragmentShader,
-							thumbnail,
-							quality));
+			setToolbarTitle(ShaderEditorApplication.dataSource.insertShader(
+					fragmentShader,
+					thumbnail,
+					quality));
 		}
 
 		// update thumbnails
@@ -810,12 +787,9 @@ public class MainActivity
 		}
 
 		Intent intent = new Intent();
-
-		intent.setAction(Intent.ACTION_SEND);
-		intent.putExtra(
-				Intent.EXTRA_TEXT,
-				editorFragment.getText());
 		intent.setType("text/plain");
+		intent.setAction(Intent.ACTION_SEND);
+		intent.putExtra(Intent.EXTRA_TEXT, editorFragment.getText());
 
 		startActivity(Intent.createChooser(
 				intent,
@@ -827,21 +801,14 @@ public class MainActivity
 			return;
 		}
 
-		if (editorFragment != null &&
-				editorFragment.isModified()) {
+		if (editorFragment != null && editorFragment.isModified()) {
 			saveShader(id);
 		}
 
-		// the onSharedPreferenceChanged() listener
-		// in WallpaperService is only triggered if
-		// the value would change
-		ShaderEditorApplication
-				.preferences
-				.setWallpaperShader(0);
-
-		ShaderEditorApplication
-				.preferences
-				.setWallpaperShader(id);
+		// the onSharedPreferenceChanged() listener in WallpaperService
+		// is only triggered if the value has changed so force this
+		ShaderEditorApplication.preferences.setWallpaperShader(0);
+		ShaderEditorApplication.preferences.setWallpaperShader(id);
 	}
 
 	private void addUniform() {
@@ -878,9 +845,7 @@ public class MainActivity
 	}
 
 	private long loadShader(long id) {
-		Cursor cursor = ShaderEditorApplication
-				.dataSource
-				.getShader(id);
+		Cursor cursor = ShaderEditorApplication.dataSource.getShader(id);
 
 		if (DataSource.closeIfEmpty(cursor)) {
 			return 0;
@@ -918,9 +883,7 @@ public class MainActivity
 	}
 
 	private void setToolbarTitle(long id) {
-		Cursor cursor = ShaderEditorApplication
-				.dataSource
-				.getShader(id);
+		Cursor cursor = ShaderEditorApplication.dataSource.getShader(id);
 
 		if (DataSource.closeIfEmpty(cursor)) {
 			return;
@@ -968,16 +931,9 @@ public class MainActivity
 	private void showPreview(String src) {
 		toolbar.setSubtitle(null);
 
-		Intent intent = new Intent(
-				this,
-				PreviewActivity.class);
-
-		intent.putExtra(
-				PreviewActivity.QUALITY,
-				quality);
-		intent.putExtra(
-				PreviewActivity.FRAGMENT_SHADER,
-				src);
+		Intent intent = new Intent(this, PreviewActivity.class);
+		intent.putExtra(PreviewActivity.QUALITY, quality);
+		intent.putExtra(PreviewActivity.FRAGMENT_SHADER, src);
 
 		if (ShaderEditorApplication.preferences.doesRunInNewTask() &&
 				Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

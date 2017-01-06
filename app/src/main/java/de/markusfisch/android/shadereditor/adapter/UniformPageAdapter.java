@@ -15,7 +15,6 @@ public class UniformPageAdapter extends FragmentStatePagerAdapter {
 
 	public UniformPageAdapter(Context context, FragmentManager fm) {
 		super(fm);
-
 		this.context = context;
 	}
 
@@ -40,7 +39,6 @@ public class UniformPageAdapter extends FragmentStatePagerAdapter {
 	@Override
 	public CharSequence getPageTitle(int position) {
 		int id;
-
 		switch (position) {
 			default:
 			case 0:

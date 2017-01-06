@@ -31,12 +31,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity;
-
-		if ((activity = getActivity()) == null) {
-			return null;
-		}
-
+		Activity activity = getActivity();
 		View view;
 		View fab;
 
@@ -90,7 +85,6 @@ public class UniformSampler2dPageFragment extends Fragment {
 
 	protected void addTexture() {
 		Activity activity = getActivity();
-
 		if (activity == null) {
 			return;
 		}
@@ -109,22 +103,16 @@ public class UniformSampler2dPageFragment extends Fragment {
 	}
 
 	protected Cursor loadTextures() {
-		return ShaderEditorApplication
-				.dataSource
-				.getTextures();
+		return ShaderEditorApplication.dataSource.getTextures();
 	}
 
 	private void showTexture(long id) {
 		Activity activity = getActivity();
-
 		if (activity == null) {
 			return;
 		}
 
-		Intent intent = new Intent(
-				activity,
-				TextureViewActivity.class);
-
+		Intent intent = new Intent(activity, TextureViewActivity.class);
 		intent.putExtra(TextureViewFragment.TEXTURE_ID, id);
 		intent.putExtra(TextureViewFragment.SAMPLER_TYPE, samplerType);
 
@@ -163,10 +151,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 			texturesAdapter.changeCursor(cursor);
 			texturesAdapter.notifyDataSetChanged();
 		} else {
-			texturesAdapter = new TextureAdapter(
-					context,
-					cursor);
-
+			texturesAdapter = new TextureAdapter(context, cursor);
 			listView.setAdapter(texturesAdapter);
 		}
 
@@ -178,16 +163,15 @@ public class UniformSampler2dPageFragment extends Fragment {
 
 	private void initListView(View view) {
 		listView.setEmptyView(view.findViewById(R.id.no_textures));
-		listView.setOnItemClickListener(
-				new AdapterView.OnItemClickListener() {
-					@Override
-					public void onItemClick(
-							AdapterView<?> parent,
-							View view,
-							int position,
-							long id) {
-						showTexture(id);
-					}
-				});
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(
+					AdapterView<?> parent,
+					View view,
+					int position,
+					long id) {
+				showTexture(id);
+			}
+		});
 	}
 }

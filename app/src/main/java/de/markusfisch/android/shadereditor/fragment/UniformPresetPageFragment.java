@@ -23,12 +23,7 @@ public class UniformPresetPageFragment extends Fragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity;
-
-		if ((activity = getActivity()) == null) {
-			return null;
-		}
-
+		Activity activity = getActivity();
 		View view;
 
 		if ((view = inflater.inflate(
@@ -52,24 +47,23 @@ public class UniformPresetPageFragment extends Fragment {
 		listView.setAdapter(uniformsAdapter);
 		listView.setOnItemClickListener(
 				new AdapterView.OnItemClickListener() {
-					@Override
-					public void onItemClick(
-							AdapterView<?> parent,
-							View view,
-							int position,
-							long id) {
-						Activity activity = getActivity();
+			@Override
+			public void onItemClick(
+					AdapterView<?> parent,
+					View view,
+					int position,
+					long id) {
+				Activity activity = getActivity();
+				if (activity == null) {
+					return;
+				}
 
-						if (activity == null) {
-							return;
-						}
+				AddUniformActivity.setAddUniformResult(
+						activity,
+						uniformsAdapter.getItem(position));
 
-						AddUniformActivity.setAddUniformResult(
-								activity,
-								uniformsAdapter.getItem(position));
-
-						activity.finish();
-					}
-				});
+				activity.finish();
+			}
+		});
 	}
 }

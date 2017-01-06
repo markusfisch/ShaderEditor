@@ -54,8 +54,8 @@ public class Preferences {
 				R.xml.preferences,
 				false);
 
-		preferences = PreferenceManager
-				.getDefaultSharedPreferences(context);
+		preferences = PreferenceManager.getDefaultSharedPreferences(
+				context);
 
 		update();
 	}
