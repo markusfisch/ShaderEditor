@@ -471,18 +471,17 @@ public class MainActivity
 	private void initListView() {
 		listView = (ListView) findViewById(R.id.shaders);
 		listView.setEmptyView(findViewById(R.id.no_shaders));
-		listView.setOnItemClickListener(
-				new AdapterView.OnItemClickListener() {
-					@Override
-					public void onItemClick(
-							AdapterView<?> parent,
-							View view,
-							int position,
-							long id) {
-						selectShader(id);
-						closeDrawer();
-					}
-				});
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(
+					AdapterView<?> parent,
+					View view,
+					int position,
+					long id) {
+				selectShaderAndUpdate(id);
+				closeDrawer();
+			}
+		});
 	}
 
 	private void initShaderView() {
@@ -534,8 +533,7 @@ public class MainActivity
 
 				if (selectedShaderId < 0 &&
 						shaderAdapter.getCount() > 0) {
-					selectedShaderId = shaderAdapter.getItemId(0);
-					selectShader(selectedShaderId);
+					selectShader(shaderAdapter.getItemId(0));
 				} else if (selectedShaderId > 0) {
 					shaderAdapter.setSelectedId(selectedShaderId);
 					setToolbarTitle(selectedShaderId);
@@ -756,7 +754,7 @@ public class MainActivity
 	}
 
 	private void addShader() {
-		selectShader(ShaderEditorApplication
+		selectShaderAndUpdate(ShaderEditorApplication
 				.dataSource
 				.insertNewShader(this));
 	}
@@ -770,14 +768,10 @@ public class MainActivity
 			saveShader(id);
 		}
 
-		selectShader(ShaderEditorApplication
-				.dataSource
-				.insertShader(
-						editorFragment.getText(),
-						ShaderEditorApplication
-								.dataSource
-								.getThumbnail(id),
-						quality));
+		selectShaderAndUpdate(ShaderEditorApplication.dataSource.insertShader(
+				editorFragment.getText(),
+				ShaderEditorApplication.dataSource.getThumbnail(id),
+				quality));
 
 		// update thumbnails
 		getShadersAsync();
@@ -801,14 +795,12 @@ public class MainActivity
 										.dataSource
 										.removeShader(id);
 
-								selectShader(ShaderEditorApplication
+								selectShaderAndUpdate(ShaderEditorApplication
 										.dataSource
 										.getFirstShaderId());
 							}
 						})
-				.setNegativeButton(
-						android.R.string.no,
-						null)
+				.setNegativeButton(android.R.string.no, null)
 				.show();
 	}
 
@@ -864,6 +856,11 @@ public class MainActivity
 				PreferencesActivity.class));
 	}
 
+	private void selectShaderAndUpdate(long id) {
+		selectShader(id);
+		getShadersAsync();
+	}
+
 	private void selectShader(long id) {
 		// remove thumbnail from previous shader
 		PreviewActivity.renderStatus.reset();
@@ -877,9 +874,7 @@ public class MainActivity
 			setDefaultToolbarTitle();
 		}
 
-		// update list
-		shaderAdapter.setSelectedId(id);
-		getShadersAsync();
+		shaderAdapter.setSelectedId(selectedShaderId);
 	}
 
 	private long loadShader(long id) {
