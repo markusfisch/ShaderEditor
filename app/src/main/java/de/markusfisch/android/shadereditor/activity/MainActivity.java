@@ -52,6 +52,12 @@ public class MainActivity
 		}
 	};
 
+	private interface UpdateListener {
+		public void updateShaderAdapter(Cursor cursor);
+	}
+
+	private static UpdateListener updateListener;
+
 	private EditorFragment editorFragment;
 	private Toolbar toolbar;
 	private Spinner qualitySpinner;
@@ -273,6 +279,7 @@ public class MainActivity
 		initDrawer();
 		initListView();
 		initShaderView();
+		initUpdateListener();
 
 		if (state == null || (editorFragment =
 				(EditorFragment) getSupportFragmentManager()
@@ -344,7 +351,6 @@ public class MainActivity
 	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
-
 		handleSendText(intent);
 	}
 
@@ -487,18 +493,57 @@ public class MainActivity
 
 		shaderView.getRenderer().setOnRendererListener(
 				new ShaderRenderer.OnRendererListener() {
-					@Override
-					public void onFramesPerSecond(int fps) {
-						// invoked from the GL thread
-						postUpdateFps(fps);
+			@Override
+			public void onFramesPerSecond(int fps) {
+				// invoked from the GL thread
+				postUpdateFps(fps);
+			}
+
+			@Override
+			public void onInfoLog(String infoLog) {
+				// invoked from the GL thread
+				postInfoLog(infoLog);
+			}
+		});
+	}
+
+	private void initUpdateListener() {
+		// realize changes from AsyncTask in getShadersAsync() in
+		// the Activity object which is currently displayed
+		updateListener = new UpdateListener() {
+			@Override
+			public void updateShaderAdapter(Cursor cursor) {
+				handleSendText(getIntent());
+
+				if (cursor == null || cursor.getCount() < 1) {
+					if (cursor != null) {
+						cursor.close();
 					}
 
-					@Override
-					public void onInfoLog(String infoLog) {
-						// invoked from the GL thread
-						postInfoLog(infoLog);
-					}
-				});
+					showNoShadersAvailable();
+					return;
+				}
+
+				if (shaderAdapter != null) {
+					shaderAdapter.setSelectedId(selectedShaderId);
+					shaderAdapter.changeCursor(cursor);
+					return;
+				}
+
+				shaderAdapter = new ShaderAdapter(MainActivity.this, cursor);
+
+				if (selectedShaderId < 0 &&
+						shaderAdapter.getCount() > 0) {
+					selectedShaderId = shaderAdapter.getItemId(0);
+					selectShader(selectedShaderId);
+				} else if (selectedShaderId > 0) {
+					shaderAdapter.setSelectedId(selectedShaderId);
+					setToolbarTitle(selectedShaderId);
+				}
+
+				listView.setAdapter(shaderAdapter);
+			}
+		};
 	}
 
 	private void postUpdateFps(int fps) {
@@ -562,48 +607,16 @@ public class MainActivity
 		new AsyncTask<Void, Void, Cursor>() {
 			@Override
 			protected Cursor doInBackground(Void... nothings) {
-				return ShaderEditorApplication
-						.dataSource
-						.getShaders();
+				return ShaderEditorApplication.dataSource.getShaders();
 			}
 
 			@Override
 			protected void onPostExecute(Cursor cursor) {
-				updateShaderAdapter(cursor);
+				if (!isFinishing()) {
+					updateListener.updateShaderAdapter(cursor);
+				}
 			}
 		}.execute();
-	}
-
-	private void updateShaderAdapter(Cursor cursor) {
-		handleSendText(getIntent());
-
-		if (cursor == null || cursor.getCount() < 1) {
-			if (cursor != null) {
-				cursor.close();
-			}
-
-			showNoShadersAvailable();
-			return;
-		}
-
-		if (shaderAdapter != null) {
-			shaderAdapter.setSelectedId(selectedShaderId);
-			shaderAdapter.changeCursor(cursor);
-			return;
-		}
-
-		shaderAdapter = new ShaderAdapter(this, cursor);
-
-		if (selectedShaderId < 0 &&
-				shaderAdapter.getCount() > 0) {
-			selectedShaderId = shaderAdapter.getItemId(0);
-			selectShader(selectedShaderId);
-		} else if (selectedShaderId > 0) {
-			shaderAdapter.setSelectedId(selectedShaderId);
-			setToolbarTitle(selectedShaderId);
-		}
-
-		listView.setAdapter(shaderAdapter);
 	}
 
 	private void showNoShadersAvailable() {

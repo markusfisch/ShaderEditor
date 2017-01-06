@@ -71,7 +71,6 @@ public class UniformSampler2dPageFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-
 		loadTexturesAsync(getActivity());
 	}
 
@@ -150,7 +149,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 
 			@Override
 			protected void onPostExecute(Cursor cursor) {
-				if (cursor == null) {
+				if (!isAdded() || cursor == null) {
 					return;
 				}
 

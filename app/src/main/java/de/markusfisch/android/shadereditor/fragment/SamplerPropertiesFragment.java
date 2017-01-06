@@ -223,7 +223,6 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 				progressView.setVisibility(View.GONE);
 
 				Activity activity = getActivity();
-
 				if (activity == null) {
 					return;
 				}

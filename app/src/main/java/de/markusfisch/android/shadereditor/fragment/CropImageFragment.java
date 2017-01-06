@@ -27,6 +27,11 @@ public class CropImageFragment extends Fragment {
 	}
 
 	private static boolean inProgress = false;
+	private static UpdateListener updateListener;
+
+	private interface UpdateListener {
+		public void updateBitmap(Bitmap b);
+	}
 
 	private CropImageView cropImageView;
 	private View progressView;
@@ -45,12 +50,7 @@ public class CropImageFragment extends Fragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity;
-
-		if ((activity = getActivity()) == null) {
-			return null;
-		}
-
+		Activity activity = getActivity();
 		activity.setTitle(R.string.crop_image);
 
 		try {
@@ -82,6 +82,7 @@ public class CropImageFragment extends Fragment {
 
 		// make cropImageView in activity visible (again)
 		cropImageView.setVisibility(View.VISIBLE);
+		initUpdateListener();
 
 		return view;
 	}
@@ -89,7 +90,6 @@ public class CropImageFragment extends Fragment {
 	@Override
 	public void onResume() {
 		super.onResume();
-
 		loadBitmapAsync();
 	}
 
@@ -112,9 +112,20 @@ public class CropImageFragment extends Fragment {
 		}
 	}
 
+	private void initUpdateListener() {
+		// realize changes from AsyncTask in loadBitmapAsync() in
+		// the Fragment object that is currently displayed
+		updateListener = new UpdateListener() {
+			@Override
+			public void updateBitmap(Bitmap b) {
+				bitmap = b;
+				cropImageView.setImageBitmap(bitmap);
+			}
+		};
+	}
+
 	private void loadBitmapAsync() {
 		final Activity activity = getActivity();
-
 		if (activity == null || inProgress) {
 			return;
 		}
@@ -132,11 +143,11 @@ public class CropImageFragment extends Fragment {
 			}
 
 			@Override
-			protected void onPostExecute(Bitmap bmp) {
+			protected void onPostExecute(Bitmap b) {
 				inProgress = false;
 				progressView.setVisibility(View.GONE);
 
-				if (bmp == null) {
+				if (b == null) {
 					Toast.makeText(
 							activity,
 							R.string.cannot_pick_image,
@@ -146,8 +157,7 @@ public class CropImageFragment extends Fragment {
 					return;
 				}
 
-				bitmap = bmp;
-				cropImageView.setImageBitmap(bitmap);
+				updateListener.updateBitmap(b);
 			}
 		}.execute();
 	}

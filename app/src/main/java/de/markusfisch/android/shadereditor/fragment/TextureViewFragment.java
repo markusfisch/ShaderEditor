@@ -44,12 +44,7 @@ public class TextureViewFragment extends Fragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity;
-
-		if ((activity = getActivity()) == null) {
-			return null;
-		}
-
+		Activity activity = getActivity();
 		ScalingImageView imageView;
 
 		try {
@@ -116,7 +111,6 @@ public class TextureViewFragment extends Fragment {
 
 	private void askToRemoveTexture(final long id) {
 		Activity activity = getActivity();
-
 		if (activity == null) {
 			return;
 		}
@@ -143,9 +137,7 @@ public class TextureViewFragment extends Fragment {
 		new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(Void... nothings) {
-				ShaderEditorApplication
-						.dataSource
-						.removeTexture(id);
+				ShaderEditorApplication.dataSource.removeTexture(id);
 
 				return null;
 			}
@@ -153,7 +145,6 @@ public class TextureViewFragment extends Fragment {
 			@Override
 			protected void onPostExecute(Void nothing) {
 				Activity activity = getActivity();
-
 				if (activity == null) {
 					return;
 				}
@@ -165,7 +156,6 @@ public class TextureViewFragment extends Fragment {
 
 	private void insertUniformSamplerStatement() {
 		Activity activity = getActivity();
-
 		if (activity == null) {
 			return;
 		}
