@@ -1,8 +1,8 @@
 package de.markusfisch.android.shadereditor.widget;
 
 import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.preference.Preferences;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -94,12 +94,12 @@ public class CubeMapView extends ScalingImageView {
 	private final Paint selectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	private final Paint unselectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-	private final Point navigationBarSize = new Point(0, 0);
 	private final int tapTimeout = ViewConfiguration.getTapTimeout();
 
 	private int mapPadding;
 	private int textPadding;
 	private int toolAndStatusBarHeight;
+	private Point navigationBarSize;
 	private Bitmap selectedBitmap;
 	private int selectedFace = 0;
 	private long touchDownTime = 0;
@@ -296,9 +296,9 @@ public class CubeMapView extends ScalingImageView {
 	private void initMetrics(Context context, float dp, Resources res) {
 		mapPadding = Math.round(24f * dp);
 		textPadding = Math.round(8f * dp);
-		toolAndStatusBarHeight = Preferences.getStatusAndToolBarHeight(
-				context);
-		Preferences.getNavigationBarHeight(res, navigationBarSize);
+		toolAndStatusBarHeight = SystemBarMetrics
+				.getStatusAndToolBarHeight(context);
+		navigationBarSize = SystemBarMetrics.getNavigationBarSize(res);
 	}
 
 	private void restoreFace(int idx, Face from) {

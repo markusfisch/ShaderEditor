@@ -1,7 +1,7 @@
 package de.markusfisch.android.shadereditor.widget;
 
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.preference.Preferences;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -24,7 +24,7 @@ public class CropImageView extends ScalingImageView {
 				context.getResources().getDisplayMetrics().density * 24f);
 
 		toolAndStatusbarHeight =
-				Preferences.getStatusAndToolBarHeight(context);
+				SystemBarMetrics.getStatusAndToolBarHeight(context);
 
 		setScaleType(ScalingImageView.ScaleType.CENTER_CROP);
 	}

@@ -5,7 +5,7 @@ import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
-import de.markusfisch.android.shadereditor.preference.Preferences;
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
@@ -85,7 +85,8 @@ public class MainActivity
 						true)) {
 			view.setPadding(
 					0,
-					Preferences.getStatusBarHeight(activity.getResources()),
+					SystemBarMetrics.getStatusBarHeight(
+							activity.getResources()),
 					0,
 					0);
 		}

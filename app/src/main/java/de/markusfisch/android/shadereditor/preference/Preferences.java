@@ -3,15 +3,10 @@ package de.markusfisch.android.shadereditor.preference;
 import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.content.SharedPreferences;
-import android.graphics.Point;
 import android.hardware.SensorManager;
-import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.PreferenceManager;
-import android.util.TypedValue;
 
 import java.lang.NumberFormatException;
 
@@ -161,60 +156,6 @@ public class Preferences {
 		return systemBarColor;
 	}
 
-	public static int getStatusAndToolBarHeight(Context context) {
-		return getStatusBarHeight(context.getResources()) +
-				getToolBarHeight(context);
-	}
-
-	public static int getStatusBarHeight(Resources res) {
-		// don't store status bar height because it may be
-		// different for each context
-		return getIdentifierDimen(res, "status_bar_height");
-	}
-
-	public static void getNavigationBarHeight(Resources res, Point size) {
-		// don't store navigation bar height because it may be
-		// different for each context
-		size.x = size.y = 0;
-
-		if (!getIdentifierBoolean(res, "config_showNavigationBar")) {
-			return;
-		}
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-			Configuration conf = res.getConfiguration();
-
-			if (conf.orientation == Configuration.ORIENTATION_LANDSCAPE &&
-					// according to https://developer.android.com/training/multiscreen/screensizes.html#TaskUseSWQuali
-					// only a screen < 600 dp is considered to be a phone and
-					// can move its navigation bar to the side
-					conf.smallestScreenWidthDp < 600) {
-				size.x = getIdentifierDimen(
-						res,
-						"navigation_bar_height_landscape");
-
-				return;
-			}
-		}
-
-		size.y = getIdentifierDimen(res, "navigation_bar_height");
-	}
-
-	private static int getToolBarHeight(Context context) {
-		// don't store toolbar bar height because it may be
-		// different for each context
-		TypedValue tv = new TypedValue();
-
-		return context.getTheme().resolveAttribute(
-				android.R.attr.actionBarSize,
-				tv,
-				true) ?
-				TypedValue.complexToDimensionPixelSize(
-						tv.data,
-						context.getResources().getDisplayMetrics()) :
-				0;
-	}
-
 	private static int parseInt(String s, int preset) {
 		try {
 			if (s != null && s.length() > 0) {
@@ -237,30 +178,6 @@ public class Preferences {
 		}
 
 		return preset;
-	}
-
-	private static boolean getIdentifierBoolean(
-			Resources res,
-			String name) {
-		int id = res.getIdentifier(
-				name,
-				"bool",
-				"android");
-
-		return id > 0 && res.getBoolean(id);
-	}
-
-	private static int getIdentifierDimen(
-			Resources res,
-			String name) {
-		int id = res.getIdentifier(
-				name,
-				"dimen",
-				"android");
-
-		return id > 0 ?
-				res.getDimensionPixelSize(id) :
-				0;
 	}
 
 	private static int parseSensorDelay(String s, int preset) {
