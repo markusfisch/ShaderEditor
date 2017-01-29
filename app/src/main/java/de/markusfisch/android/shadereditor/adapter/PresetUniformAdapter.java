@@ -15,65 +15,85 @@ public class PresetUniformAdapter extends BaseAdapter {
 	public PresetUniformAdapter(Context context) {
 		uniforms = new Uniform[]{
 				new Uniform(
-						"vec2 resolution",
-						context.getString(R.string.resolution_in_pixels)),
+						"sampler2D",
+						"backbuffer",
+						context.getString(R.string.previous_frame)),
 				new Uniform(
-						"float time",
-						context.getString(R.string.time_in_seconds_since_load)),
-				new Uniform(
-						"int second",
-						context.getString(R.string.int_seconds_since_load)),
-				new Uniform(
-						"float subsecond",
-						context.getString(R.string.fractional_part_of_seconds_since_load)),
-				new Uniform(
-						"float ftime",
-						context.getString(R.string.time_in_cycle)),
-				new Uniform(
-						"vec2 touch",
-						context.getString(R.string.touch_position_in_pixels)),
-				new Uniform(
-						"int pointerCount",
-						context.getString(R.string.number_of_touches)),
-				new Uniform(
-						"vec3 pointers[10]",
-						context.getString(R.string.positions_of_touches)),
-				new Uniform(
-						"vec3 linear",
-						context.getString(R.string.linear_acceleration_vector)),
-				new Uniform(
-						"vec3 gravity",
-						context.getString(R.string.gravity_vector)),
-				new Uniform(
-						"vec3 rotation",
-						context.getString(R.string.device_rotation)),
-				new Uniform(
-						"vec3 magnetic",
-						context.getString(R.string.magnetic_field)),
-				new Uniform(
-						"float light",
-						context.getString(R.string.light)),
-				new Uniform(
-						"float pressure",
-						context.getString(R.string.pressure)),
-				new Uniform(
-						"float proximity",
-						context.getString(R.string.proximity)),
-				new Uniform(
-						"float battery",
+						"float",
+						"battery",
 						context.getString(R.string.battery_level)),
 				new Uniform(
-						"vec2 offset",
-						context.getString(R.string.wallpaper_offset)),
-				new Uniform(
-						"vec4 date",
+						"vec4",
+						"date",
 						context.getString(R.string.date_time)),
 				new Uniform(
-						"float startRandom",
+						"float",
+						"ftime",
+						context.getString(R.string.time_in_cycle)),
+				new Uniform(
+						"vec3",
+						"gravity",
+						context.getString(R.string.gravity_vector)),
+				new Uniform(
+						"float",
+						"light",
+						context.getString(R.string.light)),
+				new Uniform(
+						"vec3",
+						"linear",
+						context.getString(R.string.linear_acceleration_vector)),
+				new Uniform(
+						"vec3",
+						"magnetic",
+						context.getString(R.string.magnetic_field)),
+				new Uniform(
+						"vec2",
+						"offset",
+						context.getString(R.string.wallpaper_offset)),
+				new Uniform(
+						"vec3",
+						"pointers[10]",
+						context.getString(R.string.positions_of_touches)),
+				new Uniform(
+						"int",
+						"pointerCount",
+						context.getString(R.string.number_of_touches)),
+				new Uniform(
+						"float",
+						"pressure",
+						context.getString(R.string.pressure)),
+				new Uniform(
+						"float",
+						"proximity",
+						context.getString(R.string.proximity)),
+				new Uniform(
+						"vec2",
+						"resolution",
+						context.getString(R.string.resolution_in_pixels)),
+				new Uniform(
+						"vec3",
+						"rotation",
+						context.getString(R.string.device_rotation)),
+				new Uniform(
+						"int",
+						"second",
+						context.getString(R.string.int_seconds_since_load)),
+				new Uniform(
+						"float",
+						"startRandom",
 						context.getString(R.string.start_random)),
 				new Uniform(
-						"sampler2D backbuffer",
-						context.getString(R.string.previous_frame)),
+						"float",
+						"subsecond",
+						context.getString(R.string.fractional_part_of_seconds_since_load)),
+				new Uniform(
+						"float",
+						"time",
+						context.getString(R.string.time_in_seconds_since_load)),
+				new Uniform(
+						"vec2",
+						"touch",
+						context.getString(R.string.touch_position_in_pixels)),
 		};
 	}
 
@@ -84,7 +104,8 @@ public class PresetUniformAdapter extends BaseAdapter {
 
 	@Override
 	public String getItem(int position) {
-		return "uniform " + uniforms[position].name;
+		return "uniform " + uniforms[position].type + " " +
+				uniforms[position].name;
 	}
 
 	@Override
@@ -109,7 +130,7 @@ public class PresetUniformAdapter extends BaseAdapter {
 		ViewHolder holder = getViewHolder(convertView);
 		Uniform uniform = uniforms[position];
 
-		holder.name.setText(uniform.name);
+		holder.name.setText(uniform.name + " (" + uniform.type + ")");
 		holder.rationale.setText(uniform.rationale);
 
 		return convertView;
@@ -129,10 +150,12 @@ public class PresetUniformAdapter extends BaseAdapter {
 	}
 
 	private static final class Uniform {
+		private final String type;
 		private final String name;
 		private final String rationale;
 
-		public Uniform(String name, String rationale) {
+		public Uniform(String type, String name, String rationale) {
+			this.type = type;
 			this.name = name;
 			this.rationale = rationale;
 		}
