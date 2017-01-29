@@ -9,10 +9,14 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 public class PresetUniformAdapter extends BaseAdapter {
+	private final String uniformFormat;
 	private final Uniform uniforms[];
 
 	public PresetUniformAdapter(Context context) {
+		uniformFormat = context.getString(R.string.uniform_format);
 		uniforms = new Uniform[]{
 				new Uniform(
 						"sampler2D",
@@ -130,7 +134,11 @@ public class PresetUniformAdapter extends BaseAdapter {
 		ViewHolder holder = getViewHolder(convertView);
 		Uniform uniform = uniforms[position];
 
-		holder.name.setText(uniform.name + " (" + uniform.type + ")");
+		holder.name.setText(String.format(
+				Locale.US,
+				uniformFormat,
+				uniform.name,
+				uniform.type));
 		holder.rationale.setText(uniform.rationale);
 
 		return convertView;

@@ -65,6 +65,7 @@
 	<string name="preset">preset</string>
 
 	<!-- UniformPresetPageFragment -->
+	<string name="uniform_format">%1$s (%2$s)</string>
 	<string name="resolution_in_pixels">Surface resolution in pixels</string>
 	<string name="time_in_seconds_since_load">Time in seconds since load</string>
 	<string name="int_seconds_since_load">Time in integer seconds since load</string>
