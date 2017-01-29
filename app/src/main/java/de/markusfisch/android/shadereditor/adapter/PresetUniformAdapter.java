@@ -125,10 +125,7 @@ public class PresetUniformAdapter extends BaseAdapter {
 		if (convertView == null) {
 			convertView = LayoutInflater
 					.from(parent.getContext())
-					.inflate(
-							android.R.layout.simple_list_item_2,
-							parent,
-							false);
+					.inflate(R.layout.row_preset, parent, false);
 		}
 
 		ViewHolder holder = getViewHolder(convertView);
@@ -148,10 +145,8 @@ public class PresetUniformAdapter extends BaseAdapter {
 		ViewHolder holder;
 		if ((holder = (ViewHolder) view.getTag()) == null) {
 			holder = new ViewHolder();
-			holder.name = (TextView) view.findViewById(
-					android.R.id.text1);
-			holder.rationale = (TextView) view.findViewById(
-					android.R.id.text2);
+			holder.name = (TextView) view.findViewById(R.id.name);
+			holder.rationale = (TextView) view.findViewById(R.id.rationale);
 		}
 
 		return holder;
