@@ -75,8 +75,8 @@
 	<string name="positions_of_touches">Positions of touches in pixels</string>
 	<string name="linear_acceleration_vector">Linear acceleration in m/s^2</string>
 	<string name="gravity_vector">Gravity vector in m/s^2</string>
-	<string name="device_rotation">Device rotation on the x, y and z axis</string>
-	<string name="magnetic_field">Geomagnetic field strength along the x, y and z axis</string>
+	<string name="device_rotation">Rate of rotation in rad/s around the device\'s x, y, and z axis integrated over time</string>
+	<string name="magnetic_field">Geomagnetic field strength along the x, y and z axis in μT</string>
 	<string name="light">Ambient light level in SI lux units</string>
 	<string name="pressure">Atmospheric pressure in hPa (millibar)</string>
 	<string name="proximity">Proximity sensor distance measured in centimeters</string>
