@@ -95,6 +95,10 @@ EOF
 done
 }
 
+update app/src/debug/res/mipmap << EOF
+svg/debug/ic_launcher.svg 48
+EOF
+
 update app/src/main/res/mipmap << EOF
 svg/ic_launcher.svg 48
 EOF
