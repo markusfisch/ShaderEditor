@@ -7,6 +7,7 @@ import android.hardware.SensorEvent;
 public class AccelerometerListener extends AbstractListener {
 	public final float gravity[] = new float[]{0, 0, 0};
 	public final float linear[] = new float[]{0, 0, 0};
+	public final float values[] = new float[]{0, 0, 0};
 
 	public AccelerometerListener(Context context) {
 		super(context);
@@ -29,6 +30,10 @@ public class AccelerometerListener extends AbstractListener {
 			linear[0] = event.values[0] - gravity[0];
 			linear[1] = event.values[1] - gravity[1];
 			linear[2] = event.values[2] - gravity[2];
+
+			values[0] = event.values[0];
+			values[1] = event.values[1];
+			values[2] = event.values[2];
 		}
 
 		last = event.timestamp;

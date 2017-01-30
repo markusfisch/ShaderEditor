@@ -56,6 +56,10 @@ public class PresetUniformAdapter extends BaseAdapter {
 						context.getString(R.string.wallpaper_offset)),
 				new Uniform(
 						"vec3",
+						"orientation",
+						context.getString(R.string.device_orientation)),
+				new Uniform(
+						"vec3",
 						"pointers[10]",
 						context.getString(R.string.positions_of_touches)),
 				new Uniform(

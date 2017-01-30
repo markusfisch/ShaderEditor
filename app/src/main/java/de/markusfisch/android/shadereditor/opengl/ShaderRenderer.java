@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.hardware.SensorManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
@@ -144,6 +145,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private final float pointers[] = new float[30];
 	private final float offset[] = new float[]{0, 0};
 	private final float dateTime[] = new float[]{0, 0, 0, 0};
+	private final float rotationMatrix[] = new float[9];
+	private final float orientation[] = new float[]{0, 0, 0};
 	private final Context context;
 	private final ByteBuffer vertexBuffer;
 
@@ -174,6 +177,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int linearLoc;
 	private int rotationLoc;
 	private int magneticLoc;
+	private int orientationLoc;
 	private int lightLoc;
 	private int pressureLoc;
 	private int proximityLoc;
@@ -407,6 +411,21 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					magneticLoc,
 					1,
 					magneticFieldListener.values,
+					0);
+		}
+
+		if (orientationLoc > -1 && accelerometerListener != null &&
+				magneticFieldListener != null) {
+			SensorManager.getRotationMatrix(
+					rotationMatrix,
+					null,
+					accelerometerListener.values,
+					magneticFieldListener.values);
+			SensorManager.getOrientation(rotationMatrix, orientation);
+			GLES20.glUniform3fv(
+					orientationLoc,
+					1,
+					orientation,
 					0);
 		}
 
@@ -705,6 +724,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, "rotation");
 		magneticLoc = GLES20.glGetUniformLocation(
 				program, "magnetic");
+		orientationLoc = GLES20.glGetUniformLocation(
+				program, "orientation");
 		lightLoc = GLES20.glGetUniformLocation(
 				program, "light");
 		pressureLoc = GLES20.glGetUniformLocation(
@@ -735,7 +756,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private void registerListeners() {
-		if (gravityLoc > -1 || linearLoc > -1) {
+		if (gravityLoc > -1 || linearLoc > -1 || orientationLoc > -1) {
 			if (accelerometerListener == null) {
 				accelerometerListener = new AccelerometerListener(context);
 			}
@@ -751,7 +772,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			gyroscopeListener.register();
 		}
 
-		if (magneticLoc > -1) {
+		if (magneticLoc > -1 || orientationLoc > -1) {
 			if (magneticFieldListener == null) {
 				magneticFieldListener = new MagneticFieldListener(context);
 			}
