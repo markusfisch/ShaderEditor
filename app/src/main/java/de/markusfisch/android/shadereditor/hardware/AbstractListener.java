@@ -17,8 +17,8 @@ public abstract class AbstractListener implements SensorEventListener {
 	private Sensor sensor;
 
 	public AbstractListener(Context context) {
-		sensorManager = (SensorManager)
-				context.getSystemService(Context.SENSOR_SERVICE);
+		sensorManager = (SensorManager) context.getSystemService(
+				Context.SENSOR_SERVICE);
 	}
 
 	public void unregister() {
@@ -40,25 +40,14 @@ public abstract class AbstractListener implements SensorEventListener {
 	}
 
 	protected boolean register(int type) {
-		if (listening ||
-				sensorManager == null ||
-				(sensor == null &&
-						(sensor = sensorManager.getDefaultSensor(
-								type)) == null)) {
+		if (listening || sensorManager == null || (sensor == null &&
+				(sensor = sensorManager.getDefaultSensor(type)) == null)) {
 			return false;
 		}
 
-		reset();
-
-		return (listening = sensorManager.registerListener(
-				this,
-				sensor,
-				ShaderEditorApplication
-						.preferences
-						.getSensorDelay()));
-	}
-
-	private void reset() {
 		last = 0;
+
+		return listening = sensorManager.registerListener(this, sensor,
+				ShaderEditorApplication.preferences.getSensorDelay());
 	}
 }
