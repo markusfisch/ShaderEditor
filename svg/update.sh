@@ -5,7 +5,7 @@ find_converter()
 {
 	if [ -z "$INKSCAPE" ]
 	then
-		INKSCAPE=`which inkscape` ||
+		INKSCAPE=$(which inkscape) ||
 			INKSCAPE='/Applications/Inkscape.app/Contents/Resources/bin/inkscape'
 	fi
 
@@ -16,8 +16,8 @@ find_converter()
 			"$INKSCAPE" \
 				"$PWD/$1" \
 				-e "$PWD/$2" \
-				-w $3 \
-				-h $3
+				-w "$3" \
+				-h "$3"
 		}
 	elif which convert &>/dev/null
 	then
@@ -26,7 +26,7 @@ find_converter()
 			convert \
 				-background none \
 				"$1" \
-				-thumbnail $3 \
+				-thumbnail "$3" \
 				-strip \
 				"$2"
 		}
@@ -51,11 +51,11 @@ update()
 	local DPI MULTIPLIER
 	local DIR PNG
 
-	while read SVG SIZE NEGATE
+	while read -r SVG SIZE NEGATE
 	do
 		SIZE=${SIZE:-24}
 
-		while read DPI MULTIPLIER
+		while read -r DPI MULTIPLIER
 		do
 			DIR="$1-$DPI"
 
@@ -68,19 +68,19 @@ update()
 			PNG="$DIR/${PNG%.*}.png"
 
 			# skip existing up to date files
-			[ -r "$PNG" ] && [ -z "`find \
+			[ -r "$PNG" ] && [ -z "$(find \
 				"$SVG" \
 				-type f \
-				-newer "$PNG"`" ] && continue
+				-newer "$PNG")" ] && continue
 
 			converter \
 				"$SVG" \
 				"$PNG" \
-				`echo "$SIZE*$MULTIPLIER" |
+				"$(echo "$SIZE*$MULTIPLIER" |
 					bc -l |
-					cut -d '.' -f 1`
+					cut -d '.' -f 1)"
 
-			if (( $NEGATE ))
+			if (( NEGATE ))
 			then
 				convert "$PNG" -negate "$PNG"
 			fi
@@ -95,11 +95,11 @@ EOF
 done
 }
 
-update ShaderEditor/src/main/res/mipmap << EOF
+update app/src/main/res/mipmap << EOF
 svg/ic_launcher.svg 48
 EOF
 
-update ShaderEditor/src/main/res/drawable << EOF
+update app/src/main/res/drawable << EOF
 svg/ic_action_add.svg 24 1
 svg/ic_action_add_texture.svg 24
 svg/ic_action_cut.svg 24 1
