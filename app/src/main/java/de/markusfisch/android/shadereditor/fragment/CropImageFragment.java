@@ -30,7 +30,7 @@ public class CropImageFragment extends Fragment {
 	private static UpdateListener updateListener;
 
 	private interface UpdateListener {
-		public void updateBitmap(Bitmap b);
+		void updateBitmap(Bitmap b);
 	}
 
 	private CropImageView cropImageView;

@@ -161,7 +161,7 @@ public class PresetUniformAdapter extends BaseAdapter {
 		private final String name;
 		private final String rationale;
 
-		public Uniform(String type, String name, String rationale) {
+		private Uniform(String type, String name, String rationale) {
 			this.type = type;
 			this.name = name;
 			this.rationale = rationale;
@@ -169,7 +169,7 @@ public class PresetUniformAdapter extends BaseAdapter {
 	}
 
 	private static final class ViewHolder {
-		public TextView name;
-		public TextView rationale;
+		private TextView name;
+		private TextView rationale;
 	}
 }

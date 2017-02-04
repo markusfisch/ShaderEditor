@@ -90,8 +90,8 @@ public class TextureAdapter extends CursorAdapter {
 	}
 
 	private static final class ViewHolder {
-		public ImageView preview;
-		public TextView name;
-		public TextView size;
+		private ImageView preview;
+		private TextView name;
+		private TextView size;
 	}
 }

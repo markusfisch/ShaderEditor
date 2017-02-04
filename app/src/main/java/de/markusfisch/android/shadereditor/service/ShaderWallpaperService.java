@@ -47,17 +47,6 @@ public class ShaderWallpaperService extends WallpaperService {
 
 		private ShaderWallpaperView view;
 
-		public ShaderWallpaperEngine() {
-			super();
-
-			ShaderEditorApplication
-					.preferences
-					.getSharedPreferences()
-					.registerOnSharedPreferenceChangeListener(this);
-
-			setTouchEventsEnabled(true);
-		}
-
 		@Override
 		public void onSharedPreferenceChanged(
 				SharedPreferences preferences,
@@ -113,7 +102,18 @@ public class ShaderWallpaperService extends WallpaperService {
 			view.getRenderer().setOffset(xOffset, yOffset);
 		}
 
-		public void setRenderMode(int renderMode) {
+		private ShaderWallpaperEngine() {
+			super();
+
+			ShaderEditorApplication
+					.preferences
+					.getSharedPreferences()
+					.registerOnSharedPreferenceChangeListener(this);
+
+			setTouchEventsEnabled(true);
+		}
+
+		private void setRenderMode(int renderMode) {
 			if (view == null) {
 				return;
 			}

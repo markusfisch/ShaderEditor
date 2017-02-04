@@ -53,7 +53,7 @@ public class MainActivity
 	};
 
 	private interface UpdateListener {
-		public void updateShaderAdapter(Cursor cursor);
+		void updateShaderAdapter(Cursor cursor);
 	}
 
 	private static UpdateListener updateListener;

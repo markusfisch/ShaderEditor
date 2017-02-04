@@ -527,11 +527,6 @@ public class DataSource {
 	private class OpenHelper extends SQLiteOpenHelper {
 		private final Context context;
 
-		public OpenHelper(Context context) {
-			super(context, "shaders.db", null, 4);
-			this.context = context;
-		}
-
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			createShadersTable(db, context);
@@ -564,6 +559,11 @@ public class DataSource {
 			if (oldVersion < 4) {
 				addTexturesWidthHeightRatio(db);
 			}
+		}
+
+		private OpenHelper(Context context) {
+			super(context, "shaders.db", null, 4);
+			this.context = context;
 		}
 	}
 }

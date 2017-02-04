@@ -1149,11 +1149,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private static class TextureBinder {
 		private int index;
 
-		public void reset() {
+		private void reset() {
 			index = 0;
 		}
 
-		public void bind(int loc, int target, int textureId) {
+		private void bind(int loc, int target, int textureId) {
 			if (loc < 0 || index >= TEXTURE_UNITS.length) {
 				return;
 			}
