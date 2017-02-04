@@ -4,36 +4,39 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.Matrix;
+import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
 public class ScalingImageView extends ImageView {
-	private final SparseArray<Float> originX = new SparseArray<>();
-	private final SparseArray<Float> originY = new SparseArray<>();
-	private final Matrix originMatrix = new Matrix();
+	private final SparseArray<PointF> initialPoint = new SparseArray<>();
+	private final Matrix initialMatrix = new Matrix();
 	private final Matrix transformMatrix = new Matrix();
-	private final Gesture originGesture = new Gesture();
-	private final Gesture transformGesture = new Gesture();
-	private final RectF originRect = new RectF();
+	private final Tapeline initialTapeline = new Tapeline();
+	private final Tapeline transformTapeline = new Tapeline();
+	private final RectF initialRect = new RectF();
 	private final RectF bounds = new RectF();
 
-	private float minWidth = 0f;
-	private float rotation = 0f;
+	private GestureDetector gestureDetector;
 	private ImageView.ScaleType scaleType = ImageView.ScaleType.CENTER_INSIDE;
+	private float magnifyScale = 4f;
+	private float minWidth;
+	private float rotation;
 
 	public ScalingImageView(Context context) {
 		super(context);
-		init();
+		init(context);
 	}
 
 	public ScalingImageView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init();
+		init(context);
 	}
 
 	public ScalingImageView(
@@ -41,7 +44,7 @@ public class ScalingImageView extends ImageView {
 			AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		init();
+		init(context);
 	}
 
 	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -51,15 +54,14 @@ public class ScalingImageView extends ImageView {
 			int defStyleAttr,
 			int defStyleRes) {
 		super(context, attrs, defStyleAttr, defStyleRes);
-		init();
+		init(context);
 	}
 
 	@Override
 	public void setImageMatrix(Matrix matrix) {
 		transformMatrix.set(matrix);
 		setMinWidth(bounds, new Matrix());
-		fitMatrix(transformMatrix, getDrawableRect(), bounds);
-
+		fitTranslate(transformMatrix, getDrawableRect(), bounds);
 		super.setImageMatrix(transformMatrix);
 	}
 
@@ -83,32 +85,43 @@ public class ScalingImageView extends ImageView {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		final int pointerCount = event.getPointerCount();
-		int ignoreIndex = -1;
+		if (gestureDetector.onTouchEvent(event)) {
+			return true;
+		}
 
 		switch (event.getActionMasked()) {
-			// the number of pointers changed so
-			// (re)initialize the transformation
 			case MotionEvent.ACTION_POINTER_UP:
-				// ignore the pointer that has gone up
-				ignoreIndex = event.getActionIndex();
-				// fall through
+				// number of pointers has changed so
+				// (re)initialize the transformation
+				initTransform(event,
+						// ignore the pointer that has gone up
+						event.getActionIndex());
+				return true;
 			case MotionEvent.ACTION_DOWN:
+				initTransform(event, -1);
+				return true;
 			case MotionEvent.ACTION_POINTER_DOWN:
-				initTransform(event, pointerCount, ignoreIndex);
+				initTransform(event, -1);
 				return true;
-			// the position of the pointer(s) changed
-			// so transform accordingly
 			case MotionEvent.ACTION_MOVE:
-				transform(event, pointerCount);
+				// position of the pointer(s) has changed
+				// so transform accordingly
+				transform(event);
 				return true;
-			// end of transformation
 			case MotionEvent.ACTION_CANCEL:
 			case MotionEvent.ACTION_UP:
 				return true;
 		}
 
 		return super.onTouchEvent(event);
+	}
+
+	public void setMagnifyScale(float scale) {
+		magnifyScale = scale;
+	}
+
+	public float getMagnifyScale() {
+		return magnifyScale;
 	}
 
 	public void setImageRotation(float degrees) {
@@ -138,9 +151,7 @@ public class ScalingImageView extends ImageView {
 	}
 
 	public RectF getNormalizedRectInBounds() {
-		RectF dstRect = new RectF();
-		transformMatrix.mapRect(dstRect, getDrawableRect());
-
+		RectF dstRect = getMappedRect();
 		float w = dstRect.width();
 		float h = dstRect.height();
 		return new RectF(
@@ -198,7 +209,11 @@ public class ScalingImageView extends ImageView {
 		super.setImageMatrix(transformMatrix);
 	}
 
-	private void setMinWidth(RectF rect, Matrix matrix) {
+	protected boolean inBounds() {
+		return getMappedRect().width() <= minWidth;
+	}
+
+	protected void setMinWidth(RectF rect, Matrix matrix) {
 		// don't try to store the drawable dimensions by overriding
 		// setImageDrawable() since it is called in the ImageView's
 		// constructor and no referenced member of this object will
@@ -248,8 +263,18 @@ public class ScalingImageView extends ImageView {
 		minWidth = dstRect.width();
 	}
 
-	private void init() {
+	private void init(Context context) {
 		super.setScaleType(ImageView.ScaleType.MATRIX);
+		gestureDetector = new GestureDetector(
+				context,
+				new GestureDetector.SimpleOnGestureListener() {
+					@Override
+					public boolean onDoubleTap(MotionEvent event) {
+						magnify(event.getX(), event.getY(), magnifyScale);
+						initTransform(event, -1);
+						return true;
+					}
+				});
 	}
 
 	private RectF getDrawableRect() {
@@ -265,71 +290,75 @@ public class ScalingImageView extends ImageView {
 		return new RectF(0, 0, w, h);
 	}
 
-	private void initTransform(
-			MotionEvent event,
-			int pointerCount,
-			int ignoreIndex) {
-		originMatrix.set(transformMatrix);
-		originRect.set(getDrawableRect());
+	private RectF getMappedRect() {
+		RectF dstRect = new RectF();
+		transformMatrix.mapRect(dstRect, getDrawableRect());
+		return dstRect;
+	}
+
+	private void initTransform(MotionEvent event, int ignoreIndex) {
+		initialMatrix.set(transformMatrix);
+		initialRect.set(getDrawableRect());
 
 		// try to find two pointers that are down;
-		// pointerCount may include a pointer that
-		// has gone up (ignoreIndex)
+		// event may contain a pointer that has
+		// gone up and must be ignored
 		int p1 = 0xffff;
 		int p2 = 0xffff;
 
-		for (int i = 0; i < pointerCount; ++i) {
-			int id = event.getPointerId(i);
+		for (int i = 0, l = event.getPointerCount(); i < l; ++i) {
+			initialPoint.put(event.getPointerId(i), new PointF(
+					event.getX(i),
+					event.getY(i)));
 
-			originX.put(id, event.getX(i));
-			originY.put(id, event.getY(i));
-
-			if (i == ignoreIndex || p2 != 0xffff) {
+			if (i == ignoreIndex) {
 				continue;
-			}
-
-			if (p1 == 0xffff) {
+			} else if (p1 == 0xffff) {
 				p1 = i;
 			} else {
 				p2 = i;
+				break;
 			}
 		}
 
 		if (p2 != 0xffff) {
-			originGesture.set(event, p1, p2);
+			initialTapeline.set(event, p1, p2);
 		}
 	}
 
-	private void transform(MotionEvent event, int pointerCount) {
-		transformMatrix.set(originMatrix);
+	private void transform(MotionEvent event) {
+		transformMatrix.set(initialMatrix);
 
+		int pointerCount = event.getPointerCount();
 		if (pointerCount == 1) {
-			int id = event.getPointerId(0);
-
-			transformMatrix.postTranslate(
-					event.getX(0) - originX.get(id),
-					event.getY(0) - originY.get(id));
+			int i = event.getActionIndex();
+			PointF point = initialPoint.get(event.getPointerId(i));
+			if (point != null) {
+				transformMatrix.postTranslate(
+						event.getX(i) - point.x,
+						event.getY(i) - point.y);
+			}
 		} else if (pointerCount > 1) {
-			transformGesture.set(event, 0, 1);
+			transformTapeline.set(event, 0, 1);
 
 			float scale = fitScale(
-					originMatrix,
-					originRect,
-					transformGesture.length / originGesture.length);
+					initialMatrix,
+					initialRect,
+					transformTapeline.length / initialTapeline.length);
 
 			transformMatrix.postScale(
 					scale,
 					scale,
-					originGesture.pivotX,
-					originGesture.pivotY);
+					initialTapeline.pivotX,
+					initialTapeline.pivotY);
 
 			transformMatrix.postTranslate(
-					transformGesture.pivotX - originGesture.pivotX,
-					transformGesture.pivotY - originGesture.pivotY);
+					transformTapeline.pivotX - initialTapeline.pivotX,
+					transformTapeline.pivotY - initialTapeline.pivotY);
 		}
 
-		if (fitMatrix(transformMatrix, originRect, bounds)) {
-			initTransform(event, pointerCount, -1);
+		if (fitTranslate(transformMatrix, initialRect, bounds)) {
+			initTransform(event, -1);
 		}
 
 		super.setImageMatrix(transformMatrix);
@@ -343,12 +372,10 @@ public class ScalingImageView extends ImageView {
 		matrix.mapRect(dstRect, rect);
 
 		float w = dstRect.width();
-		return w * scale < minWidth ?
-				minWidth / w :
-				scale;
+		return w * scale < minWidth ? minWidth / w : scale;
 	}
 
-	private static boolean fitMatrix(
+	private static boolean fitTranslate(
 			Matrix matrix,
 			RectF rect,
 			RectF frame) {
@@ -359,16 +386,16 @@ public class ScalingImageView extends ImageView {
 		float y = dstRect.top;
 		float w = dstRect.width();
 		float h = dstRect.height();
-		float bw = frame.width();
-		float bh = frame.height();
+		float fw = frame.width();
+		float fh = frame.height();
 		float minX = frame.right - w;
 		float minY = frame.bottom - h;
-		float dx = w > bw ?
+		float dx = w > fw ?
 				Math.max(minX - x, Math.min(frame.left - x, 0)) :
-				(frame.left + Math.round((bw - w) * .5f)) - x;
-		float dy = h > bh ?
+				(frame.left + Math.round((fw - w) * .5f)) - x;
+		float dy = h > fh ?
 				Math.max(minY - y, Math.min(frame.top - y, 0)) :
-				(frame.top + Math.round((bh - h) * .5f)) - y;
+				(frame.top + Math.round((fh - h) * .5f)) - y;
 
 		if (dx != 0 || dy != 0) {
 			matrix.postTranslate(dx, dy);
@@ -378,7 +405,16 @@ public class ScalingImageView extends ImageView {
 		return false;
 	}
 
-	private static class Gesture {
+	private void magnify(float x, float y, float scale) {
+		if (inBounds()) {
+			transformMatrix.postScale(scale, scale, x, y);
+		} else {
+			setMinWidth(bounds, transformMatrix);
+		}
+		super.setImageMatrix(transformMatrix);
+	}
+
+	private static class Tapeline {
 		private float length;
 		private float pivotX;
 		private float pivotY;
