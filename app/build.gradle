@@ -23,9 +23,9 @@ android {
 }
 
 dependencies {
-	compile 'com.android.support:appcompat-v7:25.1.0'
-	compile 'com.android.support:design:25.1.0'
-	compile 'com.android.support:preference-v7:25.1.0'
+	compile 'com.android.support:appcompat-v7:25.1.1'
+	compile 'com.android.support:design:25.1.1'
+	compile 'com.android.support:preference-v7:25.1.1'
 }
 
 task findbugs(type: FindBugs, dependsOn: 'assembleDebug') {
