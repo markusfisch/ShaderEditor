@@ -1,6 +1,11 @@
 # Change Log
 
-## (Unreleased)
+## 2.5.0
+* Added orientation uniform exposing azimuth, pitch and roll
+* Fixed rotation uniform
+* Improved description for rotation and magnetic sensors
+* Sorted preset uniforms by name for a better overview
+* Double tap zooms/restores in texture viewer
 * Reformatted to standard Android coding style
 * Use left/right padding for editor only
 

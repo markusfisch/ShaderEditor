@@ -1,4 +1,4 @@
-Contributions Welcome
-=====================
+Contributions Are Welcome
+=========================
 
-Just try to keep things in good shape and comply to what's there.
+Please try to keep things in good shape and comply to what's there.
