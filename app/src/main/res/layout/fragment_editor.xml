@@ -20,6 +20,6 @@
 		android:textColor="@color/editor_text"
 		android:ellipsize="end"
 		android:imeOptions="flagNoExtractUi"
-		android:inputType="textVisiblePassword|textMultiLine"
+		android:inputType="textMultiLine|textNoSuggestions"
 		android:background="@android:color/transparent"/>
 </ScrollView>
