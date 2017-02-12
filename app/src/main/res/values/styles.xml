@@ -9,6 +9,11 @@
 		<item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
 	</style>
 	<style
+		name="SplashTheme"
+		parent="@style/AppTheme">
+		<item name="android:windowBackground">@drawable/background_splash</item>
+	</style>
+	<style
 		name="Title"
 		parent="@android:style/TextAppearance.Medium">
 	</style>
