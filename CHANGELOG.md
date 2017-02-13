@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.5.1
+* Added a splash screen to give feedback while loading
+* Fixed input type of editor to allow GBoard swipe shortcuts
+* Fixed loading of external images on Yotaphone 2
+
 ## 2.5.0
 * Added orientation uniform exposing azimuth, pitch and roll
 * Fixed rotation uniform
