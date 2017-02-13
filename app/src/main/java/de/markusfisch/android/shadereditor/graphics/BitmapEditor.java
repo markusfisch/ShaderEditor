@@ -1,13 +1,13 @@
 package de.markusfisch.android.shadereditor.graphics;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.net.Uri;
 
+import java.io.InputStream;
 import java.io.IOException;
 
 public class BitmapEditor {
@@ -15,30 +15,27 @@ public class BitmapEditor {
 			Context context,
 			Uri uri,
 			int maxSize) {
+		InputStream in = null;
 		try {
-			AssetFileDescriptor fd = context
-					.getContentResolver()
-					.openAssetFileDescriptor(uri, "r");
-
-			if (fd == null) {
-				return null;
-			}
-
+			in = context.getContentResolver().openInputStream(uri);
 			BitmapFactory.Options options = new BitmapFactory.Options();
-			options.inSampleSize = getSampleSizeForBitmap(
-					fd,
-					maxSize,
-					maxSize);
+			setSampleSize(options, in, maxSize, maxSize);
 
-			return BitmapFactory.decodeFileDescriptor(
-					fd.getFileDescriptor(),
-					null,
-					options);
-		} catch (SecurityException | IOException e) {
-			// fall through
+			in.close();
+			in = context.getContentResolver().openInputStream(uri);
+
+			return BitmapFactory.decodeStream(in, null, options);
+		} catch (OutOfMemoryError | SecurityException | IOException e) {
+			return null;
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
 		}
-
-		return null;
 	}
 
 	public static Bitmap crop(
@@ -73,26 +70,20 @@ public class BitmapEditor {
 					Math.round(rect.top * h),
 					Math.round(rect.width() * w),
 					Math.round(rect.height() * h));
-		} catch (IllegalArgumentException e) {
-			return null;
-		} catch (OutOfMemoryError e) {
+		} catch (OutOfMemoryError | IllegalArgumentException e) {
 			return null;
 		}
 	}
 
-	private static int getSampleSizeForBitmap(
-			AssetFileDescriptor fd,
+	private static void setSampleSize(
+			BitmapFactory.Options options,
+			InputStream in,
 			int maxWidth,
 			int maxHeight) {
-		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inJustDecodeBounds = true;
-
-		BitmapFactory.decodeFileDescriptor(
-				fd.getFileDescriptor(),
-				null,
-				options);
-
-		return calculateSampleSize(
+		BitmapFactory.decodeStream(in, null, options);
+		options.inJustDecodeBounds = false;
+		options.inSampleSize = calculateSampleSize(
 				options.outWidth,
 				options.outHeight,
 				maxWidth,
