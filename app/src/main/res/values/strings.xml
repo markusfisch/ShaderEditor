@@ -80,7 +80,7 @@
 	<string name="positions_of_touches">Positions of touches in pixels</string>
 	<string name="linear_acceleration_vector">Linear acceleration in m/s^2</string>
 	<string name="gravity_vector">Gravity vector in m/s^2</string>
-	<string name="device_rotation">Rate of rotation in rad/s around the device\'s x, y, and z axis integrated over time</string>
+	<string name="gyroscope">Rate of rotation in rad/s around the device\'s x, y, and z axis integrated over time</string>
 	<string name="device_orientation">Azimuth (-π to π), pitch (-π to π) and roll (-π/2 to π/2) of the device</string>
 	<string name="device_inclination">Geomagnetic inclination angle of the device in radians</string>
 	<string name="device_rotation_matrix">Rotation matrix around the world\'s coordinate system, that is, when the device\'s X axis points toward East, the Y axis points to the North Pole and the device is facing the sky</string>

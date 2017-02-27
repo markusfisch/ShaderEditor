@@ -93,6 +93,10 @@ public class PresetUniformAdapter extends BaseAdapter {
 						ShaderRenderer.UNIFORM_GRAVITY,
 						context.getString(R.string.gravity_vector)),
 				new Uniform(
+						"vec3",
+						ShaderRenderer.UNIFORM_GYROSCOPE,
+						context.getString(R.string.gyroscope)),
+				new Uniform(
 						"float",
 						ShaderRenderer.UNIFORM_INCLINATION,
 						context.getString(R.string.device_inclination)),
@@ -140,10 +144,6 @@ public class PresetUniformAdapter extends BaseAdapter {
 						"vec2",
 						ShaderRenderer.UNIFORM_RESOLUTION,
 						context.getString(R.string.resolution_in_pixels)),
-				new Uniform(
-						"vec3",
-						ShaderRenderer.UNIFORM_ROTATION,
-						context.getString(R.string.device_rotation)),
 				new Uniform(
 						"mat3",
 						ShaderRenderer.UNIFORM_ROTATION_MATRIX,

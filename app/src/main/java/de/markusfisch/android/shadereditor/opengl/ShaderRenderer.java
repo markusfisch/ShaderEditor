@@ -63,6 +63,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_DATE = "date";
 	public static final String UNIFORM_FTIME = "ftime";
 	public static final String UNIFORM_GRAVITY = "gravity";
+	public static final String UNIFORM_GYROSCOPE = "gyroscope";
 	public static final String UNIFORM_LIGHT = "light";
 	public static final String UNIFORM_LINEAR = "linear";
 	public static final String UNIFORM_MAGNETIC = "magnetic";
@@ -77,7 +78,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_PRESSURE = "pressure";
 	public static final String UNIFORM_PROXIMITY = "proximity";
 	public static final String UNIFORM_RESOLUTION = "resolution";
-	public static final String UNIFORM_ROTATION = "rotation";
 	public static final String UNIFORM_ROTATION_MATRIX = "rotationMatrix";
 	public static final String UNIFORM_SECOND = "second";
 	public static final String UNIFORM_START_RANDOM = "startRandom";
@@ -239,7 +239,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int pointersLoc;
 	private int gravityLoc;
 	private int linearLoc;
-	private int rotationLoc;
+	private int gyroscopeLoc;
 	private int magneticLoc;
 	private int rotationMatrixLoc;
 	private int orientationLoc;
@@ -467,9 +467,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					0);
 		}
 
-		if (rotationLoc > -1 && gyroscopeListener != null) {
+		if (gyroscopeLoc > -1 && gyroscopeListener != null) {
 			GLES20.glUniform3fv(
-					rotationLoc,
+					gyroscopeLoc,
 					1,
 					gyroscopeListener.rotation,
 					0);
@@ -864,10 +864,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, UNIFORM_POINTERS);
 		gravityLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_GRAVITY);
+		gyroscopeLoc = GLES20.glGetUniformLocation(
+				program, UNIFORM_GYROSCOPE);
 		linearLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_LINEAR);
-		rotationLoc = GLES20.glGetUniformLocation(
-				program, UNIFORM_ROTATION);
 		magneticLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_MAGNETIC);
 		rotationMatrixLoc = GLES20.glGetUniformLocation(
@@ -939,7 +939,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			}
 		}
 
-		if (rotationLoc > -1) {
+		if (gyroscopeLoc > -1) {
 			if (gyroscopeListener == null) {
 				gyroscopeListener = new GyroscopeListener(context);
 			}
