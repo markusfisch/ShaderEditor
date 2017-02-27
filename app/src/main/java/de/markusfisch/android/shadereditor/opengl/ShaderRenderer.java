@@ -70,6 +70,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_OFFSET = "offset";
 	public static final String UNIFORM_ORIENTATION = "orientation";
 	public static final String UNIFORM_INCLINATION = "inclination";
+	public static final String UNIFORM_INCLINATION_MATRIX = "inclinationMatrix";
 	public static final String UNIFORM_POINTERS = "pointers";
 	public static final String UNIFORM_POINTER_COUNT = "pointerCount";
 	public static final String UNIFORM_POSITION = "position";
@@ -77,6 +78,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_PROXIMITY = "proximity";
 	public static final String UNIFORM_RESOLUTION = "resolution";
 	public static final String UNIFORM_ROTATION = "rotation";
+	public static final String UNIFORM_ROTATION_MATRIX = "rotationMatrix";
 	public static final String UNIFORM_SECOND = "second";
 	public static final String UNIFORM_START_RANDOM = "startRandom";
 	public static final String UNIFORM_SUB_SECOND = "subsecond";
@@ -239,7 +241,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int linearLoc;
 	private int rotationLoc;
 	private int magneticLoc;
+	private int rotationMatrixLoc;
 	private int orientationLoc;
+	private int inclinationMatrixLoc;
 	private int inclinationLoc;
 	private int lightLoc;
 	private int pressureLoc;
@@ -479,7 +483,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					0);
 		}
 
-		if ((orientationLoc > -1 || inclinationLoc > -1) &&
+		if ((rotationMatrixLoc > -1 || orientationLoc > -1 ||
+				inclinationMatrixLoc > -1 || inclinationLoc > -1) &&
 				gravityValues != null && magneticFieldListener != null) {
 			SensorManager.getRotationMatrix(
 					rotationMatrix,
@@ -503,12 +508,28 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 						y,
 						rotationMatrix);
 			}
+			if (rotationMatrixLoc > -1) {
+				GLES20.glUniformMatrix3fv(
+						rotationMatrixLoc,
+						1,
+						true,
+						rotationMatrix,
+						0);
+			}
 			if (orientationLoc > -1) {
 				SensorManager.getOrientation(rotationMatrix, orientation);
 				GLES20.glUniform3fv(
 						orientationLoc,
 						1,
 						orientation,
+						0);
+			}
+			if (inclinationMatrixLoc > -1) {
+				GLES20.glUniformMatrix3fv(
+						inclinationMatrixLoc,
+						1,
+						true,
+						inclinationMatrix,
 						0);
 			}
 			if (inclinationLoc > -1) {
@@ -849,8 +870,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, UNIFORM_ROTATION);
 		magneticLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_MAGNETIC);
+		rotationMatrixLoc = GLES20.glGetUniformLocation(
+				program, UNIFORM_ROTATION_MATRIX);
 		orientationLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_ORIENTATION);
+		inclinationMatrixLoc = GLES20.glGetUniformLocation(
+				program, UNIFORM_INCLINATION_MATRIX);
 		inclinationLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_INCLINATION);
 		lightLoc = GLES20.glGetUniformLocation(
@@ -887,7 +912,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private void registerListeners() {
-		if (gravityLoc > -1 || orientationLoc > -1 || inclinationLoc > -1) {
+		if (gravityLoc > -1 || rotationMatrixLoc > -1 ||
+				orientationLoc > -1 || inclinationMatrixLoc > -1 ||
+				inclinationLoc > -1) {
 			if (gravityListener == null) {
 				gravityListener = new GravityListener(context);
 			}
@@ -919,7 +946,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			gyroscopeListener.register();
 		}
 
-		if (magneticLoc > -1 || orientationLoc > -1 || inclinationLoc > -1) {
+		if (magneticLoc > -1 || rotationMatrixLoc > -1 ||
+				orientationLoc > -1 || inclinationMatrixLoc > -1 ||
+				inclinationLoc > -1) {
 			if (magneticFieldListener == null) {
 				magneticFieldListener = new MagneticFieldListener(context);
 			}

@@ -97,6 +97,10 @@ public class PresetUniformAdapter extends BaseAdapter {
 						ShaderRenderer.UNIFORM_INCLINATION,
 						context.getString(R.string.device_inclination)),
 				new Uniform(
+						"mat3",
+						ShaderRenderer.UNIFORM_INCLINATION_MATRIX,
+						context.getString(R.string.device_inclination_matrix)),
+				new Uniform(
 						"float",
 						ShaderRenderer.UNIFORM_LIGHT,
 						context.getString(R.string.light)),
@@ -140,6 +144,10 @@ public class PresetUniformAdapter extends BaseAdapter {
 						"vec3",
 						ShaderRenderer.UNIFORM_ROTATION,
 						context.getString(R.string.device_rotation)),
+				new Uniform(
+						"mat3",
+						ShaderRenderer.UNIFORM_ROTATION_MATRIX,
+						context.getString(R.string.device_rotation_matrix)),
 				new Uniform(
 						"int",
 						ShaderRenderer.UNIFORM_SECOND,

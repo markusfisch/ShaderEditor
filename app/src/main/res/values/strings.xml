@@ -83,6 +83,8 @@
 	<string name="device_rotation">Rate of rotation in rad/s around the device\'s x, y, and z axis integrated over time</string>
 	<string name="device_orientation">Azimuth (-π to π), pitch (-π to π) and roll (-π/2 to π/2) of the device</string>
 	<string name="device_inclination">Geomagnetic inclination angle of the device in radians</string>
+	<string name="device_rotation_matrix">Rotation matrix around the world\'s coordinate system, that is, when the device\'s X axis points toward East, the Y axis points to the North Pole and the device is facing the sky</string>
+	<string name="device_inclination_matrix">Rotation matrix transforming the geomagnetic vector into the same coordinate space as gravity</string>
 	<string name="magnetic_field">Geomagnetic field strength along the x, y and z axis in μT</string>
 	<string name="light">Ambient light level in SI lux units</string>
 	<string name="pressure">Atmospheric pressure in hPa (millibar)</string>
