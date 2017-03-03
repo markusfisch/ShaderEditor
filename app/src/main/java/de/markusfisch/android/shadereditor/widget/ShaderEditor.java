@@ -9,6 +9,7 @@ import android.graphics.Paint;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
@@ -25,7 +26,7 @@ import java.lang.IllegalStateException;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-public class ShaderEditor extends EditText {
+public class ShaderEditor extends AppCompatEditText {
 	public interface OnTextChangedListener {
 		void onTextChanged(String text);
 	}
