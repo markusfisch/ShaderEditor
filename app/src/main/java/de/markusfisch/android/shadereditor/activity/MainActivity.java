@@ -52,12 +52,6 @@ public class MainActivity
 		}
 	};
 
-	private interface UpdateListener {
-		void updateShaderAdapter(Cursor cursor);
-	}
-
-	private static UpdateListener updateListener;
-
 	private EditorFragment editorFragment;
 	private Toolbar toolbar;
 	private Spinner qualitySpinner;
@@ -273,13 +267,11 @@ public class MainActivity
 		initDrawer();
 		initListView();
 		initShaderView();
-		initUpdateListener();
 
 		if (state == null || (editorFragment =
 				(EditorFragment) getSupportFragmentManager()
 						.findFragmentByTag(EditorFragment.TAG)) == null) {
 			editorFragment = new EditorFragment();
-
 			getSupportFragmentManager()
 					.beginTransaction()
 					.replace(
@@ -495,44 +487,6 @@ public class MainActivity
 		});
 	}
 
-	private void initUpdateListener() {
-		// realize changes from AsyncTask in getShadersAsync() in
-		// the Activity object which is currently displayed
-		updateListener = new UpdateListener() {
-			@Override
-			public void updateShaderAdapter(Cursor cursor) {
-				handleSendText(getIntent());
-
-				if (cursor == null || cursor.getCount() < 1) {
-					if (cursor != null) {
-						cursor.close();
-					}
-
-					showNoShadersAvailable();
-					return;
-				}
-
-				if (shaderAdapter != null) {
-					shaderAdapter.setSelectedId(selectedShaderId);
-					shaderAdapter.changeCursor(cursor);
-					return;
-				}
-
-				shaderAdapter = new ShaderAdapter(MainActivity.this, cursor);
-
-				if (selectedShaderId < 0 &&
-						shaderAdapter.getCount() > 0) {
-					selectShader(shaderAdapter.getItemId(0));
-				} else if (selectedShaderId > 0) {
-					shaderAdapter.setSelectedId(selectedShaderId);
-					setToolbarTitle(selectedShaderId);
-				}
-
-				listView.setAdapter(shaderAdapter);
-			}
-		};
-	}
-
 	private void postUpdateFps(int fps) {
 		if (fps < 1) {
 			return;
@@ -597,11 +551,40 @@ public class MainActivity
 
 			@Override
 			protected void onPostExecute(Cursor cursor) {
-				if (!isFinishing()) {
-					updateListener.updateShaderAdapter(cursor);
-				}
+				updateShaderAdapter(cursor);
 			}
 		}.execute();
+	}
+
+	private void updateShaderAdapter(Cursor cursor) {
+		handleSendText(getIntent());
+
+		if (cursor == null || cursor.getCount() < 1) {
+			if (cursor != null) {
+				cursor.close();
+			}
+
+			showNoShadersAvailable();
+			return;
+		}
+
+		if (shaderAdapter != null) {
+			shaderAdapter.setSelectedId(selectedShaderId);
+			shaderAdapter.changeCursor(cursor);
+			return;
+		}
+
+		shaderAdapter = new ShaderAdapter(MainActivity.this, cursor);
+
+		if (selectedShaderId < 0 &&
+				shaderAdapter.getCount() > 0) {
+			selectShader(shaderAdapter.getItemId(0));
+		} else if (selectedShaderId > 0) {
+			shaderAdapter.setSelectedId(selectedShaderId);
+			setToolbarTitle(selectedShaderId);
+		}
+
+		listView.setAdapter(shaderAdapter);
 	}
 
 	private void showNoShadersAvailable() {

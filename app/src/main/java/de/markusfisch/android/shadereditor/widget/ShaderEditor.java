@@ -20,7 +20,6 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
-import android.widget.EditText;
 
 import java.lang.IllegalStateException;
 import java.util.regex.Pattern;

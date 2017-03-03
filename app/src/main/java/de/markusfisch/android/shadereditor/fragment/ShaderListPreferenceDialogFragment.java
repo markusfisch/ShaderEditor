@@ -25,12 +25,14 @@ public class ShaderListPreferenceDialogFragment
 	}
 
 	@Override
-	public void onDialogClosed(boolean positiveResult) {
-		// close last cursor
-		if (adapter != null) {
-			adapter.changeCursor(null);
-		}
+	public void onDestroy() {
+		super.onDestroy();
+		closeCursor();
+	}
 
+	@Override
+	public void onDialogClosed(boolean positiveResult) {
+		closeCursor();
 		super.onDialogClosed(positiveResult);
 	}
 
@@ -66,5 +68,12 @@ public class ShaderListPreferenceDialogFragment
 				});
 
 		builder.setPositiveButton(null, null);
+	}
+
+	private void closeCursor() {
+		if (adapter != null) {
+			adapter.changeCursor(null);
+			adapter = null;
+		}
 	}
 }
