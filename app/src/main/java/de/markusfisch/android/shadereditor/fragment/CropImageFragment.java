@@ -61,22 +61,18 @@ public class CropImageFragment extends Fragment {
 					"CropImageFragment.CropImageViewProvider");
 		}
 
-		Bundle args;
-		View view;
-
-		if (cropImageView == null ||
-				(args = getArguments()) == null ||
-				(imageUri = args.getParcelable(
-						IMAGE_URI)) == null ||
-				(view = inflater.inflate(
-						R.layout.fragment_crop_image,
-						container,
-						false)) == null ||
-				(progressView = view.findViewById(
-						R.id.progress_view)) == null) {
-			activity.finish();
+		Bundle args = getArguments();
+		if (args == null ||
+				(imageUri = args.getParcelable(IMAGE_URI)) == null) {
+			abort(activity);
 			return null;
 		}
+
+		View view = inflater.inflate(
+				R.layout.fragment_crop_image,
+				container,
+				false);
+		progressView = view.findViewById(R.id.progress_view);
 
 		// make cropImageView in activity visible (again)
 		cropImageView.setVisibility(View.VISIBLE);
@@ -150,18 +146,21 @@ public class CropImageFragment extends Fragment {
 				progressView.setVisibility(View.GONE);
 
 				if (b == null) {
-					Toast.makeText(
-							activity,
-							R.string.cannot_pick_image,
-							Toast.LENGTH_SHORT).show();
-
-					activity.finish();
+					abort(activity);
 					return;
 				}
 
 				updateListener.updateBitmap(b);
 			}
 		}.execute();
+	}
+
+	private void abort(Activity activity) {
+		Toast.makeText(
+				activity,
+				R.string.cannot_pick_image,
+				Toast.LENGTH_SHORT).show();
+		activity.finish();
 	}
 
 	private void cropImage() {

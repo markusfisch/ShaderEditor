@@ -466,11 +466,7 @@ public class MainActivity
 	}
 
 	private void initShaderView() {
-		if ((shaderView = (ShaderView) findViewById(
-				R.id.preview)) == null) {
-			return;
-		}
-
+		shaderView = (ShaderView) findViewById(R.id.preview);
 		shaderView.getRenderer().setOnRendererListener(
 				new ShaderRenderer.OnRendererListener() {
 			@Override
@@ -589,13 +585,9 @@ public class MainActivity
 
 	private void showNoShadersAvailable() {
 		View progressView = findViewById(R.id.progress_bar);
-		View textView = findViewById(R.id.no_shaders_message);
-
-		if (progressView == null || textView == null) {
-			return;
-		}
-
 		progressView.setVisibility(View.GONE);
+
+		View textView = findViewById(R.id.no_shaders_message);
 		textView.setVisibility(View.VISIBLE);
 
 		if (shaderAdapter != null) {

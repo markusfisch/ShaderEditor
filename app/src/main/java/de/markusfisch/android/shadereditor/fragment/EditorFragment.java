@@ -33,22 +33,17 @@ public class EditorFragment extends Fragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity = getActivity();
-		View view;
+		View view = inflater.inflate(
+				R.layout.fragment_editor,
+				container,
+				false);
 
-		if ((imm = (InputMethodManager) activity.getSystemService(
-				Context.INPUT_METHOD_SERVICE)) == null ||
-				(view = inflater.inflate(
-						R.layout.fragment_editor,
-						container,
-						false)) == null ||
-				(scrollView = (ScrollView) view.findViewById(
-						R.id.scroll_view)) == null ||
-				(shaderEditor = (ShaderEditor) view.findViewById(
-						R.id.editor)) == null) {
-			activity.finish();
-			return null;
-		}
+		scrollView = (ScrollView) view.findViewById(R.id.scroll_view);
+		shaderEditor = (ShaderEditor) view.findViewById(R.id.editor);
+
+		Activity activity = getActivity();
+		imm = (InputMethodManager) activity.getSystemService(
+				Context.INPUT_METHOD_SERVICE);
 
 		try {
 			shaderEditor.setOnTextChangedListener(

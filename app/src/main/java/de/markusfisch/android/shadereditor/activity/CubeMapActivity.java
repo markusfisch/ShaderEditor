@@ -21,11 +21,7 @@ public class CubeMapActivity
 		super.onCreate(state);
 		setContentView(R.layout.activity_cube_map);
 
-		if ((cubeMapImageView = (CubeMapView) findViewById(
-				R.id.cube_map_view)) == null) {
-			finish();
-			return;
-		}
+		cubeMapImageView = (CubeMapView) findViewById(R.id.cube_map_view);
 
 		MainActivity.initSystemBars(this);
 		AbstractSubsequentActivity.initToolbar(this);

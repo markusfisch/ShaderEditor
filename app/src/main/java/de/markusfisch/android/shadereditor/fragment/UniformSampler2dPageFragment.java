@@ -31,26 +31,12 @@ public class UniformSampler2dPageFragment extends Fragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity = getActivity();
-		View view;
-		View fab;
-
-		if ((view = inflater.inflate(
+		View view = inflater.inflate(
 				R.layout.fragment_uniform_sampler_2d_page,
 				container,
-				false)) == null ||
-				(fab = view.findViewById(
-						R.id.add_texture)) == null ||
-				(listView = (ListView) view.findViewById(
-						R.id.textures)) == null ||
-				(progressBar = view.findViewById(
-						R.id.progress_bar)) == null ||
-				(noTexturesMessage = view.findViewById(
-						R.id.no_textures_message)) == null) {
-			activity.finish();
-			return null;
-		}
+				false);
 
+		View fab = view.findViewById(R.id.add_texture);
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -58,7 +44,11 @@ public class UniformSampler2dPageFragment extends Fragment {
 			}
 		});
 
+		listView = (ListView) view.findViewById(R.id.textures);
 		initListView(view);
+
+		progressBar = view.findViewById(R.id.progress_bar);
+		noTexturesMessage = view.findViewById(R.id.no_textures_message);
 
 		return view;
 	}

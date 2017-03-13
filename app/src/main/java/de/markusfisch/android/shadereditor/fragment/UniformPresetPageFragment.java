@@ -23,20 +23,13 @@ public class UniformPresetPageFragment extends Fragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity = getActivity();
-		View view;
-
-		if ((view = inflater.inflate(
+		View view = inflater.inflate(
 				R.layout.fragment_uniform_preset_page,
 				container,
-				false)) == null ||
-				(listView = (ListView) view.findViewById(
-						R.id.uniforms)) == null) {
-			activity.finish();
-			return null;
-		}
+				false);
 
-		initListView(activity);
+		listView = (ListView) view.findViewById(R.id.uniforms);
+		initListView(getActivity());
 
 		return view;
 	}

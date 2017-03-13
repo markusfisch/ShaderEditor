@@ -48,19 +48,12 @@ public class CubeMapFragment extends Fragment {
 					"CubeMapFragment.CubeMapViewProvider");
 		}
 
-		View view;
-		View fab;
-
-		if ((view = inflater.inflate(
+		View view = inflater.inflate(
 				R.layout.fragment_cube_map,
 				container,
-				false)) == null ||
-				(fab = view.findViewById(
-						R.id.add_texture)) == null) {
-			activity.finish();
-			return null;
-		}
+				false);
 
+		View fab = view.findViewById(R.id.add_texture);
 		fab.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {

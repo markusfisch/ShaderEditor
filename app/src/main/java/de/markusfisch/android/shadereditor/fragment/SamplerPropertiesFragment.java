@@ -88,29 +88,20 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 			Activity activity,
 			LayoutInflater inflater,
 			ViewGroup container) {
-		View view;
-
-		if ((view = inflater.inflate(
-				R.layout.fragment_sampler_properties,
-				container,
-				false)) == null ||
-				(sizeCaption = (TextView) view.findViewById(
-						R.id.size_caption)) == null ||
-				(sizeBarView = (SeekBar) view.findViewById(
-						R.id.size_bar)) == null ||
-				(sizeView = (TextView) view.findViewById(
-						R.id.size)) == null ||
-				(nameView = (EditText) view.findViewById(
-						R.id.name)) == null ||
-				(addUniformView = (CheckBox) view.findViewById(
-						R.id.should_add_uniform)) == null ||
-				(progressView = view.findViewById(
-						R.id.progress_view)) == null) {
-			return null;
-		}
-
 		imm = (InputMethodManager) activity.getSystemService(
 				Context.INPUT_METHOD_SERVICE);
+
+		View view = inflater.inflate(
+				R.layout.fragment_sampler_properties,
+				container,
+				false);
+
+		sizeCaption = (TextView) view.findViewById(R.id.size_caption);
+		sizeBarView = (SeekBar) view.findViewById(R.id.size_bar);
+		sizeView = (TextView) view.findViewById(R.id.size);
+		nameView = (EditText) view.findViewById(R.id.name);
+		addUniformView = (CheckBox) view.findViewById(R.id.should_add_uniform);
+		progressView = view.findViewById(R.id.progress_view);
 
 		if (activity.getCallingActivity() == null) {
 			addUniformView.setVisibility(View.GONE);

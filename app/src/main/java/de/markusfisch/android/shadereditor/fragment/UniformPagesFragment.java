@@ -17,22 +17,14 @@ public class UniformPagesFragment extends Fragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity = getActivity();
-		View view;
-		ViewPager viewPager;
-
-		if ((view = inflater.inflate(
+		View view = inflater.inflate(
 				R.layout.fragment_uniform_pages,
 				container,
-				false)) == null ||
-				(viewPager = (ViewPager) view.findViewById(
-						R.id.pager)) == null) {
-			activity.finish();
-			return null;
-		}
+				false);
 
+		ViewPager viewPager = (ViewPager) view.findViewById(R.id.pager);
 		viewPager.setAdapter(new UniformPageAdapter(
-				activity,
+				getActivity(),
 				getChildFragmentManager()));
 
 		return view;
