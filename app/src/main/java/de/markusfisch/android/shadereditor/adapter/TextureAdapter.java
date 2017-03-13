@@ -52,10 +52,9 @@ public class TextureAdapter extends CursorAdapter {
 			holder = new ViewHolder();
 			holder.preview = (ImageView) view.findViewById(
 					R.id.texture_preview);
-			holder.name = (TextView) view.findViewById(
-					R.id.texture_name);
-			holder.size = (TextView) view.findViewById(
-					R.id.texture_size);
+			holder.name = (TextView) view.findViewById(R.id.texture_name);
+			holder.size = (TextView) view.findViewById(R.id.texture_size);
+			view.setTag(holder);
 		}
 
 		return holder;
