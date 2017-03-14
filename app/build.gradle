@@ -8,6 +8,9 @@ android {
 	defaultConfig {
 		minSdkVersion 9
 		targetSdkVersion sdk_version
+
+		versionCode 29
+		versionName '2.5.1'
 	}
 
 	buildTypes {
