@@ -1,12 +1,9 @@
 package de.markusfisch.android.shadereditor.service;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
-import de.markusfisch.android.shadereditor.database.DataSource;
-import de.markusfisch.android.shadereditor.preference.Preferences;
-import de.markusfisch.android.shadereditor.widget.ShaderView;
-
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
@@ -14,10 +11,24 @@ import android.service.wallpaper.WallpaperService;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
+import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.preference.Preferences;
+import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
+import de.markusfisch.android.shadereditor.widget.ShaderView;
+
 public class ShaderWallpaperService extends WallpaperService {
 	public static final String RENDER_MODE = "render_mode";
 
 	private ShaderWallpaperEngine engine;
+
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		PackageManager pm  = getPackageManager();
+		ComponentName componentName = new ComponentName(ShaderWallpaperService.this, BatteryLevelReceiver.class);
+		pm.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+	}
 
 	@Override
 	public int onStartCommand(
@@ -68,7 +79,9 @@ public class ShaderWallpaperService extends WallpaperService {
 			super.onDestroy();
 			view.destroy();
 			view = null;
-			stopSelf();
+			PackageManager pm  = getPackageManager();
+			ComponentName componentName = new ComponentName(ShaderWallpaperService.this, BatteryLevelReceiver.class);
+			pm.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 		}
 
 		@Override
