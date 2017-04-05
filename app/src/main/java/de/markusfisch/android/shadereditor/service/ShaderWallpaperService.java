@@ -59,18 +59,16 @@ public class ShaderWallpaperService extends WallpaperService {
 		@Override
 		public void onCreate(SurfaceHolder holder) {
 			super.onCreate(holder);
-
 			view = new ShaderWallpaperView();
-
 			setShader();
 		}
 
 		@Override
 		public void onDestroy() {
 			super.onDestroy();
-
 			view.destroy();
 			view = null;
+			stopSelf();
 		}
 
 		@Override
@@ -87,7 +85,6 @@ public class ShaderWallpaperService extends WallpaperService {
 		@Override
 		public void onTouchEvent(MotionEvent e) {
 			super.onTouchEvent(e);
-
 			view.getRenderer().touchAt(e);
 		}
 
@@ -175,8 +172,7 @@ public class ShaderWallpaperService extends WallpaperService {
 
 		private class ShaderWallpaperView extends ShaderView {
 			public ShaderWallpaperView() {
-				super(
-						ShaderWallpaperService.this,
+				super(ShaderWallpaperService.this,
 						ShaderEditorApplication.preferences.isBatteryLow() ?
 								GLSurfaceView.RENDERMODE_WHEN_DIRTY :
 								GLSurfaceView.RENDERMODE_CONTINUOUSLY);
