@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.opengl.GLSurfaceView;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
@@ -24,6 +25,7 @@ public class ShaderWallpaperService extends WallpaperService {
 
 	@Override
 	public void onCreate() {
+		Log.d("ShaderWallpaperService", "onCreate: ");
 		super.onCreate();
 		PackageManager pm  = getPackageManager();
 		ComponentName componentName = new ComponentName(ShaderWallpaperService.this, BatteryLevelReceiver.class);
@@ -51,6 +53,16 @@ public class ShaderWallpaperService extends WallpaperService {
 		return (engine = new ShaderWallpaperEngine());
 	}
 
+	@Override
+	public void onDestroy()
+	{
+		Log.d("ShaderWallpaperService", "onDestroy: ");
+		super.onDestroy();
+		PackageManager pm  = getPackageManager();
+		ComponentName componentName = new ComponentName(ShaderWallpaperService.this, BatteryLevelReceiver.class);
+		pm.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+	}
+
 	private class ShaderWallpaperEngine
 			extends Engine
 			implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -76,12 +88,9 @@ public class ShaderWallpaperService extends WallpaperService {
 
 		@Override
 		public void onDestroy() {
-			super.onDestroy();
+            super.onDestroy();
 			view.destroy();
 			view = null;
-			PackageManager pm  = getPackageManager();
-			ComponentName componentName = new ComponentName(ShaderWallpaperService.this, BatteryLevelReceiver.class);
-			pm.setComponentEnabledSetting(componentName,PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
 		}
 
 		@Override
