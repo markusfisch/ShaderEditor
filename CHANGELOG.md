@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.5.2
+* Fixed terminating wallpaper service after use
+* Fixed reusing list items
+
 ## 2.5.1
 * Added a splash screen to give feedback while loading
 * Fixed input type of editor to allow GBoard swipe shortcuts
