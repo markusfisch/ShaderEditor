@@ -30,7 +30,7 @@
 		android:theme="@style/AppTheme">
 		<receiver
 			android:name=".receiver.BatteryLevelReceiver"
-			android:enabled="true"
+			android:enabled="false"
 			android:exported="false"
 			android:label="LowBatteryMonitor">
 			<intent-filter>
