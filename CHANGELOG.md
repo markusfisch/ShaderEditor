@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.5.3
+* Enable/disable listening for battery events in wallpaper service
+
 ## 2.5.2
 * Fixed terminating wallpaper service after use
 * Fixed reusing list items
