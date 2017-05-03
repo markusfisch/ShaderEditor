@@ -1,7 +1,8 @@
 # Change Log
 
 ## 2.6.0
-* Set custom texture parameters for sampler2D, samplerCube and backbuffer
+* Support custom texture parameters for each sampler
+* Removed laser lines shader
 
 ## 2.5.3
 * Enable/disable listening for battery events in wallpaper service
