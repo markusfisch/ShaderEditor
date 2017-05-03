@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.6.0
+* Set custom texture parameters for sampler2D, samplerCube and backbuffer
+
 ## 2.5.3
 * Enable/disable listening for battery events in wallpaper service
 

@@ -58,7 +58,7 @@ public class ShaderEditor extends AppCompatEditText {
 			"[\\t ]+$",
 			Pattern.MULTILINE);
 	private static final Pattern PATTERN_INSERT_UNIFORM = Pattern.compile(
-			"\\b(uniform[a-zA-Z0-9_ \t;\\[\\]\r\n]+[\r\n])\\b",
+			"^([ \t]*uniform.+)$",
 			Pattern.MULTILINE);
 	private static final Pattern PATTERN_ENDIF = Pattern.compile(
 			"(#endif)\\b");
@@ -178,11 +178,21 @@ public class ShaderEditor extends AppCompatEditText {
 
 		Editable e = getText();
 		Matcher m = PATTERN_INSERT_UNIFORM.matcher(e);
-		int start;
+		int start = -1;
 
-		if (m.find()) {
-			start = Math.max(0, m.end() - 1);
+		while (m.find()) {
+			start = m.end();
+		}
+
+		if (start > -1) {
+			// add line break before statement because it's
+			// inserted before the last line-break
+			statement = "\n" + statement;
 		} else {
+			// add a line break after statement if there's no
+			// uniform already
+			statement += "\n";
+
 			// add an empty line between the last #endif
 			// and the now following uniform
 			if ((start = endIndexOfLastEndIf(e)) > -1) {
@@ -194,7 +204,7 @@ public class ShaderEditor extends AppCompatEditText {
 			++start;
 		}
 
-		e.insert(start, statement + ";\n");
+		e.insert(start, statement);
 	}
 
 	private int endIndexOfLastEndIf(Editable e) {

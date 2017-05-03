@@ -1,0 +1,14 @@
+<resources
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:ignore="TypographyFractions">
+	<string-array name="wrap_names">
+		<item>GL_REPEAT</item>
+		<item>GL_MIRRORED_REPEAT</item>
+		<item>GL_CLAMP_TO_EDGE</item>
+	</string-array>
+	<string-array name="wrap_values">
+		<item>r</item>
+		<item>m</item>
+		<item>c</item>
+	</string-array>
+</resources>

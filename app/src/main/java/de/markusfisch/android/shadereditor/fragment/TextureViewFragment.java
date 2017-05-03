@@ -1,8 +1,9 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
+import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.fragment.TextureParametersFragment;
 import de.markusfisch.android.shadereditor.widget.ScalingImageView;
 import de.markusfisch.android.shadereditor.R;
 
@@ -28,6 +29,7 @@ public class TextureViewFragment extends Fragment {
 		ScalingImageView getScalingImageView();
 	}
 
+	private ScalingImageView imageView;
 	private long textureId;
 	private String textureName;
 	private String samplerType;
@@ -44,7 +46,6 @@ public class TextureViewFragment extends Fragment {
 			ViewGroup container,
 			Bundle state) {
 		Activity activity = getActivity();
-		ScalingImageView imageView;
 
 		try {
 			imageView = ((ScalingImageViewProvider) activity)
@@ -68,6 +69,8 @@ public class TextureViewFragment extends Fragment {
 			activity.finish();
 			return null;
 		}
+
+		imageView.setVisibility(View.VISIBLE);
 
 		try {
 			textureName = cursor.getString(cursor.getColumnIndex(
@@ -150,15 +153,11 @@ public class TextureViewFragment extends Fragment {
 	}
 
 	private void insertUniformSamplerStatement() {
-		Activity activity = getActivity();
-		if (activity == null) {
-			return;
-		}
-
-		AddUniformActivity.setAddUniformResult(
-				activity,
-				"uniform " + samplerType + " " + textureName);
-
-		activity.finish();
+		imageView.setVisibility(View.GONE);
+		AbstractSubsequentActivity.addFragment(
+				getFragmentManager(),
+				TextureParametersFragment.newInstance(
+						samplerType,
+						textureName));
 	}
 }

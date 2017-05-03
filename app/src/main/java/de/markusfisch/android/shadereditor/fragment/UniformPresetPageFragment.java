@@ -53,7 +53,7 @@ public class UniformPresetPageFragment extends Fragment {
 
 				AddUniformActivity.setAddUniformResult(
 						activity,
-						uniformsAdapter.getItem(position));
+						uniformsAdapter.getItem(position) + ";");
 
 				activity.finish();
 			}

@@ -69,7 +69,7 @@ public class CropImageFragment extends Fragment {
 		}
 
 		View view = inflater.inflate(
-				R.layout.fragment_crop_image,
+				R.layout.progress_view,
 				container,
 				false);
 		progressView = view.findViewById(R.id.progress_view);

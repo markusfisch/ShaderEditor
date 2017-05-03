@@ -1,6 +1,8 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
+import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
+import de.markusfisch.android.shadereditor.widget.TextureParametersView;
 import de.markusfisch.android.shadereditor.R;
 
 import android.app.Activity;
@@ -42,6 +44,7 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 	private TextView sizeView;
 	private EditText nameView;
 	private CheckBox addUniformView;
+	private TextureParametersView textureParameterView;
 	private View progressView;
 	private String samplerType = SAMPLER_2D;
 
@@ -100,12 +103,16 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 		sizeBarView = (SeekBar) view.findViewById(R.id.size_bar);
 		sizeView = (TextView) view.findViewById(R.id.size);
 		nameView = (EditText) view.findViewById(R.id.name);
-		addUniformView = (CheckBox) view.findViewById(R.id.should_add_uniform);
+		addUniformView = (CheckBox) view.findViewById(
+				R.id.should_add_uniform);
+		textureParameterView = (TextureParametersView) view.findViewById(
+				R.id.texture_parameters);
 		progressView = view.findViewById(R.id.progress_view);
 
 		if (activity.getCallingActivity() == null) {
 			addUniformView.setVisibility(View.GONE);
 			addUniformView.setChecked(false);
+			textureParameterView.setVisibility(View.GONE);
 		}
 
 		initSizeView();
@@ -140,7 +147,6 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 
 	private void setSizeView(int power) {
 		int size = getPower(power);
-
 		sizeView.setText(String.format(
 				Locale.US,
 				"%d x %d",
@@ -174,6 +180,7 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 		}
 
 		final String name = nameView.getText().toString();
+		final String params = textureParameterView.getTextureParams();
 
 		if (name.trim().length() < 1) {
 			Toast.makeText(
@@ -183,7 +190,7 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 
 			return;
 		} else if (!name.matches(TEXTURE_NAME_PATTERN) ||
-				name.equals("backbuffer")) {
+				name.equals(ShaderRenderer.BACKBUFFER)) {
 			Toast.makeText(
 					context,
 					R.string.invalid_texture_name,
@@ -229,7 +236,8 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 				if (addUniformView.isChecked()) {
 					AddUniformActivity.setAddUniformResult(
 							activity,
-							"uniform " + samplerType + " " + name);
+							"uniform " + samplerType + " " + name + ";" +
+									params);
 				}
 
 				activity.finish();

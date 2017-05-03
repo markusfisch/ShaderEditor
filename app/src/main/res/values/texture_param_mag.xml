@@ -1,0 +1,12 @@
+<resources
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:ignore="TypographyFractions">
+	<string-array name="mag_names">
+		<item>GL_LINEAR</item>
+		<item>GL_NEAREST</item>
+	</string-array>
+	<string-array name="mag_values">
+		<item>l</item>
+		<item>n</item>
+	</string-array>
+</resources>
