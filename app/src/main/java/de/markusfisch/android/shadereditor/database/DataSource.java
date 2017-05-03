@@ -435,16 +435,6 @@ public class DataSource {
 							context,
 							R.drawable.thumbnail_gravity),
 					1f);
-
-			DataSource.insertShader(
-					db,
-					loadRawResource(
-							context,
-							R.raw.laser_lines),
-					loadBitmapResource(
-							context,
-							R.drawable.thumbnail_laser_lines),
-					1f);
 		} catch (IOException e) {
 			// shouldn't ever happen in production
 			// and nothing can be done if it does
