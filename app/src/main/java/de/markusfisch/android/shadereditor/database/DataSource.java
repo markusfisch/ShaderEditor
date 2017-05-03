@@ -251,7 +251,7 @@ public class DataSource {
 					db,
 					loadRawResource(
 							context,
-							R.raw.shader_new_shader),
+							R.raw.new_shader),
 					loadBitmapResource(
 							context,
 							R.drawable.thumbnail_new_shader),
@@ -420,7 +420,7 @@ public class DataSource {
 					db,
 					loadRawResource(
 							context,
-							R.raw.shader_color_hole),
+							R.raw.color_hole),
 					loadBitmapResource(
 							context,
 							R.drawable.thumbnail_color_hole),
@@ -430,7 +430,7 @@ public class DataSource {
 					db,
 					loadRawResource(
 							context,
-							R.raw.shader_gravity),
+							R.raw.gravity),
 					loadBitmapResource(
 							context,
 							R.drawable.thumbnail_gravity),
@@ -440,7 +440,7 @@ public class DataSource {
 					db,
 					loadRawResource(
 							context,
-							R.raw.shader_laser_lines),
+							R.raw.laser_lines),
 					loadBitmapResource(
 							context,
 							R.drawable.thumbnail_laser_lines),
