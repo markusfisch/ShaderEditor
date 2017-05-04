@@ -137,7 +137,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private final ArrayList<TextureParameters> textureParameters =
 			new ArrayList<>();
 	private final TextureParameters backBufferTextureParams =
-			new TextureParameters();
+			new TextureParameters(
+					GLES20.GL_NEAREST,
+					GLES20.GL_NEAREST,
+					GLES20.GL_CLAMP_TO_EDGE,
+					GLES20.GL_CLAMP_TO_EDGE);
 	private final Matrix flipMatrix = new Matrix();
 	private final int fb[] = new int[]{0, 0};
 	private final int tx[] = new int[]{0, 0};

@@ -2,19 +2,19 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	tools:ignore="TypographyFractions">
 	<string-array name="min_names">
+		<item>GL_NEAREST</item>
+		<item>GL_LINEAR</item>
 		<item>GL_NEAREST_MIPMAP_LINEAR</item>
 		<item>GL_NEAREST_MIPMAP_NEAREST</item>
 		<item>GL_LINEAR_MIPMAP_NEAREST</item>
 		<item>GL_LINEAR_MIPMAP_LINEAR</item>
-		<item>GL_NEAREST</item>
-		<item>GL_LINEAR</item>
 	</string-array>
 	<string-array name="min_values">
+		<item>n</item>
+		<item>l</item>
 		<item>nl</item>
 		<item>nn</item>
 		<item>ln</item>
 		<item>ll</item>
-		<item>n</item>
-		<item>l</item>
 	</string-array>
 </resources>

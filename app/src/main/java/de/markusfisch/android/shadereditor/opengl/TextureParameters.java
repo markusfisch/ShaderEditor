@@ -3,6 +3,10 @@ package de.markusfisch.android.shadereditor.opengl;
 import android.opengl.GLES20;
 
 public class TextureParameters {
+	private static final int DEFAULT_MIN = GLES20.GL_NEAREST;
+	private static final int DEFAULT_MAG = GLES20.GL_LINEAR;
+	private static final int DEFAULT_WRAP_S = GLES20.GL_REPEAT;
+	private static final int DEFAULT_WRAP_T = GLES20.GL_REPEAT;
 	private static final String HEADER = "///";
 	private static final String SEPARATOR = ";";
 	private static final String ASSIGN = ":";
@@ -11,21 +15,21 @@ public class TextureParameters {
 	private static final String WRAP_S = "s";
 	private static final String WRAP_T = "t";
 
-	private int min = GLES20.GL_NEAREST_MIPMAP_LINEAR;
-	private int mag = GLES20.GL_LINEAR;
-	private int wrapS = GLES20.GL_REPEAT;
-	private int wrapT = GLES20.GL_REPEAT;
+	private int min = DEFAULT_MIN;
+	private int mag = DEFAULT_MAG;
+	private int wrapS = DEFAULT_WRAP_S;
+	private int wrapT = DEFAULT_WRAP_T;
 
 	public static String create(
 			String min,
 			String mag,
 			String wrapS,
 			String wrapT) {
-		if (min.equals("nl") &&
-				mag.equals("l") &&
-				wrapS.equals("r") &&
-				wrapT.equals("r")) {
-			// use empty string for defaults
+		if (mapMinParameter(min) == DEFAULT_MIN &&
+				mapMagParameter(mag) == DEFAULT_MAG &&
+				mapWrapParameter(wrapS) == DEFAULT_WRAP_S &&
+				mapWrapParameter(wrapT) == DEFAULT_WRAP_T) {
+			// use empty string for default values
 			return "";
 		}
 		return HEADER +
@@ -35,7 +39,11 @@ public class TextureParameters {
 				WRAP_T + ASSIGN + wrapT + SEPARATOR;
 	}
 
-	public TextureParameters() {
+	public TextureParameters(int min, int mag, int wrapS, int wrapT) {
+		this.min = min;
+		this.mag = mag;
+		this.wrapS = wrapS;
+		this.wrapT = wrapT;
 	}
 
 	public TextureParameters(String params) {
