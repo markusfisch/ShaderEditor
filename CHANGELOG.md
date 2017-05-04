@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.6.1
+* Use previous defaults for sampler texture params
+* Converted shader samples indenting style
+
 ## 2.6.0
 * Support custom texture parameters for each sampler
 * Removed laser lines shader
