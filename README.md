@@ -76,5 +76,6 @@ See issue [#10](https://github.com/markusfisch/ShaderEditor/issues/10#issuecomme
 #### Advanced
 
 * [The OpenGL® ES Shading Language](https://www.khronos.org/files/opengles_shading_language.pdf)
+* [OpenGL API documentation](http://docs.gl/)
 * [GLSL Programming](https://en.wikibooks.org/wiki/GLSL_Programming)
 * [Best Practices for Shaders](https://developer.apple.com/library/content/documentation/3DDrawing/Conceptual/OpenGLES_ProgrammingGuide/BestPracticesforShaders/BestPracticesforShaders.html)
