@@ -119,7 +119,7 @@ public class TextureViewFragment extends Fragment {
 				.setTitle(R.string.remove_texture)
 				.setMessage(R.string.sure_remove_texture)
 				.setPositiveButton(
-						android.R.string.yes,
+						android.R.string.ok,
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(
@@ -128,7 +128,7 @@ public class TextureViewFragment extends Fragment {
 								removeTextureAsync(id);
 							}
 						})
-				.setNegativeButton(android.R.string.no, null)
+				.setNegativeButton(android.R.string.cancel, null)
 				.show();
 	}
 

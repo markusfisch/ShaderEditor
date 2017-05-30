@@ -436,10 +436,12 @@ public class MainActivity
 				toolbar,
 				R.string.drawer_open,
 				R.string.drawer_close) {
+			@Override
 			public void onDrawerClosed(View view) {
 				supportInvalidateOptionsMenu();
 			}
 
+			@Override
 			public void onDrawerOpened(View view) {
 				supportInvalidateOptionsMenu();
 			}
@@ -738,7 +740,7 @@ public class MainActivity
 		new AlertDialog.Builder(this)
 				.setMessage(R.string.sure_remove_shader)
 				.setPositiveButton(
-						android.R.string.yes,
+						android.R.string.ok,
 						new DialogInterface.OnClickListener() {
 							@Override
 							public void onClick(
@@ -753,7 +755,7 @@ public class MainActivity
 										.getFirstShaderId());
 							}
 						})
-				.setNegativeButton(android.R.string.no, null)
+				.setNegativeButton(android.R.string.cancel, null)
 				.show();
 	}
 
