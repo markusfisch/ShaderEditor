@@ -866,11 +866,16 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private void updateFps(long now) {
-		sum += Math.min(NS_PER_SECOND / (now - lastRender), 60f);
+		long delta = now - lastRender;
 
-		if (++samples > 0xffff) {
-			sum = sum / samples;
-			samples = 1;
+		// because sum and samples are volatile
+		synchronized (this) {
+			sum += Math.min(NS_PER_SECOND / delta, 60f);
+
+			if (++samples > 0xffff) {
+				sum = sum / samples;
+				samples = 1;
+			}
 		}
 
 		if (now > nextFpsUpdate) {
