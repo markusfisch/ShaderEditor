@@ -234,10 +234,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void setFragmentShader(String source) {
-		Matcher m = PATTERN_FTIME.matcher(source);
-		fTimeMax = m.find() && m.groupCount() > 0 ?
-				Float.parseFloat(m.group(1)) :
-				3;
+		fTimeMax = parseFTime(source);
 
 		resetFps();
 		fragmentShader = source;
@@ -1061,6 +1058,16 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 
 		GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_CUBE_MAP);
+	}
+
+	private static float parseFTime(String source) {
+		if (source != null) {
+			Matcher m = PATTERN_FTIME.matcher(source);
+			if (m.find() && m.groupCount() > 0) {
+				return Float.parseFloat(m.group(1));
+			}
+		}
+		return 3f;
 	}
 
 	private void indexTextureNames(String source) {
