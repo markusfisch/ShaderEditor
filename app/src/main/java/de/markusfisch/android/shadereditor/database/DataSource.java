@@ -25,6 +25,7 @@ public class DataSource {
 	public static final String SHADERS_ID = "_id";
 	public static final String SHADERS_FRAGMENT_SHADER = "shader";
 	public static final String SHADERS_THUMB = "thumb";
+	public static final String SHADERS_NAME = "name";
 	public static final String SHADERS_CREATED = "created";
 	public static final String SHADERS_MODIFIED = "modified";
 	public static final String SHADERS_QUALITY = "quality";
@@ -92,6 +93,7 @@ public class DataSource {
 				"SELECT " +
 						SHADERS_ID + "," +
 						SHADERS_THUMB + "," +
+						SHADERS_NAME + "," +
 						SHADERS_MODIFIED +
 						" FROM " + SHADERS +
 						" ORDER BY " + SHADERS_ID,
@@ -131,6 +133,7 @@ public class DataSource {
 				"SELECT " +
 						SHADERS_ID + "," +
 						SHADERS_FRAGMENT_SHADER + "," +
+						SHADERS_NAME + "," +
 						SHADERS_MODIFIED + "," +
 						SHADERS_QUALITY +
 						" FROM " + SHADERS +
@@ -224,6 +227,7 @@ public class DataSource {
 	public static long insertShader(
 			SQLiteDatabase db,
 			String shader,
+			String name,
 			byte thumbnail[],
 			float quality) {
 		String now = currentTime();
@@ -231,6 +235,7 @@ public class DataSource {
 		ContentValues cv = new ContentValues();
 		cv.put(SHADERS_FRAGMENT_SHADER, shader);
 		cv.put(SHADERS_THUMB, thumbnail);
+		cv.put(SHADERS_NAME, name);
 		cv.put(SHADERS_CREATED, now);
 		cv.put(SHADERS_MODIFIED, now);
 		cv.put(SHADERS_QUALITY, quality);
@@ -242,7 +247,7 @@ public class DataSource {
 			String shader,
 			byte[] thumbnail,
 			float quality) {
-		return insertShader(db, shader, thumbnail, quality);
+		return insertShader(db, shader, null, thumbnail, quality);
 	}
 
 	public long insertNewShader(Context context) {
@@ -252,6 +257,7 @@ public class DataSource {
 					loadRawResource(
 							context,
 							R.raw.new_shader),
+					null,
 					loadBitmapResource(
 							context,
 							R.drawable.thumbnail_new_shader),
@@ -334,6 +340,16 @@ public class DataSource {
 				null);
 	}
 
+	public void updateShaderName(long id, String name) {
+		ContentValues cv = new ContentValues();
+		cv.put(SHADERS_NAME, name);
+		db.update(
+				SHADERS,
+				cv,
+				SHADERS_ID + "=" + id,
+				null);
+	}
+
 	public void removeShader(long id) {
 		db.delete(
 				SHADERS,
@@ -393,44 +409,44 @@ public class DataSource {
 
 	private void createShadersTable(SQLiteDatabase db, Context context) {
 		db.execSQL("DROP TABLE IF EXISTS " + SHADERS);
-		db.execSQL(
-				"CREATE TABLE " + SHADERS + " (" +
-						SHADERS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-						SHADERS_FRAGMENT_SHADER + " TEXT NOT NULL," +
-						SHADERS_THUMB + " BLOB," +
-						SHADERS_CREATED + " DATETIME," +
-						SHADERS_MODIFIED + " DATETIME," +
-						SHADERS_QUALITY + " REAL );");
+		db.execSQL("CREATE TABLE " + SHADERS + " (" +
+				SHADERS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+				SHADERS_FRAGMENT_SHADER + " TEXT NOT NULL," +
+				SHADERS_THUMB + " BLOB," +
+				SHADERS_NAME + " TEXT," +
+				SHADERS_CREATED + " DATETIME," +
+				SHADERS_MODIFIED + " DATETIME," +
+				SHADERS_QUALITY + " REAL );");
 
 		insertInitalShaders(db, context);
 	}
 
 	private static void addShadersQuality(SQLiteDatabase db) {
-		db.execSQL(
-				"ALTER TABLE " + SHADERS +
-						" ADD COLUMN " + SHADERS_QUALITY + " REAL;");
-		db.execSQL(
-				"UPDATE " + SHADERS +
-						" SET " + SHADERS_QUALITY + " = 1;");
+		db.execSQL("ALTER TABLE " + SHADERS +
+				" ADD COLUMN " + SHADERS_QUALITY + " REAL;");
+		db.execSQL("UPDATE " + SHADERS +
+				" SET " + SHADERS_QUALITY + " = 1;");
 	}
 
 	private void insertInitalShaders(SQLiteDatabase db, Context context) {
 		try {
-			DataSource.insertShader(
+			insertShader(
 					db,
 					loadRawResource(
 							context,
 							R.raw.color_hole),
+					context.getString(R.string.demo_color_hole),
 					loadBitmapResource(
 							context,
 							R.drawable.thumbnail_color_hole),
 					1f);
 
-			DataSource.insertShader(
+			insertShader(
 					db,
 					loadRawResource(
 							context,
 							R.raw.gravity),
+					context.getString(R.string.demo_gravity),
 					loadBitmapResource(
 							context,
 							R.drawable.thumbnail_gravity),
@@ -443,29 +459,25 @@ public class DataSource {
 
 	private void createTexturesTable(SQLiteDatabase db, Context context) {
 		db.execSQL("DROP TABLE IF EXISTS " + TEXTURES);
-		db.execSQL(
-				"CREATE TABLE " + TEXTURES + " (" +
-						TEXTURES_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-						TEXTURES_NAME + " TEXT NOT NULL UNIQUE," +
-						TEXTURES_WIDTH + " INTEGER," +
-						TEXTURES_HEIGHT + " INTEGER," +
-						TEXTURES_RATIO + " REAL," +
-						TEXTURES_THUMB + " BLOB," +
-						TEXTURES_MATRIX + " BLOB );");
+		db.execSQL("CREATE TABLE " + TEXTURES + " (" +
+				TEXTURES_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+				TEXTURES_NAME + " TEXT NOT NULL UNIQUE," +
+				TEXTURES_WIDTH + " INTEGER," +
+				TEXTURES_HEIGHT + " INTEGER," +
+				TEXTURES_RATIO + " REAL," +
+				TEXTURES_THUMB + " BLOB," +
+				TEXTURES_MATRIX + " BLOB );");
 
 		insertInitalTextures(db, context);
 	}
 
 	private static void addTexturesWidthHeightRatio(SQLiteDatabase db) {
-		db.execSQL(
-				"ALTER TABLE " + TEXTURES +
-						" ADD COLUMN " + TEXTURES_WIDTH + " INTEGER;");
-		db.execSQL(
-				"ALTER TABLE " + TEXTURES +
-						" ADD COLUMN " + TEXTURES_HEIGHT + " INTEGER;");
-		db.execSQL(
-				"ALTER TABLE " + TEXTURES +
-						" ADD COLUMN " + TEXTURES_RATIO + " REAL;");
+		db.execSQL("ALTER TABLE " + TEXTURES +
+				" ADD COLUMN " + TEXTURES_WIDTH + " INTEGER;");
+		db.execSQL("ALTER TABLE " + TEXTURES +
+				" ADD COLUMN " + TEXTURES_HEIGHT + " INTEGER;");
+		db.execSQL("ALTER TABLE " + TEXTURES +
+				" ADD COLUMN " + TEXTURES_RATIO + " REAL;");
 
 		Cursor cursor = db.rawQuery(
 				"SELECT " +
@@ -490,18 +502,22 @@ public class DataSource {
 			float ratio = calculateRatio(width, height);
 			bm.recycle();
 
-			db.execSQL(
-					"UPDATE " + TEXTURES +
-							" SET " +
-							TEXTURES_WIDTH + " = " + width + ", " +
-							TEXTURES_HEIGHT + " = " + height + ", " +
-							TEXTURES_RATIO + " = " + ratio +
-							" WHERE " + TEXTURES_ID + " = " + cursor.getLong(
-							cursor.getColumnIndex(TEXTURES_ID)) + ";");
+			db.execSQL("UPDATE " + TEXTURES +
+					" SET " +
+					TEXTURES_WIDTH + " = " + width + ", " +
+					TEXTURES_HEIGHT + " = " + height + ", " +
+					TEXTURES_RATIO + " = " + ratio +
+					" WHERE " + TEXTURES_ID + " = " + cursor.getLong(
+					cursor.getColumnIndex(TEXTURES_ID)) + ";");
 
 		} while (cursor.moveToNext());
 
 		cursor.close();
+	}
+
+	private static void addShaderNames(SQLiteDatabase db) {
+		db.execSQL("ALTER TABLE " + SHADERS +
+				" ADD COLUMN " + SHADERS_NAME + " TEXT;");
 	}
 
 	private void insertInitalTextures(SQLiteDatabase db, Context context) {
@@ -549,10 +565,14 @@ public class DataSource {
 			if (oldVersion < 4) {
 				addTexturesWidthHeightRatio(db);
 			}
+
+			if (oldVersion < 5) {
+				addShaderNames(db);
+			}
 		}
 
 		private OpenHelper(Context context) {
-			super(context, "shaders.db", null, 4);
+			super(context, "shaders.db", null, 5);
 			this.context = context;
 		}
 	}

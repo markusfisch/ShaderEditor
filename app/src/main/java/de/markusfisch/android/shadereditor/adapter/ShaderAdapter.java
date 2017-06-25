@@ -17,6 +17,7 @@ import android.widget.TextView;
 public class ShaderAdapter extends CursorAdapter {
 	private int idIndex;
 	private int thumbIndex;
+	private int nameIndex;
 	private int modifiedIndex;
 	private int textColorSelected;
 	private int textColorUnselected;
@@ -31,6 +32,18 @@ public class ShaderAdapter extends CursorAdapter {
 
 	public void setSelectedId(long id) {
 		selectedShaderId = id;
+	}
+
+	public String getName(int position) {
+		Cursor cursor = (Cursor) getItem(position);
+		return cursor != null ? cursor.getString(nameIndex) : null;
+	}
+
+	public String getTitle(Cursor cursor) {
+		String title = cursor.getString(nameIndex);
+		return title != null && title.length() > 0 ?
+				title :
+				cursor.getString(modifiedIndex);
 	}
 
 	@Override
@@ -82,7 +95,7 @@ public class ShaderAdapter extends CursorAdapter {
 					bytes.length));
 		}
 
-		holder.title.setText(cursor.getString(modifiedIndex));
+		holder.title.setText(getTitle(cursor));
 	}
 
 	private void indexColumns(Cursor cursor) {
@@ -90,6 +103,8 @@ public class ShaderAdapter extends CursorAdapter {
 				DataSource.SHADERS_ID);
 		thumbIndex = cursor.getColumnIndex(
 				DataSource.SHADERS_THUMB);
+		nameIndex = cursor.getColumnIndex(
+				DataSource.SHADERS_NAME);
 		modifiedIndex = cursor.getColumnIndex(
 				DataSource.SHADERS_MODIFIED);
 	}

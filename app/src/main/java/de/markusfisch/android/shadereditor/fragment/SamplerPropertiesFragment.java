@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
+import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.widget.TextureParametersView;
 import de.markusfisch.android.shadereditor.R;
 
@@ -12,7 +13,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputFilter;
 import android.text.Spanned;
-import android.view.inputmethod.InputMethodManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,7 +38,6 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 
 	private static boolean inProgress = false;
 
-	private InputMethodManager imm;
 	private TextView sizeCaption;
 	private SeekBar sizeBarView;
 	private TextView sizeView;
@@ -91,9 +90,6 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 			Activity activity,
 			LayoutInflater inflater,
 			ViewGroup container) {
-		imm = (InputMethodManager) activity.getSystemService(
-				Context.INPUT_METHOD_SERVICE);
-
 		View view = inflater.inflate(
 				R.layout.fragment_sampler_properties,
 				container,
@@ -199,9 +195,7 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 			return;
 		}
 
-		imm.hideSoftInputFromWindow(
-				nameView.getWindowToken(),
-				0);
+		SoftKeyboard.hide(context, nameView);
 
 		final int size = getPower(sizeBarView.getProgress());
 

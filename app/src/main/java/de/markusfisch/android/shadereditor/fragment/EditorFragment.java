@@ -3,17 +3,16 @@ package de.markusfisch.android.shadereditor.fragment;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.opengl.InfoLog;
 import de.markusfisch.android.shadereditor.preference.Preferences;
+import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.R;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
-import android.view.inputmethod.InputMethodManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,7 +22,6 @@ import android.widget.Toast;
 public class EditorFragment extends Fragment {
 	public static final String TAG = "EditorFragment";
 
-	private InputMethodManager imm;
 	private ScrollView scrollView;
 	private ShaderEditor shaderEditor;
 	private int yOffset;
@@ -42,9 +40,6 @@ public class EditorFragment extends Fragment {
 		shaderEditor = (ShaderEditor) view.findViewById(R.id.editor);
 
 		Activity activity = getActivity();
-		imm = (InputMethodManager) activity.getSystemService(
-				Context.INPUT_METHOD_SERVICE);
-
 		try {
 			shaderEditor.setOnTextChangedListener(
 					(ShaderEditor.OnTextChangedListener) activity);
@@ -129,9 +124,7 @@ public class EditorFragment extends Fragment {
 				View.VISIBLE);
 
 		if (visible) {
-			imm.hideSoftInputFromWindow(
-					shaderEditor.getWindowToken(),
-					0);
+			SoftKeyboard.hide(getActivity(), shaderEditor);
 		}
 
 		return visible;

@@ -5,12 +5,14 @@ import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
+import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 import de.markusfisch.android.shadereditor.R;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -31,6 +33,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -465,6 +468,20 @@ public class MainActivity
 				closeDrawer();
 			}
 		});
+		listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(
+					AdapterView<?> parent,
+					View view,
+					int position,
+					long id) {
+				if (shaderAdapter != null) {
+					editShaderName(id, shaderAdapter.getName(position));
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 
 	private void initShaderView() {
@@ -801,6 +818,42 @@ public class MainActivity
 				PreferencesActivity.class));
 	}
 
+	@SuppressLint("InflateParams")
+	private void editShaderName(final long id, String name) {
+		View view = getLayoutInflater().inflate(
+				R.layout.dialog_rename_shader,
+				// a dialog does not have a parent view group
+				// so InflateParams must be suppressed
+				null);
+		final EditText nameView = (EditText) view.findViewById(R.id.name);
+		if (name != null) {
+			nameView.setText(name);
+		}
+
+		new AlertDialog.Builder(this)
+				.setMessage(R.string.rename_shader)
+				.setView(view)
+				.setPositiveButton(android.R.string.ok,
+						new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(
+									DialogInterface dialog,
+									int which) {
+								ShaderEditorApplication
+										.dataSource
+										.updateShaderName(
+												id,
+												nameView.getText().toString());
+								getShadersAsync();
+								SoftKeyboard.hide(
+										MainActivity.this,
+										nameView);
+							}
+						})
+				.setNegativeButton(android.R.string.cancel, null)
+				.show();
+	}
+
 	private void selectShaderAndUpdate(long id) {
 		selectShader(id);
 		getShadersAsync();
@@ -873,14 +926,9 @@ public class MainActivity
 	}
 
 	private void setToolbarTitle(Cursor cursor) {
-		if (cursor == null) {
-			return;
+		if (cursor != null && shaderAdapter != null) {
+			setToolbarTitle(shaderAdapter.getTitle(cursor));
 		}
-
-		String modified = cursor.getString(
-				cursor.getColumnIndex(DataSource.SHADERS_MODIFIED));
-
-		setToolbarTitle(modified);
 	}
 
 	private void setToolbarTitle(String name) {

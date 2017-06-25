@@ -73,6 +73,8 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 		setFragment(getSupportFragmentManager(), fragment);
 	}
 
+	// Lint is missing the commit() but this method should return an
+	// uncommitted transaction so it can be extended
 	@SuppressLint("CommitTransaction")
 	private static FragmentTransaction getReplaceFragmentTransaction(
 			FragmentManager fm,
