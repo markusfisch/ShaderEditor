@@ -3,22 +3,31 @@ package de.markusfisch.android.shadereditor.opengl;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
 import de.markusfisch.android.shadereditor.fragment.SamplerPropertiesFragment;
 import de.markusfisch.android.shadereditor.hardware.AccelerometerListener;
+import de.markusfisch.android.shadereditor.hardware.CameraListener;
 import de.markusfisch.android.shadereditor.hardware.GyroscopeListener;
 import de.markusfisch.android.shadereditor.hardware.MagneticFieldListener;
 import de.markusfisch.android.shadereditor.hardware.LightListener;
 import de.markusfisch.android.shadereditor.hardware.PressureListener;
 import de.markusfisch.android.shadereditor.hardware.ProximityListener;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.hardware.Camera;
 import android.hardware.SensorManager;
+import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.os.BatteryManager;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.MotionEvent;
 
 import java.io.ByteArrayOutputStream;
@@ -43,6 +52,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public static final String BACKBUFFER = "backbuffer";
+	public static final String CAMERA_BACK = "camera_back";
+	public static final String CAMERA_FRONT = "camera_front";
 
 	private static final int TEXTURE_UNITS[] = {
 			GLES20.GL_TEXTURE0,
@@ -104,13 +115,22 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000L;
 	private static final long BATTERY_UPDATE_INTERVAL = 10000000000L;
 	private static final long DATE_UPDATE_INTERVAL = 1000000000L;
+	private static final String SAMPLER_2D = "2D";
+	private static final String SAMPLER_CUBE = "Cube";
+	private static final String SAMPLER_EXTERNAL_OES = "ExternalOES";
 	private static final Pattern PATTERN_SAMPLER = Pattern.compile(
 			String.format(
-					"uniform[ \t]+sampler(2D|Cube)+[ \t]+(%s);[ \t]*(.*)",
+					"uniform[ \t]+sampler(" +
+							SAMPLER_2D + "|" +
+							SAMPLER_CUBE + "|" +
+							SAMPLER_EXTERNAL_OES +
+							")+[ \t]+(%s);[ \t]*(.*)",
 					SamplerPropertiesFragment.TEXTURE_NAME_PATTERN));
 	private static final Pattern PATTERN_FTIME = Pattern.compile(
 			"^#define[ \\t]+FTIME_PERIOD[ \\t]+([0-9\\.]+)[ \\t]*$",
 			Pattern.MULTILINE);
+	private static final String OES_EXTERNAL =
+			"#extension GL_OES_EGL_image_external : require\n";
 	private static final String VERTEX_SHADER =
 			"attribute vec2 position;" +
 					"void main()" +
@@ -161,6 +181,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private final ByteBuffer vertexBuffer;
 
 	private AccelerometerListener accelerometerListener;
+	private CameraListener cameraListener;
 	private GyroscopeListener gyroscopeListener;
 	private MagneticFieldListener magneticFieldListener;
 	private LightListener lightListener;
@@ -235,11 +256,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 	public void setFragmentShader(String source) {
 		fTimeMax = parseFTime(source);
-
 		resetFps();
-		fragmentShader = source;
-
-		indexTextureNames(source);
+		fragmentShader = indexTextureNames(source);
 	}
 
 	public void setQuality(float quality) {
@@ -524,6 +542,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					tx[backTarget]);
 		}
 
+		if (cameraListener != null) {
+			cameraListener.update();
+		}
+
 		for (int i = 0; i < numberOfTextures; ++i) {
 			textureBinder.bind(
 					textureLocs[i],
@@ -619,6 +641,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 		if (proximityListener != null) {
 			proximityListener.unregister();
+		}
+
+		if (cameraListener != null) {
+			cameraListener.unregister();
 		}
 	}
 
@@ -767,7 +793,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			if (accelerometerListener == null) {
 				accelerometerListener = new AccelerometerListener(context);
 			}
-
 			accelerometerListener.register();
 		}
 
@@ -775,7 +800,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			if (gyroscopeListener == null) {
 				gyroscopeListener = new GyroscopeListener(context);
 			}
-
 			gyroscopeListener.register();
 		}
 
@@ -783,7 +807,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			if (magneticFieldListener == null) {
 				magneticFieldListener = new MagneticFieldListener(context);
 			}
-
 			magneticFieldListener.register();
 		}
 
@@ -791,7 +814,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			if (lightListener == null) {
 				lightListener = new LightListener(context);
 			}
-
 			lightListener.register();
 		}
 
@@ -799,7 +821,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			if (pressureListener == null) {
 				pressureListener = new PressureListener(context);
 			}
-
 			pressureListener.register();
 		}
 
@@ -807,7 +828,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			if (proximityListener == null) {
 				proximityListener = new ProximityListener(context);
 			}
-
 			proximityListener.register();
 		}
 	}
@@ -964,9 +984,17 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		GLES20.glGenTextures(numberOfTextures, textureIds, 0);
 
 		for (int i = 0; i < numberOfTextures; ++i) {
+			String name = textureNames.get(i);
+
+			if (CAMERA_BACK.equals(name) ||
+					CAMERA_FRONT.equals(name)) {
+				openCameraListener(name, textureIds[i],
+						textureParameters.get(i));
+				continue;
+			}
+
 			Bitmap bitmap = ShaderEditorApplication
-					.dataSource
-					.getTextureBitmap(textureNames.get(i));
+					.dataSource.getTextureBitmap(name);
 
 			if (bitmap == null) {
 				continue;
@@ -1005,7 +1033,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				bitmap.getHeight(),
 				flipMatrix,
 				true);
-
 		GLUtils.texImage2D(
 				GLES20.GL_TEXTURE_2D,
 				0,
@@ -1013,7 +1040,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				flippedBitmap,
 				GLES20.GL_UNSIGNED_BYTE,
 				0);
-
 		flippedBitmap.recycle();
 
 		GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
@@ -1065,6 +1091,74 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_CUBE_MAP);
 	}
 
+	private void openCameraListener(
+			String name,
+			int id,
+			TextureParameters tp) {
+		if (Build.VERSION.SDK_INT <
+				Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+			return;
+		}
+
+		int cameraId = CameraListener.findCameraIdFacing(
+				CAMERA_BACK.equals(name) ?
+						Camera.CameraInfo.CAMERA_FACING_BACK :
+						Camera.CameraInfo.CAMERA_FACING_FRONT);
+
+		if (cameraId < 0) {
+			return;
+		}
+
+		if (cameraListener == null ||
+				cameraListener.cameraId != cameraId) {
+			if (cameraListener != null) {
+				cameraListener.unregister();
+				cameraListener = null;
+			}
+
+			requestCameraPermission();
+			setCameraTextureProperties(id, tp);
+			cameraListener = new CameraListener(
+					context,
+					id,
+					cameraId,
+					(int) resolution[0],
+					(int) resolution[1]);
+		}
+
+		cameraListener.register();
+	}
+
+	private void requestCameraPermission() {
+		String permission = android.Manifest.permission.CAMERA;
+		if (ContextCompat.checkSelfPermission(context,
+				permission) != PackageManager.PERMISSION_GRANTED) {
+			Activity activity;
+			try {
+				activity = (Activity) context;
+			} catch (ClassCastException e) {
+				return;
+			}
+			ActivityCompat.requestPermissions(
+					activity,
+					new String[]{permission},
+					1);
+		}
+	}
+
+	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
+	private static void setCameraTextureProperties(
+			int id,
+			TextureParameters tp) {
+		if (Build.VERSION.SDK_INT <
+				Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+			return;
+		}
+
+		GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, id);
+		tp.set(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
+	}
+
 	private static float parseFTime(String source) {
 		if (source != null) {
 			Matcher m = PATTERN_FTIME.matcher(source);
@@ -1075,9 +1169,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		return 3f;
 	}
 
-	private void indexTextureNames(String source) {
+	private String indexTextureNames(String source) {
 		if (source == null) {
-			return;
+			return null;
 		}
 
 		textureNames.clear();
@@ -1096,7 +1190,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				continue;
 			}
 
-			if (name.equals(BACKBUFFER)) {
+			if (BACKBUFFER.equals(name)) {
 				backBufferTextureParams.parse(params);
 				continue;
 			}
@@ -1104,11 +1198,25 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			int target;
 
 			switch (type) {
-				case "2D":
+				case SAMPLER_2D:
 					target = GLES20.GL_TEXTURE_2D;
 					break;
-				case "Cube":
+				case SAMPLER_CUBE:
 					target = GLES20.GL_TEXTURE_CUBE_MAP;
+					break;
+				case SAMPLER_EXTERNAL_OES:
+					if (Build.VERSION.SDK_INT >
+							Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+						// needs to be done here or lint won't recognize
+						// we're checking SDK version
+						target = GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
+					} else {
+						// ignore that uniform on lower SDKs
+						continue;
+					}
+					if (!source.contains(OES_EXTERNAL)) {
+						source = OES_EXTERNAL + source;
+					}
 					break;
 				default:
 					continue;
@@ -1118,6 +1226,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			textureNames.add(name);
 			textureParameters.add(new TextureParameters(params));
 		}
+
+		return source;
 	}
 
 	private float getBatteryLevel() {

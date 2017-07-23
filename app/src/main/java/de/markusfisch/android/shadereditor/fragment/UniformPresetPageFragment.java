@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.fragment;
 
+import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
 import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
 import de.markusfisch.android.shadereditor.adapter.PresetUniformAdapter;
 import de.markusfisch.android.shadereditor.R;
@@ -38,25 +39,35 @@ public class UniformPresetPageFragment extends Fragment {
 		uniformsAdapter = new PresetUniformAdapter(context);
 
 		listView.setAdapter(uniformsAdapter);
-		listView.setOnItemClickListener(
-				new AdapterView.OnItemClickListener() {
+		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(
 					AdapterView<?> parent,
 					View view,
 					int position,
 					long id) {
-				Activity activity = getActivity();
-				if (activity == null) {
-					return;
+				if (view.isEnabled()) {
+					addUniform(uniformsAdapter.getItem(position));
 				}
-
-				AddUniformActivity.setAddUniformResult(
-						activity,
-						uniformsAdapter.getItem(position) + ";");
-
-				activity.finish();
 			}
 		});
+	}
+
+	private void addUniform(PresetUniformAdapter.Uniform uniform) {
+		if (uniform.isSampler()) {
+			AbstractSubsequentActivity.addFragment(
+					getParentFragment().getFragmentManager(),
+					TextureParametersFragment.newInstance(
+							uniform.type,
+							uniform.name));
+		} else {
+			Activity activity = getActivity();
+			if (activity != null) {
+				AddUniformActivity.setAddUniformResult(activity,
+						"uniform " + uniform.type + " " +
+								uniform.name + ";");
+				activity.finish();
+			}
+		}
 	}
 }

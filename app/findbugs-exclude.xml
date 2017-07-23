@@ -9,14 +9,6 @@
 		<Class name="~.android.support.*"/>
 	</Match>
 	<Match>
-		<Class name="de.markusfisch.android.shadereditor.widget.ScalingImageView"/>
-		<Or>
-			<Method name="onTouchEvent"/>
-		</Or>
-		<!-- this fall through is intentional and accordingly commented -->
-		<Bug pattern="SF_SWITCH_FALLTHROUGH"/>
-	</Match>
-	<Match>
 		<Class name="de.markusfisch.android.shadereditor.opengl.ShaderRenderer"/>
 		<Or>
 			<Method name="getThumbnail"/>

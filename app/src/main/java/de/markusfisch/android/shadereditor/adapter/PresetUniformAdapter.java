@@ -3,6 +3,8 @@ package de.markusfisch.android.shadereditor.adapter;
 import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,36 @@ import android.widget.TextView;
 import java.util.Locale;
 
 public class PresetUniformAdapter extends BaseAdapter {
+	public static final class Uniform {
+		public final String type;
+		public final String name;
+		public final String rationale;
+		public final int minSdk;
+
+		public boolean isAvailable() {
+			return minSdk <= Build.VERSION.SDK_INT;
+		}
+
+		public boolean isSampler() {
+			return type.startsWith("sampler");
+		}
+
+		private Uniform(String type, String name, String rationale) {
+			this(type, name, rationale, 0);
+		}
+
+		private Uniform(
+				String type,
+				String name,
+				String rationale,
+				int minSdk) {
+			this.type = type;
+			this.name = name;
+			this.rationale = rationale;
+			this.minSdk = minSdk;
+		}
+	}
+
 	private final String uniformFormat;
 	private final Uniform uniforms[];
 
@@ -26,6 +58,16 @@ public class PresetUniformAdapter extends BaseAdapter {
 						"float",
 						"battery",
 						context.getString(R.string.battery_level)),
+				new Uniform(
+						"samplerExternalOES",
+						"camera_back",
+						context.getString(R.string.camera_back),
+						Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1),
+				new Uniform(
+						"samplerExternalOES",
+						"camera_front",
+						context.getString(R.string.camera_front),
+						Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1),
 				new Uniform(
 						"vec4",
 						"date",
@@ -111,9 +153,8 @@ public class PresetUniformAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public String getItem(int position) {
-		return "uniform " + uniforms[position].type + " " +
-				uniforms[position].name;
+	public Uniform getItem(int position) {
+		return uniforms[position];
 	}
 
 	@Override
@@ -134,7 +175,15 @@ public class PresetUniformAdapter extends BaseAdapter {
 
 		ViewHolder holder = getViewHolder(convertView);
 		Uniform uniform = uniforms[position];
+		boolean enabled = uniform.isAvailable();
 
+		convertView.setEnabled(enabled);
+
+		holder.name.setTextColor(ContextCompat.getColor(
+				parent.getContext(),
+				enabled ?
+						android.R.color.primary_text_dark :
+						R.color.disabled_text));
 		holder.name.setText(String.format(
 				Locale.US,
 				uniformFormat,
@@ -155,18 +204,6 @@ public class PresetUniformAdapter extends BaseAdapter {
 		}
 
 		return holder;
-	}
-
-	private static final class Uniform {
-		private final String type;
-		private final String name;
-		private final String rationale;
-
-		private Uniform(String type, String name, String rationale) {
-			this.type = type;
-			this.name = name;
-			this.rationale = rationale;
-		}
 	}
 
 	private static final class ViewHolder {

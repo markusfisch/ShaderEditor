@@ -89,8 +89,7 @@ public class TextureParametersFragment extends Fragment {
 			return;
 		}
 
-		AddUniformActivity.setAddUniformResult(
-				activity,
+		AddUniformActivity.setAddUniformResult(activity,
 				"uniform " + samplerType + " " + textureName + ";" +
 						textureParameterView.getTextureParams());
 

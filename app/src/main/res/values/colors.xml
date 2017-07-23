@@ -5,6 +5,7 @@
 	<color name="primary_dark_translucent">#8111</color>
 	<color name="accent">#fff</color>
 	<color name="secondary_text">#8a000000</color>
+	<color name="disabled_text">#8affffff</color>
 	<color name="drawer_text">#fff</color>
 	<color name="drawer_text_unselected">#8affffff</color>
 	<color name="background_drawer">#8000</color>

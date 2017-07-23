@@ -86,6 +86,8 @@
 	<string name="battery_level">Battery level from 0.0 to 1.0</string>
 	<string name="wallpaper_offset">Wallpaper offset from 0.0 to 1.0</string>
 	<string name="previous_frame">Previous rendered frame</string>
+	<string name="camera_back">Back camera</string>
+	<string name="camera_front">Front camera</string>
 	<string name="date_time">Year, month, day and time in seconds</string>
 	<string name="start_random">Random value initialized at load</string>
 

@@ -22,7 +22,6 @@ public class UniformSamplerCubePageFragment
 		if (activity == null) {
 			return;
 		}
-
 		startActivity(new Intent(activity, CubeMapActivity.class));
 	}
 
