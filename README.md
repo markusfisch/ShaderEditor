@@ -15,8 +15,8 @@ Features
 * Syntax highlighting
 * Error highlighting
 * Use any shader as live wallpaper
-* Exposure of sensors (accelerometer, gyroscope, magnetic field, light,
-	pressure, proximity)
+* Exposure of sensors (camera, accelerometer, gyroscope, magnetic field,
+	light, pressure, proximity)
 * Exposure of battery level
 * Supports wallpaper offset
 * Supports multiple touches

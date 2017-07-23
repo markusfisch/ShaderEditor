@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.7.0
+* Use front or back camera as texture
+* Give shaders a name
+
 ## 2.6.1
 * Use previous defaults for sampler texture params
 * Converted shader samples indenting style
