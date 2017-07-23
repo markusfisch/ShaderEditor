@@ -1,7 +1,7 @@
 package de.markusfisch.android.shadereditor.activity;
 
 import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
@@ -76,7 +76,7 @@ public class MainActivity
 				(view = activity.findViewById(R.id.main_layout)) != null &&
 				setSystemBarColor(
 						activity.getWindow(),
-						ShaderEditorApplication
+						ShaderEditorApp
 								.preferences
 								.getSystemBarColor(),
 						true)) {
@@ -143,22 +143,22 @@ public class MainActivity
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.insert_tab).setVisible(
-				ShaderEditorApplication
+				ShaderEditorApp
 						.preferences
 						.doesShowInsertTab());
 
 		menu.findItem(R.id.run_code).setVisible(
-				!ShaderEditorApplication
+				!ShaderEditorApp
 						.preferences
 						.doesRunOnChange());
 
 		menu.findItem(R.id.toggle_code).setVisible(
-				ShaderEditorApplication
+				ShaderEditorApp
 						.preferences
 						.doesRunInBackground());
 
 		menu.findItem(R.id.update_wallpaper).setTitle(
-				ShaderEditorApplication
+				ShaderEditorApp
 						.preferences
 						.getWallpaperShader() == selectedShaderId ?
 								R.string.update_wallpaper :
@@ -210,7 +210,7 @@ public class MainActivity
 
 	@Override
 	public void onTextChanged(String text) {
-		if (!ShaderEditorApplication.preferences.doesRunOnChange()) {
+		if (!ShaderEditorApp.preferences.doesRunOnChange()) {
 			return;
 		}
 
@@ -253,7 +253,7 @@ public class MainActivity
 
 			if (selectedShaderId > 0 &&
 					status.thumbnail != null &&
-					ShaderEditorApplication.preferences.doesSaveOnRun()) {
+					ShaderEditorApp.preferences.doesSaveOnRun()) {
 				saveShader(selectedShaderId);
 			}
 		}
@@ -392,7 +392,7 @@ public class MainActivity
 				quality = q;
 
 				if (selectedShaderId > 0) {
-					ShaderEditorApplication.dataSource.updateShaderQuality(
+					ShaderEditorApp.dataSource.updateShaderQuality(
 							selectedShaderId,
 							quality);
 				}
@@ -527,7 +527,7 @@ public class MainActivity
 	}
 
 	private void updateUiToPreferences() {
-		if (ShaderEditorApplication
+		if (ShaderEditorApp
 				.preferences
 				.doesRunInBackground()) {
 			shaderView.setVisibility(View.VISIBLE);
@@ -547,7 +547,7 @@ public class MainActivity
 	}
 
 	private void getShadersAsync() {
-		if (!ShaderEditorApplication.dataSource.isOpen()) {
+		if (!ShaderEditorApp.dataSource.isOpen()) {
 			listView.postDelayed(new Runnable() {
 				@Override
 				public void run() {
@@ -561,7 +561,7 @@ public class MainActivity
 		new AsyncTask<Void, Void, Cursor>() {
 			@Override
 			protected Cursor doInBackground(Void... nothings) {
-				return ShaderEditorApplication.dataSource.getShaders();
+				return ShaderEditorApp.dataSource.getShaders();
 			}
 
 			@Override
@@ -648,7 +648,7 @@ public class MainActivity
 			return;
 		}
 
-		if (ShaderEditorApplication
+		if (ShaderEditorApp
 				.preferences
 				.doesRunInBackground()) {
 			setFragmentShader(text.replaceAll("\\p{C}", ""));
@@ -668,7 +668,7 @@ public class MainActivity
 
 		editorFragment.clearError();
 
-		if (ShaderEditorApplication
+		if (ShaderEditorApp
 				.preferences
 				.doesSaveOnRun()) {
 			// don't save the old thumbnail;
@@ -679,7 +679,7 @@ public class MainActivity
 			saveShader(selectedShaderId);
 		}
 
-		if (ShaderEditorApplication
+		if (ShaderEditorApp
 				.preferences
 				.doesRunInBackground()) {
 			setFragmentShader(src);
@@ -694,20 +694,20 @@ public class MainActivity
 		}
 
 		String fragmentShader = editorFragment.getText();
-		byte thumbnail[] = ShaderEditorApplication
+		byte thumbnail[] = ShaderEditorApp
 				.preferences
 				.doesRunInBackground() ?
 						shaderView.getRenderer().getThumbnail() :
 						PreviewActivity.renderStatus.thumbnail;
 
 		if (id > 0) {
-			ShaderEditorApplication.dataSource.updateShader(
+			ShaderEditorApp.dataSource.updateShader(
 					id,
 					fragmentShader,
 					thumbnail,
 					quality);
 		} else {
-			setToolbarTitle(ShaderEditorApplication.dataSource.insertShader(
+			setToolbarTitle(ShaderEditorApp.dataSource.insertShader(
 					fragmentShader,
 					thumbnail,
 					quality));
@@ -726,7 +726,7 @@ public class MainActivity
 	}
 
 	private void addShader() {
-		selectShaderAndUpdate(ShaderEditorApplication
+		selectShaderAndUpdate(ShaderEditorApp
 				.dataSource
 				.insertNewShader(this));
 	}
@@ -740,9 +740,9 @@ public class MainActivity
 			saveShader(id);
 		}
 
-		selectShaderAndUpdate(ShaderEditorApplication.dataSource.insertShader(
+		selectShaderAndUpdate(ShaderEditorApp.dataSource.insertShader(
 				editorFragment.getText(),
-				ShaderEditorApplication.dataSource.getThumbnail(id),
+				ShaderEditorApp.dataSource.getThumbnail(id),
 				quality));
 
 		// update thumbnails
@@ -763,11 +763,11 @@ public class MainActivity
 							public void onClick(
 									DialogInterface dialog,
 									int which) {
-								ShaderEditorApplication
+								ShaderEditorApp
 										.dataSource
 										.removeShader(id);
 
-								selectShaderAndUpdate(ShaderEditorApplication
+								selectShaderAndUpdate(ShaderEditorApp
 										.dataSource
 										.getFirstShaderId());
 							}
@@ -802,8 +802,8 @@ public class MainActivity
 
 		// the onSharedPreferenceChanged() listener in WallpaperService
 		// is only triggered if the value has changed so force this
-		ShaderEditorApplication.preferences.setWallpaperShader(0);
-		ShaderEditorApplication.preferences.setWallpaperShader(id);
+		ShaderEditorApp.preferences.setWallpaperShader(0);
+		ShaderEditorApp.preferences.setWallpaperShader(id);
 	}
 
 	private void addUniform() {
@@ -839,7 +839,7 @@ public class MainActivity
 							public void onClick(
 									DialogInterface dialog,
 									int which) {
-								ShaderEditorApplication
+								ShaderEditorApp
 										.dataSource
 										.updateShaderName(
 												id,
@@ -876,7 +876,7 @@ public class MainActivity
 	}
 
 	private long loadShader(long id) {
-		Cursor cursor = ShaderEditorApplication.dataSource.getShader(id);
+		Cursor cursor = ShaderEditorApp.dataSource.getShader(id);
 
 		if (DataSource.closeIfEmpty(cursor)) {
 			return 0;
@@ -902,7 +902,7 @@ public class MainActivity
 		if (editorFragment != null) {
 			// runs setFragmentShader() in onTextChanged()
 			editorFragment.setText(fragmentShader);
-		} else if (ShaderEditorApplication
+		} else if (ShaderEditorApp
 				.preferences
 				.doesRunInBackground()) {
 			setFragmentShader(fragmentShader);
@@ -914,7 +914,7 @@ public class MainActivity
 	}
 
 	private void setToolbarTitle(long id) {
-		Cursor cursor = ShaderEditorApplication.dataSource.getShader(id);
+		Cursor cursor = ShaderEditorApp.dataSource.getShader(id);
 
 		if (DataSource.closeIfEmpty(cursor)) {
 			return;
@@ -961,7 +961,7 @@ public class MainActivity
 		intent.putExtra(PreviewActivity.QUALITY, quality);
 		intent.putExtra(PreviewActivity.FRAGMENT_SHADER, src);
 
-		if (ShaderEditorApplication.preferences.doesRunInNewTask() &&
+		if (ShaderEditorApp.preferences.doesRunInNewTask() &&
 				Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			intent.setFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT |
 					Intent.FLAG_ACTIVITY_NEW_TASK);

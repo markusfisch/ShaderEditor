@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.opengl.InfoLog;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.view.SoftKeyboard;
@@ -132,7 +132,7 @@ public class EditorFragment extends Fragment {
 
 	private void updateToPreferences() {
 		Preferences preferences =
-				ShaderEditorApplication.preferences;
+				ShaderEditorApp.preferences;
 
 		shaderEditor.setUpdateDelay(
 				preferences.getUpdateDelay());

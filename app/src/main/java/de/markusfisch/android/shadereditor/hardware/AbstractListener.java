@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.hardware;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 import android.content.Context;
 import android.hardware.Sensor;
@@ -48,6 +48,6 @@ public abstract class AbstractListener implements SensorEventListener {
 		last = 0;
 
 		return listening = sensorManager.registerListener(this, sensor,
-				ShaderEditorApplication.preferences.getSensorDelay());
+				ShaderEditorApp.preferences.getSensorDelay());
 	}
 }

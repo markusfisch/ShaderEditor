@@ -3,7 +3,7 @@ package de.markusfisch.android.shadereditor.fragment;
 import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
 import de.markusfisch.android.shadereditor.activity.TextureViewActivity;
 import de.markusfisch.android.shadereditor.adapter.TextureAdapter;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.R;
 
 import android.app.Activity;
@@ -93,7 +93,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 	}
 
 	protected Cursor loadTextures() {
-		return ShaderEditorApplication.dataSource.getTextures();
+		return ShaderEditorApp.dataSource.getTextures();
 	}
 
 	private void showTexture(long id) {

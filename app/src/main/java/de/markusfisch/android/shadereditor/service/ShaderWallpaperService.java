@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.service;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
@@ -119,7 +119,7 @@ public class ShaderWallpaperService extends WallpaperService {
 		private ShaderWallpaperEngine() {
 			super();
 
-			ShaderEditorApplication
+			ShaderEditorApp
 					.preferences
 					.getSharedPreferences()
 					.registerOnSharedPreferenceChangeListener(this);
@@ -136,7 +136,7 @@ public class ShaderWallpaperService extends WallpaperService {
 		}
 
 		private void setShader() {
-			if (!ShaderEditorApplication.dataSource.isOpen()) {
+			if (!ShaderEditorApp.dataSource.isOpen()) {
 				handler.postDelayed(new Runnable() {
 					@Override
 					public void run() {
@@ -147,9 +147,9 @@ public class ShaderWallpaperService extends WallpaperService {
 				return;
 			}
 
-			Cursor cursor = ShaderEditorApplication
+			Cursor cursor = ShaderEditorApp
 					.dataSource
-					.getShader(ShaderEditorApplication
+					.getShader(ShaderEditorApp
 							.preferences
 							.getWallpaperShader());
 
@@ -165,13 +165,13 @@ public class ShaderWallpaperService extends WallpaperService {
 				}
 
 				randomShader = true;
-				cursor = ShaderEditorApplication
+				cursor = ShaderEditorApp
 						.dataSource
 						.getRandomShader();
 			}
 
 			if (randomShader) {
-				ShaderEditorApplication.preferences.setWallpaperShader(
+				ShaderEditorApp.preferences.setWallpaperShader(
 						cursor.getLong(cursor.getColumnIndex(
 								DataSource.SHADERS_ID)));
 			}
@@ -190,7 +190,7 @@ public class ShaderWallpaperService extends WallpaperService {
 		private class ShaderWallpaperView extends ShaderView {
 			public ShaderWallpaperView() {
 				super(ShaderWallpaperService.this,
-						ShaderEditorApplication.preferences.isBatteryLow() ?
+						ShaderEditorApp.preferences.isBatteryLow() ?
 								GLSurfaceView.RENDERMODE_WHEN_DIRTY :
 								GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 			}

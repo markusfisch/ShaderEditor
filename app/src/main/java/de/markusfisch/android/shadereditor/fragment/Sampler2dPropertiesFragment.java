@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 import de.markusfisch.android.shadereditor.R;
 
@@ -102,7 +102,7 @@ public class Sampler2dPropertiesFragment extends SamplerPropertiesFragment {
 			return R.string.illegal_rectangle;
 		}
 
-		if (ShaderEditorApplication
+		if (ShaderEditorApp
 				.dataSource
 				.insertTexture(
 						name,

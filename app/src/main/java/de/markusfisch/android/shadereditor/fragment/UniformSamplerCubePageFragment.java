@@ -1,7 +1,7 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.activity.CubeMapActivity;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -27,6 +27,6 @@ public class UniformSamplerCubePageFragment
 
 	@Override
 	protected Cursor loadTextures() {
-		return ShaderEditorApplication.dataSource.getSamplerCubeTextures();
+		return ShaderEditorApp.dataSource.getSamplerCubeTextures();
 	}
 }

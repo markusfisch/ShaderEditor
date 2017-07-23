@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.receiver;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.service.ShaderWallpaperService;
 
 import android.content.BroadcastReceiver;
@@ -23,14 +23,14 @@ public class BatteryLevelReceiver extends BroadcastReceiver {
 	}
 
 	public static void setLowPowerMode(Context context, boolean low) {
-		if (!ShaderEditorApplication.preferences.saveBattery()) {
+		if (!ShaderEditorApp.preferences.saveBattery()) {
 			low = false;
 		}
 		// fall through to update battery flag and
 		// render mode because the preference may
 		// have changed while battery is low
 
-		ShaderEditorApplication.preferences.setBatteryLow(low);
+		ShaderEditorApp.preferences.setBatteryLow(low);
 
 		if (context == null) {
 			return;

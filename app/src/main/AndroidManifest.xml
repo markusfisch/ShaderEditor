@@ -25,7 +25,7 @@
 	<uses-feature android:name="android.software.live_wallpaper"/>
 	<application
 		tools:ignore="UnusedAttribute"
-		android:name=".app.ShaderEditorApplication"
+		android:name=".app.ShaderEditorApp"
 		android:allowBackup="true"
 		android:fullBackupContent="true"
 		android:supportsRtl="true"

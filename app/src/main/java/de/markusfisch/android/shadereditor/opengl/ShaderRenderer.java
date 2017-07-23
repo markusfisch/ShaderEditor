@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.opengl;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.fragment.SamplerPropertiesFragment;
 import de.markusfisch.android.shadereditor.hardware.AccelerometerListener;
 import de.markusfisch.android.shadereditor.hardware.CameraListener;
@@ -993,7 +993,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				continue;
 			}
 
-			Bitmap bitmap = ShaderEditorApplication
+			Bitmap bitmap = ShaderEditorApp
 					.dataSource.getTextureBitmap(name);
 
 			if (bitmap == null) {

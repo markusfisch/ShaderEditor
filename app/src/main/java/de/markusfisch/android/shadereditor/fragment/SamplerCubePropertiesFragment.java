@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 import de.markusfisch.android.shadereditor.widget.CubeMapView;
 import de.markusfisch.android.shadereditor.R;
@@ -118,7 +118,7 @@ public class SamplerCubePropertiesFragment extends SamplerPropertiesFragment {
 			}
 		}
 
-		return ShaderEditorApplication
+		return ShaderEditorApp
 				.dataSource
 				.insertTexture(name, mapBitmap) < 1 ?
 						R.string.name_already_taken :

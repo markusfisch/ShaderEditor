@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.widget;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
@@ -282,10 +282,10 @@ public class ShaderEditor extends AppCompatEditText {
 		});
 
 		setSyntaxColors(context);
-		setUpdateDelay(ShaderEditorApplication
+		setUpdateDelay(ShaderEditorApp
 				.preferences
 				.getUpdateDelay());
-		setTabWidth(ShaderEditorApplication
+		setTabWidth(ShaderEditorApp
 				.preferences
 				.getTabWidth());
 	}

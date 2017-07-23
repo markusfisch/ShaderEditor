@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.activity;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.R;
 
 import android.annotation.SuppressLint;
@@ -40,7 +40,7 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 	public static void initSystemBars(AppCompatActivity activity) {
 		MainActivity.setSystemBarColor(
 				activity.getWindow(),
-				ShaderEditorApplication
+				ShaderEditorApp
 						.preferences
 						.getSystemBarColor(),
 				false);

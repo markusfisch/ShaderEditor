@@ -7,7 +7,7 @@ import de.markusfisch.android.shadereditor.BuildConfig;
 import android.app.Application;
 import android.os.StrictMode;
 
-public class ShaderEditorApplication extends Application {
+public class ShaderEditorApp extends Application {
 	public static final Preferences preferences = new Preferences();
 	public static final DataSource dataSource = new DataSource();
 

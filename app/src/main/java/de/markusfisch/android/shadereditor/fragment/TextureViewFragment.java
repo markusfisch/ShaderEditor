@@ -1,7 +1,7 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.TextureParametersFragment;
 import de.markusfisch.android.shadereditor.widget.ScalingImageView;
@@ -63,7 +63,7 @@ public class TextureViewFragment extends Fragment {
 				(args = getArguments()) == null ||
 				(textureId = args.getLong(TEXTURE_ID)) < 1 ||
 				(samplerType = args.getString(SAMPLER_TYPE)) == null ||
-				DataSource.closeIfEmpty((cursor = ShaderEditorApplication
+				DataSource.closeIfEmpty((cursor = ShaderEditorApp
 						.dataSource
 						.getTexture(textureId)))) {
 			activity.finish();
@@ -75,7 +75,7 @@ public class TextureViewFragment extends Fragment {
 		try {
 			textureName = cursor.getString(cursor.getColumnIndex(
 					DataSource.TEXTURES_NAME));
-			imageView.setImageBitmap(ShaderEditorApplication
+			imageView.setImageBitmap(ShaderEditorApp
 					.dataSource
 					.getTextureBitmap(cursor));
 		} catch (IllegalStateException e) {
@@ -136,7 +136,7 @@ public class TextureViewFragment extends Fragment {
 		new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(Void... nothings) {
-				ShaderEditorApplication.dataSource.removeTexture(id);
+				ShaderEditorApp.dataSource.removeTexture(id);
 				return null;
 			}
 

@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApplication;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.adapter.ShaderSpinnerAdapter;
 
 import android.content.DialogInterface;
@@ -44,7 +44,7 @@ public class ShaderListPreferenceDialogFragment
 
 		adapter = new ShaderSpinnerAdapter(
 				getContext(),
-				ShaderEditorApplication.dataSource.getShaders());
+				ShaderEditorApp.dataSource.getShaders());
 
 		builder.setSingleChoiceItems(
 				adapter,
@@ -54,7 +54,7 @@ public class ShaderListPreferenceDialogFragment
 					public void onClick(
 							DialogInterface dialog,
 							int which) {
-						ShaderEditorApplication
+						ShaderEditorApp
 								.preferences
 								.setWallpaperShader(
 										adapter.getItemId(which));
