@@ -205,23 +205,22 @@ public class DataSource {
 	}
 
 	public Bitmap getTextureBitmap(String name) {
-		return getTextureBitmap(db.rawQuery(
+		Cursor cursor = db.rawQuery(
 				"SELECT " +
 						TEXTURES_MATRIX +
 						" FROM " + TEXTURES +
 						" WHERE " + TEXTURES_NAME + "=\"" + name + "\"",
-				null));
+				null);
+		Bitmap bm = getTextureBitmap(cursor);
+		cursor.close();
+		return bm;
 	}
 
 	public Bitmap getTextureBitmap(Cursor cursor) {
 		if (closeIfEmpty(cursor)) {
 			return null;
 		}
-
-		Bitmap bm = textureFromCursor(cursor);
-		cursor.close();
-
-		return bm;
+		return textureFromCursor(cursor);
 	}
 
 	public static long insertShader(
@@ -373,11 +372,7 @@ public class DataSource {
 	private static Bitmap textureFromCursor(Cursor cursor) {
 		byte data[] = cursor.getBlob(cursor.getColumnIndex(
 				TEXTURES_MATRIX));
-
-		return BitmapFactory.decodeByteArray(
-				data,
-				0,
-				data.length);
+		return BitmapFactory.decodeByteArray(data, 0, data.length);
 	}
 
 	private static String loadRawResource(
