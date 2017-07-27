@@ -781,10 +781,21 @@ public class MainActivity
 			return;
 		}
 
+		String text = editorFragment.getText();
+		if (!ShaderEditorApp.preferences.exportTabs() &&
+				text.contains("\t")) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = ShaderEditorApp.preferences.getTabWidth();
+					i-- > 0; ) {
+				sb.append(" ");
+			}
+			text = text.replaceAll("\t", sb.toString());
+		}
+
 		Intent intent = new Intent();
 		intent.setType("text/plain");
 		intent.setAction(Intent.ACTION_SEND);
-		intent.putExtra(Intent.EXTRA_TEXT, editorFragment.getText());
+		intent.putExtra(Intent.EXTRA_TEXT, text);
 
 		startActivity(Intent.createChooser(
 				intent,

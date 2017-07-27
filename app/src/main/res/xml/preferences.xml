@@ -41,6 +41,12 @@
 			android:entryValues="@array/tab_width_values"
 			android:defaultValue="2"/>
 		<CheckBoxPreference
+			android:key="export_tabs"
+			android:title="@string/export_tabs"
+			android:summary="@string/export_tabs_summary"
+			android:checked="false"
+			android:defaultValue="false"/>
+		<CheckBoxPreference
 			android:key="show_insert_tab"
 			android:title="@string/show_insert_tab"
 			android:summary="@string/show_insert_tab_summary"

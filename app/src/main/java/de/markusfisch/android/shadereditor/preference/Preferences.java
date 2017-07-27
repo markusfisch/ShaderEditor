@@ -19,6 +19,7 @@ public class Preferences {
 	public static final String TEXT_SIZE = "text_size";
 	public static final String TAB_WIDTH = "tab_width";
 	public static final String SHOW_INSERT_TAB = "show_insert_tab";
+	public static final String EXPORT_TABS = "export_tabs";
 	public static final String SAVE_ON_RUN = "save_on_run";
 
 	private static final int RUN_AUTO = 1;
@@ -34,6 +35,7 @@ public class Preferences {
 	private int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
 	private int textSize = 12;
 	private int tabWidth = 4;
+	private boolean exportTabs = false;
 	private boolean showInsertTab = true;
 	private boolean saveOnRun = true;
 	private boolean batteryLow = false;
@@ -81,6 +83,9 @@ public class Preferences {
 		tabWidth = parseInt(
 				preferences.getString(TAB_WIDTH, null),
 				tabWidth);
+		exportTabs = preferences.getBoolean(
+				EXPORT_TABS,
+				exportTabs);
 		showInsertTab = preferences.getBoolean(
 				SHOW_INSERT_TAB,
 				showInsertTab);
@@ -120,6 +125,10 @@ public class Preferences {
 
 	public int getTabWidth() {
 		return tabWidth;
+	}
+
+	public boolean exportTabs() {
+		return exportTabs;
 	}
 
 	public boolean doesShowInsertTab() {

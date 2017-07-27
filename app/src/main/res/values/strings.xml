@@ -35,6 +35,8 @@
 	<string name="update_delay">Update delay</string>
 	<string name="text_size">Text size</string>
 	<string name="tab_width">Tab width</string>
+	<string name="export_tabs">Export tabs</string>
+	<string name="export_tabs_summary">Export tabs instead of converting to spaces when sharing</string>
 	<string name="show_insert_tab">Show insert tab</string>
 	<string name="show_insert_tab_summary">Show insert tab menu item</string>
 	<string name="save_on_run">Save on run</string>
