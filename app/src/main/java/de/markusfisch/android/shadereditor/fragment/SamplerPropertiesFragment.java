@@ -95,13 +95,13 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 				container,
 				false);
 
-		sizeCaption = (TextView) view.findViewById(R.id.size_caption);
-		sizeBarView = (SeekBar) view.findViewById(R.id.size_bar);
-		sizeView = (TextView) view.findViewById(R.id.size);
-		nameView = (EditText) view.findViewById(R.id.name);
-		addUniformView = (CheckBox) view.findViewById(
+		sizeCaption = view.findViewById(R.id.size_caption);
+		sizeBarView = view.findViewById(R.id.size_bar);
+		sizeView = view.findViewById(R.id.size);
+		nameView = view.findViewById(R.id.name);
+		addUniformView = view.findViewById(
 				R.id.should_add_uniform);
-		textureParameterView = (TextureParametersView) view.findViewById(
+		textureParameterView = view.findViewById(
 				R.id.texture_parameters);
 		progressView = view.findViewById(R.id.progress_view);
 

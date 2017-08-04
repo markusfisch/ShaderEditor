@@ -27,10 +27,10 @@ public class TextureParametersView extends LinearLayout {
 	public void onFinishInflate() {
 		super.onFinishInflate();
 
-		minView = (Spinner) findViewById(R.id.min);
-		magView = (Spinner) findViewById(R.id.mag);
-		wrapSView = (Spinner) findViewById(R.id.wrap_s);
-		wrapTView = (Spinner) findViewById(R.id.wrap_t);
+		minView = findViewById(R.id.min);
+		magView = findViewById(R.id.mag);
+		wrapSView = findViewById(R.id.wrap_s);
+		wrapTView = findViewById(R.id.wrap_t);
 
 		initSpinner(minView, R.array.min_names);
 		initSpinner(magView, R.array.mag_names);

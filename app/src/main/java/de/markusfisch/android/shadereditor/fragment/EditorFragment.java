@@ -36,8 +36,8 @@ public class EditorFragment extends Fragment {
 				container,
 				false);
 
-		scrollView = (ScrollView) view.findViewById(R.id.scroll_view);
-		shaderEditor = (ShaderEditor) view.findViewById(R.id.editor);
+		scrollView = view.findViewById(R.id.scroll_view);
+		shaderEditor = view.findViewById(R.id.editor);
 
 		Activity activity = getActivity();
 		try {

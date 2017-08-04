@@ -21,7 +21,7 @@ public class UniformPagesFragment extends Fragment {
 				container,
 				false);
 
-		ViewPager viewPager = (ViewPager) view.findViewById(R.id.pager);
+		ViewPager viewPager = view.findViewById(R.id.pager);
 		viewPager.setAdapter(new UniformPageAdapter(
 				getActivity(),
 				getChildFragmentManager()));

@@ -44,7 +44,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 			}
 		});
 
-		listView = (ListView) view.findViewById(R.id.textures);
+		listView = view.findViewById(R.id.textures);
 		initListView(view);
 
 		progressBar = view.findViewById(R.id.progress_bar);

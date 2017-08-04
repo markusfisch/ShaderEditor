@@ -61,8 +61,7 @@ public class TextureParametersFragment extends Fragment {
 				container,
 				false);
 
-		textureParameterView = (TextureParametersView) view.findViewById(
-				R.id.texture_parameters);
+		textureParameterView = view.findViewById(R.id.texture_parameters);
 
 		return view;
 	}

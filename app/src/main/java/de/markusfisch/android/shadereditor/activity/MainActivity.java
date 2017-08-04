@@ -836,7 +836,7 @@ public class MainActivity
 				// a dialog does not have a parent view group
 				// so InflateParams must be suppressed
 				null);
-		final EditText nameView = (EditText) view.findViewById(R.id.name);
+		final EditText nameView = view.findViewById(R.id.name);
 		if (name != null) {
 			nameView.setText(name);
 		}

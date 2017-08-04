@@ -29,7 +29,7 @@ public class UniformPresetPageFragment extends Fragment {
 				container,
 				false);
 
-		listView = (ListView) view.findViewById(R.id.uniforms);
+		listView = view.findViewById(R.id.uniforms);
 		initListView(getActivity());
 
 		return view;
