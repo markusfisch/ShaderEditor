@@ -3,7 +3,6 @@ package de.markusfisch.android.shadereditor.fragment;
 import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.DataSource;
-import de.markusfisch.android.shadereditor.fragment.TextureParametersFragment;
 import de.markusfisch.android.shadereditor.widget.ScalingImageView;
 import de.markusfisch.android.shadereditor.R;
 
