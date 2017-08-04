@@ -1,7 +1,7 @@
 buildscript {
 	ext.tools_version = '2.3.3'
-	ext.build_tools_version = '25.0.2'
-	ext.sdk_version = 25
+	ext.build_tools_version = '26.0.0'
+	ext.sdk_version = 26
 	ext.support_version = '25.3.1'
 
 	repositories {
