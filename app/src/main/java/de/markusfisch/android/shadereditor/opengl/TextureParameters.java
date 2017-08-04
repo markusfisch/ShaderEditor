@@ -89,30 +89,37 @@ public class TextureParameters {
 	}
 
 	private void parseParameter(String name, String value) {
-		if (name.equals(MIN)) {
-			min = mapMinParameter(value);
-		} else if (name.equals(MAG)) {
-			mag = mapMagParameter(value);
-		} else if (name.equals(WRAP_S)) {
-			wrapS = mapWrapParameter(value);
-		} else if (name.equals(WRAP_T)) {
-			wrapT = mapWrapParameter(value);
+		switch (name) {
+			default:
+			case MIN:
+				min = mapMinParameter(value);
+				break;
+			case MAG:
+				mag = mapMagParameter(value);
+				break;
+			case WRAP_S:
+				wrapS = mapWrapParameter(value);
+				break;
+			case WRAP_T:
+				wrapT = mapWrapParameter(value);
+				break;
 		}
 	}
 
 	private static int mapMinParameter(String shortcut) {
-		if (shortcut.equals("n")) {
-			return GLES20.GL_NEAREST;
-		} else if (shortcut.equals("l")) {
-			return GLES20.GL_LINEAR;
-		} else if (shortcut.equals("nn")) {
-			return GLES20.GL_NEAREST_MIPMAP_NEAREST;
-		} else if (shortcut.equals("ln")) {
-			return GLES20.GL_LINEAR_MIPMAP_NEAREST;
-		} else if (shortcut.equals("ll")) {
-			return GLES20.GL_LINEAR_MIPMAP_LINEAR;
-		} else {
-			return GLES20.GL_NEAREST_MIPMAP_LINEAR;
+		switch (shortcut) {
+			case "n":
+				return GLES20.GL_NEAREST;
+			case "l":
+				return GLES20.GL_LINEAR;
+			case "nn":
+				return GLES20.GL_NEAREST_MIPMAP_NEAREST;
+			case "ln":
+				return GLES20.GL_LINEAR_MIPMAP_NEAREST;
+			case "ll":
+				return GLES20.GL_LINEAR_MIPMAP_LINEAR;
+			default:
+				return GLES20.GL_NEAREST_MIPMAP_LINEAR;
 		}
 	}
 
@@ -125,12 +132,13 @@ public class TextureParameters {
 	}
 
 	private static int mapWrapParameter(String shortcut) {
-		if (shortcut.equals("c")) {
-			return GLES20.GL_CLAMP_TO_EDGE;
-		} else if (shortcut.equals("m")) {
-			return GLES20.GL_MIRRORED_REPEAT;
-		} else {
-			return GLES20.GL_REPEAT;
+		switch (shortcut) {
+			case "c":
+				return GLES20.GL_CLAMP_TO_EDGE;
+			case "m":
+				return GLES20.GL_MIRRORED_REPEAT;
+			default:
+				return GLES20.GL_REPEAT;
 		}
 	}
 }
