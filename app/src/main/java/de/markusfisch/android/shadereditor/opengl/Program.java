@@ -2,14 +2,14 @@ package de.markusfisch.android.shadereditor.opengl;
 
 import android.opengl.GLES20;
 
-public class Program {
+class Program {
 	private static String infoLog;
 
-	public static String getInfoLog() {
+	static String getInfoLog() {
 		return infoLog;
 	}
 
-	public static int loadProgram(
+	static int loadProgram(
 			String vertexShader,
 			String fragmentShader) {
 		int vs, fs, p = 0;

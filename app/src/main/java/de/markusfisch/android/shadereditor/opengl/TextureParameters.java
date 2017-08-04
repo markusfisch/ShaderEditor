@@ -39,18 +39,18 @@ public class TextureParameters {
 				WRAP_T + ASSIGN + wrapT + SEPARATOR;
 	}
 
-	public TextureParameters(int min, int mag, int wrapS, int wrapT) {
+	TextureParameters(int min, int mag, int wrapS, int wrapT) {
 		this.min = min;
 		this.mag = mag;
 		this.wrapS = wrapS;
 		this.wrapT = wrapT;
 	}
 
-	public TextureParameters(String params) {
+	TextureParameters(String params) {
 		parse(params);
 	}
 
-	public void set(int target) {
+	void set(int target) {
 		GLES20.glTexParameteri(
 				target,
 				GLES20.GL_TEXTURE_MIN_FILTER,
@@ -69,7 +69,7 @@ public class TextureParameters {
 				wrapT);
 	}
 
-	public void parse(String params) {
+	void parse(String params) {
 		if (params == null) {
 			return;
 		}

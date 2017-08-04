@@ -72,7 +72,7 @@ public class ShaderAdapter extends CursorAdapter {
 						textColorUnselected);
 	}
 
-	protected ViewHolder getViewHolder(View view) {
+	ViewHolder getViewHolder(View view) {
 		ViewHolder holder;
 
 		if ((holder = (ViewHolder) view.getTag()) == null) {
@@ -85,7 +85,7 @@ public class ShaderAdapter extends CursorAdapter {
 		return holder;
 	}
 
-	protected void setData(ViewHolder holder, Cursor cursor) {
+	void setData(ViewHolder holder, Cursor cursor) {
 		byte bytes[] = cursor.getBlob(thumbIndex);
 
 		if (bytes != null && bytes.length > 0) {

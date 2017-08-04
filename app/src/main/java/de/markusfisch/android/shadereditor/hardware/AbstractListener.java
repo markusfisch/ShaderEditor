@@ -9,14 +9,14 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 public abstract class AbstractListener implements SensorEventListener {
-	protected long last = 0;
+	long last = 0;
 
 	private final SensorManager sensorManager;
 
 	private boolean listening = false;
 	private Sensor sensor;
 
-	public AbstractListener(Context context) {
+	AbstractListener(Context context) {
 		sensorManager = (SensorManager) context.getSystemService(
 				Context.SENSOR_SERVICE);
 	}
@@ -39,7 +39,7 @@ public abstract class AbstractListener implements SensorEventListener {
 		last = event.timestamp;
 	}
 
-	protected boolean register(int type) {
+	boolean register(int type) {
 		if (listening || sensorManager == null || (sensor == null &&
 				(sensor = sensorManager.getDefaultSensor(type)) == null)) {
 			return false;

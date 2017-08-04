@@ -17,10 +17,11 @@ public class PresetUniformAdapter extends BaseAdapter {
 	public static final class Uniform {
 		public final String type;
 		public final String name;
-		public final String rationale;
-		public final int minSdk;
 
-		public boolean isAvailable() {
+		private final String rationale;
+		private final int minSdk;
+
+		private boolean isAvailable() {
 			return minSdk <= Build.VERSION.SDK_INT;
 		}
 

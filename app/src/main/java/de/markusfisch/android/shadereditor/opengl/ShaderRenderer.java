@@ -52,8 +52,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public static final String BACKBUFFER = "backbuffer";
-	public static final String CAMERA_BACK = "camera_back";
-	public static final String CAMERA_FRONT = "camera_front";
 
 	private static final int TEXTURE_UNITS[] = {
 			GLES20.GL_TEXTURE0,
@@ -115,6 +113,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000L;
 	private static final long BATTERY_UPDATE_INTERVAL = 10000000000L;
 	private static final long DATE_UPDATE_INTERVAL = 1000000000L;
+	private static final String CAMERA_BACK = "camera_back";
+	private static final String CAMERA_FRONT = "camera_front";
 	private static final String SAMPLER_2D = "2D";
 	private static final String SAMPLER_CUBE = "Cube";
 	private static final String SAMPLER_EXTERNAL_OES = "ExternalOES";
@@ -254,7 +254,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		setFragmentShader(source);
 	}
 
-	public void setFragmentShader(String source) {
+	private void setFragmentShader(String source) {
 		fTimeMax = parseFTime(source);
 		resetFps();
 		fragmentShader = indexTextureNames(source);

@@ -8,16 +8,16 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 public class PreviewActivity extends AppCompatActivity {
-	public static class RenderStatus {
-		public volatile int fps;
-		public volatile String infoLog;
-		public byte thumbnail[];
+	static class RenderStatus {
+		volatile int fps;
+		volatile String infoLog;
+		byte thumbnail[];
 
-		public RenderStatus() {
+		RenderStatus() {
 			reset();
 		}
 
-		public void reset() {
+		void reset() {
 			fps = 0;
 			infoLog = null;
 			thumbnail = null;
