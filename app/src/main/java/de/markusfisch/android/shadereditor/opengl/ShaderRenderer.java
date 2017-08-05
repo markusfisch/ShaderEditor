@@ -444,8 +444,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			SensorManager.getRotationMatrix(
 					rotationMatrix,
 					null,
-					accelerometerListener.values,
-					magneticFieldListener.values);
+					accelerometerListener.gravity,
+					magneticFieldListener.filtered);
 			SensorManager.getOrientation(rotationMatrix, orientation);
 			GLES20.glUniform3fv(
 					orientationLoc,

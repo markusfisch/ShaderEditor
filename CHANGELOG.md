@@ -3,6 +3,7 @@
 ## 2.7.0
 * Use front or back camera as texture
 * Give shaders a name
+* Use a low-pass filter on the orientation uniform
 
 ## 2.6.1
 * Use previous defaults for sampler texture params
