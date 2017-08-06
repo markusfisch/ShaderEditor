@@ -10,11 +10,13 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 import java.io.IOException;
+import java.nio.FloatBuffer;
 import java.util.List;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
 public class CameraListener {
 	public final int cameraId;
+	public final float addent[] = new float[]{0, 0};
 
 	private final int cameraTextureId;
 
@@ -26,6 +28,7 @@ public class CameraListener {
 	private boolean available = false;
 	private Camera camera;
 	private SurfaceTexture surfaceTexture;
+	private FloatBuffer orientationMatrix;
 
 	public static int findCameraIdFacing(int facing) {
 		for (int i = 0, l = Camera.getNumberOfCameras(); i < l; ++i) {
@@ -49,6 +52,11 @@ public class CameraListener {
 		frameOrientation = getCameraDisplayOrientation(context, cameraId);
 		frameWidth = width;
 		frameHeight = height;
+		setOrientationAndFlip(frameOrientation);
+	}
+
+	public FloatBuffer getOrientationMatrix() {
+		return orientationMatrix;
 	}
 
 	public void register() {
@@ -166,6 +174,44 @@ public class CameraListener {
 				return 180;
 			case Surface.ROTATION_270:
 				return 270;
+		}
+	}
+
+	private void setOrientationAndFlip(int orientation) {
+		switch (orientation) {
+		default:
+		case 0:
+			orientationMatrix = FloatBuffer.wrap(new float[] {
+				1f, 0f,
+				0f, -1f,
+			});
+			addent[0] = 0f;
+			addent[1] = 1f;
+			break;
+		case 90:
+			orientationMatrix = FloatBuffer.wrap(new float[] {
+				0f, -1f,
+				-1f, 0f,
+			});
+			addent[0] = 1f;
+			addent[1] = 1f;
+			break;
+		case 180:
+			orientationMatrix = FloatBuffer.wrap(new float[] {
+				-1f, 0f,
+				0f, 1f,
+			});
+			addent[0] = 1f;
+			addent[1] = 0f;
+			break;
+		case 270:
+			orientationMatrix = FloatBuffer.wrap(new float[] {
+				0f, 1f,
+				1f, 0f,
+			});
+			addent[0] = 0f;
+			addent[1] = 0f;
+			break;
 		}
 	}
 

@@ -2,6 +2,7 @@
 
 ## 2.7.0
 * Use front or back camera as texture
+* New uniforms to rotate camera frame to match with device orientation
 * Give shaders a name
 * Use a low-pass filter on the orientation uniform
 

@@ -60,6 +60,11 @@ public class PresetUniformAdapter extends BaseAdapter {
 						"battery",
 						context.getString(R.string.battery_level)),
 				new Uniform(
+						"vec2",
+						"cameraAddent",
+						context.getString(R.string.camera_addent),
+						Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1),
+				new Uniform(
 						"samplerExternalOES",
 						"cameraBack",
 						context.getString(R.string.camera_back),
@@ -68,6 +73,11 @@ public class PresetUniformAdapter extends BaseAdapter {
 						"samplerExternalOES",
 						"cameraFront",
 						context.getString(R.string.camera_front),
+						Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1),
+				new Uniform(
+						"mat2",
+						"cameraOrientation",
+						context.getString(R.string.camera_orientation),
 						Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1),
 				new Uniform(
 						"vec4",

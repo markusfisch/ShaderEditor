@@ -214,6 +214,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int dateTimeLoc;
 	private int startRandomLoc;
 	private int backBufferLoc;
+	private int cameraOrientationLoc;
+	private int cameraAddentLoc;
 	private int numberOfTextures = 0;
 	private int pointerCount;
 	private int frontTarget = 0;
@@ -540,6 +542,22 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 
 		if (cameraListener != null) {
+			if (cameraOrientationLoc > -1) {
+				GLES20.glUniformMatrix2fv(
+						cameraOrientationLoc,
+						1,
+						false,
+						cameraListener.getOrientationMatrix());
+			}
+
+			if (cameraAddentLoc > -1) {
+				GLES20.glUniform2fv(
+						cameraAddentLoc,
+						1,
+						cameraListener.addent,
+						0);
+			}
+
 			cameraListener.update();
 		}
 
@@ -772,6 +790,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, "startRandom");
 		backBufferLoc = GLES20.glGetUniformLocation(
 				program, BACKBUFFER);
+		cameraOrientationLoc = GLES20.glGetUniformLocation(
+				program, "cameraOrientation");
+		cameraAddentLoc = GLES20.glGetUniformLocation(
+				program, "cameraAddent");
 
 		for (int i = numberOfTextures; i-- > 0; ) {
 			textureLocs[i] = GLES20.glGetUniformLocation(

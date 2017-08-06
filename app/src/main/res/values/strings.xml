@@ -90,6 +90,8 @@
 	<string name="previous_frame">Previous rendered frame</string>
 	<string name="camera_back">Back camera</string>
 	<string name="camera_front">Front camera</string>
+	<string name="camera_addent">Addent to camera texture coordinate, see also cameraOrientation</string>
+	<string name="camera_orientation">Multiply with texture coordinate with this matrix to rotate camera frame to device orientation (cameraAddent + uv * cameraOrientation)</string>
 	<string name="date_time">Year, month, day and time in seconds</string>
 	<string name="start_random">Random value initialized at load</string>
 
