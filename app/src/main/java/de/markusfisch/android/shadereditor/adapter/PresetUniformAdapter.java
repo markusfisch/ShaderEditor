@@ -61,12 +61,12 @@ public class PresetUniformAdapter extends BaseAdapter {
 						context.getString(R.string.battery_level)),
 				new Uniform(
 						"samplerExternalOES",
-						"camera_back",
+						"cameraBack",
 						context.getString(R.string.camera_back),
 						Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1),
 				new Uniform(
 						"samplerExternalOES",
-						"camera_front",
+						"cameraFront",
 						context.getString(R.string.camera_front),
 						Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1),
 				new Uniform(

@@ -113,8 +113,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000L;
 	private static final long BATTERY_UPDATE_INTERVAL = 10000000000L;
 	private static final long DATE_UPDATE_INTERVAL = 1000000000L;
-	private static final String CAMERA_BACK = "camera_back";
-	private static final String CAMERA_FRONT = "camera_front";
+	private static final String CAMERA_BACK = "cameraBack";
+	private static final String CAMERA_FRONT = "cameraFront";
 	private static final String SAMPLER_2D = "2D";
 	private static final String SAMPLER_CUBE = "Cube";
 	private static final String SAMPLER_EXTERNAL_OES = "ExternalOES";
@@ -133,9 +133,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			"#extension GL_OES_EGL_image_external : require\n";
 	private static final String VERTEX_SHADER =
 			"attribute vec2 position;" +
-					"void main()" +
-					"{" +
-					"gl_Position = vec4( position, 0., 1. );" +
+					"void main() {" +
+					"gl_Position = vec4(position, 0., 1.);" +
 					"}";
 	private static final String FRAGMENT_SHADER =
 			"#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
@@ -145,11 +144,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					"#endif\n" +
 					"uniform vec2 resolution;" +
 					"uniform sampler2D frame;" +
-					"void main( void )" +
-					"{" +
-					"gl_FragColor = texture2D( " +
-					"frame," +
-					"gl_FragCoord.xy/resolution.xy ).rgba;" +
+					"void main(void) {" +
+					"gl_FragColor = texture2D(frame," +
+					"gl_FragCoord.xy / resolution.xy).rgba;" +
 					"}";
 
 	private final TextureBinder textureBinder = new TextureBinder();
