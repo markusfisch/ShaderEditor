@@ -40,9 +40,7 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 	public static void initSystemBars(AppCompatActivity activity) {
 		MainActivity.setSystemBarColor(
 				activity.getWindow(),
-				ShaderEditorApp
-						.preferences
-						.getSystemBarColor(),
+				ShaderEditorApp.preferences.getSystemBarColor(),
 				false);
 	}
 

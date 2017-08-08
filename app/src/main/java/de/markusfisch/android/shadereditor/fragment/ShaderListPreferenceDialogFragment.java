@@ -54,10 +54,8 @@ public class ShaderListPreferenceDialogFragment
 					public void onClick(
 							DialogInterface dialog,
 							int which) {
-						ShaderEditorApp
-								.preferences
-								.setWallpaperShader(
-										adapter.getItemId(which));
+						ShaderEditorApp.preferences.setWallpaperShader(
+								adapter.getItemId(which));
 
 						ShaderListPreferenceDialogFragment.this.onClick(
 								dialog,

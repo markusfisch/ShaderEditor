@@ -282,12 +282,8 @@ public class ShaderEditor extends AppCompatEditText {
 		});
 
 		setSyntaxColors(context);
-		setUpdateDelay(ShaderEditorApp
-				.preferences
-				.getUpdateDelay());
-		setTabWidth(ShaderEditorApp
-				.preferences
-				.getTabWidth());
+		setUpdateDelay(ShaderEditorApp.preferences.getUpdateDelay());
+		setTabWidth(ShaderEditorApp.preferences.getTabWidth());
 	}
 
 	private void setSyntaxColors(Context context) {

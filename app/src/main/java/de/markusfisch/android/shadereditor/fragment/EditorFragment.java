@@ -129,18 +129,15 @@ public class EditorFragment extends Fragment {
 	}
 
 	private void updateToPreferences() {
-		Preferences preferences =
-				ShaderEditorApp.preferences;
+		Preferences preferences = ShaderEditorApp.preferences;
 
-		shaderEditor.setUpdateDelay(
-				preferences.getUpdateDelay());
+		shaderEditor.setUpdateDelay(preferences.getUpdateDelay());
 
 		shaderEditor.setTextSize(
 				android.util.TypedValue.COMPLEX_UNIT_SP,
 				preferences.getTextSize());
 
-		shaderEditor.setTabWidth(
-				preferences.getTabWidth());
+		shaderEditor.setTabWidth(preferences.getTabWidth());
 	}
 
 	private int getYOffset(Activity activity) {

@@ -77,9 +77,7 @@ public class MainActivity
 				(view = activity.findViewById(R.id.main_layout)) != null &&
 				setSystemBarColor(
 						activity.getWindow(),
-						ShaderEditorApp
-								.preferences
-								.getSystemBarColor(),
+						ShaderEditorApp.preferences.getSystemBarColor(),
 						true)) {
 			view.setPadding(
 					0,
@@ -144,24 +142,17 @@ public class MainActivity
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.insert_tab).setVisible(
-				ShaderEditorApp
-						.preferences
-						.doesShowInsertTab());
+				ShaderEditorApp.preferences.doesShowInsertTab());
 
 		menu.findItem(R.id.run_code).setVisible(
-				!ShaderEditorApp
-						.preferences
-						.doesRunOnChange());
+				!ShaderEditorApp.preferences.doesRunOnChange());
 
 		menu.findItem(R.id.toggle_code).setVisible(
-				ShaderEditorApp
-						.preferences
-						.doesRunInBackground());
+				ShaderEditorApp.preferences.doesRunInBackground());
 
 		menu.findItem(R.id.update_wallpaper).setTitle(
-				ShaderEditorApp
-						.preferences
-						.getWallpaperShader() == selectedShaderId ?
+				ShaderEditorApp.preferences.getWallpaperShader() ==
+						selectedShaderId ?
 								R.string.update_wallpaper :
 								R.string.set_as_wallpaper);
 
@@ -534,9 +525,7 @@ public class MainActivity
 	}
 
 	private void updateUiToPreferences() {
-		if (ShaderEditorApp
-				.preferences
-				.doesRunInBackground()) {
+		if (ShaderEditorApp.preferences.doesRunInBackground()) {
 			shaderView.setVisibility(View.VISIBLE);
 			shaderView.onResume();
 		} else {
@@ -655,9 +644,7 @@ public class MainActivity
 			return;
 		}
 
-		if (ShaderEditorApp
-				.preferences
-				.doesRunInBackground()) {
+		if (ShaderEditorApp.preferences.doesRunInBackground()) {
 			setFragmentShader(text.replaceAll("\\p{C}", ""));
 		}
 
@@ -675,9 +662,7 @@ public class MainActivity
 
 		editorFragment.clearError();
 
-		if (ShaderEditorApp
-				.preferences
-				.doesSaveOnRun()) {
+		if (ShaderEditorApp.preferences.doesSaveOnRun()) {
 			// don't save the old thumbnail;
 			// onActivityResult() will add an
 			// updated one
@@ -686,9 +671,7 @@ public class MainActivity
 			saveShader(selectedShaderId);
 		}
 
-		if (ShaderEditorApp
-				.preferences
-				.doesRunInBackground()) {
+		if (ShaderEditorApp.preferences.doesRunInBackground()) {
 			setFragmentShader(src);
 		} else {
 			showPreview(src);
@@ -701,11 +684,9 @@ public class MainActivity
 		}
 
 		String fragmentShader = editorFragment.getText();
-		byte thumbnail[] = ShaderEditorApp
-				.preferences
-				.doesRunInBackground() ?
-						shaderView.getRenderer().getThumbnail() :
-						PreviewActivity.renderStatus.thumbnail;
+		byte thumbnail[] = ShaderEditorApp.preferences.doesRunInBackground() ?
+				shaderView.getRenderer().getThumbnail() :
+				PreviewActivity.renderStatus.thumbnail;
 
 		if (id > 0) {
 			ShaderEditorApp.dataSource.updateShader(
@@ -918,9 +899,7 @@ public class MainActivity
 		if (editorFragment != null) {
 			// runs setFragmentShader() in onTextChanged()
 			editorFragment.setText(fragmentShader);
-		} else if (ShaderEditorApp
-				.preferences
-				.doesRunInBackground()) {
+		} else if (ShaderEditorApp.preferences.doesRunInBackground()) {
 			setFragmentShader(fragmentShader);
 		}
 	}

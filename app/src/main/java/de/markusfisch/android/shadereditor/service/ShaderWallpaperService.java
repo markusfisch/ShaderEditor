@@ -119,9 +119,7 @@ public class ShaderWallpaperService extends WallpaperService {
 		private ShaderWallpaperEngine() {
 			super();
 
-			ShaderEditorApp
-					.preferences
-					.getSharedPreferences()
+			ShaderEditorApp.preferences.getSharedPreferences()
 					.registerOnSharedPreferenceChangeListener(this);
 
 			setTouchEventsEnabled(true);
@@ -149,8 +147,7 @@ public class ShaderWallpaperService extends WallpaperService {
 
 			Cursor cursor = ShaderEditorApp
 					.dataSource
-					.getShader(ShaderEditorApp
-							.preferences
+					.getShader(ShaderEditorApp.preferences
 							.getWallpaperShader());
 
 			boolean randomShader = false;
