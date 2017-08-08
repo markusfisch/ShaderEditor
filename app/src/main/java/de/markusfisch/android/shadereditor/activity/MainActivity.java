@@ -42,6 +42,7 @@ public class MainActivity
 		extends AppCompatActivity
 		implements ShaderEditor.OnTextChangedListener {
 	private static final String SELECTED_SHADER = "selected_shader";
+	private static final String CODE_VISIBLE = "code_visible";
 	private static final int PREVIEW_SHADER = 1;
 	private static final int ADD_UNIFORM = 2;
 	private static final int FIRST_SHADER = -1;
@@ -289,15 +290,21 @@ public class MainActivity
 	protected void onRestoreInstanceState(Bundle state) {
 		super.onRestoreInstanceState(state);
 
-		selectedShaderId = state != null ?
-				state.getLong(SELECTED_SHADER) :
-				FIRST_SHADER;
+		if (state != null) {
+			selectedShaderId = state.getLong(SELECTED_SHADER);
+			if (!state.getBoolean(CODE_VISIBLE)) {
+				toggleCode();
+			}
+		} else {
+			selectedShaderId = FIRST_SHADER;
+		}
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle state) {
 		if (state != null) {
 			state.putLong(SELECTED_SHADER, selectedShaderId);
+			state.putBoolean(CODE_VISIBLE, editorFragment.isCodeVisible());
 		}
 
 		super.onSaveInstanceState(state);
@@ -718,11 +725,9 @@ public class MainActivity
 	}
 
 	private void toggleCode() {
-		if (editorFragment == null) {
-			return;
+		if (editorFragment != null) {
+			drawerLayout.setTouchThru(editorFragment.toggleCode());
 		}
-
-		drawerLayout.setTouchThru(editorFragment.toggleCode());
 	}
 
 	private void addShader() {

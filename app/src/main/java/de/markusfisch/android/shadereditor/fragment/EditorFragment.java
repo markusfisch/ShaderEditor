@@ -119,9 +119,7 @@ public class EditorFragment extends Fragment {
 	public boolean toggleCode() {
 		boolean visible = isCodeVisible();
 
-		scrollView.setVisibility(visible ?
-				View.GONE :
-				View.VISIBLE);
+		scrollView.setVisibility(visible ? View.GONE : View.VISIBLE);
 
 		if (visible) {
 			SoftKeyboard.hide(getActivity(), shaderEditor);
