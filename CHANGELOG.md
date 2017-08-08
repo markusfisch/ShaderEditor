@@ -1,10 +1,11 @@
 # Change Log
 
-## 2.7.0
+## (Unreleased)
 * Use front or back camera as texture
 * New uniforms to rotate camera frame to match with device orientation
 * Give shaders a name
 * Use a low-pass filter on the orientation uniform
+* Fixed a memory leak
 
 ## 2.6.1
 * Use previous defaults for sampler texture params

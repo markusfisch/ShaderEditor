@@ -506,14 +506,20 @@ public class ShaderEditor extends AppCompatEditText {
 				(start = s.indexOf("\t", start)) > -1 && start < stop;
 				++start) {
 			e.setSpan(
-					new TabWidthSpan(),
+					new TabWidthSpan(tabWidth),
 					start,
 					start + 1,
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
 	}
 
-	private class TabWidthSpan extends ReplacementSpan {
+	private static class TabWidthSpan extends ReplacementSpan {
+		private int width;
+
+		public TabWidthSpan(int width) {
+			this.width = width;
+		}
+
 		@Override
 		public int getSize(
 				@NonNull Paint paint,
@@ -521,7 +527,7 @@ public class ShaderEditor extends AppCompatEditText {
 				int start,
 				int end,
 				Paint.FontMetricsInt fm) {
-			return tabWidth;
+			return width;
 		}
 
 		@Override
