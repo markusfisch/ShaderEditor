@@ -1,0 +1,28 @@
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:ignore="RtlSymmetry"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="horizontal"
+	android:padding="16dp">
+	<ImageView
+		android:id="@+id/thumbnail"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:contentDescription="@string/shader"/>
+	<LinearLayout
+		android:layout_width="0dp"
+		android:layout_weight="1"
+		android:layout_height="wrap_content"
+		android:orientation="vertical"
+		android:paddingLeft="24dp"
+		android:paddingStart="24dp">
+		<TextView
+			style="@style/ListItem"
+			android:id="@+id/name"/>
+		<TextView
+			style="@style/ListItemSecondary"
+			android:id="@+id/rationale"/>
+	</LinearLayout>
+</LinearLayout>

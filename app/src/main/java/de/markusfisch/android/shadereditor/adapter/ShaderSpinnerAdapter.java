@@ -27,10 +27,7 @@ public class ShaderSpinnerAdapter
 	}
 
 	@Override
-	public void bindView(
-			View view,
-			Context context,
-			Cursor cursor) {
+	public void bindView(View view, Context context, Cursor cursor) {
 		setData(getViewHolder(view), cursor);
 	}
 }

@@ -1,0 +1,8 @@
+<ListView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/samples"
+	android:choiceMode="singleChoice"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:divider="@color/primary"
+	android:dividerHeight="1px"/>

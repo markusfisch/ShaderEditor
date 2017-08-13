@@ -45,6 +45,7 @@ public class MainActivity
 	private static final String CODE_VISIBLE = "code_visible";
 	private static final int PREVIEW_SHADER = 1;
 	private static final int ADD_UNIFORM = 2;
+	private static final int LOAD_SAMPLE = 3;
 	private static final int FIRST_SHADER = -1;
 	private static final int NO_SHADER = 0;
 
@@ -192,6 +193,9 @@ public class MainActivity
 			case R.id.add_uniform:
 				addUniform();
 				return true;
+			case R.id.load_sample:
+				loadSample();
+				return true;
 			case R.id.settings:
 				showSettings();
 				return true;
@@ -228,6 +232,23 @@ public class MainActivity
 				data != null) {
 			editorFragment.addUniform(data.getStringExtra(
 					AddUniformActivity.STATEMENT));
+		}
+
+		// load sample
+		if (editorFragment != null &&
+				requestCode == LOAD_SAMPLE &&
+				resultCode == RESULT_OK &&
+				data != null) {
+			if (selectedShaderId != FIRST_SHADER) {
+				saveShader(selectedShaderId);
+			}
+			selectShaderAndUpdate(ShaderEditorApp.db.insertShaderFromResource(
+					this,
+					data.getStringExtra(LoadSampleActivity.NAME),
+					data.getIntExtra(LoadSampleActivity.RESOURCE_ID,
+							R.raw.new_shader),
+					data.getIntExtra(LoadSampleActivity.THUMBNAIL_ID,
+							R.drawable.thumbnail_new_shader)));
 		}
 
 		// update fps, info log and thumbnail after shader ran
@@ -802,6 +823,12 @@ public class MainActivity
 		startActivityForResult(
 				new Intent(this, AddUniformActivity.class),
 				ADD_UNIFORM);
+	}
+
+	private void loadSample() {
+		startActivityForResult(
+				new Intent(this, LoadSampleActivity.class),
+				LOAD_SAMPLE);
 	}
 
 	private void showSettings() {

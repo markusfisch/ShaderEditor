@@ -47,10 +47,7 @@ public class ShaderAdapter extends CursorAdapter {
 	}
 
 	@Override
-	public View newView(
-			Context context,
-			Cursor cursor,
-			ViewGroup parent) {
+	public View newView(Context context, Cursor cursor, ViewGroup parent) {
 		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 		return inflater.inflate(
 				R.layout.row_shader,
@@ -59,10 +56,7 @@ public class ShaderAdapter extends CursorAdapter {
 	}
 
 	@Override
-	public void bindView(
-			View view,
-			Context context,
-			Cursor cursor) {
+	public void bindView(View view, Context context, Cursor cursor) {
 		ViewHolder holder = getViewHolder(view);
 		setData(holder, cursor);
 

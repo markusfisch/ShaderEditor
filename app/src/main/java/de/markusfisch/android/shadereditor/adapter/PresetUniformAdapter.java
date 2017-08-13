@@ -174,10 +174,7 @@ public class PresetUniformAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public View getView(
-			int position,
-			View convertView,
-			ViewGroup parent) {
+	public View getView(int position, View convertView, ViewGroup parent) {
 		if (convertView == null) {
 			convertView = LayoutInflater
 					.from(parent.getContext())

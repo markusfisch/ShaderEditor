@@ -52,6 +52,11 @@
 		android:title="@string/add_uniform"
 		material:showAsAction="ifRoom"/>
 	<item
+		android:id="@+id/load_sample"
+		android:icon="@drawable/ic_action_list"
+		android:title="@string/load_sample"
+		material:showAsAction="ifRoom"/>
+	<item
 		android:id="@+id/settings"
 		android:icon="@drawable/ic_action_settings"
 		android:title="@string/settings"

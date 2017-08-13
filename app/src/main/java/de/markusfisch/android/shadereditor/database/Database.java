@@ -250,16 +250,24 @@ public class Database {
 	}
 
 	public long insertNewShader(Context context) {
+		return insertShaderFromResource(
+				context,
+				null,
+				R.raw.new_shader,
+				R.drawable.thumbnail_new_shader);
+	}
+
+	public long insertShaderFromResource(
+			Context context,
+			String name,
+			int sourceId,
+			int thumbId) {
 		try {
 			return insertShader(
 					db,
-					loadRawResource(
-							context,
-							R.raw.new_shader),
-					null,
-					loadBitmapResource(
-							context,
-							R.drawable.thumbnail_new_shader),
+					loadRawResource(context, sourceId),
+					name,
+					loadBitmapResource(context, thumbId),
 					1f);
 		} catch (IOException e) {
 			return 0;
@@ -429,22 +437,11 @@ public class Database {
 					db,
 					loadRawResource(
 							context,
-							R.raw.color_hole),
-					context.getString(R.string.demo_color_hole),
+							R.raw.default_shader),
+					context.getString(R.string.default_shader),
 					loadBitmapResource(
 							context,
-							R.drawable.thumbnail_color_hole),
-					1f);
-
-			insertShader(
-					db,
-					loadRawResource(
-							context,
-							R.raw.gravity),
-					context.getString(R.string.demo_gravity),
-					loadBitmapResource(
-							context,
-							R.drawable.thumbnail_gravity),
+							R.drawable.thumbnail_default),
 					1f);
 		} catch (IOException e) {
 			// shouldn't ever happen in production

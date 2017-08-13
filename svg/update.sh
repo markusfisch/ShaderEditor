@@ -111,6 +111,7 @@ svg/ic_action_delete.svg 24
 svg/ic_action_duplicate.svg 24
 svg/ic_action_insert_code.svg 24
 svg/ic_action_insert_tab.svg 24
+svg/ic_action_list.svg 24
 svg/ic_action_preview.svg 24
 svg/ic_action_rotate_clockwise.svg 24
 svg/ic_action_run.svg 24

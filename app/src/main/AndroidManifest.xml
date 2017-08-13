@@ -103,6 +103,9 @@
 			</intent-filter>
 		</activity>
 		<activity
+			android:name=".activity.LoadSampleActivity"
+			android:label="@string/load_sample"/>
+		<activity
 			android:name=".activity.TextureViewActivity"
 			android:label="@string/view_texture"/>
 		<activity

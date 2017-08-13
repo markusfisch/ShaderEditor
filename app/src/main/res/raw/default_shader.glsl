@@ -17,10 +17,9 @@ void main(void) {
 		0.25 + 0.5 * sin(time) );
 
 	for (int n = 0; n < pointerCount; ++n) {
-		vec3 hole = vec3(
-			sin(1.5 - distance(
-				uv,
-				pointers[n].xy / mx ) * 8.0));
+		vec3 hole = vec3(sin(1.5 - distance(
+			uv,
+			pointers[n].xy / mx) * 8.0));
 
 		color = mix(color, hole, -0.5);
 	}

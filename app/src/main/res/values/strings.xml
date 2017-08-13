@@ -88,10 +88,10 @@
 	<string name="battery_level">Battery level from 0.0 to 1.0</string>
 	<string name="wallpaper_offset">Wallpaper offset from 0.0 to 1.0</string>
 	<string name="previous_frame">Previous rendered frame</string>
-	<string name="camera_back">Back camera</string>
-	<string name="camera_front">Front camera</string>
-	<string name="camera_addent">Addent to camera texture coordinate, see also cameraOrientation</string>
-	<string name="camera_orientation">Multiply with texture coordinate with this matrix to rotate camera frame to device orientation (cameraAddent + uv * cameraOrientation)</string>
+	<string name="camera_back">Back camera (only on Ice Cream Sandwich or better)</string>
+	<string name="camera_front">Front camera (only on Ice Cream Sandwich or better)</string>
+	<string name="camera_addent">Addent to camera texture coordinate, see also cameraOrientation (only on Ice Cream Sandwich or better)</string>
+	<string name="camera_orientation">Multiply with texture coordinate with this matrix to rotate camera frame to device orientation (cameraAddent + uv * cameraOrientation; only on Ice Cream Sandwich or better)</string>
 	<string name="date_time">Year, month, day and time in seconds</string>
 	<string name="start_random">Random value initialized at load</string>
 
@@ -146,7 +146,33 @@
 	<!-- TextureParametersFragment -->
 	<string name="texture_parameters">Texture parameters</string>
 
+	<!-- LoadSampleFragment -->
+	<string name="load_sample">Load sample</string>
+	<string name="sample_battery_name">Battery</string>
+	<string name="sample_battery_rationale">Horizontal battery gauge</string>
+	<string name="sample_camera_back_name">Back camera</string>
+	<string name="sample_camera_back_rationale">How to use the back camera (only on Ice Cream Sandwich or better)</string>
+	<string name="sample_circles_name">Circles</string>
+	<string name="sample_circles_rationale">Draw some circles</string>
+	<string name="sample_game_of_life_name">Game of Life</string>
+	<string name="sample_game_of_life_rationale">Conway\'s Game of Life. Touch to spark new life.</string>
+	<string name="sample_gravity_name">Gravity sensor</string>
+	<string name="sample_gravity_rationale">How to use the gravity uniform</string>
+	<string name="sample_light_name">Light sensor</string>
+	<string name="sample_light_rationale">How to use the light sensor</string>
+	<string name="sample_magnetic_name">Magnetic sensor</string>
+	<string name="sample_magnetic_rationale">How to use the magnetic sensor</string>
+	<string name="sample_orientation_name">Orientation</string>
+	<string name="sample_orientation_rationale">How to use the orienation uniform</string>
+	<string name="sample_pressure_name">Pressure</string>
+	<string name="sample_pressure_rationale">How to use the pressure sensor (if available)</string>
+	<string name="sample_proximity_name">Proximity</string>
+	<string name="sample_proximity_rationale">How to use the proximity sensor (if available)</string>
+	<string name="sample_texture_name">Texture</string>
+	<string name="sample_texture_rationale">How to draw textures</string>
+	<string name="sample_touch_name">Touch</string>
+	<string name="sample_touch_rationale">How to process touch input</string>
+
 	<!-- Database -->
-	<string name="demo_color_hole">Color hole</string>
-	<string name="demo_gravity">Gravity</string>
+	<string name="default_shader">Default</string>
 </resources>
