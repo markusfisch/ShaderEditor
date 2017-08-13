@@ -92,20 +92,13 @@ public class SamplerCubePropertiesFragment extends SamplerPropertiesFragment {
 					faces[i].getUri(),
 					max);
 
-			if (bitmap == null) {
+			if (bitmap == null ||
+					(bitmap = BitmapEditor.crop(
+							bitmap, clip, rotation)) == null ||
+					(bitmap = Bitmap.createScaledBitmap(
+							bitmap, size, size, true)) == null) {
 				return R.string.cannot_pick_image;
 			}
-
-			bitmap = BitmapEditor.crop(
-					bitmap,
-					clip,
-					rotation);
-
-			bitmap = Bitmap.createScaledBitmap(
-					bitmap,
-					size,
-					size,
-					true);
 
 			canvas.drawBitmap(bitmap, x, y, null);
 			bitmap.recycle();

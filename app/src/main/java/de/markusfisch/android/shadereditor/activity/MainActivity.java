@@ -889,7 +889,9 @@ public class MainActivity
 			setDefaultToolbarTitle();
 		}
 
-		shaderAdapter.setSelectedId(selectedShaderId);
+		if (shaderAdapter != null) {
+			shaderAdapter.setSelectedId(selectedShaderId);
+		}
 	}
 
 	private long loadShader(long id) {
