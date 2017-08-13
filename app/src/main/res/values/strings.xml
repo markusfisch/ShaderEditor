@@ -158,16 +158,8 @@
 	<string name="sample_game_of_life_rationale">Conway\'s Game of Life. Touch to spark new life.</string>
 	<string name="sample_gravity_name">Gravity sensor</string>
 	<string name="sample_gravity_rationale">How to use the gravity uniform</string>
-	<string name="sample_light_name">Light sensor</string>
-	<string name="sample_light_rationale">How to use the light sensor</string>
-	<string name="sample_magnetic_name">Magnetic sensor</string>
-	<string name="sample_magnetic_rationale">How to use the magnetic sensor</string>
 	<string name="sample_orientation_name">Orientation</string>
 	<string name="sample_orientation_rationale">How to use the orienation uniform</string>
-	<string name="sample_pressure_name">Pressure</string>
-	<string name="sample_pressure_rationale">How to use the pressure sensor (if available)</string>
-	<string name="sample_proximity_name">Proximity</string>
-	<string name="sample_proximity_rationale">How to use the proximity sensor (if available)</string>
 	<string name="sample_texture_name">Texture</string>
 	<string name="sample_texture_rationale">How to draw textures</string>
 	<string name="sample_touch_name">Touch</string>
