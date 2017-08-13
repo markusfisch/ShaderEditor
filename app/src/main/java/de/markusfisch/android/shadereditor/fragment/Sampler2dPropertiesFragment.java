@@ -102,15 +102,13 @@ public class Sampler2dPropertiesFragment extends SamplerPropertiesFragment {
 			return R.string.illegal_rectangle;
 		}
 
-		if (ShaderEditorApp
-				.dataSource
-				.insertTexture(
-						name,
-						Bitmap.createScaledBitmap(
-								bitmap,
-								size,
-								size,
-								true)) < 1) {
+		if (ShaderEditorApp.db.insertTexture(
+				name,
+				Bitmap.createScaledBitmap(
+						bitmap,
+						size,
+						size,
+						true)) < 1) {
 			return R.string.name_already_taken;
 		}
 

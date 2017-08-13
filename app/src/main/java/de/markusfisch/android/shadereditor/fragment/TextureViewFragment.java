@@ -2,7 +2,7 @@ package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.widget.ScalingImageView;
 import de.markusfisch.android.shadereditor.R;
 
@@ -62,9 +62,8 @@ public class TextureViewFragment extends Fragment {
 				(args = getArguments()) == null ||
 				(textureId = args.getLong(TEXTURE_ID)) < 1 ||
 				(samplerType = args.getString(SAMPLER_TYPE)) == null ||
-				DataSource.closeIfEmpty((cursor = ShaderEditorApp
-						.dataSource
-						.getTexture(textureId)))) {
+				Database.closeIfEmpty((cursor = ShaderEditorApp
+						.db.getTexture(textureId)))) {
 			activity.finish();
 			return null;
 		}
@@ -73,10 +72,9 @@ public class TextureViewFragment extends Fragment {
 
 		try {
 			textureName = cursor.getString(cursor.getColumnIndex(
-					DataSource.TEXTURES_NAME));
+					Database.TEXTURES_NAME));
 			imageView.setImageBitmap(ShaderEditorApp
-					.dataSource
-					.getTextureBitmap(cursor));
+					.db.getTextureBitmap(cursor));
 		} catch (IllegalStateException e) {
 			if (textureName == null) {
 				textureName = getString(R.string.image_too_big);
@@ -135,7 +133,7 @@ public class TextureViewFragment extends Fragment {
 		new AsyncTask<Void, Void, Void>() {
 			@Override
 			protected Void doInBackground(Void... nothings) {
-				ShaderEditorApp.dataSource.removeTexture(id);
+				ShaderEditorApp.db.removeTexture(id);
 				return null;
 			}
 

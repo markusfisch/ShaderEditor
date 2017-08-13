@@ -44,7 +44,7 @@ public class ShaderListPreferenceDialogFragment
 
 		adapter = new ShaderSpinnerAdapter(
 				getContext(),
-				ShaderEditorApp.dataSource.getShaders());
+				ShaderEditorApp.db.getShaders());
 
 		builder.setSingleChoiceItems(
 				adapter,

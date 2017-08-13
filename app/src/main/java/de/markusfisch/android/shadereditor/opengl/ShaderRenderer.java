@@ -1012,8 +1012,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				continue;
 			}
 
-			Bitmap bitmap = ShaderEditorApp
-					.dataSource.getTextureBitmap(name);
+			Bitmap bitmap = ShaderEditorApp.db.getTextureBitmap(name);
 
 			if (bitmap == null) {
 				continue;

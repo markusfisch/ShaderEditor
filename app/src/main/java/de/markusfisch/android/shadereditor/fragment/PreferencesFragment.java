@@ -1,7 +1,7 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.preference.ShaderListPreference;
 import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
@@ -101,14 +101,14 @@ public class PreferencesFragment
 
 	private String getWallpaperShaderSummary() {
 		long id = ShaderEditorApp.preferences.getWallpaperShader();
-		Cursor cursor = ShaderEditorApp.dataSource.getShader(id);
+		Cursor cursor = ShaderEditorApp.db.getShader(id);
 
-		if (DataSource.closeIfEmpty(cursor)) {
+		if (Database.closeIfEmpty(cursor)) {
 			return getString(R.string.no_shader_selected);
 		}
 
 		String summary = cursor.getString(
-				cursor.getColumnIndex(DataSource.SHADERS_MODIFIED));
+				cursor.getColumnIndex(Database.SHADERS_MODIFIED));
 
 		cursor.close();
 

@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.app;
 
-import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.BuildConfig;
 
@@ -9,7 +9,7 @@ import android.os.StrictMode;
 
 public class ShaderEditorApp extends Application {
 	public static final Preferences preferences = new Preferences();
-	public static final DataSource dataSource = new DataSource();
+	public static final Database db = new Database();
 
 	@Override
 	public void onCreate() {
@@ -31,6 +31,6 @@ public class ShaderEditorApp extends Application {
 		}
 
 		preferences.init(this);
-		dataSource.openAsync(this);
+		db.openAsync(this);
 	}
 }

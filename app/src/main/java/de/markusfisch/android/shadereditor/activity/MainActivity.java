@@ -2,7 +2,7 @@ package de.markusfisch.android.shadereditor.activity;
 
 import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.view.SoftKeyboard;
@@ -390,7 +390,7 @@ public class MainActivity
 				quality = q;
 
 				if (selectedShaderId > 0) {
-					ShaderEditorApp.dataSource.updateShaderQuality(
+					ShaderEditorApp.db.updateShaderQuality(
 							selectedShaderId,
 							quality);
 				}
@@ -543,7 +543,7 @@ public class MainActivity
 	}
 
 	private void getShadersAsync() {
-		if (!ShaderEditorApp.dataSource.isOpen()) {
+		if (!ShaderEditorApp.db.isOpen()) {
 			listView.postDelayed(new Runnable() {
 				@Override
 				public void run() {
@@ -557,7 +557,7 @@ public class MainActivity
 		new AsyncTask<Void, Void, Cursor>() {
 			@Override
 			protected Cursor doInBackground(Void... nothings) {
-				return ShaderEditorApp.dataSource.getShaders();
+				return ShaderEditorApp.db.getShaders();
 			}
 
 			@Override
@@ -689,13 +689,13 @@ public class MainActivity
 				PreviewActivity.renderStatus.thumbnail;
 
 		if (id > 0) {
-			ShaderEditorApp.dataSource.updateShader(
+			ShaderEditorApp.db.updateShader(
 					id,
 					fragmentShader,
 					thumbnail,
 					quality);
 		} else {
-			setToolbarTitle(ShaderEditorApp.dataSource.insertShader(
+			setToolbarTitle(ShaderEditorApp.db.insertShader(
 					fragmentShader,
 					thumbnail,
 					quality));
@@ -712,9 +712,7 @@ public class MainActivity
 	}
 
 	private void addShader() {
-		selectShaderAndUpdate(ShaderEditorApp
-				.dataSource
-				.insertNewShader(this));
+		selectShaderAndUpdate(ShaderEditorApp.db.insertNewShader(this));
 	}
 
 	private void duplicateShader(long id) {
@@ -726,9 +724,9 @@ public class MainActivity
 			saveShader(id);
 		}
 
-		selectShaderAndUpdate(ShaderEditorApp.dataSource.insertShader(
+		selectShaderAndUpdate(ShaderEditorApp.db.insertShader(
 				editorFragment.getText(),
-				ShaderEditorApp.dataSource.getThumbnail(id),
+				ShaderEditorApp.db.getThumbnail(id),
 				quality));
 
 		// update thumbnails
@@ -749,13 +747,10 @@ public class MainActivity
 							public void onClick(
 									DialogInterface dialog,
 									int which) {
-								ShaderEditorApp
-										.dataSource
-										.removeShader(id);
+								ShaderEditorApp.db.removeShader(id);
 
 								selectShaderAndUpdate(ShaderEditorApp
-										.dataSource
-										.getFirstShaderId());
+										.db.getFirstShaderId());
 							}
 						})
 				.setNegativeButton(android.R.string.cancel, null)
@@ -836,11 +831,9 @@ public class MainActivity
 							public void onClick(
 									DialogInterface dialog,
 									int which) {
-								ShaderEditorApp
-										.dataSource
-										.updateShaderName(
-												id,
-												nameView.getText().toString());
+								ShaderEditorApp.db.updateShaderName(
+										id,
+										nameView.getText().toString());
 								getShadersAsync();
 								SoftKeyboard.hide(
 										MainActivity.this,
@@ -873,9 +866,9 @@ public class MainActivity
 	}
 
 	private long loadShader(long id) {
-		Cursor cursor = ShaderEditorApp.dataSource.getShader(id);
+		Cursor cursor = ShaderEditorApp.db.getShader(id);
 
-		if (DataSource.closeIfEmpty(cursor)) {
+		if (Database.closeIfEmpty(cursor)) {
 			return 0;
 		}
 
@@ -894,7 +887,7 @@ public class MainActivity
 		setToolbarTitle(cursor);
 
 		String fragmentShader = cursor.getString(
-				cursor.getColumnIndex(DataSource.SHADERS_FRAGMENT_SHADER));
+				cursor.getColumnIndex(Database.SHADERS_FRAGMENT_SHADER));
 
 		if (editorFragment != null) {
 			// runs setFragmentShader() in onTextChanged()
@@ -909,9 +902,9 @@ public class MainActivity
 	}
 
 	private void setToolbarTitle(long id) {
-		Cursor cursor = ShaderEditorApp.dataSource.getShader(id);
+		Cursor cursor = ShaderEditorApp.db.getShader(id);
 
-		if (DataSource.closeIfEmpty(cursor)) {
+		if (Database.closeIfEmpty(cursor)) {
 			return;
 		}
 
@@ -933,7 +926,7 @@ public class MainActivity
 
 	private void setQualitySpinner(Cursor cursor) {
 		float q = cursor.getFloat(cursor.getColumnIndex(
-				DataSource.SHADERS_QUALITY));
+				Database.SHADERS_QUALITY));
 
 		for (int i = 0, l = qualityValues.length; i < l; ++i) {
 			if (qualityValues[i] == q) {

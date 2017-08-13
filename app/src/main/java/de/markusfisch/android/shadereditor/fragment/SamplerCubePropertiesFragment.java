@@ -118,10 +118,8 @@ public class SamplerCubePropertiesFragment extends SamplerPropertiesFragment {
 			}
 		}
 
-		return ShaderEditorApp
-				.dataSource
-				.insertTexture(name, mapBitmap) < 1 ?
-						R.string.name_already_taken :
-						0;
+		return ShaderEditorApp.db.insertTexture(name, mapBitmap) < 1 ?
+				R.string.name_already_taken :
+				0;
 	}
 }

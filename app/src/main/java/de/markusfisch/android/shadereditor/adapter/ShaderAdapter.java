@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.adapter;
 
-import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
@@ -100,13 +100,13 @@ public class ShaderAdapter extends CursorAdapter {
 
 	private void indexColumns(Cursor cursor) {
 		idIndex = cursor.getColumnIndex(
-				DataSource.SHADERS_ID);
+				Database.SHADERS_ID);
 		thumbIndex = cursor.getColumnIndex(
-				DataSource.SHADERS_THUMB);
+				Database.SHADERS_THUMB);
 		nameIndex = cursor.getColumnIndex(
-				DataSource.SHADERS_NAME);
+				Database.SHADERS_NAME);
 		modifiedIndex = cursor.getColumnIndex(
-				DataSource.SHADERS_MODIFIED);
+				Database.SHADERS_MODIFIED);
 	}
 
 	private static final class ViewHolder {

@@ -20,7 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-public class DataSource {
+public class Database {
 	public static final String SHADERS = "shaders";
 	public static final String SHADERS_ID = "_id";
 	public static final String SHADERS_FRAGMENT_SHADER = "shader";
@@ -516,7 +516,7 @@ public class DataSource {
 	}
 
 	private void insertInitalTextures(SQLiteDatabase db, Context context) {
-		DataSource.insertTexture(
+		Database.insertTexture(
 				db,
 				context.getString(R.string.texture_name_noise),
 				BitmapFactory.decodeResource(

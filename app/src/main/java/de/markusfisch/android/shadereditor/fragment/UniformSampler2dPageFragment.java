@@ -93,7 +93,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 	}
 
 	protected Cursor loadTextures() {
-		return ShaderEditorApp.dataSource.getTextures();
+		return ShaderEditorApp.db.getTextures();
 	}
 
 	private void showTexture(long id) {

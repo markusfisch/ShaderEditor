@@ -1,7 +1,7 @@
 package de.markusfisch.android.shadereditor.service;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
@@ -134,7 +134,7 @@ public class ShaderWallpaperService extends WallpaperService {
 		}
 
 		private void setShader() {
-			if (!ShaderEditorApp.dataSource.isOpen()) {
+			if (!ShaderEditorApp.db.isOpen()) {
 				handler.postDelayed(new Runnable() {
 					@Override
 					public void run() {
@@ -145,10 +145,8 @@ public class ShaderWallpaperService extends WallpaperService {
 				return;
 			}
 
-			Cursor cursor = ShaderEditorApp
-					.dataSource
-					.getShader(ShaderEditorApp.preferences
-							.getWallpaperShader());
+			Cursor cursor = ShaderEditorApp.db.getShader(
+					ShaderEditorApp.preferences.getWallpaperShader());
 
 			boolean randomShader = false;
 
@@ -162,23 +160,21 @@ public class ShaderWallpaperService extends WallpaperService {
 				}
 
 				randomShader = true;
-				cursor = ShaderEditorApp
-						.dataSource
-						.getRandomShader();
+				cursor = ShaderEditorApp.db.getRandomShader();
 			}
 
 			if (randomShader) {
 				ShaderEditorApp.preferences.setWallpaperShader(
 						cursor.getLong(cursor.getColumnIndex(
-								DataSource.SHADERS_ID)));
+								Database.SHADERS_ID)));
 			}
 
 			if (view != null) {
 				view.getRenderer().setFragmentShader(
 						cursor.getString(cursor.getColumnIndex(
-								DataSource.SHADERS_FRAGMENT_SHADER)),
+								Database.SHADERS_FRAGMENT_SHADER)),
 						cursor.getFloat(cursor.getColumnIndex(
-								DataSource.SHADERS_QUALITY)));
+								Database.SHADERS_QUALITY)));
 			}
 
 			cursor.close();

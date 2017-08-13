@@ -146,7 +146,7 @@
 	<!-- TextureParametersFragment -->
 	<string name="texture_parameters">Texture parameters</string>
 
-	<!-- DataSource -->
+	<!-- Database -->
 	<string name="demo_color_hole">Color hole</string>
 	<string name="demo_gravity">Gravity</string>
 </resources>

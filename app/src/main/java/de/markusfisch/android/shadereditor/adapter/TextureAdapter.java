@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.adapter;
 
-import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
@@ -78,13 +78,13 @@ public class TextureAdapter extends CursorAdapter {
 
 	private void indexColumns(Cursor cursor) {
 		nameIndex = cursor.getColumnIndex(
-				DataSource.TEXTURES_NAME);
+				Database.TEXTURES_NAME);
 		widthIndex = cursor.getColumnIndex(
-				DataSource.TEXTURES_WIDTH);
+				Database.TEXTURES_WIDTH);
 		heightIndex = cursor.getColumnIndex(
-				DataSource.TEXTURES_HEIGHT);
+				Database.TEXTURES_HEIGHT);
 		thumbIndex = cursor.getColumnIndex(
-				DataSource.TEXTURES_THUMB);
+				Database.TEXTURES_THUMB);
 	}
 
 	private static final class ViewHolder {
