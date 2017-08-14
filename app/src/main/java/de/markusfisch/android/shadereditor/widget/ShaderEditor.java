@@ -177,6 +177,8 @@ public class ShaderEditor extends AppCompatEditText {
 		}
 
 		Editable e = getText();
+		removeUniform(e, statement);
+
 		Matcher m = PATTERN_INSERT_UNIFORM.matcher(e);
 		int start = -1;
 
@@ -205,6 +207,24 @@ public class ShaderEditor extends AppCompatEditText {
 		}
 
 		e.insert(start, statement);
+	}
+
+	private void removeUniform(Editable e, String statement) {
+		if (statement == null) {
+			return;
+		}
+
+		String regex = "^(" + statement.replace(" ", "[ \\t]+");
+		int p = regex.indexOf(";");
+		if (p > -1) {
+			regex = regex.substring(0, p);
+		}
+		regex += ".*\\n)$";
+
+		Matcher m = Pattern.compile(regex, Pattern.MULTILINE).matcher(e);
+		if (m.find()) {
+			e.delete(m.start(), m.end());
+		}
 	}
 
 	private int endIndexOfLastEndIf(Editable e) {
