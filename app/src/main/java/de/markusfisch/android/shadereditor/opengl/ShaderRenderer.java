@@ -17,7 +17,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
 import android.opengl.GLES11Ext;
@@ -153,13 +152,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private final ArrayList<String> textureNames = new ArrayList<>();
 	private final ArrayList<TextureParameters> textureParameters =
 			new ArrayList<>();
-	private final TextureParameters backBufferTextureParams =
-			new TextureParameters(
-					GLES20.GL_NEAREST,
-					GLES20.GL_NEAREST,
-					GLES20.GL_CLAMP_TO_EDGE,
-					GLES20.GL_CLAMP_TO_EDGE);
-	private final Matrix flipMatrix = new Matrix();
+	private final BackBufferTextureParameters backBufferTextureParams =
+			new BackBufferTextureParameters();
 	private final int fb[] = new int[]{0, 0};
 	private final int tx[] = new int[]{0, 0};
 	private final int textureLocs[] = new int[32];
@@ -238,8 +232,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public ShaderRenderer(Context context) {
 		this.context = context;
 
-		flipMatrix.postScale(1f, -1f);
-
 		vertexBuffer = ByteBuffer.allocateDirect(8);
 		vertexBuffer.put(new byte[]{
 				-1, 1,
@@ -276,7 +268,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		GLES20.glClearColor(0f, 0f, 0f, 1f);
 
 		if (surfaceProgram != 0) {
-			// Don't glDeleteProgram( surfaceProgram ) because
+			// Don't glDeleteProgram(surfaceProgram) because
 			// GLSurfaceView::onPause() destroys the GL context
 			// what also deletes all programs.
 			// With glDeleteProgram():
@@ -285,7 +277,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 
 		if (program != 0) {
-			// Don't glDeleteProgram( program );
+			// Don't glDeleteProgram(program);
 			// same as above
 			program = 0;
 			deleteTargets();
@@ -953,26 +945,35 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 		// unbind textures that were bound in createTarget()
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 	}
 
 	private void createTarget(
 			int idx,
 			int width,
 			int height,
-			TextureParameters tp) {
+			BackBufferTextureParameters tp) {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, tx[idx]);
-		GLES20.glTexImage2D(
-				GLES20.GL_TEXTURE_2D,
-				0,
-				GLES20.GL_RGBA,
-				width,
-				height,
-				0,
-				GLES20.GL_RGBA,
-				GLES20.GL_UNSIGNED_BYTE,
-				null);
 
-		tp.set(GLES20.GL_TEXTURE_2D);
+		if (!tp.setPreset(width, height)) {
+			GLES20.glTexImage2D(
+					GLES20.GL_TEXTURE_2D,
+					0,
+					GLES20.GL_RGBA,
+					width,
+					height,
+					0,
+					GLES20.GL_RGBA,
+					GLES20.GL_UNSIGNED_BYTE,
+					null);
+
+			// clear texture because some drivers
+			// don't initialize texture memory
+			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT |
+					GLES20.GL_DEPTH_BUFFER_BIT);
+		}
+
+		tp.setParameters(GLES20.GL_TEXTURE_2D);
 		GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
 
 		GLES20.glBindFramebuffer(
@@ -984,11 +985,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				GLES20.GL_TEXTURE_2D,
 				tx[idx],
 				0);
-
-		// clear texture because some drivers
-		// don't initialize texture memory
-		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT |
-				GLES20.GL_DEPTH_BUFFER_BIT);
 	}
 
 	private void deleteTextures() {
@@ -1040,26 +1036,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			Bitmap bitmap,
 			TextureParameters tp) {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, id);
-		tp.set(GLES20.GL_TEXTURE_2D);
-
-		// flip bitmap because 0/0 is bottom left in OpenGL
-		Bitmap flippedBitmap = Bitmap.createBitmap(
-				bitmap,
-				0,
-				0,
-				bitmap.getWidth(),
-				bitmap.getHeight(),
-				flipMatrix,
-				true);
-		GLUtils.texImage2D(
-				GLES20.GL_TEXTURE_2D,
-				0,
-				GLES20.GL_RGBA,
-				flippedBitmap,
-				GLES20.GL_UNSIGNED_BYTE,
-				0);
-		flippedBitmap.recycle();
-
+		tp.setParameters(GLES20.GL_TEXTURE_2D);
+		tp.setBitmap(bitmap);
 		GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
 	}
 
@@ -1068,7 +1046,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			Bitmap bitmap,
 			TextureParameters tp) {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, id);
-		tp.set(GLES20.GL_TEXTURE_CUBE_MAP);
+		tp.setParameters(GLES20.GL_TEXTURE_CUBE_MAP);
 
 		int bitmapWidth = bitmap.getWidth();
 		int bitmapHeight = bitmap.getHeight();
@@ -1174,7 +1152,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 
 		GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, id);
-		tp.set(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
+		tp.setParameters(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
 	}
 
 	private static float parseFTime(String source) {
@@ -1195,6 +1173,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		textureNames.clear();
 		textureParameters.clear();
 		numberOfTextures = 0;
+		backBufferTextureParams.reset();
 
 		final int maxTextures = textureIds.length;
 

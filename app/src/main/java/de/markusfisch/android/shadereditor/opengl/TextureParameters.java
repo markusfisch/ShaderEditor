@@ -1,19 +1,27 @@
 package de.markusfisch.android.shadereditor.opengl;
 
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
 
 public class TextureParameters {
+	protected static final String SEPARATOR = ";";
+	protected static final String ASSIGN = ":";
+
 	private static final int DEFAULT_MIN = GLES20.GL_NEAREST;
 	private static final int DEFAULT_MAG = GLES20.GL_LINEAR;
 	private static final int DEFAULT_WRAP_S = GLES20.GL_REPEAT;
 	private static final int DEFAULT_WRAP_T = GLES20.GL_REPEAT;
 	private static final String HEADER = "///";
-	private static final String SEPARATOR = ";";
-	private static final String ASSIGN = ":";
 	private static final String MIN = "min";
 	private static final String MAG = "mag";
 	private static final String WRAP_S = "s";
 	private static final String WRAP_T = "t";
+	private static final Matrix flipMatrix = new Matrix();
+	static {
+		flipMatrix.postScale(1f, -1f);
+	}
 
 	private int min = DEFAULT_MIN;
 	private int mag = DEFAULT_MAG;
@@ -40,17 +48,21 @@ public class TextureParameters {
 	}
 
 	TextureParameters(int min, int mag, int wrapS, int wrapT) {
-		this.min = min;
-		this.mag = mag;
-		this.wrapS = wrapS;
-		this.wrapT = wrapT;
+		set(min, mag, wrapS, wrapT);
 	}
 
 	TextureParameters(String params) {
 		parse(params);
 	}
 
-	void set(int target) {
+	void set(int min, int mag, int wrapS, int wrapT) {
+		this.min = min;
+		this.mag = mag;
+		this.wrapS = wrapS;
+		this.wrapT = wrapT;
+	}
+
+	void setParameters(int target) {
 		GLES20.glTexParameteri(
 				target,
 				GLES20.GL_TEXTURE_MIN_FILTER,
@@ -67,6 +79,29 @@ public class TextureParameters {
 				target,
 				GLES20.GL_TEXTURE_WRAP_T,
 				wrapT);
+	}
+
+	static void setBitmap(Bitmap bitmap) {
+		if (bitmap == null) {
+			return;
+		}
+		// flip bitmap because 0/0 is bottom left in OpenGL
+		Bitmap flippedBitmap = Bitmap.createBitmap(
+				bitmap,
+				0,
+				0,
+				bitmap.getWidth(),
+				bitmap.getHeight(),
+				flipMatrix,
+				true);
+		GLUtils.texImage2D(
+				GLES20.GL_TEXTURE_2D,
+				0,
+				GLES20.GL_RGBA,
+				flippedBitmap,
+				GLES20.GL_UNSIGNED_BYTE,
+				0);
+		flippedBitmap.recycle();
 	}
 
 	void parse(String params) {
@@ -88,7 +123,7 @@ public class TextureParameters {
 		}
 	}
 
-	private void parseParameter(String name, String value) {
+	protected void parseParameter(String name, String value) {
 		switch (name) {
 			default:
 			case MIN:
