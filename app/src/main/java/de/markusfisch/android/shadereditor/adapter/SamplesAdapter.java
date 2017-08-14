@@ -14,6 +14,7 @@ public class SamplesAdapter extends BaseAdapter {
 	public static final class Sample {
 		public final int resId;
 		public final int thumbId;
+		public final float quality;
 		public final String name;
 		public final String rationale;
 
@@ -22,10 +23,20 @@ public class SamplesAdapter extends BaseAdapter {
 				int thumbId,
 				String name,
 				String rationale) {
+			this(resId, thumbId, name, rationale, 1f);
+		}
+
+		private Sample(
+				int resId,
+				int thumbId,
+				String name,
+				String rationale,
+				float quality) {
 			this.resId = resId;
 			this.thumbId = thumbId;
 			this.name = name;
 			this.rationale = rationale;
+			this.quality = quality;
 		}
 	}
 
@@ -48,7 +59,8 @@ public class SamplesAdapter extends BaseAdapter {
 				new Sample(R.raw.sample_game_of_life,
 						R.drawable.thumbnail_game_of_life,
 						context.getString(R.string.sample_game_of_life_name),
-						context.getString(R.string.sample_game_of_life_rationale)),
+						context.getString(R.string.sample_game_of_life_rationale),
+						.125f),
 				new Sample(R.raw.sample_gravity,
 						R.drawable.thumbnail_gravity,
 						context.getString(R.string.sample_gravity_name),

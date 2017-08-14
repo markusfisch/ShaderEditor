@@ -254,21 +254,23 @@ public class Database {
 				context,
 				null,
 				R.raw.new_shader,
-				R.drawable.thumbnail_new_shader);
+				R.drawable.thumbnail_new_shader,
+				1f);
 	}
 
 	public long insertShaderFromResource(
 			Context context,
 			String name,
 			int sourceId,
-			int thumbId) {
+			int thumbId,
+			float quality) {
 		try {
 			return insertShader(
 					db,
 					loadRawResource(context, sourceId),
 					name,
 					loadBitmapResource(context, thumbId),
-					1f);
+					quality);
 		} catch (IOException e) {
 			return 0;
 		}

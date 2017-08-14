@@ -57,7 +57,8 @@ public class LoadSampleFragment extends Fragment {
 					activity,
 					sample.name,
 					sample.resId,
-					sample.thumbId);
+					sample.thumbId,
+					sample.quality);
 			activity.finish();
 		}
 	}

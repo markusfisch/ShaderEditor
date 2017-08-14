@@ -248,7 +248,9 @@ public class MainActivity
 					data.getIntExtra(LoadSampleActivity.RESOURCE_ID,
 							R.raw.new_shader),
 					data.getIntExtra(LoadSampleActivity.THUMBNAIL_ID,
-							R.drawable.thumbnail_new_shader)));
+							R.drawable.thumbnail_new_shader),
+					data.getFloatExtra(LoadSampleActivity.QUALITY,
+							1f)));
 		}
 
 		// update fps, info log and thumbnail after shader ran

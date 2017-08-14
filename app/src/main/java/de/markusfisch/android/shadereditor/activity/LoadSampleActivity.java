@@ -11,16 +11,19 @@ public class LoadSampleActivity extends AbstractContentActivity {
 	public static final String NAME = "name";
 	public static final String RESOURCE_ID = "resource_id";
 	public static final String THUMBNAIL_ID = "thumbnail_id";
+	public static final String QUALITY = "quality";
 
 	public static void setSampleResult(
 			Activity activity,
 			String name,
 			int resId,
-			int thumbId) {
+			int thumbId,
+			float quality) {
 		Bundle bundle = new Bundle();
 		bundle.putString(NAME, name);
 		bundle.putInt(RESOURCE_ID, resId);
 		bundle.putInt(THUMBNAIL_ID, thumbId);
+		bundle.putFloat(QUALITY, quality);
 
 		Intent data = new Intent();
 		data.putExtras(bundle);
