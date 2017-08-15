@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.adapter;
 
+import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
@@ -53,107 +54,107 @@ public class PresetUniformAdapter extends BaseAdapter {
 		uniforms = new Uniform[]{
 				new Uniform(
 						"sampler2D",
-						"backbuffer",
+						ShaderRenderer.UNIFORM_BACKBUFFER,
 						context.getString(R.string.previous_frame)),
 				new Uniform(
 						"float",
-						"battery",
+						ShaderRenderer.UNIFORM_BATTERY,
 						context.getString(R.string.battery_level)),
 				new Uniform(
 						"vec2",
-						"cameraAddent",
+						ShaderRenderer.UNIFORM_CAMERA_ADDENT,
 						context.getString(R.string.camera_addent),
 						Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1),
 				new Uniform(
 						"samplerExternalOES",
-						"cameraBack",
+						ShaderRenderer.UNIFORM_CAMERA_BACK,
 						context.getString(R.string.camera_back),
 						Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1),
 				new Uniform(
 						"samplerExternalOES",
-						"cameraFront",
+						ShaderRenderer.UNIFORM_CAMERA_FRONT,
 						context.getString(R.string.camera_front),
 						Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1),
 				new Uniform(
 						"mat2",
-						"cameraOrientation",
+						ShaderRenderer.UNIFORM_CAMERA_ORIENTATION,
 						context.getString(R.string.camera_orientation),
 						Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1),
 				new Uniform(
 						"vec4",
-						"date",
+						ShaderRenderer.UNIFORM_DATE,
 						context.getString(R.string.date_time)),
 				new Uniform(
 						"float",
-						"ftime",
+						ShaderRenderer.UNIFORM_FTIME,
 						context.getString(R.string.time_in_cycle)),
 				new Uniform(
 						"vec3",
-						"gravity",
+						ShaderRenderer.UNIFORM_GRAVITY,
 						context.getString(R.string.gravity_vector)),
 				new Uniform(
 						"float",
-						"light",
+						ShaderRenderer.UNIFORM_LIGHT,
 						context.getString(R.string.light)),
 				new Uniform(
 						"vec3",
-						"linear",
+						ShaderRenderer.UNIFORM_LINEAR,
 						context.getString(R.string.linear_acceleration_vector)),
 				new Uniform(
 						"vec3",
-						"magnetic",
+						ShaderRenderer.UNIFORM_MAGNETIC,
 						context.getString(R.string.magnetic_field)),
 				new Uniform(
 						"vec2",
-						"offset",
+						ShaderRenderer.UNIFORM_OFFSET,
 						context.getString(R.string.wallpaper_offset)),
 				new Uniform(
 						"vec3",
-						"orientation",
+						ShaderRenderer.UNIFORM_ORIENTATION,
 						context.getString(R.string.device_orientation)),
 				new Uniform(
 						"vec3",
-						"pointers[10]",
+						ShaderRenderer.UNIFORM_POINTERS + "[10]",
 						context.getString(R.string.positions_of_touches)),
 				new Uniform(
 						"int",
-						"pointerCount",
+						ShaderRenderer.UNIFORM_POINTER_COUNT,
 						context.getString(R.string.number_of_touches)),
 				new Uniform(
 						"float",
-						"pressure",
+						ShaderRenderer.UNIFORM_PRESSURE,
 						context.getString(R.string.pressure)),
 				new Uniform(
 						"float",
-						"proximity",
+						ShaderRenderer.UNIFORM_PROXIMITY,
 						context.getString(R.string.proximity)),
 				new Uniform(
 						"vec2",
-						"resolution",
+						ShaderRenderer.UNIFORM_RESOLUTION,
 						context.getString(R.string.resolution_in_pixels)),
 				new Uniform(
 						"vec3",
-						"rotation",
+						ShaderRenderer.UNIFORM_ROTATION,
 						context.getString(R.string.device_rotation)),
 				new Uniform(
 						"int",
-						"second",
+						ShaderRenderer.UNIFORM_SECOND,
 						context.getString(R.string.int_seconds_since_load)),
 				new Uniform(
 						"float",
-						"startRandom",
+						ShaderRenderer.UNIFORM_START_RANDOM,
 						context.getString(R.string.start_random)),
 				new Uniform(
 						"float",
-						"subsecond",
+						ShaderRenderer.UNIFORM_SUB_SECOND,
 						context.getString(R.string.fractional_part_of_seconds_since_load)),
 				new Uniform(
 						"float",
-						"time",
+						ShaderRenderer.UNIFORM_TIME,
 						context.getString(R.string.time_in_seconds_since_load)),
 				new Uniform(
 						"vec2",
-						"touch",
+						ShaderRenderer.UNIFORM_TOUCH,
 						context.getString(R.string.touch_position_in_pixels)),
 		};
 	}

@@ -50,7 +50,33 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		void onFramesPerSecond(int fps);
 	}
 
-	public static final String BACKBUFFER = "backbuffer";
+	public static final String UNIFORM_BACKBUFFER = "backbuffer";
+	public static final String UNIFORM_BATTERY = "battery";
+	public static final String UNIFORM_CAMERA_ADDENT = "cameraAddent";
+	public static final String UNIFORM_CAMERA_BACK = "cameraBack";
+	public static final String UNIFORM_CAMERA_FRONT = "cameraFront";
+	public static final String UNIFORM_CAMERA_ORIENTATION = "cameraOrientation";
+	public static final String UNIFORM_DATE = "date";
+	public static final String UNIFORM_FTIME = "ftime";
+	public static final String UNIFORM_GRAVITY = "gravity";
+	public static final String UNIFORM_LIGHT = "light";
+	public static final String UNIFORM_LINEAR = "linear";
+	public static final String UNIFORM_MAGNETIC = "magnetic";
+	public static final String UNIFORM_MOUSE = "mouse";
+	public static final String UNIFORM_OFFSET = "offset";
+	public static final String UNIFORM_ORIENTATION = "orientation";
+	public static final String UNIFORM_POINTERS = "pointers";
+	public static final String UNIFORM_POINTER_COUNT = "pointerCount";
+	public static final String UNIFORM_POSITION = "position";
+	public static final String UNIFORM_PRESSURE = "pressure";
+	public static final String UNIFORM_PROXIMITY = "proximity";
+	public static final String UNIFORM_RESOLUTION = "resolution";
+	public static final String UNIFORM_ROTATION = "rotation";
+	public static final String UNIFORM_SECOND = "second";
+	public static final String UNIFORM_START_RANDOM = "startRandom";
+	public static final String UNIFORM_SUB_SECOND = "subsecond";
+	public static final String UNIFORM_TIME = "time";
+	public static final String UNIFORM_TOUCH = "touch";
 
 	private static final int TEXTURE_UNITS[] = {
 			GLES20.GL_TEXTURE0,
@@ -112,8 +138,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000L;
 	private static final long BATTERY_UPDATE_INTERVAL = 10000000000L;
 	private static final long DATE_UPDATE_INTERVAL = 1000000000L;
-	private static final String CAMERA_BACK = "cameraBack";
-	private static final String CAMERA_FRONT = "cameraFront";
 	private static final String SAMPLER_2D = "2D";
 	private static final String SAMPLER_CUBE = "Cube";
 	private static final String SAMPLER_EXTERNAL_OES = "ExternalOES";
@@ -737,55 +761,55 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				surfaceProgram, "frame");
 
 		positionLoc = GLES20.glGetAttribLocation(
-				program, "position");
+				program, UNIFORM_POSITION);
 		timeLoc = GLES20.glGetUniformLocation(
-				program, "time");
+				program, UNIFORM_TIME);
 		secondLoc = GLES20.glGetUniformLocation(
-				program, "second");
+				program, UNIFORM_SECOND);
 		subSecondLoc = GLES20.glGetUniformLocation(
-				program, "subsecond");
+				program, UNIFORM_SUB_SECOND);
 		fTimeLoc = GLES20.glGetUniformLocation(
-				program, "ftime");
+				program, UNIFORM_FTIME);
 		resolutionLoc = GLES20.glGetUniformLocation(
-				program, "resolution");
+				program, UNIFORM_RESOLUTION);
 		touchLoc = GLES20.glGetUniformLocation(
-				program, "touch");
+				program, UNIFORM_TOUCH);
 		mouseLoc = GLES20.glGetUniformLocation(
-				program, "mouse");
+				program, UNIFORM_MOUSE);
 		pointerCountLoc = GLES20.glGetUniformLocation(
-				program, "pointerCount");
+				program, UNIFORM_POINTER_COUNT);
 		pointersLoc = GLES20.glGetUniformLocation(
-				program, "pointers");
+				program, UNIFORM_POINTERS);
 		gravityLoc = GLES20.glGetUniformLocation(
-				program, "gravity");
+				program, UNIFORM_GRAVITY);
 		linearLoc = GLES20.glGetUniformLocation(
-				program, "linear");
+				program, UNIFORM_LINEAR);
 		rotationLoc = GLES20.glGetUniformLocation(
-				program, "rotation");
+				program, UNIFORM_ROTATION);
 		magneticLoc = GLES20.glGetUniformLocation(
-				program, "magnetic");
+				program, UNIFORM_MAGNETIC);
 		orientationLoc = GLES20.glGetUniformLocation(
-				program, "orientation");
+				program, UNIFORM_ORIENTATION);
 		lightLoc = GLES20.glGetUniformLocation(
-				program, "light");
+				program, UNIFORM_LIGHT);
 		pressureLoc = GLES20.glGetUniformLocation(
-				program, "pressure");
+				program, UNIFORM_PRESSURE);
 		proximityLoc = GLES20.glGetUniformLocation(
-				program, "proximity");
+				program, UNIFORM_PROXIMITY);
 		offsetLoc = GLES20.glGetUniformLocation(
-				program, "offset");
+				program, UNIFORM_OFFSET);
 		batteryLoc = GLES20.glGetUniformLocation(
-				program, "battery");
+				program, UNIFORM_BATTERY);
 		dateTimeLoc = GLES20.glGetUniformLocation(
-				program, "date");
+				program, UNIFORM_DATE);
 		startRandomLoc = GLES20.glGetUniformLocation(
-				program, "startRandom");
+				program, UNIFORM_START_RANDOM);
 		backBufferLoc = GLES20.glGetUniformLocation(
-				program, BACKBUFFER);
+				program, UNIFORM_BACKBUFFER);
 		cameraOrientationLoc = GLES20.glGetUniformLocation(
-				program, "cameraOrientation");
+				program, UNIFORM_CAMERA_ORIENTATION);
 		cameraAddentLoc = GLES20.glGetUniformLocation(
-				program, "cameraAddent");
+				program, UNIFORM_CAMERA_ADDENT);
 
 		for (int i = numberOfTextures; i-- > 0; ) {
 			textureLocs[i] = GLES20.glGetUniformLocation(
@@ -1001,8 +1025,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		for (int i = 0; i < numberOfTextures; ++i) {
 			String name = textureNames.get(i);
 
-			if (CAMERA_BACK.equals(name) ||
-					CAMERA_FRONT.equals(name)) {
+			if (UNIFORM_CAMERA_BACK.equals(name) ||
+					UNIFORM_CAMERA_FRONT.equals(name)) {
 				openCameraListener(name, textureIds[i],
 						textureParameters.get(i));
 				continue;
@@ -1097,7 +1121,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 
 		int cameraId = CameraListener.findCameraIdFacing(
-				CAMERA_BACK.equals(name) ?
+				UNIFORM_CAMERA_BACK.equals(name) ?
 						Camera.CameraInfo.CAMERA_FACING_BACK :
 						Camera.CameraInfo.CAMERA_FACING_FRONT);
 
@@ -1187,7 +1211,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				continue;
 			}
 
-			if (BACKBUFFER.equals(name)) {
+			if (UNIFORM_BACKBUFFER.equals(name)) {
 				backBufferTextureParams.parse(params);
 				continue;
 			}

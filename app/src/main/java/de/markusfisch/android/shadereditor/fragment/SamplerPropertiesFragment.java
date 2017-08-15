@@ -186,7 +186,7 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 
 			return;
 		} else if (!name.matches(TEXTURE_NAME_PATTERN) ||
-				name.equals(ShaderRenderer.BACKBUFFER)) {
+				name.equals(ShaderRenderer.UNIFORM_BACKBUFFER)) {
 			Toast.makeText(
 					context,
 					R.string.invalid_texture_name,
