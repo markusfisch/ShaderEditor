@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.8.0
+* Set a texture for the initial backbuffer
+* Replace already existing uniform statements when adding them
+* Samples can have a lower quality setting
+
 ## 2.7.0
 * Collection of sample shaders added
 * Use front or back camera as texture
