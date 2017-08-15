@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
+import de.markusfisch.android.shadereditor.opengl.TextureParameters;
 import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.widget.TextureParametersView;
 import de.markusfisch.android.shadereditor.R;
@@ -176,7 +177,9 @@ public abstract class SamplerPropertiesFragment extends Fragment {
 		}
 
 		final String name = nameView.getText().toString();
-		final String params = textureParameterView.getTextureParams();
+		final TextureParameters tp = new TextureParameters();
+		textureParameterView.setParameters(tp);
+		final String params = tp.toString();
 
 		if (name.trim().length() < 1) {
 			Toast.makeText(

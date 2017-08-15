@@ -126,10 +126,6 @@
 	<string name="texture_name">Unique texture name</string>
 	<string name="input_texture_name">Give a name</string>
 	<string name="should_add_uniform">Add uniform sampler2D statement to source?</string>
-	<string name="texture_minifying">Texture minifying function</string>
-	<string name="texture_magnification">Texture magnification function</string>
-	<string name="texture_wrap_s">Wrap parameter for texture coordinate s</string>
-	<string name="texture_wrap_t">Wrap parameter for texture coordinate t</string>
 	<string name="save_texture">Save texture</string>
 	<string name="missing_name">You need to give a name</string>
 	<string name="invalid_texture_name">Invalid name, please choose a name you can use in a GLSL source</string>
@@ -145,6 +141,14 @@
 
 	<!-- TextureParametersFragment -->
 	<string name="texture_parameters">Texture parameters</string>
+	<string name="texture_minifying">Texture minifying function</string>
+	<string name="texture_magnification">Texture magnification function</string>
+	<string name="texture_wrap_s">Wrap parameter for texture coordinate s</string>
+	<string name="texture_wrap_t">Wrap parameter for texture coordinate t</string>
+
+	<!-- BackBufferParametersFragment -->
+	<string name="backbuffer_preset">Preset texture</string>
+	<string name="no_preset">(no preset)</string>
 
 	<!-- LoadSampleFragment -->
 	<string name="load_sample">Load sample</string>

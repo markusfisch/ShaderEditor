@@ -6,14 +6,10 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
 public class TextureParameters {
+	protected static final String HEADER = "///";
 	protected static final String SEPARATOR = ";";
 	protected static final String ASSIGN = ":";
 
-	private static final int DEFAULT_MIN = GLES20.GL_NEAREST;
-	private static final int DEFAULT_MAG = GLES20.GL_LINEAR;
-	private static final int DEFAULT_WRAP_S = GLES20.GL_REPEAT;
-	private static final int DEFAULT_WRAP_T = GLES20.GL_REPEAT;
-	private static final String HEADER = "///";
 	private static final String MIN = "min";
 	private static final String MAG = "mag";
 	private static final String WRAP_S = "s";
@@ -23,36 +19,78 @@ public class TextureParameters {
 		flipMatrix.postScale(1f, -1f);
 	}
 
-	private int min = DEFAULT_MIN;
-	private int mag = DEFAULT_MAG;
-	private int wrapS = DEFAULT_WRAP_S;
-	private int wrapT = DEFAULT_WRAP_T;
+	private final int defaultMin;
+	private final int defaultMag;
+	private final int defaultWrapS;
+	private final int defaultWrapT;
 
-	public static String create(
-			String min,
-			String mag,
-			String wrapS,
-			String wrapT) {
-		if (mapMinParameter(min) == DEFAULT_MIN &&
-				mapMagParameter(mag) == DEFAULT_MAG &&
-				mapWrapParameter(wrapS) == DEFAULT_WRAP_S &&
-				mapWrapParameter(wrapT) == DEFAULT_WRAP_T) {
-			// use empty string for default values
-			return "";
-		}
-		return HEADER +
-				MIN + ASSIGN + min + SEPARATOR +
-				MAG + ASSIGN + mag + SEPARATOR +
-				WRAP_S + ASSIGN + wrapS + SEPARATOR +
-				WRAP_T + ASSIGN + wrapT + SEPARATOR;
+	private int min;
+	private int mag;
+	private int wrapS;
+	private int wrapT;
+
+	public TextureParameters() {
+		defaultMin = GLES20.GL_NEAREST;
+		defaultMag = GLES20.GL_LINEAR;
+		defaultWrapS = GLES20.GL_REPEAT;
+		defaultWrapT = GLES20.GL_REPEAT;
+		set(defaultMin, defaultMag, defaultWrapS, defaultWrapT);
 	}
 
 	TextureParameters(int min, int mag, int wrapS, int wrapT) {
+		defaultMin = min;
+		defaultMag = mag;
+		defaultWrapS = wrapS;
+		defaultWrapT = wrapT;
 		set(min, mag, wrapS, wrapT);
 	}
 
 	TextureParameters(String params) {
+		this();
 		parse(params);
+	}
+
+	public void set(
+			String minShortcut,
+			String magShortcut,
+			String wrapSShortcut,
+			String wrapTShortcut) {
+		min = shortcutToMin(minShortcut);
+		mag = shortcutToMag(magShortcut);
+		wrapS = shortcutToWrap(wrapSShortcut);
+		wrapT = shortcutToWrap(wrapTShortcut);
+	}
+
+	@Override
+	public String toString() {
+		if (min == defaultMin &&
+				mag == defaultMag &&
+				wrapS == defaultWrapS &&
+				wrapT == defaultWrapT) {
+			// use empty string for default values
+			return "";
+		}
+		return HEADER +
+				MIN + ASSIGN + getMinShortcut() + SEPARATOR +
+				MAG + ASSIGN + getMagShortcut() + SEPARATOR +
+				WRAP_S + ASSIGN + getWrapSShortcut() + SEPARATOR +
+				WRAP_T + ASSIGN + getWrapTShortcut() + SEPARATOR;
+	}
+
+	public String getMinShortcut() {
+		return minToShortcut(min);
+	}
+
+	public String getMagShortcut() {
+		return magToShortcut(mag);
+	}
+
+	public String getWrapSShortcut() {
+		return wrapToShortcut(wrapS);
+	}
+
+	public String getWrapTShortcut() {
+		return wrapToShortcut(wrapT);
 	}
 
 	void set(int min, int mag, int wrapS, int wrapT) {
@@ -127,21 +165,21 @@ public class TextureParameters {
 		switch (name) {
 			default:
 			case MIN:
-				min = mapMinParameter(value);
+				min = shortcutToMin(value);
 				break;
 			case MAG:
-				mag = mapMagParameter(value);
+				mag = shortcutToMag(value);
 				break;
 			case WRAP_S:
-				wrapS = mapWrapParameter(value);
+				wrapS = shortcutToWrap(value);
 				break;
 			case WRAP_T:
-				wrapT = mapWrapParameter(value);
+				wrapT = shortcutToWrap(value);
 				break;
 		}
 	}
 
-	private static int mapMinParameter(String shortcut) {
+	private static int shortcutToMin(String shortcut) {
 		switch (shortcut) {
 			case "n":
 				return GLES20.GL_NEAREST;
@@ -158,7 +196,24 @@ public class TextureParameters {
 		}
 	}
 
-	private static int mapMagParameter(String shortcut) {
+	private static String minToShortcut(int min) {
+		switch (min) {
+			case GLES20.GL_NEAREST:
+				return "n";
+			case GLES20.GL_LINEAR:
+				return "l";
+			case GLES20.GL_NEAREST_MIPMAP_NEAREST:
+				return "nn";
+			case GLES20.GL_LINEAR_MIPMAP_NEAREST:
+				return "ln";
+			case GLES20.GL_LINEAR_MIPMAP_LINEAR:
+				return "ll";
+			default:
+				return "nl";
+		}
+	}
+
+	private static int shortcutToMag(String shortcut) {
 		if (shortcut.equals("n")) {
 			return GLES20.GL_NEAREST;
 		} else {
@@ -166,7 +221,16 @@ public class TextureParameters {
 		}
 	}
 
-	private static int mapWrapParameter(String shortcut) {
+	private static String magToShortcut(int mag) {
+		switch (mag) {
+			case GLES20.GL_NEAREST:
+				return "n";
+			default:
+				return "l";
+		}
+	}
+
+	private static int shortcutToWrap(String shortcut) {
 		switch (shortcut) {
 			case "c":
 				return GLES20.GL_CLAMP_TO_EDGE;
@@ -174,6 +238,17 @@ public class TextureParameters {
 				return GLES20.GL_MIRRORED_REPEAT;
 			default:
 				return GLES20.GL_REPEAT;
+		}
+	}
+
+	private static String wrapToShortcut(int wrap) {
+		switch (wrap) {
+			case GLES20.GL_CLAMP_TO_EDGE:
+				return "c";
+			case GLES20.GL_MIRRORED_REPEAT:
+				return "m";
+			default:
+				return "r";
 		}
 	}
 }

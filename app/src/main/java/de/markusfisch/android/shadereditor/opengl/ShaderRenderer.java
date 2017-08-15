@@ -176,8 +176,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private final ArrayList<String> textureNames = new ArrayList<>();
 	private final ArrayList<TextureParameters> textureParameters =
 			new ArrayList<>();
-	private final BackBufferTextureParameters backBufferTextureParams =
-			new BackBufferTextureParameters();
+	private final BackBufferParameters backBufferTextureParams =
+			new BackBufferParameters();
 	private final int fb[] = new int[]{0, 0};
 	private final int tx[] = new int[]{0, 0};
 	private final int textureLocs[] = new int[32];
@@ -976,10 +976,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			int idx,
 			int width,
 			int height,
-			BackBufferTextureParameters tp) {
+			BackBufferParameters tp) {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, tx[idx]);
 
-		if (!tp.setPreset(width, height)) {
+		if (!tp.setPresetBitmap(width, height)) {
 			GLES20.glTexImage2D(
 					GLES20.GL_TEXTURE_2D,
 					0,

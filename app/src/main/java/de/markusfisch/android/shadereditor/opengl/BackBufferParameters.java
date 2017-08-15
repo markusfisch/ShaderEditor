@@ -9,26 +9,32 @@ import android.graphics.Paint;
 import android.graphics.Shader;
 import android.opengl.GLES20;
 
-public class BackBufferTextureParameters extends TextureParameters {
+public class BackBufferParameters extends TextureParameters {
 	private static final String PRESET = "p";
 
 	private String preset;
 
-	public static String create(
-			String min,
-			String mag,
-			String wrapS,
-			String wrapT,
-			String preset) {
-		return create(min, mag, wrapS, wrapT) +
-				PRESET + ASSIGN + preset + SEPARATOR;
-	}
-
-	BackBufferTextureParameters() {
+	public BackBufferParameters() {
 		super(GLES20.GL_NEAREST,
 				GLES20.GL_NEAREST,
 				GLES20.GL_CLAMP_TO_EDGE,
 				GLES20.GL_CLAMP_TO_EDGE);
+	}
+
+	public void setPreset(String preset) {
+		this.preset = preset;
+	}
+
+	@Override
+	public String toString() {
+		String params = super.toString();
+		if (preset != null) {
+			if (params.length() < 1) {
+				params = HEADER;
+			}
+			params += PRESET + ASSIGN + preset + SEPARATOR;
+		}
+		return params;
 	}
 
 	void reset() {
@@ -39,7 +45,7 @@ public class BackBufferTextureParameters extends TextureParameters {
 		preset = null;
 	}
 
-	boolean setPreset(int width, int height) {
+	boolean setPresetBitmap(int width, int height) {
 		if (preset == null) {
 			return false;
 		}

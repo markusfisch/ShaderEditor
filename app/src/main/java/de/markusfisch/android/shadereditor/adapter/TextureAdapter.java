@@ -40,7 +40,7 @@ public class TextureAdapter extends CursorAdapter {
 		setData(holder, cursor);
 	}
 
-	private ViewHolder getViewHolder(View view) {
+	ViewHolder getViewHolder(View view) {
 		ViewHolder holder;
 		if ((holder = (ViewHolder) view.getTag()) == null) {
 			holder = new ViewHolder();
@@ -53,7 +53,7 @@ public class TextureAdapter extends CursorAdapter {
 		return holder;
 	}
 
-	private void setData(ViewHolder holder, Cursor cursor) {
+	void setData(ViewHolder holder, Cursor cursor) {
 		byte bytes[] = cursor.getBlob(thumbIndex);
 
 		if (bytes != null && bytes.length > 0) {

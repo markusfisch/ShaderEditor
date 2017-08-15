@@ -1,0 +1,17 @@
+<de.markusfisch.android.shadereditor.widget.BackBufferParametersView
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/backbuffer_parameters"
+	android:layout_width="match_parent"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
+	<TextView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="8dp"
+		android:text="@string/backbuffer_preset"/>
+	<Spinner
+		android:id="@+id/backbuffer_preset"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginBottom="8dp"/>
+</de.markusfisch.android.shadereditor.widget.BackBufferParametersView>

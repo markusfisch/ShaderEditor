@@ -38,9 +38,15 @@ public class TextureParametersView extends LinearLayout {
 		initSpinner(wrapTView, R.array.wrap_names);
 	}
 
-	public String getTextureParams() {
-		return TextureParameters.create(
-				getSpinnerValue(minView, R.array.min_values),
+	public void setDefaults(TextureParameters tp) {
+		setSpinnerValue(minView, R.array.min_values, tp.getMinShortcut());
+		setSpinnerValue(magView, R.array.mag_values, tp.getMagShortcut());
+		setSpinnerValue(wrapSView, R.array.wrap_values, tp.getWrapSShortcut());
+		setSpinnerValue(wrapTView, R.array.wrap_values, tp.getWrapTShortcut());
+	}
+
+	public void setParameters(TextureParameters tp) {
+		tp.set(getSpinnerValue(minView, R.array.min_values),
 				getSpinnerValue(magView, R.array.mag_values),
 				getSpinnerValue(wrapSView, R.array.wrap_values),
 				getSpinnerValue(wrapTView, R.array.wrap_values));
@@ -59,5 +65,18 @@ public class TextureParametersView extends LinearLayout {
 	private String getSpinnerValue(Spinner spinner, int valuesId) {
 		String values[] = getResources().getStringArray(valuesId);
 		return values[spinner.getSelectedItemPosition()];
+	}
+
+	private void setSpinnerValue(
+			Spinner spinner,
+			int valuesId,
+			String value) {
+		String values[] = getResources().getStringArray(valuesId);
+		for (int i = 0; i < values.length; ++i) {
+			if (values[i].equals(value)) {
+				spinner.setSelection(i);
+				return;
+			}
+		}
 	}
 }
