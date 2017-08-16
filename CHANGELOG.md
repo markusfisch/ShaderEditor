@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.8.1
+* Fixed clearing empty backbuffer
+* Fixed floating action button icon color
+
 ## 2.8.0
 * Set a texture for the initial backbuffer
 * Replace already existing uniform statements when adding them
