@@ -979,7 +979,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			BackBufferParameters tp) {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, tx[idx]);
 
-		if (!tp.setPresetBitmap(width, height)) {
+		boolean useBitmap = tp.setPresetBitmap(width, height);
+		if (!useBitmap) {
 			GLES20.glTexImage2D(
 					GLES20.GL_TEXTURE_2D,
 					0,
@@ -990,11 +991,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					GLES20.GL_RGBA,
 					GLES20.GL_UNSIGNED_BYTE,
 					null);
-
-			// clear texture because some drivers
-			// don't initialize texture memory
-			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT |
-					GLES20.GL_DEPTH_BUFFER_BIT);
 		}
 
 		tp.setParameters(GLES20.GL_TEXTURE_2D);
@@ -1009,6 +1005,13 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				GLES20.GL_TEXTURE_2D,
 				tx[idx],
 				0);
+
+		if (!useBitmap) {
+			// clear texture because some drivers
+			// don't initialize texture memory
+			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT |
+					GLES20.GL_DEPTH_BUFFER_BIT);
+		}
 	}
 
 	private void deleteTextures() {
