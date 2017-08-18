@@ -216,34 +216,24 @@ public class CameraListener {
 	}
 
 	private void setPreviewSize(Camera.Parameters parameters) {
-		List<Camera.Size> supportedPreviewSizes =
-				parameters.getSupportedPreviewSizes();
+		Camera.Size size = findBestSize(
+				// will always return at least one item
+				parameters.getSupportedPreviewSizes(),
+				frameWidth,
+				frameHeight,
+				frameOrientation);
 
-		if (supportedPreviewSizes != null) {
-			Camera.Size size = getOptimalSize(
-					supportedPreviewSizes,
-					frameWidth,
-					frameHeight,
-					frameOrientation);
-
-			if (size != null) {
-				frameWidth = size.width;
-				frameHeight = size.height;
-			}
-		}
+		frameWidth = size.width;
+		frameHeight = size.height;
 
 		parameters.setPreviewSize(frameWidth, frameHeight);
 	}
 
-	private static Camera.Size getOptimalSize(
+	private static Camera.Size findBestSize(
 			List<Camera.Size> sizes,
 			int width,
 			int height,
 			int orientation) {
-		if (sizes == null) {
-			return null;
-		}
-
 		switch (orientation) {
 			default:
 				break;
@@ -260,15 +250,15 @@ public class CameraListener {
 		double targetRatio = (double) width / height;
 		double minDiff = Double.MAX_VALUE;
 		double minDiffAspect = Double.MAX_VALUE;
-		Camera.Size optimalSize = null;
-		Camera.Size optimalSizeAspect = null;
+		Camera.Size bestSize = null;
+		Camera.Size bestSizeAspect = null;
 
 		for (Camera.Size size : sizes) {
 			double diff = Math.abs(size.height - height) +
 					Math.abs(size.width - width);
 
 			if (diff < minDiff) {
-				optimalSize = size;
+				bestSize = size;
 				minDiff = diff;
 			}
 
@@ -276,12 +266,12 @@ public class CameraListener {
 
 			if (Math.abs(ratio - targetRatio) < 0.1 &&
 					diff < minDiffAspect) {
-				optimalSizeAspect = size;
+				bestSizeAspect = size;
 				minDiffAspect = diff;
 			}
 		}
 
-		return optimalSizeAspect != null ? optimalSizeAspect : optimalSize;
+		return bestSizeAspect != null ? bestSizeAspect : bestSize;
 	}
 
 	private static void setFastestFps(Camera.Parameters parameters) {
