@@ -88,14 +88,11 @@ public class PreferencesFragment
 
 	private void setSummary(Preference preference) {
 		if (preference instanceof ShaderListPreference) {
-			preference.setSummary(
-					getWallpaperShaderSummary());
+			preference.setSummary(getWallpaperShaderSummary());
 		} else if (preference instanceof ListPreference) {
-			preference.setSummary(
-					((ListPreference) preference).getEntry());
+			preference.setSummary(((ListPreference) preference).getEntry());
 		} else if (preference instanceof PreferenceGroup) {
-			setSummaries(
-					(PreferenceGroup) preference);
+			setSummaries((PreferenceGroup) preference);
 		}
 	}
 
@@ -108,7 +105,12 @@ public class PreferencesFragment
 		}
 
 		String summary = cursor.getString(
-				cursor.getColumnIndex(Database.SHADERS_MODIFIED));
+				cursor.getColumnIndex(Database.SHADERS_NAME));
+
+		if (summary == null || summary.length() < 0) {
+			summary = cursor.getString(
+					cursor.getColumnIndex(Database.SHADERS_MODIFIED));
+		}
 
 		cursor.close();
 
