@@ -137,8 +137,8 @@ public class Database {
 						SHADERS_MODIFIED + "," +
 						SHADERS_QUALITY +
 						" FROM " + SHADERS +
-						" WHERE " + SHADERS_ID + "=" + id,
-				null);
+						" WHERE " + SHADERS_ID + " = ?",
+				new String[]{String.valueOf(id)});
 	}
 
 	public Cursor getRandomShader() {
@@ -158,8 +158,8 @@ public class Database {
 				"SELECT " +
 						SHADERS_THUMB +
 						" FROM " + SHADERS +
-						" WHERE " + SHADERS_ID + "=" + id,
-				null);
+						" WHERE " + SHADERS_ID + " = ?",
+				new String[]{String.valueOf(id)});
 
 		if (closeIfEmpty(cursor)) {
 			return null;
@@ -200,8 +200,8 @@ public class Database {
 						TEXTURES_HEIGHT + "," +
 						TEXTURES_MATRIX +
 						" FROM " + TEXTURES +
-						" WHERE " + TEXTURES_ID + "=\"" + id + "\"",
-				null);
+						" WHERE " + TEXTURES_ID + " = ?",
+				new String[]{String.valueOf(id)});
 	}
 
 	public Bitmap getTextureBitmap(String name) {
@@ -209,8 +209,8 @@ public class Database {
 				"SELECT " +
 						TEXTURES_MATRIX +
 						" FROM " + TEXTURES +
-						" WHERE " + TEXTURES_NAME + "=\"" + name + "\"",
-				null);
+						" WHERE " + TEXTURES_NAME + " = ?",
+				new String[]{name});
 		Bitmap bm = getTextureBitmap(cursor);
 		cursor.close();
 		return bm;
@@ -329,11 +329,8 @@ public class Database {
 			cv.put(SHADERS_THUMB, thumbnail);
 		}
 
-		db.update(
-				SHADERS,
-				cv,
-				SHADERS_ID + "=" + id,
-				null);
+		db.update(SHADERS, cv, SHADERS_ID + " = ?",
+				new String[]{String.valueOf(id)});
 	}
 
 	public void updateShaderQuality(
@@ -342,35 +339,25 @@ public class Database {
 		ContentValues cv = new ContentValues();
 		cv.put(SHADERS_QUALITY, quality);
 
-		db.update(
-				SHADERS,
-				cv,
-				SHADERS_ID + "=" + id,
-				null);
+		db.update(SHADERS, cv, SHADERS_ID + " = ?",
+				new String[]{String.valueOf(id)});
 	}
 
 	public void updateShaderName(long id, String name) {
 		ContentValues cv = new ContentValues();
 		cv.put(SHADERS_NAME, name);
-		db.update(
-				SHADERS,
-				cv,
-				SHADERS_ID + "=" + id,
-				null);
+		db.update(SHADERS, cv, SHADERS_ID + " = ?",
+				new String[]{String.valueOf(id)});
 	}
 
 	public void removeShader(long id) {
-		db.delete(
-				SHADERS,
-				SHADERS_ID + "=" + id,
-				null);
+		db.delete(SHADERS, SHADERS_ID + " = ?",
+				new String[]{String.valueOf(id)});
 	}
 
 	public void removeTexture(long id) {
-		db.delete(
-				TEXTURES,
-				TEXTURES_ID + "=" + id,
-				null);
+		db.delete(TEXTURES, TEXTURES_ID + " = ?",
+				new String[]{String.valueOf(id)});
 	}
 
 	private static String currentTime() {
