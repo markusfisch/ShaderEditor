@@ -119,7 +119,7 @@
 	<string name="cube_map_negative_z">-Z Front</string>
 	<string name="cube_map_positive_z">+Z Back</string>
 
-	<!-- SamplerPropertiesFragment -->
+	<!-- AbstractSamplerPropertiesFragment -->
 	<string name="texture_properties">Texture properties</string>
 	<string name="texture_size">Texture size in pixels</string>
 	<string name="face_size">Face size in pixels</string>

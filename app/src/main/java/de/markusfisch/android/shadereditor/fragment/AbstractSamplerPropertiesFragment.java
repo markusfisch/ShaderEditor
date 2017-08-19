@@ -29,7 +29,7 @@ import android.widget.Toast;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
-public abstract class SamplerPropertiesFragment extends Fragment {
+public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 	public static final String TEXTURE_NAME_PATTERN = "[a-zA-Z0-9_]+";
 	public static final String SAMPLER_2D = "sampler2D";
 	public static final String SAMPLER_CUBE = "samplerCube";

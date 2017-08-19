@@ -15,7 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class Sampler2dPropertiesFragment extends SamplerPropertiesFragment {
+public class Sampler2dPropertiesFragment extends AbstractSamplerPropertiesFragment {
 	private static final String IMAGE_URI = "image_uri";
 	private static final String CROP_RECT = "crop_rect";
 	private static final String ROTATION = "rotation";

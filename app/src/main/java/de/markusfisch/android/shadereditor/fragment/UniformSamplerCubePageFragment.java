@@ -13,7 +13,7 @@ public class UniformSamplerCubePageFragment
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		setSamplerType(SamplerPropertiesFragment.SAMPLER_CUBE);
+		setSamplerType(AbstractSamplerPropertiesFragment.SAMPLER_CUBE);
 	}
 
 	@Override

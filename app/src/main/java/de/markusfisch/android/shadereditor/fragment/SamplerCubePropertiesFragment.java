@@ -16,7 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class SamplerCubePropertiesFragment extends SamplerPropertiesFragment {
+public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFragment {
 	private static final String FACES = "faces";
 
 	private CubeMapView.Face faces[];

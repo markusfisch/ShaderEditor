@@ -24,7 +24,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 	private TextureAdapter texturesAdapter;
 	private View progressBar;
 	private View noTexturesMessage;
-	private String samplerType = SamplerPropertiesFragment.SAMPLER_2D;
+	private String samplerType = AbstractSamplerPropertiesFragment.SAMPLER_2D;
 
 	@Override
 	public View onCreateView(

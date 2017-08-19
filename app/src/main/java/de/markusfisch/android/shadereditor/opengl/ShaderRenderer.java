@@ -1,7 +1,7 @@
 package de.markusfisch.android.shadereditor.opengl;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.fragment.SamplerPropertiesFragment;
+import de.markusfisch.android.shadereditor.fragment.AbstractSamplerPropertiesFragment;
 import de.markusfisch.android.shadereditor.hardware.AccelerometerListener;
 import de.markusfisch.android.shadereditor.hardware.CameraListener;
 import de.markusfisch.android.shadereditor.hardware.GyroscopeListener;
@@ -148,7 +148,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 							SAMPLER_CUBE + "|" +
 							SAMPLER_EXTERNAL_OES +
 							")+[ \t]+(%s);[ \t]*(.*)",
-					SamplerPropertiesFragment.TEXTURE_NAME_PATTERN));
+					AbstractSamplerPropertiesFragment.TEXTURE_NAME_PATTERN));
 	private static final Pattern PATTERN_FTIME = Pattern.compile(
 			"^#define[ \\t]+FTIME_PERIOD[ \\t]+([0-9\\.]+)[ \\t]*$",
 			Pattern.MULTILINE);
