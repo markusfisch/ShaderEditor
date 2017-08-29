@@ -6,8 +6,6 @@ import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.view.Surface;
-import android.view.WindowManager;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
@@ -30,7 +28,7 @@ public class CameraListener {
 	private SurfaceTexture surfaceTexture;
 	private FloatBuffer orientationMatrix;
 
-	public static int findCameraIdFacing(int facing) {
+	public static int findCameraId(int facing) {
 		for (int i = 0, l = Camera.getNumberOfCameras(); i < l; ++i) {
 			Camera.CameraInfo info = new Camera.CameraInfo();
 			Camera.getCameraInfo(i, info);
@@ -46,10 +44,12 @@ public class CameraListener {
 			int cameraTextureId,
 			int cameraId,
 			int width,
-			int height) {
+			int height,
+			int deviceRotation) {
 		this.cameraTextureId = cameraTextureId;
 		this.cameraId = cameraId;
-		frameOrientation = getCameraDisplayOrientation(context, cameraId);
+		frameOrientation = getCameraDisplayOrientation(cameraId,
+				deviceRotation);
 		frameWidth = width;
 		frameHeight = height;
 		setOrientationAndFlip(frameOrientation);
@@ -153,28 +153,11 @@ public class CameraListener {
 	}
 
 	private static int getCameraDisplayOrientation(
-			Context context,
-			int cameraId) {
+			int cameraId,
+			int deviceRotation) {
 		Camera.CameraInfo info = new Camera.CameraInfo();
 		Camera.getCameraInfo(cameraId, info);
-		return (info.orientation - getDeviceRotation(context) + 360) % 360;
-	}
-
-	private static int getDeviceRotation(Context context) {
-		switch (((WindowManager) context
-				.getSystemService(Context.WINDOW_SERVICE))
-				.getDefaultDisplay()
-				.getRotation()) {
-			default:
-			case Surface.ROTATION_0:
-				return 0;
-			case Surface.ROTATION_90:
-				return 90;
-			case Surface.ROTATION_180:
-				return 180;
-			case Surface.ROTATION_270:
-				return 270;
-		}
+		return (info.orientation - deviceRotation + 360) % 360;
 	}
 
 	private void setOrientationAndFlip(int orientation) {

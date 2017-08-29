@@ -28,6 +28,8 @@ import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.MotionEvent;
+import android.view.Surface;
+import android.view.WindowManager;
 
 import java.io.ByteArrayOutputStream;
 import java.lang.IllegalArgumentException;
@@ -204,6 +206,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private ProximityListener proximityListener;
 	private OnRendererListener onRendererListener;
 	private String fragmentShader;
+	private int deviceRotation;
 	private int surfaceProgram = 0;
 	private int surfacePositionLoc;
 	private int surfaceResolutionLoc;
@@ -324,6 +327,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 		surfaceResolution[0] = width;
 		surfaceResolution[1] = height;
+		deviceRotation = getDeviceRotation(context);
 
 		float w = Math.round(width * quality);
 		float h = Math.round(height * quality);
@@ -461,6 +465,13 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					null,
 					accelerometerListener.gravity,
 					magneticFieldListener.filtered);
+			if (deviceRotation != 0) {
+				SensorManager.remapCoordinateSystem(
+						rotationMatrix,
+						SensorManager.AXIS_Y,
+						SensorManager.AXIS_MINUS_X,
+						rotationMatrix);
+			}
 			SensorManager.getOrientation(rotationMatrix, orientation);
 			GLES20.glUniform3fv(
 					orientationLoc,
@@ -1123,7 +1134,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			return;
 		}
 
-		int cameraId = CameraListener.findCameraIdFacing(
+		int cameraId = CameraListener.findCameraId(
 				UNIFORM_CAMERA_BACK.equals(name) ?
 						Camera.CameraInfo.CAMERA_FACING_BACK :
 						Camera.CameraInfo.CAMERA_FACING_FRONT);
@@ -1146,7 +1157,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					id,
 					cameraId,
 					(int) resolution[0],
-					(int) resolution[1]);
+					(int) resolution[1],
+					deviceRotation);
 		}
 
 		cameraListener.register();
@@ -1269,6 +1281,23 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				BatteryManager.EXTRA_SCALE, -1);
 
 		return (float) level / scale;
+	}
+
+	private static int getDeviceRotation(Context context) {
+		switch (((WindowManager) context
+				.getSystemService(Context.WINDOW_SERVICE))
+				.getDefaultDisplay()
+				.getRotation()) {
+			default:
+			case Surface.ROTATION_0:
+				return 0;
+			case Surface.ROTATION_90:
+				return 90;
+			case Surface.ROTATION_180:
+				return 180;
+			case Surface.ROTATION_270:
+				return 270;
+		}
 	}
 
 	private static class TextureBinder {
