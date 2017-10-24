@@ -206,10 +206,11 @@ public class CameraListener {
 				frameHeight,
 				frameOrientation);
 
-		frameWidth = size.width;
-		frameHeight = size.height;
-
-		parameters.setPreviewSize(frameWidth, frameHeight);
+		if (size != null) {
+			frameWidth = size.width;
+			frameHeight = size.height;
+			parameters.setPreviewSize(frameWidth, frameHeight);
+		}
 	}
 
 	private static Camera.Size findBestSize(
