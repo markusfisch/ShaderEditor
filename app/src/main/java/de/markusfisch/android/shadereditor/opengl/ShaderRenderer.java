@@ -736,7 +736,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				Thread.sleep(100);
 			}
 		} catch (InterruptedException e) {
-			// thread got interrupted, ignore that
+			Thread.currentThread().interrupt();
 		}
 
 		// don't clone() because the data doesn't need to be
