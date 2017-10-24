@@ -8,6 +8,8 @@ your Android phone or tablet and use them as live wallpaper.
 
 [![Shader Editor on fdroid.org](https://f-droid.org/wiki/images/c/ca/F-Droid-button_available-on_smaller.png)](https://f-droid.org/repository/browse/?fdfilter=Shader+Editor&fdid=de.markusfisch.android.shadereditor)
 
+![Travis-ci](https://api.travis-ci.org/markusfisch/ShaderEditor.svg)
+
 Features
 --------
 
