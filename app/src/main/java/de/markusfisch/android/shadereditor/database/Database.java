@@ -375,10 +375,17 @@ public class Database {
 	private static String loadRawResource(
 			Context context,
 			int id) throws IOException {
-		InputStream in = context.getResources().openRawResource(id);
-		int l = in.available();
-		byte b[] = new byte[l];
-		return in.read(b) == l ? new String(b, "UTF-8") : null;
+		InputStream in = null;
+		try {
+			in = context.getResources().openRawResource(id);
+			int l = in.available();
+			byte b[] = new byte[l];
+			return in.read(b) == l ? new String(b, "UTF-8") : null;
+		} finally {
+			if (in != null) {
+				in.close();
+			}
+		}
 	}
 
 	private static byte[] loadBitmapResource(Context context, int id) {
