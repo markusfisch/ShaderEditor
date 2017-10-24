@@ -6,7 +6,7 @@ android:
     - android-26
     - extra-android-m2repository
 script:
-  - sh gradlew build
+  - bash gradlew build
 branches:
   only:
     - master
