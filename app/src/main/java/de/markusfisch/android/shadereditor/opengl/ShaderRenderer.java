@@ -483,19 +483,19 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		if (lightLoc > -1 && lightListener != null) {
 			GLES20.glUniform1f(
 					lightLoc,
-					lightListener.ambient);
+					lightListener.getAmbient());
 		}
 
 		if (pressureLoc > -1 && pressureListener != null) {
 			GLES20.glUniform1f(
 					pressureLoc,
-					pressureListener.pressure);
+					pressureListener.getPressure());
 		}
 
 		if (proximityLoc > -1 && proximityListener != null) {
 			GLES20.glUniform1f(
 					proximityLoc,
-					proximityListener.centimeters);
+					proximityListener.getCentimeters());
 		}
 
 		if (offsetLoc > -1) {
