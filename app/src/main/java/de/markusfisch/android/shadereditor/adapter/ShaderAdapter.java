@@ -104,8 +104,8 @@ public class ShaderAdapter extends CursorAdapter {
 	}
 
 	private static final class ViewHolder {
-		public ImageView icon;
-		public TextView title;
+		private ImageView icon;
+		private TextView title;
 	}
 
 	private void initTextColors(Context context) {
