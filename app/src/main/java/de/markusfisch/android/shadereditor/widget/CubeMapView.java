@@ -370,8 +370,8 @@ public class CubeMapView extends ScalingImageView {
 		right -= mapPadding;
 		bottom -= mapPadding;
 
-		float viewWidth = right - left;
-		float viewHeight = bottom - top;
+		float viewWidth = (float) right - left;
+		float viewHeight = (float) bottom - top;
 
 		int cols = 2;
 		int rows = 3;
@@ -415,8 +415,8 @@ public class CubeMapView extends ScalingImageView {
 			face.bounds.set(
 					x,
 					y,
-					x + faceSize,
-					y + faceSize);
+					(float) x + faceSize,
+					(float) y + faceSize);
 
 			if ((x += faceSize) >= right) {
 				x = left;

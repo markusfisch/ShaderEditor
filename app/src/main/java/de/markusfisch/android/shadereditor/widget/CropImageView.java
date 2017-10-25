@@ -51,10 +51,10 @@ public class CropImageView extends ScalingImageView {
 		int vpad = (height - size) / 2;
 
 		setBounds(
-				left + hpad,
-				top + vpad,
-				right - hpad,
-				bottom - vpad);
+				(float) left + hpad,
+				(float) top + vpad,
+				(float) right - hpad,
+				(float) bottom - vpad);
 
 		center(getBounds());
 	}
