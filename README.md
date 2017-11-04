@@ -1,7 +1,7 @@
 Shader Editor
 =============
 
-![Travis-ci](https://api.travis-ci.org/markusfisch/ShaderEditor.svg)
+<a href="https://travis-ci.org/markusfisch/ShaderEditor"><img src="https://api.travis-ci.org/markusfisch/ShaderEditor.svg" alt="Travis-ci"/></a>
 
 Create and edit [GLSL](https://en.wikipedia.org/wiki/GLSL) shaders on
 your Android phone or tablet and use them as live wallpaper.
