@@ -340,6 +340,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		resolution[1] = h;
 
 		resetFps();
+		openCameraListener();
 	}
 
 	@Override
@@ -685,9 +686,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			proximityListener.unregister();
 		}
 
-		if (cameraListener != null) {
-			cameraListener.unregister();
-		}
+		unregisterCameraListener();
 	}
 
 	public void touchAt(MotionEvent e) {
@@ -1041,8 +1040,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 			if (UNIFORM_CAMERA_BACK.equals(name) ||
 					UNIFORM_CAMERA_FRONT.equals(name)) {
-				openCameraListener(name, textureIds[i],
-						textureParameters.get(i));
+				// handled in onSurfaceChanged() because we need
+				// the dimensions of the surface to pick a preview
+				// resolution
 				continue;
 			}
 
@@ -1125,6 +1125,30 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_CUBE_MAP);
 	}
 
+	private void unregisterCameraListener() {
+		if (cameraListener != null) {
+			cameraListener.unregister();
+			cameraListener = null;
+		}
+	}
+
+	private void openCameraListener() {
+		unregisterCameraListener();
+
+		for (int i = 0; i < numberOfTextures; ++i) {
+			String name = textureNames.get(i);
+
+			if (UNIFORM_CAMERA_BACK.equals(name) ||
+					UNIFORM_CAMERA_FRONT.equals(name)) {
+				openCameraListener(name, textureIds[i],
+						textureParameters.get(i));
+
+				// only one camera can be opened at a time
+				break;
+			}
+		}
+	}
+
 	private void openCameraListener(
 			String name,
 			int id,
@@ -1145,11 +1169,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 		if (cameraListener == null ||
 				cameraListener.cameraId != cameraId) {
-			if (cameraListener != null) {
-				cameraListener.unregister();
-				cameraListener = null;
-			}
-
+			unregisterCameraListener();
 			requestCameraPermission();
 			setCameraTextureProperties(id, tp);
 			cameraListener = new CameraListener(
@@ -1166,8 +1186,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 	private void requestCameraPermission() {
 		String permission = android.Manifest.permission.CAMERA;
-		if (ContextCompat.checkSelfPermission(context,
-				permission) != PackageManager.PERMISSION_GRANTED) {
+		if (ContextCompat.checkSelfPermission(context, permission) !=
+				PackageManager.PERMISSION_GRANTED) {
 			Activity activity;
 			try {
 				activity = (Activity) context;
