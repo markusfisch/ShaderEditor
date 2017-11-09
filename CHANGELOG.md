@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.9.0
+* Choose any shader as the template for new shaders
+* Remap orientation uniform when device is rotated
+* Show shader name in settings summary too
+* Fixed initializing camera
+
 ## 2.8.1
 * Fixed clearing empty backbuffer
 * Fixed floating action button icon color
