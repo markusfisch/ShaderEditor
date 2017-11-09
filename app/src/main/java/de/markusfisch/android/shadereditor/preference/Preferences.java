@@ -21,6 +21,7 @@ public class Preferences {
 	public static final String SHOW_INSERT_TAB = "show_insert_tab";
 	public static final String EXPORT_TABS = "export_tabs";
 	public static final String SAVE_ON_RUN = "save_on_run";
+	public static final String DEFAULT_NEW_SHADER = "default_new_shader";
 
 	private static final int RUN_AUTO = 1;
 	private static final int RUN_MANUALLY = 2;
@@ -40,6 +41,7 @@ public class Preferences {
 	private boolean saveOnRun = true;
 	private boolean batteryLow = false;
 	private int systemBarColor;
+	private long defaultNewShaderId = 0;
 
 	public void init(Context context) {
 		systemBarColor = ContextCompat.getColor(
@@ -92,6 +94,9 @@ public class Preferences {
 		saveOnRun = preferences.getBoolean(
 				SAVE_ON_RUN,
 				saveOnRun);
+		defaultNewShaderId = parseLong(
+				preferences.getString(DEFAULT_NEW_SHADER, null),
+				defaultNewShaderId);
 	}
 
 	public boolean saveBattery() {
@@ -145,12 +150,16 @@ public class Preferences {
 
 	public void setWallpaperShader(long id) {
 		wallpaperShaderId = id;
+		putString(WALLPAPER_SHADER, String.valueOf(wallpaperShaderId));
+	}
 
-		SharedPreferences.Editor editor = preferences.edit();
-		editor.putString(
-				WALLPAPER_SHADER,
-				String.valueOf(wallpaperShaderId));
-		editor.apply();
+	public long getDefaultNewShader() {
+		return defaultNewShaderId;
+	}
+
+	public void setDefaultNewShader(long id) {
+		defaultNewShaderId = id;
+		putString(DEFAULT_NEW_SHADER, String.valueOf(defaultNewShaderId));
 	}
 
 	public boolean isBatteryLow() {
@@ -163,6 +172,12 @@ public class Preferences {
 
 	public int getSystemBarColor() {
 		return systemBarColor;
+	}
+
+	private void putString(String key, String value) {
+		SharedPreferences.Editor editor = preferences.edit();
+		editor.putString(key, value);
+		editor.apply();
 	}
 
 	private static int parseInt(String s, int preset) {

@@ -179,7 +179,7 @@ public class MainActivity
 				addShader();
 				return true;
 			case R.id.duplicate_shader:
-				duplicateShader(selectedShaderId);
+				duplicateSelectedShader();
 				return true;
 			case R.id.delete_shader:
 				deleteShader(selectedShaderId);
@@ -735,21 +735,44 @@ public class MainActivity
 	}
 
 	private void addShader() {
+		long id = ShaderEditorApp.preferences.getDefaultNewShader();
+		if (id > 0) {
+			if (!ShaderEditorApp.db.isShaderAvailable(id)) {
+				ShaderEditorApp.preferences.setDefaultNewShader(0);
+			} else {
+				duplicateShader(id);
+				return;
+			}
+		}
 		selectShaderAndUpdate(ShaderEditorApp.db.insertNewShader(this));
 	}
 
 	private void duplicateShader(long id) {
-		if (editorFragment == null || id < 1) {
+		Cursor cursor = ShaderEditorApp.db.getShader(id);
+		if (Database.closeIfEmpty(cursor)) {
+			return;
+		}
+		selectShaderAndUpdate(ShaderEditorApp.db.insertShader(
+				cursor.getString(cursor.getColumnIndex(
+						Database.SHADERS_FRAGMENT_SHADER)),
+				ShaderEditorApp.db.getThumbnail(id),
+				cursor.getFloat(cursor.getColumnIndex(
+						Database.SHADERS_QUALITY))));
+		cursor.close();
+	}
+
+	private void duplicateSelectedShader() {
+		if (editorFragment == null || selectedShaderId < 1) {
 			return;
 		}
 
 		if (editorFragment.isModified()) {
-			saveShader(id);
+			saveShader(selectedShaderId);
 		}
 
 		selectShaderAndUpdate(ShaderEditorApp.db.insertShader(
 				editorFragment.getText(),
-				ShaderEditorApp.db.getThumbnail(id),
+				ShaderEditorApp.db.getThumbnail(selectedShaderId),
 				quality));
 
 		// update thumbnails

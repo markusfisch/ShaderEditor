@@ -88,7 +88,10 @@ public class PreferencesFragment
 
 	private void setSummary(Preference preference) {
 		if (preference instanceof ShaderListPreference) {
-			preference.setSummary(getWallpaperShaderSummary());
+			long id = Preferences.WALLPAPER_SHADER.equals(preference.getKey()) ?
+					ShaderEditorApp.preferences.getWallpaperShader() :
+					ShaderEditorApp.preferences.getDefaultNewShader();
+			preference.setSummary(getShaderSummary(id));
 		} else if (preference instanceof ListPreference) {
 			preference.setSummary(((ListPreference) preference).getEntry());
 		} else if (preference instanceof PreferenceGroup) {
@@ -96,8 +99,7 @@ public class PreferencesFragment
 		}
 	}
 
-	private String getWallpaperShaderSummary() {
-		long id = ShaderEditorApp.preferences.getWallpaperShader();
+	private String getShaderSummary(long id) {
 		Cursor cursor = ShaderEditorApp.db.getShader(id);
 
 		if (Database.closeIfEmpty(cursor)) {

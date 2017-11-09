@@ -2,8 +2,14 @@ package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.adapter.ShaderSpinnerAdapter;
+import de.markusfisch.android.shadereditor.database.Database;
+import de.markusfisch.android.shadereditor.preference.Preferences;
+import de.markusfisch.android.shadereditor.R;
 
 import android.content.DialogInterface;
+import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.database.MergeCursor;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.ListPreferenceDialogFragmentCompat;
@@ -42,9 +48,12 @@ public class ShaderListPreferenceDialogFragment
 		// for Entries and set up a setSingleChoiceItems() for them that
 		// will never be used
 
-		adapter = new ShaderSpinnerAdapter(
-				getContext(),
-				ShaderEditorApp.db.getShaders());
+		final String key = getPreference().getKey();
+		Cursor cursor = ShaderEditorApp.db.getShaders();
+		if (Preferences.DEFAULT_NEW_SHADER.equals(key)) {
+			cursor = addEmptyItem(cursor);
+		}
+		adapter = new ShaderSpinnerAdapter(getContext(), cursor);
 
 		builder.setSingleChoiceItems(
 				adapter,
@@ -54,8 +63,13 @@ public class ShaderListPreferenceDialogFragment
 					public void onClick(
 							DialogInterface dialog,
 							int which) {
-						ShaderEditorApp.preferences.setWallpaperShader(
-								adapter.getItemId(which));
+						if (Preferences.WALLPAPER_SHADER.equals(key)) {
+							ShaderEditorApp.preferences.setWallpaperShader(
+									adapter.getItemId(which));
+						} else {
+							ShaderEditorApp.preferences.setDefaultNewShader(
+									adapter.getItemId(which));
+						}
 
 						ShaderListPreferenceDialogFragment.this.onClick(
 								dialog,
@@ -72,6 +86,33 @@ public class ShaderListPreferenceDialogFragment
 		if (adapter != null) {
 			adapter.changeCursor(null);
 			adapter = null;
+		}
+	}
+
+	private Cursor addEmptyItem(Cursor cursor) {
+		MatrixCursor matrixCursor = null;
+		try {
+			matrixCursor = new MatrixCursor(new String[] {
+				Database.SHADERS_ID,
+				Database.SHADERS_THUMB,
+				Database.SHADERS_NAME,
+				Database.SHADERS_MODIFIED
+			});
+			matrixCursor.addRow(new Object[] {
+				0,
+				null,
+				getString(R.string.no_shader_selected),
+				null
+			});
+
+			return new MergeCursor(new Cursor[] {
+				matrixCursor,
+				cursor
+			});
+		} finally {
+			if (matrixCursor != null) {
+				matrixCursor.close();
+			}
 		}
 	}
 }

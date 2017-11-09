@@ -58,6 +58,9 @@
 			android:summary="@string/save_on_run_summary"
 			android:checked="true"
 			android:defaultValue="true"/>
+		<de.markusfisch.android.shadereditor.preference.ShaderListPreference
+			android:key="default_new_shader"
+			android:title="@string/default_new_shader"/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="@string/sensors">

@@ -128,6 +128,21 @@ public class Database {
 				null);
 	}
 
+	public boolean isShaderAvailable(long id) {
+		Cursor cursor = db.rawQuery(
+				"SELECT " +
+						SHADERS_ID +
+						" FROM " + SHADERS +
+						" WHERE " + SHADERS_ID + " = ?",
+				new String[]{String.valueOf(id)});
+		if (cursor == null) {
+			return false;
+		}
+		boolean exists = cursor.moveToFirst();
+		cursor.close();
+		return exists;
+	}
+
 	public Cursor getShader(long id) {
 		return db.rawQuery(
 				"SELECT " +

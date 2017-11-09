@@ -5,6 +5,7 @@ import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -81,14 +82,16 @@ public class ShaderAdapter extends CursorAdapter {
 
 	void setData(ViewHolder holder, Cursor cursor) {
 		byte bytes[] = cursor.getBlob(thumbIndex);
+		Bitmap bitmap = null;
 
 		if (bytes != null && bytes.length > 0) {
-			holder.icon.setImageBitmap(BitmapFactory.decodeByteArray(
+			bitmap = BitmapFactory.decodeByteArray(
 					bytes,
 					0,
-					bytes.length));
+					bytes.length);
 		}
 
+		holder.icon.setImageBitmap(bitmap);
 		holder.title.setText(getTitle(cursor));
 	}
 

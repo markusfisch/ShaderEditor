@@ -41,6 +41,7 @@
 	<string name="show_insert_tab_summary">Show insert tab menu item</string>
 	<string name="save_on_run">Save on run</string>
 	<string name="save_on_run_summary">Save changes when running manually</string>
+	<string name="default_new_shader">Default new shader</string>
 
 	<!-- Preferences -->
 	<string name="run_auto">Auto run on change</string>
