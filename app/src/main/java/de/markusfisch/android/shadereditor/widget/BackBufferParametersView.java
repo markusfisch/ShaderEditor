@@ -71,12 +71,14 @@ public class BackBufferParametersView extends LinearLayout {
 
 	public void setParameters(BackBufferParameters tp) {
 		Cursor cursor = (Cursor) presetView.getSelectedItem();
+		if (cursor == null) {
+			return;
+		}
 		long id = cursor.getLong(cursor.getColumnIndex(
 				Database.TEXTURES_ID));
-		if (id > 0) {
-			String preset = cursor.getString(cursor.getColumnIndex(
-					Database.TEXTURES_NAME));
-			tp.setPreset(preset);
+		if (id > 0 && tp != null) {
+			tp.setPreset(cursor.getString(cursor.getColumnIndex(
+					Database.TEXTURES_NAME)));
 		}
 	}
 }
