@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.9.1
+* Fix broken backbuffer preset selection
+* Fix crash when setting backbuffer parameters
+
 ## 2.9.0
 * Choose any shader as the template for new shaders
 * Remap orientation uniform when device is rotated
