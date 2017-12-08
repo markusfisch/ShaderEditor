@@ -1,5 +1,5 @@
 PACKAGE = de.markusfisch.android.shadereditor
-APK = app/build/outputs/apk/app-debug.apk
+APK = app/build/outputs/apk/debug/app-debug.apk
 
 all: debug install start
 
