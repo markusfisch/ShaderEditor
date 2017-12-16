@@ -1,13 +1,11 @@
-Shader Editor
-=============
+# Shader Editor
 
 Create and edit [GLSL](https://en.wikipedia.org/wiki/GLSL) shaders on
 your Android phone or tablet and use them as live wallpaper.
 
 <a href="https://play.google.com/store/apps/details?id=de.markusfisch.android.shadereditor&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-AC-global-none-all-co-pr-py-PartBadges-Oct1515-1"><img alt="Get it on Google Play" src="https://play.google.com/intl/en_us/badges/images/apps/en-play-badge.png" height="45px"/></a>
 
-Features
---------
+## Features
 
 * Live preview in background or on an extra screen
 * Syntax highlighting
@@ -24,8 +22,7 @@ Features
 * Create and use cube maps
 * Disables rendering when battery is low
 
-FAQ
----
+## FAQ
 
 ### How many FPS should I get to set my shader as live wallpaper?
 
