@@ -4,12 +4,8 @@
 	package="de.markusfisch.android.shadereditor"
 	android:installLocation="auto">
 	<supports-screens
-		android:resizeable="true"
-		android:smallScreens="true"
-		android:normalScreens="true"
 		android:largeScreens="true"
-		android:xlargeScreens="true"
-		android:anyDensity="true"/>
+		android:xlargeScreens="true"/>
 	<!-- Camera textures are only supported from API > 14 -->
 	<uses-permission android:name="android.permission.CAMERA"
 		android:minSdkVersion="15"/>
