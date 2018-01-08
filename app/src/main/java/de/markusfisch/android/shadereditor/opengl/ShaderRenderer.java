@@ -61,6 +61,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_CAMERA_FRONT = "cameraFront";
 	public static final String UNIFORM_CAMERA_ORIENTATION = "cameraOrientation";
 	public static final String UNIFORM_DATE = "date";
+	public static final String UNIFORM_FRAME_NUMBER = "frame";
 	public static final String UNIFORM_FTIME = "ftime";
 	public static final String UNIFORM_GRAVITY = "gravity";
 	public static final String UNIFORM_GYROSCOPE = "gyroscope";
@@ -231,6 +232,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int timeLoc;
 	private int secondLoc;
 	private int subSecondLoc;
+	private int frameNumLoc;
 	private int fTimeLoc;
 	private int resolutionLoc;
 	private int touchLoc;
@@ -255,10 +257,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int backBufferLoc;
 	private int cameraOrientationLoc;
 	private int cameraAddentLoc;
-	private int numberOfTextures = 0;
+	private int numberOfTextures;
 	private int pointerCount;
-	private int frontTarget = 0;
+	private int frontTarget;
 	private int backTarget = 1;
+	private int frameNum;
 	private long startTime;
 	private long lastRender;
 	private long lastBatteryUpdate;
@@ -348,6 +351,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 		startTime = lastRender = System.nanoTime();
 		startRandom = (float) Math.random();
+		frameNum = 0;
 
 		surfaceResolution[0] = width;
 		surfaceResolution[1] = height;
@@ -405,6 +409,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			GLES20.glUniform1f(
 					subSecondLoc,
 					delta - (int) delta);
+		}
+
+		if (frameNumLoc > -1) {
+			GLES20.glUniform1i(
+					frameNumLoc,
+					frameNum);
 		}
 
 		if (fTimeLoc > -1) {
@@ -717,6 +727,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		if (onRendererListener != null) {
 			updateFps(now);
 		}
+
+		++frameNum;
 	}
 
 	public void unregisterListeners() {
@@ -850,6 +862,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, UNIFORM_SECOND);
 		subSecondLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_SUB_SECOND);
+		frameNumLoc = GLES20.glGetUniformLocation(
+				program, UNIFORM_FRAME_NUMBER);
 		fTimeLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_FTIME);
 		resolutionLoc = GLES20.glGetUniformLocation(

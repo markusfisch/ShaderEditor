@@ -85,6 +85,10 @@ public class PresetUniformAdapter extends BaseAdapter {
 						ShaderRenderer.UNIFORM_DATE,
 						context.getString(R.string.date_time)),
 				new Uniform(
+						"int",
+						ShaderRenderer.UNIFORM_FRAME_NUMBER,
+						context.getString(R.string.frame_number)),
+				new Uniform(
 						"float",
 						ShaderRenderer.UNIFORM_FTIME,
 						context.getString(R.string.time_in_cycle)),
