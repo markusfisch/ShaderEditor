@@ -4,8 +4,15 @@ import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLSurfaceView.EGLContextFactory;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
+
+import javax.microedition.khronos.egl.EGL10;
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.egl.EGLContext;
+import javax.microedition.khronos.egl.EGLDisplay;
+import javax.microedition.khronos.opengles.GL10;
 
 public class ShaderView extends GLSurfaceView {
 	private ShaderRenderer renderer;
@@ -48,8 +55,40 @@ public class ShaderView extends GLSurfaceView {
 	}
 
 	private void init(Context context, int renderMode) {
-		setEGLContextClientVersion(2);
+		setEGLContextFactory(new ContextFactory());
 		setRenderer((renderer = new ShaderRenderer(context)));
 		setRenderMode(renderMode);
+	}
+
+	private static class ContextFactory
+			implements GLSurfaceView.EGLContextFactory {
+		@Override
+		public EGLContext createContext(EGL10 egl, EGLDisplay display,
+				EGLConfig eglConfig) {
+			EGLContext context = egl.eglCreateContext(display, eglConfig,
+					EGL10.EGL_NO_CONTEXT, new int[] {
+				0x3098,
+				(int) 3,
+				EGL10.EGL_NONE
+			});
+			GL10 gl;
+			if (context != null &&
+					(gl = (GL10) context.getGL()) != null &&
+					gl.glGetString(GL10.GL_VERSION) != null) {
+				return context;
+			}
+			return egl.eglCreateContext(display, eglConfig,
+					EGL10.EGL_NO_CONTEXT, new int[] {
+				0x3098,
+				(int) 2,
+				EGL10.EGL_NONE
+			});
+		}
+
+		@Override
+		public void destroyContext(EGL10 egl, EGLDisplay display,
+				EGLContext context) {
+			egl.eglDestroyContext(display, context);
+		}
 	}
 }
