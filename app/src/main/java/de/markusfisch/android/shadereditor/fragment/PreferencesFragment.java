@@ -34,22 +34,28 @@ public class PreferencesFragment
 	public void onCreatePreferences(Bundle state, String rootKey) {
 		addPreferencesFromResource(R.xml.preferences);
 
-		Preference importPreference = findPreference(Preferences.IMPORT_FROM_DIRECTORY);
+		Preference importPreference = findPreference(
+				Preferences.IMPORT_FROM_DIRECTORY);
 		importPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				if (checkExternalStoragePermission(READ_EXTERNAL_STORAGE_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+				if (checkExternalStoragePermission(
+						READ_EXTERNAL_STORAGE_REQUEST,
+						Manifest.permission.READ_EXTERNAL_STORAGE)) {
 					ImportExport.importFromDirectory(getContext());
 				}
 				return true;
 			}
 		});
 
-		Preference exportPreference = findPreference(Preferences.EXPORT_TO_DIRECTORY);
+		Preference exportPreference = findPreference(
+				Preferences.EXPORT_TO_DIRECTORY);
 		exportPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				if (checkExternalStoragePermission(WRITE_EXTERNAL_STORAGE_REQUEST, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+				if (checkExternalStoragePermission(
+						WRITE_EXTERNAL_STORAGE_REQUEST,
+						Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 					ImportExport.exportToDirectory(getContext());
 				}
 				return true;
@@ -152,17 +158,25 @@ public class PreferencesFragment
 		return summary;
 	}
 
-	public boolean checkExternalStoragePermission(int request, String permission) {
+	public boolean checkExternalStoragePermission(
+			int request,
+			String permission) {
 		FragmentActivity activity = getActivity();
 		if (ContextCompat.checkSelfPermission(activity, permission)
 				!= PackageManager.PERMISSION_GRANTED) {
-			if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+			if (ActivityCompat.shouldShowRequestPermissionRationale(
+					activity,
+					permission)) {
 				int strId = request == WRITE_EXTERNAL_STORAGE_REQUEST ?
-						R.string.write_access_required : R.string.read_access_required;
+						R.string.write_access_required :
+						R.string.read_access_required;
 				Toast.makeText(getActivity(), getString(strId),
 						Toast.LENGTH_LONG).show();
 			}
-			ActivityCompat.requestPermissions(activity, new String[]{permission}, request);
+			ActivityCompat.requestPermissions(
+					activity,
+					new String[]{permission},
+					request);
 			return false;
 		}
 
@@ -170,28 +184,40 @@ public class PreferencesFragment
 	}
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-										   @NonNull int[] grantResults) {
-		switch (requestCode) {
-			case WRITE_EXTERNAL_STORAGE_REQUEST:
-				if (grantResults.length > 0
-						&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					ImportExport.exportToDirectory(getContext());
-				} else {
-					Toast.makeText(getActivity(), getString(R.string.write_access_required),
-							Toast.LENGTH_LONG).show();
+	public void onRequestPermissionsResult(
+			int requestCode,
+			@NonNull String[] permissions,
+			@NonNull int[] grantResults) {
+		for (int i = 0, l = grantResults.length; i < l; ++i) {
+			if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+				switch (requestCode) {
+					default:
+						// make FindBugs happy
+						continue;
+					case WRITE_EXTERNAL_STORAGE_REQUEST:
+						ImportExport.exportToDirectory(getContext());
+						break;
+					case READ_EXTERNAL_STORAGE_REQUEST:
+						ImportExport.importFromDirectory(getContext());
+						break;
 				}
-				break;
-
-			case READ_EXTERNAL_STORAGE_REQUEST:
-				if (grantResults.length > 0
-						&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					ImportExport.importFromDirectory(getContext());
-				} else {
-					Toast.makeText(getActivity(), getString(R.string.read_access_required),
-							Toast.LENGTH_LONG).show();
+			} else {
+				int messageId = 0;
+				switch (requestCode) {
+					default:
+						// make FindBugs happy
+						continue;
+					case WRITE_EXTERNAL_STORAGE_REQUEST:
+						messageId = R.string.write_access_required;
+						break;
+					case READ_EXTERNAL_STORAGE_REQUEST:
+						messageId = R.string.read_access_required;
+						break;
 				}
-				break;
+				Toast.makeText(getActivity(),
+						getString(messageId),
+						Toast.LENGTH_LONG).show();
+			}
 		}
 	}
 }
