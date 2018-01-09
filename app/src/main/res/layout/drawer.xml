@@ -20,6 +20,7 @@
 		android:layout_height="match_parent"
 		android:padding="16dp"
 		android:clickable="true"
+		android:focusable="true"
 		android:visibility="gone">
 		<ProgressBar
 			style="?android:attr/progressBarStyleLarge"
