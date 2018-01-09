@@ -55,6 +55,10 @@ public class ShaderView extends GLSurfaceView {
 	}
 
 	private void init(Context context, int renderMode) {
+		// on some devices it's important to setEGLContextClientVersion()
+		// even if the docs say it's not used when setEGLContextFactory()
+		// is called; not doing so will crash the app (e.g. on the FP1)
+		setEGLContextClientVersion(2);
 		setEGLContextFactory(new ContextFactory());
 		setRenderer((renderer = new ShaderRenderer(context)));
 		setRenderMode(renderMode);
@@ -62,25 +66,23 @@ public class ShaderView extends GLSurfaceView {
 
 	private static class ContextFactory
 			implements GLSurfaceView.EGLContextFactory {
+		private static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+
 		@Override
 		public EGLContext createContext(EGL10 egl, EGLDisplay display,
 				EGLConfig eglConfig) {
 			EGLContext context = egl.eglCreateContext(display, eglConfig,
 					EGL10.EGL_NO_CONTEXT, new int[] {
-				0x3098,
-				(int) 3,
+				EGL_CONTEXT_CLIENT_VERSION, 3,
 				EGL10.EGL_NONE
 			});
-			GL10 gl;
-			if (context != null &&
-					(gl = (GL10) context.getGL()) != null &&
-					gl.glGetString(GL10.GL_VERSION) != null) {
+			if (context != null && context != EGL10.EGL_NO_CONTEXT &&
+					context.getGL() != null) {
 				return context;
 			}
 			return egl.eglCreateContext(display, eglConfig,
 					EGL10.EGL_NO_CONTEXT, new int[] {
-				0x3098,
-				(int) 2,
+				EGL_CONTEXT_CLIENT_VERSION, 2,
 				EGL10.EGL_NONE
 			});
 		}
