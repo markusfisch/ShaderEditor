@@ -1,7 +1,7 @@
 # Change Log
 
 ## 2.10.0
-* Try to aquire a GLES 3.0 context if available
+* Try to acquire a GLES 3.0 context if available
 
 ## 2.9.1
 * Fix broken backbuffer preset selection
