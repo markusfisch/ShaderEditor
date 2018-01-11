@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.10.1
+* Match version declaration of vertex shader
+
 ## 2.10.0
 * Try to acquire a GLES 3.0 context if available
 
