@@ -55,18 +55,25 @@ public class ShaderView extends GLSurfaceView {
 	}
 
 	private void init(Context context, int renderMode) {
+		renderer = new ShaderRenderer(context);
+
 		// on some devices it's important to setEGLContextClientVersion()
 		// even if the docs say it's not used when setEGLContextFactory()
 		// is called; not doing so will crash the app (e.g. on the FP1)
 		setEGLContextClientVersion(2);
-		setEGLContextFactory(new ContextFactory());
-		setRenderer((renderer = new ShaderRenderer(context)));
+		setEGLContextFactory(new ContextFactory(renderer));
+		setRenderer(renderer);
 		setRenderMode(renderMode);
 	}
 
 	private static class ContextFactory
 			implements GLSurfaceView.EGLContextFactory {
 		private static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
+		private ShaderRenderer renderer;
+
+		public ContextFactory(ShaderRenderer renderer) {
+			this.renderer = renderer;
+		}
 
 		@Override
 		public EGLContext createContext(EGL10 egl, EGLDisplay display,
@@ -78,6 +85,7 @@ public class ShaderView extends GLSurfaceView {
 			});
 			if (context != null && context != EGL10.EGL_NO_CONTEXT &&
 					context.getGL() != null) {
+				renderer.setVersion(3);
 				return context;
 			}
 			return egl.eglCreateContext(display, eglConfig,
