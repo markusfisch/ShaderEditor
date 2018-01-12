@@ -161,6 +161,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					"void main() {" +
 					"gl_Position = vec4(position, 0., 1.);" +
 					"}";
+	private static final String VERTEX_SHADER_300 =
+			"#version 300 es\n" +
+					"in vec2 position;" +
+					"void main() {" +
+					"gl_Position = vec4(position, 0., 1.);" +
+					"}";
 	private static final String FRAGMENT_SHADER =
 			"#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
 					"precision highp float;\n" +
@@ -206,6 +212,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private ProximityListener proximityListener;
 	private OnRendererListener onRendererListener;
 	private String fragmentShader;
+	private int version = 2;
 	private int deviceRotation;
 	private int surfaceProgram = 0;
 	private int surfacePositionLoc;
@@ -265,6 +272,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				-1, -1,
 				1, 1,
 				1, -1}).position(0);
+	}
+
+	public void setVersion(int version) {
+		this.version = version;
 	}
 
 	public void setFragmentShader(String source, float quality) {
@@ -751,11 +762,14 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private void loadPrograms() {
+		String vertexShader = fragmentShader.contains("#version 300") &&
+				version == 3 ? VERTEX_SHADER_300 : VERTEX_SHADER;
+
 		if (((surfaceProgram = Program.loadProgram(
-				VERTEX_SHADER,
-				FRAGMENT_SHADER)) == 0 ||
-				(program = Program.loadProgram(
 						VERTEX_SHADER,
+						FRAGMENT_SHADER)) == 0 ||
+				(program = Program.loadProgram(
+						vertexShader,
 						fragmentShader)) == 0) &&
 				onRendererListener != null) {
 			onRendererListener.onInfoLog(Program.getInfoLog());
