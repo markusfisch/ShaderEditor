@@ -667,10 +667,6 @@ public class MainActivity
 			return;
 		}
 
-		if (ShaderEditorApp.preferences.doesRunInBackground()) {
-			setFragmentShader(text.replaceAll("\\p{C}", ""));
-		}
-
 		selectedShaderId = NO_SHADER;
 		editorFragment.setText(text);
 		setDefaultToolbarTitle();

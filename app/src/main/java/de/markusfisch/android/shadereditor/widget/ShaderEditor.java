@@ -71,7 +71,7 @@ public class ShaderEditor extends AppCompatEditText {
 
 			if (onTextChangedListener != null) {
 				onTextChangedListener.onTextChanged(
-						e.toString());
+						removeNonAscii(e.toString()));
 			}
 
 			highlightWithoutChange(e);
@@ -90,6 +90,10 @@ public class ShaderEditor extends AppCompatEditText {
 	private int colorComment;
 	private int tabWidthInCharacters = 0;
 	private int tabWidth = 0;
+
+	public static String removeNonAscii(String text) {
+		return text.replaceAll("[^\\x0A\\x09\\x20-\\x7E]", "");
+	}
 
 	public ShaderEditor(Context context) {
 		super(context);
@@ -145,11 +149,12 @@ public class ShaderEditor extends AppCompatEditText {
 		dirty = false;
 
 		modified = false;
-		setText(highlight(new SpannableStringBuilder(text)));
+		String src = removeNonAscii(text.toString());
+		setText(highlight(new SpannableStringBuilder(src)));
 		modified = true;
 
 		if (onTextChangedListener != null) {
-			onTextChangedListener.onTextChanged(text.toString());
+			onTextChangedListener.onTextChanged(src);
 		}
 	}
 
