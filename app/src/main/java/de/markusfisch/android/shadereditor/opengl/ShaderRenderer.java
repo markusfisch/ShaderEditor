@@ -495,12 +495,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 		if ((rotationMatrixLoc > -1 || orientationLoc > -1 ||
 				inclinationMatrixLoc > -1 || inclinationLoc > -1) &&
-				gravityValues != null && magneticFieldListener != null) {
-			SensorManager.getRotationMatrix(
-					rotationMatrix,
-					inclinationMatrix,
-					gravityValues,
-					magneticFieldListener.filtered);
+				gravityValues != null && magneticFieldListener != null &&
+				SensorManager.getRotationMatrix(
+						rotationMatrix,
+						inclinationMatrix,
+						gravityValues,
+						magneticFieldListener.filtered)) {
 			if (deviceRotation != 0) {
 				int x = SensorManager.AXIS_Y;
 				int y = SensorManager.AXIS_MINUS_X;
@@ -934,7 +934,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			}
 			if (!gravityListener.register()) {
 				gravityListener = null;
-				gravityValues = getAccelerometerListener().gravity;
+				AccelerometerListener l = getAccelerometerListener();
+				gravityValues = l != null ? l.gravity : null;
 			} else {
 				gravityValues = gravityListener.values;
 			}
@@ -947,7 +948,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			}
 			if (!linearAccelerationListener.register()) {
 				linearAccelerationListener = null;
-				linearValues = getAccelerometerListener().linear;
+				AccelerometerListener l = getAccelerometerListener();
+				linearValues = l != null ? l.linear : null;
 			} else {
 				linearValues = linearAccelerationListener.values;
 			}
@@ -957,7 +959,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			if (gyroscopeListener == null) {
 				gyroscopeListener = new GyroscopeListener(context);
 			}
-			gyroscopeListener.register();
+			if (!gyroscopeListener.register()) {
+				gyroscopeListener = null;
+			}
 		}
 
 		if (magneticLoc > -1 || rotationMatrixLoc > -1 ||
@@ -966,34 +970,45 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			if (magneticFieldListener == null) {
 				magneticFieldListener = new MagneticFieldListener(context);
 			}
-			magneticFieldListener.register();
+			if (!magneticFieldListener.register()) {
+				magneticFieldListener = null;
+			}
 		}
 
 		if (lightLoc > -1) {
 			if (lightListener == null) {
 				lightListener = new LightListener(context);
 			}
-			lightListener.register();
+			if (!lightListener.register()) {
+				lightListener = null;
+			}
 		}
 
 		if (pressureLoc > -1) {
 			if (pressureListener == null) {
 				pressureListener = new PressureListener(context);
 			}
-			pressureListener.register();
+			if (!pressureListener.register()) {
+				pressureListener = null;
+			}
 		}
 
 		if (proximityLoc > -1) {
 			if (proximityListener == null) {
 				proximityListener = new ProximityListener(context);
 			}
-			proximityListener.register();
+			if (!proximityListener.register()) {
+				proximityListener = null;
+			}
 		}
 	}
 
 	private AccelerometerListener getAccelerometerListener() {
 		if (accelerometerListener == null) {
 			accelerometerListener = new AccelerometerListener(context);
+		}
+		if (!accelerometerListener.register()) {
+			return null;
 		}
 		return accelerometerListener;
 	}

@@ -46,8 +46,9 @@ public abstract class AbstractListener implements SensorEventListener {
 		}
 
 		last = 0;
-
-		return listening = sensorManager.registerListener(this, sensor,
+		listening = sensorManager.registerListener(this, sensor,
 				ShaderEditorApp.preferences.getSensorDelay());
+
+		return listening;
 	}
 }
