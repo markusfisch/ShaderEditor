@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.10.2
+* Remove non-ascii characters from pasted source code
+
 ## 2.10.1
 * Match version declaration of vertex shader
 
