@@ -1285,7 +1285,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 						continue;
 					}
 					if (!source.contains(OES_EXTERNAL)) {
-						source = OES_EXTERNAL + source;
+						source = addPreprocessorDirective(source,
+								OES_EXTERNAL);
 					}
 					break;
 				default:
@@ -1298,6 +1299,23 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 
 		return source;
+	}
+
+	private static String addPreprocessorDirective(String source,
+			String directive) {
+		// #version must always be the very first directive
+		if (source.trim().startsWith("#version")) {
+			int lf = source.indexOf("\n");
+			if (lf < 0) {
+				// no line break?
+				return source;
+			}
+			++lf;
+			return source.substring(0, lf) +
+					directive +
+					source.substring(lf);
+		}
+		return directive + source;
 	}
 
 	private float getBatteryLevel() {
