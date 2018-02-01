@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.10.3
+* Insert preprocessor directives after #version
+
 ## 2.10.2
 * Remove non-ascii characters from pasted source code
 
