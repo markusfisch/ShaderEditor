@@ -480,10 +480,20 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					gravityListener.values,
 					magneticFieldListener.filtered);
 			if (deviceRotation != 0) {
+				int x = SensorManager.AXIS_Y;
+				int y = SensorManager.AXIS_MINUS_X;
+				switch (deviceRotation) {
+					default:
+						break;
+					case 270:
+						x = SensorManager.AXIS_MINUS_Y;
+						y = SensorManager.AXIS_X;
+						break;
+				}
 				SensorManager.remapCoordinateSystem(
 						rotationMatrix,
-						SensorManager.AXIS_Y,
-						SensorManager.AXIS_MINUS_X,
+						x,
+						y,
 						rotationMatrix);
 			}
 			SensorManager.getOrientation(rotationMatrix, orientation);
