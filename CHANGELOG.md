@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.10.4
+* Fix remapping of orientation uniform
+* Use system-calculated gravity and linear acceleration data
+
 ## 2.10.3
 * Insert preprocessor directives after #version
 
