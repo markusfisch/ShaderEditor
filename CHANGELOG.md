@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.10.5
+* Fallback to old gravity and linear acceleration calculation if necessary
+* Add uniform for geomagnetic inclination angle
+
 ## 2.10.4
 * Fix remapping of orientation uniform
 * Use system-calculated gravity and linear acceleration data
