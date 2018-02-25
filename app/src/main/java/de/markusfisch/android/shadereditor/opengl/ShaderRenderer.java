@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.opengl;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.fragment.AbstractSamplerPropertiesFragment;
+import de.markusfisch.android.shadereditor.hardware.AccelerometerListener;
 import de.markusfisch.android.shadereditor.hardware.CameraListener;
 import de.markusfisch.android.shadereditor.hardware.GravityListener;
 import de.markusfisch.android.shadereditor.hardware.GyroscopeListener;
@@ -206,6 +207,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private final Context context;
 	private final ByteBuffer vertexBuffer;
 
+	private AccelerometerListener accelerometerListener;
 	private CameraListener cameraListener;
 	private GravityListener gravityListener;
 	private GyroscopeListener gyroscopeListener;
@@ -261,6 +263,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private float quality = 1f;
 	private float startRandom;
 	private float fTimeMax;
+	private float gravityValues[];
+	private float linearValues[];
 
 	private volatile byte thumbnail[] = new byte[1];
 	private volatile long nextFpsUpdate = 0;
@@ -443,19 +447,19 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					0);
 		}
 
-		if (gravityLoc > -1 && gravityListener != null) {
+		if (gravityLoc > -1 && gravityValues != null) {
 			GLES20.glUniform3fv(
 					gravityLoc,
 					1,
-					gravityListener.values,
+					gravityValues,
 					0);
 		}
 
-		if (linearLoc > -1 && linearAccelerationListener != null) {
+		if (linearLoc > -1 && linearValues != null) {
 			GLES20.glUniform3fv(
 					linearLoc,
 					1,
-					linearAccelerationListener.values,
+					linearValues,
 					0);
 		}
 
@@ -476,11 +480,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 
 		if ((orientationLoc > -1 || inclinationLoc > -1) &&
-				gravityListener != null && magneticFieldListener != null) {
+				gravityValues != null && magneticFieldListener != null) {
 			SensorManager.getRotationMatrix(
 					rotationMatrix,
 					inclinationMatrix,
-					gravityListener.values,
+					gravityValues,
 					magneticFieldListener.filtered);
 			if (deviceRotation != 0) {
 				int x = SensorManager.AXIS_Y;
@@ -695,8 +699,19 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void unregisterListeners() {
+		if (accelerometerListener != null) {
+			accelerometerListener.unregister();
+			gravityValues = linearValues = null;
+		}
+
 		if (gravityListener != null) {
 			gravityListener.unregister();
+			gravityValues = null;
+		}
+
+		if (linearAccelerationListener != null) {
+			linearAccelerationListener.unregister();
+			linearValues = null;
 		}
 
 		if (gyroscopeListener != null) {
@@ -709,10 +724,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 		if (lightListener != null) {
 			lightListener.unregister();
-		}
-
-		if (linearAccelerationListener != null) {
-			linearAccelerationListener.unregister();
 		}
 
 		if (pressureListener != null) {
@@ -880,7 +891,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			if (gravityListener == null) {
 				gravityListener = new GravityListener(context);
 			}
-			gravityListener.register();
+			if (!gravityListener.register()) {
+				gravityListener = null;
+				gravityValues = getAccelerometerListener().gravity;
+			} else {
+				gravityValues = gravityListener.values;
+			}
 		}
 
 		if (linearLoc > -1) {
@@ -888,7 +904,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				linearAccelerationListener =
 						new LinearAccelerationListener(context);
 			}
-			linearAccelerationListener.register();
+			if (!linearAccelerationListener.register()) {
+				linearAccelerationListener = null;
+				linearValues = getAccelerometerListener().linear;
+			} else {
+				linearValues = linearAccelerationListener.values;
+			}
 		}
 
 		if (rotationLoc > -1) {
@@ -925,6 +946,13 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			}
 			proximityListener.register();
 		}
+	}
+
+	private AccelerometerListener getAccelerometerListener() {
+		if (accelerometerListener == null) {
+			accelerometerListener = new AccelerometerListener(context);
+		}
+		return accelerometerListener;
 	}
 
 	private byte[] saveThumbnail() {
