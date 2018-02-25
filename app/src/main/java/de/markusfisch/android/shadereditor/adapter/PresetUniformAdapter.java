@@ -94,6 +94,10 @@ public class PresetUniformAdapter extends BaseAdapter {
 						context.getString(R.string.gravity_vector)),
 				new Uniform(
 						"float",
+						ShaderRenderer.UNIFORM_INCLINATION,
+						context.getString(R.string.device_inclination)),
+				new Uniform(
+						"float",
 						ShaderRenderer.UNIFORM_LIGHT,
 						context.getString(R.string.light)),
 				new Uniform(
