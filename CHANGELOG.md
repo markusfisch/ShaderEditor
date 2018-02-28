@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.10.6
+* Expose rotation and inclination matrix as uniforms
+* Rename rotation uniform to gyroscope
+
 ## 2.10.5
 * Fallback to old gravity and linear acceleration calculation if necessary
 * Add uniform for geomagnetic inclination angle
