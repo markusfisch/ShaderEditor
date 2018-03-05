@@ -7,3 +7,4 @@ Contributors
 * [fekga](https://github.com/fekga)
 * [Pierre Cornier](https://github.com/pcornier)
 * [waterdaan](https://github.com/waterdaan)
+* [KOLANICH](https://github.com/KOLANICH)

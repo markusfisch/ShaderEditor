@@ -166,6 +166,8 @@
 	<string name="sample_gravity_rationale">How to use the gravity uniform</string>
 	<string name="sample_orientation_name">Orientation</string>
 	<string name="sample_orientation_rationale">How to use the orienation uniform</string>
+	<string name="sample_swirl_name">Swirl</string>
+	<string name="sample_swirl_rationale">How to distort textures with a swirl pattern</string>
 	<string name="sample_texture_name">Texture</string>
 	<string name="sample_texture_rationale">How to draw textures</string>
 	<string name="sample_touch_name">Touch</string>
