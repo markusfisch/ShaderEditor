@@ -31,9 +31,9 @@ android {
 }
 
 dependencies {
-	compile "com.android.support:appcompat-v7:$support_version"
-	compile "com.android.support:design:$support_version"
-	compile "com.android.support:preference-v7:$support_version"
+	implementation "com.android.support:appcompat-v7:$support_version"
+	implementation "com.android.support:design:$support_version"
+	implementation "com.android.support:preference-v7:$support_version"
 }
 
 task findbugs(type: FindBugs, dependsOn: 'assembleDebug') {
