@@ -24,7 +24,7 @@ public class CameraListener {
 	private boolean pausing = true;
 	private boolean opening = false;
 	private boolean available = false;
-	private Camera camera;
+	private Camera cam;
 	private SurfaceTexture surfaceTexture;
 	private FloatBuffer orientationMatrix;
 
@@ -64,6 +64,7 @@ public class CameraListener {
 			return;
 		}
 		pausing = false;
+		stopPreview();
 		openCameraAsync();
 	}
 
@@ -80,7 +81,7 @@ public class CameraListener {
 	}
 
 	private void openCameraAsync() {
-		if (pausing || opening) {
+		if (opening) {
 			return;
 		}
 		opening = true;
@@ -88,7 +89,9 @@ public class CameraListener {
 		new AsyncTask<Void, Void, Camera>() {
 			@Override
 			protected Camera doInBackground(Void... nothings) {
-				stopPreview();
+				if (pausing) {
+					return null;
+				}
 				try {
 					return Camera.open(cameraId);
 				} catch (RuntimeException e) {
@@ -98,28 +101,30 @@ public class CameraListener {
 
 			@Override
 			protected void onPostExecute(Camera camera) {
+				if (camera != null && !startPreview(camera)) {
+					camera.release();
+				}
 				opening = false;
-				startPreview(camera);
 			}
 		}.execute();
 	}
 
 	private void stopPreview() {
-		if (camera == null) {
+		if (cam == null) {
 			return;
 		}
 
-		camera.stopPreview();
-		camera.release();
-		camera = null;
+		cam.stopPreview();
+		cam.release();
+		cam = null;
 
 		surfaceTexture.release();
 		surfaceTexture = null;
 	}
 
-	private void startPreview(Camera camera) {
+	private boolean startPreview(Camera camera) {
 		if (pausing || camera == null) {
-			return;
+			return false;
 		}
 
 		camera.setDisplayOrientation(frameOrientation);
@@ -145,11 +150,12 @@ public class CameraListener {
 		try {
 			camera.setPreviewTexture(surfaceTexture);
 		} catch (IOException e) {
-			return;
+			return false;
 		}
 
-		this.camera = camera;
+		cam = camera;
 		camera.startPreview();
+		return true;
 	}
 
 	private static int getCameraDisplayOrientation(
