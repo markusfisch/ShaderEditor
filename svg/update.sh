@@ -119,4 +119,5 @@ svg/ic_action_save.svg 24
 svg/ic_action_settings.svg 24
 svg/ic_action_share.svg 24
 svg/ic_action_update.svg 24
+svg/ic_logo.svg 80
 EOF
