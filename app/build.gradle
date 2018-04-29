@@ -14,8 +14,8 @@ android {
 		minSdkVersion 9
 		targetSdkVersion sdk_version
 
-		versionCode 44
-		versionName '2.10.5'
+		versionCode 45
+		versionName '2.10.6'
 	}
 
 	buildTypes {
