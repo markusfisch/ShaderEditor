@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.hardware;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -80,6 +81,10 @@ public class CameraListener {
 		}
 	}
 
+	// this AsyncTask is running for a short and finite time only
+	// and it's perfectly okay to delay garbage collection of the
+	// parent instance until this task has ended
+	@SuppressLint("StaticFieldLeak")
 	private void openCameraAsync() {
 		if (opening) {
 			return;

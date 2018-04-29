@@ -6,6 +6,7 @@ import de.markusfisch.android.shadereditor.adapter.TextureAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.R;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -114,6 +115,10 @@ public class UniformSampler2dPageFragment extends Fragment {
 				AddUniformActivity.PICK_TEXTURE);
 	}
 
+	// this AsyncTask is running for a short and finite time only
+	// and it's perfectly okay to delay garbage collection of the
+	// parent instance until this task has ended
+	@SuppressLint("StaticFieldLeak")
 	private void loadTexturesAsync(final Context context) {
 		if (context == null) {
 			return;

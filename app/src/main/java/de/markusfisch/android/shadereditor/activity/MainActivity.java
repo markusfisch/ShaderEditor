@@ -566,6 +566,10 @@ public class MainActivity
 		}
 	}
 
+	// this AsyncTask is running for a short and finite time only
+	// and it's perfectly okay to delay garbage collection of the
+	// parent instance until this task has ended
+	@SuppressLint("StaticFieldLeak")
 	private void getShadersAsync() {
 		if (!ShaderEditorApp.db.isOpen()) {
 			listView.postDelayed(new Runnable() {

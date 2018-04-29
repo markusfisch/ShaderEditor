@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.database;
 
 import de.markusfisch.android.shadereditor.R;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -42,6 +43,9 @@ public class Database {
 	private SQLiteDatabase db;
 	private int textureThumbnailSize;
 
+	// the parent instance of this AsyncTask will never be
+	// garbage collected anyway
+	@SuppressLint("StaticFieldLeak")
 	public void openAsync(final Context context) {
 		textureThumbnailSize = Math.round(
 				context.getResources().getDisplayMetrics().density * 48f);

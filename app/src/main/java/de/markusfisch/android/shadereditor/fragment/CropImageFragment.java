@@ -5,6 +5,7 @@ import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 import de.markusfisch.android.shadereditor.widget.CropImageView;
 import de.markusfisch.android.shadereditor.R;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -122,6 +123,10 @@ public class CropImageFragment extends Fragment {
 		};
 	}
 
+	// this AsyncTask is running for a short and finite time only
+	// and it's perfectly okay to delay garbage collection of the
+	// parent instance until this task has ended
+	@SuppressLint("StaticFieldLeak")
 	private void loadBitmapAsync() {
 		final Activity activity = getActivity();
 		if (activity == null || inProgress) {
