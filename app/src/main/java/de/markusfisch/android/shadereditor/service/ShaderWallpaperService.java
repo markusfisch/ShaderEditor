@@ -20,8 +20,14 @@ import android.view.SurfaceHolder;
 public class ShaderWallpaperService extends WallpaperService {
 	public static final String RENDER_MODE = "render_mode";
 
+	private static boolean didRun = false;
+
 	private ComponentName batteryLevelComponent;
 	private ShaderWallpaperEngine engine;
+
+	public static boolean didRun() {
+		return didRun;
+	}
 
 	@Override
 	public void onCreate() {

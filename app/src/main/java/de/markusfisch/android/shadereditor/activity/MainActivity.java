@@ -5,6 +5,7 @@ import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
+import de.markusfisch.android.shadereditor.service.ShaderWallpaperService;
 import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout;
@@ -663,7 +664,6 @@ public class MainActivity
 					this,
 					R.string.unsuitable_text,
 					Toast.LENGTH_SHORT).show();
-
 			return;
 		}
 
@@ -832,6 +832,15 @@ public class MainActivity
 
 		if (editorFragment != null && editorFragment.isModified()) {
 			saveShader(id);
+		}
+
+		if (!ShaderWallpaperService.didRun() &&
+				ShaderEditorApp.preferences.getWallpaperShader() !=
+						selectedShaderId) {
+			Toast.makeText(
+					this,
+					R.string.remember_to_set_live_wallpaper,
+					Toast.LENGTH_SHORT).show();
 		}
 
 		// the onSharedPreferenceChanged() listener in WallpaperService
