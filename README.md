@@ -22,4 +22,4 @@ your Android phone or tablet and use them as live wallpaper.
 * Create and use cube maps
 * Disables rendering when battery is low
 
-See [FAQ](faq.md) for frequently asked questions.
+See [FAQ](FAQ.md) for frequently asked questions.
