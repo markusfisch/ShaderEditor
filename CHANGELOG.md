@@ -1,5 +1,12 @@
 # Change Log
 
+## 2.11.0
+* New app icon
+* Added adaptive app icon for Android 8.0
+* Added FAQ menu item to answer common questions
+* Added swirl gun example
+* Shows a message for "Set wallpaper" when not set as live wallpaper
+
 ## 2.10.6
 * Expose rotation and inclination matrix as uniforms
 * Rename rotation uniform to gyroscope
