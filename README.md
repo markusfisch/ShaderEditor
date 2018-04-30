@@ -24,6 +24,7 @@ your Android phone or tablet and use them as live wallpaper.
 
 See [FAQ.md](FAQ.md) for frequently asked questions.
 
-## Screenshot
+## Screenshots
 
-<img src="https://raw.githubusercontent.com/markusfisch/ShaderEditor/gh-pages/screenshot-main.png" alt="screenshot" width="320px"/>
+<img src="https://raw.githubusercontent.com/markusfisch/ShaderEditor/gh-pages/screenshot-main.png" alt="Screenshot" width="320px"/>
+<img src="https://raw.githubusercontent.com/markusfisch/ShaderEditor/gh-pages/screenshot-keyboard.png" alt="Screenshot with soft keyboard" width="320px"/>
