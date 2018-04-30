@@ -22,4 +22,8 @@ your Android phone or tablet and use them as live wallpaper.
 * Create and use cube maps
 * Disables rendering when battery is low
 
-See [FAQ](FAQ.md) for frequently asked questions.
+See [FAQ.md](FAQ.md) for frequently asked questions.
+
+## Screenshot
+
+<img src="https://raw.githubusercontent.com/markusfisch/ShaderEditor/gh-pages/screenshot-main.png" alt="screenshot" width="320px"/>
