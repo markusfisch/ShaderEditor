@@ -57,6 +57,11 @@
 		android:title="@string/load_sample"
 		material:showAsAction="ifRoom"/>
 	<item
+		android:id="@+id/faq"
+		android:icon="@drawable/ic_action_faq"
+		android:title="@string/faq"
+		material:showAsAction="ifRoom"/>
+	<item
 		android:id="@+id/settings"
 		android:icon="@drawable/ic_action_settings"
 		android:title="@string/settings"

@@ -23,6 +23,7 @@ import android.database.Cursor;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -196,6 +197,9 @@ public class MainActivity
 				return true;
 			case R.id.load_sample:
 				loadSample();
+				return true;
+			case R.id.faq:
+				showFaq();
 				return true;
 			case R.id.settings:
 				showSettings();
@@ -865,10 +869,16 @@ public class MainActivity
 				LOAD_SAMPLE);
 	}
 
+	private void showFaq() {
+		Uri url = Uri.parse("https://github.com/markusfisch/ShaderEditor/blob/master/FAQ.md");
+		Intent intent = new Intent(Intent.ACTION_VIEW, url);
+		if (intent.resolveActivity(getPackageManager()) != null) {
+			startActivity(intent);
+		}
+	}
+
 	private void showSettings() {
-		startActivity(new Intent(
-				MainActivity.this,
-				PreferencesActivity.class));
+		startActivity(new Intent(this, PreferencesActivity.class));
 	}
 
 	@SuppressLint("InflateParams")
