@@ -68,6 +68,10 @@ public class UniformSampler2dPageFragment extends Fragment {
 			texturesAdapter.changeCursor(null);
 			texturesAdapter = null;
 		}
+
+		listView = null;
+		progressBar = null;
+		noTexturesMessage = null;
 	}
 
 	public void setSamplerType(String type) {
