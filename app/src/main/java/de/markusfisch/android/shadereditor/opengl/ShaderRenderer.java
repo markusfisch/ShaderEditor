@@ -1280,7 +1280,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			requestCameraPermission();
 			setCameraTextureProperties(id, tp);
 			cameraListener = new CameraListener(
-					context,
 					id,
 					cameraId,
 					(int) resolution[0],
