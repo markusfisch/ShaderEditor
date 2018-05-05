@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.12.0
+* Adds a preference to disable syntax highlighting for large shaders
+
 ## 2.11.0
 * New app icon
 * Added adaptive app icon for Android 8.0
