@@ -43,6 +43,8 @@
 	<string name="show_insert_tab_summary">Show insert tab menu item</string>
 	<string name="save_on_run">Save on run</string>
 	<string name="save_on_run_summary">Save changes when running manually</string>
+	<string name="disable_highlighting">Disable highlighting</string>
+	<string name="disable_highlighting_summary">Disable highlighting for big shaders</string>
 	<string name="default_new_shader">Default new shader</string>
 
 	<!-- Preferences -->

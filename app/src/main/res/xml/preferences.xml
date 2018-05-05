@@ -58,6 +58,12 @@
 			android:summary="@string/save_on_run_summary"
 			android:checked="true"
 			android:defaultValue="true"/>
+		<CheckBoxPreference
+			android:key="disable_highlighting"
+			android:title="@string/disable_highlighting"
+			android:summary="@string/disable_highlighting_summary"
+			android:checked="false"
+			android:defaultValue="false"/>
 		<de.markusfisch.android.shadereditor.preference.ShaderListPreference
 			android:key="default_new_shader"
 			android:title="@string/default_new_shader"/>

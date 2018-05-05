@@ -341,11 +341,13 @@ public class ShaderEditor extends AppCompatEditText {
 
 	private Editable highlight(Editable e) {
 		try {
+			int length = e.length();
+
 			// don't use e.clearSpans() because it will
 			// remove too much
-			clearSpans(e);
+			clearSpans(e, length);
 
-			if (e.length() == 0) {
+			if (length == 0) {
 				return e;
 			}
 
@@ -361,6 +363,11 @@ public class ShaderEditor extends AppCompatEditText {
 						m.start(),
 						m.end(),
 						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+
+			if (ShaderEditorApp.preferences.disableHighlighting() &&
+					length > 4096) {
+				return e;
 			}
 
 			for (Matcher m = PATTERN_NUMBERS.matcher(e); m.find(); ) {
@@ -411,12 +418,12 @@ public class ShaderEditor extends AppCompatEditText {
 		return e;
 	}
 
-	private static void clearSpans(Editable e) {
+	private static void clearSpans(Editable e, int length) {
 		// remove foreground color spans
 		{
 			ForegroundColorSpan spans[] = e.getSpans(
 					0,
-					e.length(),
+					length,
 					ForegroundColorSpan.class);
 
 			for (int i = spans.length; i-- > 0; ) {
@@ -428,7 +435,7 @@ public class ShaderEditor extends AppCompatEditText {
 		{
 			BackgroundColorSpan spans[] = e.getSpans(
 					0,
-					e.length(),
+					length,
 					BackgroundColorSpan.class);
 
 			for (int i = spans.length; i-- > 0; ) {

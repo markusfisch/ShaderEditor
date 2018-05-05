@@ -565,6 +565,10 @@ public class MainActivity
 			}
 		}
 
+		if (editorFragment != null) {
+			editorFragment.updateHighlighting();
+		}
+
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			invalidateOptionsMenu();
 		}

@@ -22,6 +22,7 @@ public class Preferences {
 	public static final String EXPORT_TABS = "export_tabs";
 	public static final String SAVE_ON_RUN = "save_on_run";
 	public static final String DEFAULT_NEW_SHADER = "default_new_shader";
+	public static final String DISABLE_HIGHLIGHTING = "disable_highlighting";
 
 	private static final int RUN_AUTO = 1;
 	private static final int RUN_MANUALLY = 2;
@@ -42,6 +43,7 @@ public class Preferences {
 	private boolean batteryLow = false;
 	private int systemBarColor;
 	private long defaultNewShaderId = 0;
+	private boolean disableHighlighting = false;
 
 	public void init(Context context) {
 		systemBarColor = ContextCompat.getColor(
@@ -94,6 +96,9 @@ public class Preferences {
 		saveOnRun = preferences.getBoolean(
 				SAVE_ON_RUN,
 				saveOnRun);
+		disableHighlighting = preferences.getBoolean(
+				DISABLE_HIGHLIGHTING,
+				disableHighlighting);
 		defaultNewShaderId = parseLong(
 				preferences.getString(DEFAULT_NEW_SHADER, null),
 				defaultNewShaderId);
@@ -168,6 +173,10 @@ public class Preferences {
 
 	public void setBatteryLow(boolean isLow) {
 		batteryLow = isLow;
+	}
+
+	public boolean disableHighlighting() {
+		return disableHighlighting;
 	}
 
 	public int getSystemBarColor() {
