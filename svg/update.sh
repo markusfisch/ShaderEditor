@@ -104,13 +104,10 @@ type converter &>/dev/null || find_converter || {
 
 update app/src/debug/res/mipmap << EOF
 svg/debug/ic_launcher.svg 48
-svg/debug/ic_adaptive_foreground.svg 108
 EOF
 
 update app/src/main/res/mipmap << EOF
 svg/ic_launcher.svg 48
-svg/ic_adaptive_background.svg 108
-svg/ic_adaptive_foreground.svg 108
 EOF
 
 update app/src/main/res/drawable << EOF
@@ -130,5 +127,8 @@ svg/ic_action_save.svg 24
 svg/ic_action_settings.svg 24
 svg/ic_action_share.svg 24
 svg/ic_action_update.svg 24
+svg/ic_launcher_background.svg 108
+svg/ic_launcher_foreground.svg 108
 svg/ic_logo.svg 80
+svg/debug/ic_launcher_foreground.svg 108
 EOF
