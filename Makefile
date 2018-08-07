@@ -1,5 +1,4 @@
 PACKAGE = de.markusfisch.android.shadereditor
-APK = app/build/outputs/apk/debug/app-debug.apk
 
 all: debug install start
 
@@ -26,7 +25,7 @@ infer: clean
 	infer -- ./gradlew assembleDebug
 
 install:
-	adb $(TARGET) install -r $(APK)
+	adb $(TARGET) install -r app/build/outputs/apk/debug/app-debug.apk
 
 start:
 	adb $(TARGET) shell 'am start -n \
