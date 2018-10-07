@@ -64,6 +64,12 @@
 			android:summary="@string/disable_highlighting_summary"
 			android:checked="false"
 			android:defaultValue="false"/>
+		<CheckBoxPreference
+			android:key="auto_save"
+			android:title="@string/auto_save"
+			android:summary="@string/auto_save_summary"
+			android:checked="false"
+			android:defaultValue="false"/>
 		<de.markusfisch.android.shadereditor.preference.ShaderListPreference
 			android:key="default_new_shader"
 			android:title="@string/default_new_shader"/>

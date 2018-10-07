@@ -45,6 +45,8 @@
 	<string name="save_on_run_summary">Save changes when running manually</string>
 	<string name="disable_highlighting">Disable highlighting</string>
 	<string name="disable_highlighting_summary">Disable highlighting for big shaders</string>
+	<string name="auto_save">Auto save</string>
+	<string name="auto_save_summary">Save shader automatically</string>
 	<string name="default_new_shader">Default new shader</string>
 
 	<!-- Preferences -->

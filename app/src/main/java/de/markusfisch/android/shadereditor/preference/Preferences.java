@@ -23,6 +23,7 @@ public class Preferences {
 	public static final String SAVE_ON_RUN = "save_on_run";
 	public static final String DEFAULT_NEW_SHADER = "default_new_shader";
 	public static final String DISABLE_HIGHLIGHTING = "disable_highlighting";
+	public static final String AUTO_SAVE = "auto_save";
 
 	private static final int RUN_AUTO = 1;
 	private static final int RUN_MANUALLY = 2;
@@ -44,6 +45,7 @@ public class Preferences {
 	private int systemBarColor;
 	private long defaultNewShaderId = 0;
 	private boolean disableHighlighting = false;
+	private boolean autoSave = false;
 
 	public void init(Context context) {
 		systemBarColor = ContextCompat.getColor(
@@ -99,6 +101,9 @@ public class Preferences {
 		disableHighlighting = preferences.getBoolean(
 				DISABLE_HIGHLIGHTING,
 				disableHighlighting);
+		autoSave = preferences.getBoolean(
+				AUTO_SAVE,
+				autoSave);
 		defaultNewShaderId = parseLong(
 				preferences.getString(DEFAULT_NEW_SHADER, null),
 				defaultNewShaderId);
@@ -177,6 +182,10 @@ public class Preferences {
 
 	public boolean disableHighlighting() {
 		return disableHighlighting;
+	}
+
+	public boolean autoSave() {
+		return autoSave;
 	}
 
 	public int getSystemBarColor() {

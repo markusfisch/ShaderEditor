@@ -351,6 +351,8 @@ public class MainActivity
 		if (shaderView.getVisibility() == View.VISIBLE) {
 			shaderView.onPause();
 		}
+
+		autoSave();
 	}
 
 	@Override
@@ -571,6 +573,13 @@ public class MainActivity
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
 			invalidateOptionsMenu();
+		}
+	}
+
+	private void autoSave() {
+		if (ShaderEditorApp.preferences.autoSave() &&
+				selectedShaderId > 0) {
+			saveShader(selectedShaderId);
 		}
 	}
 
@@ -802,7 +811,6 @@ public class MainActivity
 									DialogInterface dialog,
 									int which) {
 								ShaderEditorApp.db.removeShader(id);
-
 								selectShaderAndUpdate(ShaderEditorApp
 										.db.getFirstShaderId());
 							}
@@ -920,6 +928,7 @@ public class MainActivity
 	}
 
 	private void selectShaderAndUpdate(long id) {
+		autoSave();
 		selectShader(id);
 		getShadersAsync();
 	}
