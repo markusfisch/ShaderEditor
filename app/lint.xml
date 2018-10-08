@@ -1,5 +1,0 @@
-<lint>
-	<issue id="IconLauncherFormat">
-		<ignore path="src/main/res/mipmap-anydpi-v26/ic_launcher.xml"/>
-	</issue>
-</lint>
