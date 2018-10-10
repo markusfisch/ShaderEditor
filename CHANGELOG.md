@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.13.0
+* Adds a preference to auto save changes
+
 ## 2.12.0
 * Adds a preference to disable syntax highlighting for large shaders
 
