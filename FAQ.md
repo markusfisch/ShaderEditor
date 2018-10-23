@@ -1,5 +1,15 @@
 # Frequently Asked Questions
 
+## How to use GLES 3.0?
+
+Simply declare the GLES version in the first line of the shader:
+
+	#version 300 es
+
+Shader Editor will automatically use a version 3 vertex shader
+if that declaration is present *and* GLES 3.0 is available on
+your device.
+
 ## How many FPS should I get to set my shader as live wallpaper?
 
 Some devices limit GPU usage to consume less power when not plugged in.
