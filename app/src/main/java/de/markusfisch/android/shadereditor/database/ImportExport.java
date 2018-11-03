@@ -132,8 +132,8 @@ public class ImportExport {
 		File shaderFile = new File(directory, filename + SHADER_FILE_EXTENSION);
 		int fileCounter = 1;
 		while (shaderFile.exists()) {
-			shaderFile = new File(directory, filename + " (" + Integer.toString(fileCounter++)
-					+ ")" + SHADER_FILE_EXTENSION);
+			shaderFile = new File(directory, String.format("%s_%d%s",
+					filename, fileCounter++, SHADER_FILE_EXTENSION));
 		}
 
 		FileOutputStream os = null;
