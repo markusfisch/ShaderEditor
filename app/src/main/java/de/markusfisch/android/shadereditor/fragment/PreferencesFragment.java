@@ -2,26 +2,59 @@ package de.markusfisch.android.shadereditor.fragment;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.Database;
+import de.markusfisch.android.shadereditor.database.ImportExport;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.preference.ShaderListPreference;
 import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
 import de.markusfisch.android.shadereditor.R;
 
+import android.Manifest;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceGroup;
+import android.widget.Toast;
 
 public class PreferencesFragment
 		extends PreferenceFragmentCompat
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
+	private static final int READ_EXTERNAL_STORAGE_REQUEST = 1;
+	private static final int WRITE_EXTERNAL_STORAGE_REQUEST = 2;
+
 	@Override
 	public void onCreatePreferences(Bundle state, String rootKey) {
 		addPreferencesFromResource(R.xml.preferences);
+
+		Preference importPreference = findPreference(Preferences.IMPORT_FROM_DIRECTORY);
+		importPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				if (checkExternalStoragePermission(READ_EXTERNAL_STORAGE_REQUEST, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+					ImportExport.importFromDirectory(getContext());
+				}
+				return true;
+			}
+		});
+
+		Preference exportPreference = findPreference(Preferences.EXPORT_TO_DIRECTORY);
+		exportPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				if (checkExternalStoragePermission(WRITE_EXTERNAL_STORAGE_REQUEST, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+					ImportExport.exportToDirectory(getContext());
+				}
+				return true;
+			}
+		});
 	}
 
 	@Override
@@ -117,5 +150,48 @@ public class PreferencesFragment
 		cursor.close();
 
 		return summary;
+	}
+
+	public boolean checkExternalStoragePermission(int request, String permission) {
+		FragmentActivity activity = getActivity();
+		if (ContextCompat.checkSelfPermission(activity, permission)
+				!= PackageManager.PERMISSION_GRANTED) {
+			if (ActivityCompat.shouldShowRequestPermissionRationale(activity, permission)) {
+				int strId = request == WRITE_EXTERNAL_STORAGE_REQUEST ?
+						R.string.write_access_required : R.string.read_access_required;
+				Toast.makeText(getActivity(), getString(strId),
+						Toast.LENGTH_LONG).show();
+			}
+			ActivityCompat.requestPermissions(activity, new String[]{permission}, request);
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+										   @NonNull int[] grantResults) {
+		switch (requestCode) {
+			case WRITE_EXTERNAL_STORAGE_REQUEST:
+				if (grantResults.length > 0
+						&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					ImportExport.exportToDirectory(getContext());
+				} else {
+					Toast.makeText(getActivity(), getString(R.string.write_access_required),
+							Toast.LENGTH_LONG).show();
+				}
+				break;
+
+			case READ_EXTERNAL_STORAGE_REQUEST:
+				if (grantResults.length > 0
+						&& grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					ImportExport.importFromDirectory(getContext());
+				} else {
+					Toast.makeText(getActivity(), getString(R.string.read_access_required),
+							Toast.LENGTH_LONG).show();
+				}
+				break;
+		}
 	}
 }

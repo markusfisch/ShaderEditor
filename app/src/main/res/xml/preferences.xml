@@ -83,4 +83,15 @@
 			android:entryValues="@array/sensor_delay_values"
 			android:defaultValue="Normal"/>
 	</PreferenceCategory>
+	<PreferenceCategory
+		android:title="@string/import_export">
+		<Preference
+			android:key="import_from_directory"
+			android:title="@string/import_shaders"
+			android:summary="@string/import_from_directory"/>
+		<Preference
+			android:key="export_to_directory"
+			android:title="@string/export_shaders"
+			android:summary="@string/export_to_directory"/>
+	</PreferenceCategory>
 </PreferenceScreen>
