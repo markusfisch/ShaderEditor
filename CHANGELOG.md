@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.14.0
+* Adds import and export for shaders
+
 ## 2.13.0
 * Adds a preference to auto save changes
 
