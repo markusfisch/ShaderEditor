@@ -24,6 +24,8 @@ public class Preferences {
 	public static final String DEFAULT_NEW_SHADER = "default_new_shader";
 	public static final String DISABLE_HIGHLIGHTING = "disable_highlighting";
 	public static final String AUTO_SAVE = "auto_save";
+	public static final String IMPORT_FROM_DIRECTORY = "import_from_directory";
+	public static final String EXPORT_TO_DIRECTORY = "export_to_directory";
 
 	private static final int RUN_AUTO = 1;
 	private static final int RUN_MANUALLY = 2;

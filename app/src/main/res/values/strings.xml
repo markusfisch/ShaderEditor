@@ -48,6 +48,11 @@
 	<string name="auto_save">Auto save</string>
 	<string name="auto_save_summary">Save shader automatically</string>
 	<string name="default_new_shader">Default new shader</string>
+	<string name="import_export">Import / Export</string>
+	<string name="import_shaders">Import shaders</string>
+	<string name="import_from_directory">Import all *.glsl files from Download/ShaderEditor</string>
+	<string name="export_shaders">Export shaders</string>
+	<string name="export_to_directory">Export all shaders to Download/ShaderEditor</string>
 
 	<!-- Preferences -->
 	<string name="run_auto">Auto run on change</string>
@@ -183,4 +188,29 @@
 
 	<!-- Database -->
 	<string name="default_shader">Default</string>
+
+	<!-- ImportExport -->
+	<string name="write_access_required">Write access to external storage is required for export to work.</string>
+	<string name="read_access_required">Read access to external storage is required for import to work.</string>
+	<plurals name="n_shaders_successfully_exported">
+		<item quantity="one">%1$d shader successfully exported</item>
+		<item quantity="other">%1$d shaders successfully exported</item>
+	</plurals>
+	<plurals name="n_shaders_successfully_exported_m_failed">
+		<item quantity="one">%1$d shader successfully exported, %2$d failed</item>
+		<item quantity="other">%1$d shaders successfully exported, %2$d failed</item>
+	</plurals>
+	<string name="export_failed">Export failed: %1$s</string>
+	<plurals name="n_shaders_successfully_imported">
+		<item quantity="one">%1$d shader successfully imported</item>
+		<item quantity="other">%1$d shaders successfully imported</item>
+	</plurals>
+	<plurals name="n_shaders_successfully_imported_m_failed">
+		<item quantity="one">%1$d shader successfully imported, %2$d failed</item>
+		<item quantity="other">%1$d shaders successfully imported, %2$d failed</item>
+	</plurals>
+	<string name="import_failed">Import failed: %1$s</string>
+	<string name="no_shaders_found">No shaders found</string>
+	<string name="no_shaders_could_be_written">No shaders could be written to directory</string>
+	<string name="path_is_no_directory">Path %1$s is not a directory</string>
 </resources>

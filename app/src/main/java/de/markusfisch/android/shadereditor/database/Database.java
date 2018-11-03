@@ -268,6 +268,14 @@ public class Database {
 		return insertShader(db, shader, null, thumbnail, quality);
 	}
 
+	public long insertShader(
+			Context context,
+			String shader,
+			String name) {
+		return insertShader(db, shader, name,
+				loadBitmapResource(context, R.drawable.thumbnail_new_shader), 1f);
+	}
+
 	public long insertNewShader(Context context) {
 		return insertShaderFromResource(
 				context,
