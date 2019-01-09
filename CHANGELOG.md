@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.15.0
+* Adds frame count uniform
+
 ## 2.14.0
 * Adds import and export for shaders
 
