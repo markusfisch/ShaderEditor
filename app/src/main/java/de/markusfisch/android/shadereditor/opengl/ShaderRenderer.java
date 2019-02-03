@@ -11,6 +11,7 @@ import de.markusfisch.android.shadereditor.hardware.LightListener;
 import de.markusfisch.android.shadereditor.hardware.LinearAccelerationListener;
 import de.markusfisch.android.shadereditor.hardware.PressureListener;
 import de.markusfisch.android.shadereditor.hardware.ProximityListener;
+import de.markusfisch.android.shadereditor.hardware.RotationVectorListener;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -80,6 +81,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_PROXIMITY = "proximity";
 	public static final String UNIFORM_RESOLUTION = "resolution";
 	public static final String UNIFORM_ROTATION_MATRIX = "rotationMatrix";
+	public static final String UNIFORM_ROTATION_VECTOR = "rotationVector";
 	public static final String UNIFORM_SECOND = "second";
 	public static final String UNIFORM_START_RANDOM = "startRandom";
 	public static final String UNIFORM_SUB_SECOND = "subsecond";
@@ -219,6 +221,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private LinearAccelerationListener linearAccelerationListener;
 	private PressureListener pressureListener;
 	private ProximityListener proximityListener;
+	private RotationVectorListener rotationVectorListener;
 	private OnRendererListener onRendererListener;
 	private String fragmentShader;
 	private int version = 2;
@@ -244,6 +247,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int gyroscopeLoc;
 	private int magneticLoc;
 	private int rotationMatrixLoc;
+	private int rotationVectorLoc;
 	private int orientationLoc;
 	private int inclinationMatrixLoc;
 	private int inclinationLoc;
@@ -567,6 +571,14 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					proximityListener.getCentimeters());
 		}
 
+		if (rotationVectorLoc > -1 && rotationVectorListener != null) {
+			GLES20.glUniform3fv(
+					rotationVectorLoc,
+					1,
+					rotationVectorListener.values,
+					0);
+		}
+
 		if (offsetLoc > -1) {
 			GLES20.glUniform2fv(
 					offsetLoc,
@@ -767,6 +779,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			proximityListener.unregister();
 		}
 
+		if (rotationVectorListener != null) {
+			rotationVectorListener.unregister();
+		}
+
 		unregisterCameraListener();
 	}
 
@@ -886,6 +902,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, UNIFORM_MAGNETIC);
 		rotationMatrixLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_ROTATION_MATRIX);
+		rotationVectorLoc = GLES20.glGetUniformLocation(
+				program, UNIFORM_ROTATION_VECTOR);
 		orientationLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_ORIENTATION);
 		inclinationMatrixLoc = GLES20.glGetUniformLocation(
@@ -999,6 +1017,16 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			}
 			if (!proximityListener.register()) {
 				proximityListener = null;
+			}
+		}
+
+		if (rotationVectorLoc > -1 || (magneticFieldListener == null &&
+				(orientationLoc > -1 || rotationMatrixLoc > -1))) {
+			if (rotationVectorListener == null) {
+				rotationVectorListener = new RotationVectorListener(context);
+			}
+			if (!rotationVectorListener.register()) {
+				rotationVectorListener = null;
 			}
 		}
 	}

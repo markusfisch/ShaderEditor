@@ -96,6 +96,7 @@
 	<string name="device_orientation">Azimuth (-π to π), pitch (-π to π) and roll (-π/2 to π/2) of the device</string>
 	<string name="device_inclination">Geomagnetic inclination angle of the device in radians</string>
 	<string name="device_rotation_matrix">Rotation matrix around the world\'s coordinate system, that is, when the device\'s X axis points toward East, the Y axis points to the North Pole and the device is facing the sky</string>
+	<string name="device_rotation_vector">The rotation vector represents the orientation of the device as a combination of an angle and an axis, in which the device has rotated through an angle θ around an axis of x, y, z</string>
 	<string name="device_inclination_matrix">Rotation matrix transforming the geomagnetic vector into the same coordinate space as gravity</string>
 	<string name="magnetic_field">Geomagnetic field strength along the x, y and z axis in μT</string>
 	<string name="light">Ambient light level in SI lux units</string>

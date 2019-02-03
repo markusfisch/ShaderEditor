@@ -153,6 +153,10 @@ public class PresetUniformAdapter extends BaseAdapter {
 						ShaderRenderer.UNIFORM_ROTATION_MATRIX,
 						context.getString(R.string.device_rotation_matrix)),
 				new Uniform(
+						"vec3",
+						ShaderRenderer.UNIFORM_ROTATION_VECTOR,
+						context.getString(R.string.device_rotation_vector)),
+				new Uniform(
 						"int",
 						ShaderRenderer.UNIFORM_SECOND,
 						context.getString(R.string.int_seconds_since_load)),
