@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.16.0
+* Add uniform for rotation vector sensor
+* Alternatively calculate rotation matrix from rotation vector if necessary
+* Fix using accelerometer sensor to calculate gravity
+
 ## 2.15.0
 * Adds frame count uniform
 
