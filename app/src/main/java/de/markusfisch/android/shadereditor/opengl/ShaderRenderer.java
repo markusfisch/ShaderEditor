@@ -499,58 +499,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 		if ((rotationMatrixLoc > -1 || orientationLoc > -1 ||
 				inclinationMatrixLoc > -1 || inclinationLoc > -1) &&
-				gravityValues != null && magneticFieldListener != null &&
-				SensorManager.getRotationMatrix(
-						rotationMatrix,
-						inclinationMatrix,
-						gravityValues,
-						magneticFieldListener.filtered)) {
-			if (deviceRotation != 0) {
-				int x = SensorManager.AXIS_Y;
-				int y = SensorManager.AXIS_MINUS_X;
-				switch (deviceRotation) {
-					default:
-						break;
-					case 270:
-						x = SensorManager.AXIS_MINUS_Y;
-						y = SensorManager.AXIS_X;
-						break;
-				}
-				SensorManager.remapCoordinateSystem(
-						rotationMatrix,
-						x,
-						y,
-						rotationMatrix);
-			}
-			if (rotationMatrixLoc > -1) {
-				GLES20.glUniformMatrix3fv(
-						rotationMatrixLoc,
-						1,
-						true,
-						rotationMatrix,
-						0);
-			}
-			if (orientationLoc > -1) {
-				SensorManager.getOrientation(rotationMatrix, orientation);
-				GLES20.glUniform3fv(
-						orientationLoc,
-						1,
-						orientation,
-						0);
-			}
-			if (inclinationMatrixLoc > -1) {
-				GLES20.glUniformMatrix3fv(
-						inclinationMatrixLoc,
-						1,
-						true,
-						inclinationMatrix,
-						0);
-			}
-			if (inclinationLoc > -1) {
-				GLES20.glUniform1f(
-						inclinationLoc,
-						SensorManager.getInclination(inclinationMatrix));
-			}
+				gravityValues != null) {
+			setRotationMatrix();
 		}
 
 		if (lightLoc > -1 && lightListener != null) {
@@ -1091,6 +1041,70 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			// will never happen because neither
 			// width nor height <= 0
 			return null;
+		}
+	}
+
+	private void setRotationMatrix() {
+		boolean haveInclination = false;
+		if (gravityListener != null && magneticFieldListener != null &&
+				SensorManager.getRotationMatrix(
+						rotationMatrix,
+						inclinationMatrix,
+						gravityValues,
+						magneticFieldListener.filtered)) {
+			haveInclination = true;
+		} else if (rotationVectorListener != null) {
+			SensorManager.getRotationMatrixFromVector(
+					rotationMatrix,
+					rotationVectorListener.values);
+		} else {
+			return;
+		}
+		if (deviceRotation != 0) {
+			int x = SensorManager.AXIS_Y;
+			int y = SensorManager.AXIS_MINUS_X;
+			switch (deviceRotation) {
+				default:
+					break;
+				case 270:
+					x = SensorManager.AXIS_MINUS_Y;
+					y = SensorManager.AXIS_X;
+					break;
+			}
+			SensorManager.remapCoordinateSystem(
+					rotationMatrix,
+					x,
+					y,
+					rotationMatrix);
+		}
+		if (rotationMatrixLoc > -1) {
+			GLES20.glUniformMatrix3fv(
+					rotationMatrixLoc,
+					1,
+					true,
+					rotationMatrix,
+					0);
+		}
+		if (orientationLoc > -1) {
+			SensorManager.getOrientation(rotationMatrix, orientation);
+			GLES20.glUniform3fv(
+					orientationLoc,
+					1,
+					orientation,
+					0);
+		}
+		if (inclinationMatrixLoc > -1 && haveInclination) {
+			GLES20.glUniformMatrix3fv(
+					inclinationMatrixLoc,
+					1,
+					true,
+					inclinationMatrix,
+					0);
+		}
+		if (inclinationLoc > -1 && haveInclination) {
+			GLES20.glUniform1f(
+					inclinationLoc,
+					SensorManager.getInclination(inclinationMatrix));
 		}
 	}
 
