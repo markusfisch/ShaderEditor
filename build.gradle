@@ -1,21 +1,16 @@
 buildscript {
-	ext.tools_version = '3.3.2'
+	ext.tools_version = '3.4.0'
 	ext.build_tools_version = '28.0.3'
 	ext.sdk_version = 28
 	ext.support_version = '25.3.1'
 
 	repositories {
-		jcenter()
 		google()
-		mavenCentral()
-		maven {
-			url "https://plugins.gradle.org/m2/"
-		}
+		jcenter()
 	}
 
 	dependencies {
 		classpath "com.android.tools.build:gradle:$tools_version"
-		classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.10'
 	}
 }
 
@@ -25,8 +20,8 @@ plugins {
 
 allprojects {
 	repositories {
-		jcenter()
 		google()
+		jcenter()
 	}
 
 	gradle.projectsEvaluated {
