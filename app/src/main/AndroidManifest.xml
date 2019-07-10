@@ -67,6 +67,27 @@
 			android:label="@string/app_name"
 			android:launchMode="singleTop">
 			<intent-filter>
+				<action android:name="android.intent.action.VIEW"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+				<data
+					android:scheme="content"
+					android:mimeType="text/plain"
+					android:pathPattern=".*\\.glsl"/>
+				<data
+					android:scheme="content"
+					android:mimeType="application/octet-stream"
+					android:pathPattern=".*\\.glsl"/>
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+				<data
+					android:scheme="file"
+					android:mimeType="*/*"
+					android:pathPattern=".*\\.glsl"
+					android:host="*"/>
+			</intent-filter>
+			<intent-filter>
 				<action android:name="android.intent.action.SEND"/>
 				<category android:name="android.intent.category.DEFAULT"/>
 				<data android:mimeType="text/plain"/>

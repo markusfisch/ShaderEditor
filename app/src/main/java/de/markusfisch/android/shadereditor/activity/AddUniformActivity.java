@@ -64,7 +64,6 @@ public class AddUniformActivity extends AbstractContentActivity {
 		}
 
 		String type;
-
 		if (!Intent.ACTION_SEND.equals(intent.getAction()) ||
 				(type = intent.getType()) == null ||
 				!type.startsWith("image/")) {

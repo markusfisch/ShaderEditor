@@ -16,6 +16,7 @@ import de.markusfisch.android.shadereditor.R;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -39,6 +40,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class MainActivity
 		extends AppCompatActivity
@@ -661,13 +665,22 @@ public class MainActivity
 		}
 
 		String action = intent.getAction();
-		String type = intent.getType();
-		String text;
+		if (!Intent.ACTION_SEND.equals(action) &&
+				!Intent.ACTION_VIEW.equals(action)) {
+			return;
+		}
 
-		if (!Intent.ACTION_SEND.equals(action) ||
-				type == null ||
-				!"text/plain".equals(type) ||
-				(text = intent.getStringExtra(Intent.EXTRA_TEXT)) == null) {
+		String type = intent.getType();
+		String text = null;
+		if ("text/plain".equals(type)) {
+			text = intent.getStringExtra(Intent.EXTRA_TEXT);
+		} else if ("application/octet-stream".equals(type)) {
+			text = getTextFromUri(getContentResolver(), intent.getData());
+		} else {
+			return;
+		}
+
+		if (text == null) {
 			return;
 		}
 
@@ -691,6 +704,20 @@ public class MainActivity
 		selectedShaderId = NO_SHADER;
 		editorFragment.setText(text);
 		setDefaultToolbarTitle();
+	}
+
+	private static String getTextFromUri(ContentResolver resolver, Uri uri) {
+		try {
+			InputStream in = resolver.openInputStream(uri);
+			StringBuilder sb = new StringBuilder();
+			byte[] buffer = new byte[2048];
+			for (int len; (len = in.read(buffer)) > 0; ) {
+				sb.append(new String(buffer, 0, len));
+			}
+			return sb.toString();
+		} catch (java.io.IOException e) {
+			return null;
+		}
 	}
 
 	private void insertTab() {
