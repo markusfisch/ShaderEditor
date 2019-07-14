@@ -713,7 +713,7 @@ public class MainActivity
 			StringBuilder sb = new StringBuilder();
 			byte[] buffer = new byte[2048];
 			for (int len; (len = in.read(buffer)) > 0; ) {
-				sb.append(new String(buffer, 0, len));
+				sb.append(new String(buffer, 0, len, "UTF-8"));
 			}
 			return sb.toString();
 		} catch (java.io.IOException e) {
