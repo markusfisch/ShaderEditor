@@ -14,7 +14,7 @@ void main(void) {
 	vec2 uv = gl_FragCoord.xy / mx;
 	vec3 color = vec3(
 		uv,
-		0.25 + 0.5 * sin(time) );
+		0.25 + 0.5 * sin(time));
 
 	for (int n = 0; n < pointerCount; ++n) {
 		vec3 hole = vec3(sin(1.5 - distance(
