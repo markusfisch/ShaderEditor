@@ -674,7 +674,8 @@ public class MainActivity
 		String text = null;
 		if ("text/plain".equals(type)) {
 			text = intent.getStringExtra(Intent.EXTRA_TEXT);
-		} else if ("application/octet-stream".equals(type)) {
+		} else if ("application/octet-stream".equals(type) ||
+				"application/glsl".equals(type)) {
 			text = getTextFromUri(getContentResolver(), intent.getData());
 		} else {
 			return;
