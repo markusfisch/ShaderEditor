@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.activity;
 
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -76,7 +77,7 @@ public class PreviewActivity extends AppCompatActivity {
 		});
 
 		setContentView(shaderView);
-		MainActivity.setSystemBarColor(getWindow(), 0, true);
+		SystemBarMetrics.setSystemBarColor(getWindow(), 0, true);
 	}
 
 	@Override

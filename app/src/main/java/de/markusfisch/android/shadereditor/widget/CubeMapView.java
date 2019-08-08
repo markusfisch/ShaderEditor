@@ -5,14 +5,13 @@ import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.R;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.RectF;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -90,6 +89,8 @@ public class CubeMapView extends ScalingImageView {
 		}
 	}
 
+	public final Rect insets = new Rect();
+
 	private final Face faces[] = new Face[6];
 	private final Paint selectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	private final Paint unselectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -98,8 +99,7 @@ public class CubeMapView extends ScalingImageView {
 
 	private int mapPadding;
 	private int textPadding;
-	private int toolAndStatusBarHeight;
-	private Point navigationBarSize;
+	private int toolbarHeight;
 	private Bitmap selectedBitmap;
 	private int selectedFace = 0;
 	private long touchDownTime = 0;
@@ -107,12 +107,11 @@ public class CubeMapView extends ScalingImageView {
 	public CubeMapView(Context context, AttributeSet attr) {
 		super(context, attr);
 
-		Resources res = context.getResources();
-		float dp = res.getDisplayMetrics().density;
+		float dp = context.getResources().getDisplayMetrics().density;
 
 		initFaces(context);
 		initPaints(context, dp);
-		initMetrics(context, dp, res);
+		initMetrics(context, dp);
 
 		setScaleType(ScalingImageView.ScaleType.CENTER_CROP);
 	}
@@ -190,7 +189,6 @@ public class CubeMapView extends ScalingImageView {
 	@Override
 	protected Parcelable onSaveInstanceState() {
 		saveSelectedFace();
-
 		return new SavedState(
 				super.onSaveInstanceState(),
 				faces,
@@ -233,10 +231,10 @@ public class CubeMapView extends ScalingImageView {
 			int bottom) {
 		if (changed) {
 			calculateFaceRects(
-					left,
-					top + toolAndStatusBarHeight,
-					right - navigationBarSize.x,
-					bottom - navigationBarSize.y);
+					left + insets.left,
+					top + insets.top + toolbarHeight,
+					right - insets.right,
+					bottom - insets.bottom);
 		}
 
 		Face face = faces[selectedFace];
@@ -293,12 +291,10 @@ public class CubeMapView extends ScalingImageView {
 		textPaint.setTextSize(14f * dp);
 	}
 
-	private void initMetrics(Context context, float dp, Resources res) {
+	private void initMetrics(Context context, float dp) {
 		mapPadding = Math.round(24f * dp);
 		textPadding = Math.round(8f * dp);
-		toolAndStatusBarHeight = SystemBarMetrics
-				.getStatusAndToolBarHeight(context);
-		navigationBarSize = SystemBarMetrics.getNavigationBarSize(res);
+		toolbarHeight = SystemBarMetrics.getToolBarHeight(context);
 	}
 
 	private void restoreFace(int idx, Face from) {

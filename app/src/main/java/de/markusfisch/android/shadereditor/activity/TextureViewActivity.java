@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.activity;
 
 import de.markusfisch.android.shadereditor.fragment.TextureViewFragment;
 import de.markusfisch.android.shadereditor.widget.ScalingImageView;
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.R;
 
 import android.os.Bundle;
@@ -24,7 +25,7 @@ public class TextureViewActivity
 		scalingImageView = (ScalingImageView) findViewById(
 				R.id.scaling_image_view);
 
-		MainActivity.initSystemBars(this);
+		SystemBarMetrics.initSystemBars(this);
 		AbstractSubsequentActivity.initToolbar(this);
 
 		if (state == null) {

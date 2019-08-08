@@ -6,13 +6,16 @@ import de.markusfisch.android.shadereditor.R;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
 public class CropImageView extends ScalingImageView {
+	public final Rect insets = new Rect();
+
 	private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	private final int padding;
-	private final int toolAndStatusbarHeight;
+	private final int toolbarHeight;
 
 	public CropImageView(Context context, AttributeSet attr) {
 		super(context, attr);
@@ -23,8 +26,7 @@ public class CropImageView extends ScalingImageView {
 		padding = Math.round(
 				context.getResources().getDisplayMetrics().density * 24f);
 
-		toolAndStatusbarHeight =
-				SystemBarMetrics.getStatusAndToolBarHeight(context);
+		toolbarHeight = SystemBarMetrics.getToolBarHeight(context);
 
 		setScaleType(ScalingImageView.ScaleType.CENTER_CROP);
 	}
@@ -38,9 +40,10 @@ public class CropImageView extends ScalingImageView {
 			int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
 
-		if (right - left > bottom - top) {
-			top += toolAndStatusbarHeight;
-		}
+		left += insets.left;
+		top += insets.top + toolbarHeight;
+		right -= insets.right;
+		bottom -= insets.bottom;
 
 		int width = right - left;
 		int height = bottom - top;

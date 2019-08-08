@@ -33,7 +33,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -77,46 +76,6 @@ public class MainActivity
 	private float qualityValues[];
 	private float quality = 1f;
 
-	public static void initSystemBars(AppCompatActivity activity) {
-		View view;
-
-		if (activity != null &&
-				(view = activity.findViewById(R.id.main_layout)) != null &&
-				setSystemBarColor(
-						activity.getWindow(),
-						ShaderEditorApp.preferences.getSystemBarColor(),
-						true)) {
-			view.setPadding(
-					0,
-					SystemBarMetrics.getStatusBarHeight(
-							activity.getResources()),
-					0,
-					0);
-		}
-	}
-
-	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
-	public static boolean setSystemBarColor(
-			Window window,
-			int color,
-			boolean expand) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-			return false;
-		}
-
-		if (expand) {
-			window.getDecorView().setSystemUiVisibility(
-					View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-							View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
-							View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-		}
-
-		window.setStatusBarColor(color);
-		window.setNavigationBarColor(color);
-
-		return true;
-	}
-
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
@@ -131,10 +90,8 @@ public class MainActivity
 			} else {
 				openDrawer();
 			}
-
 			return true;
 		}
-
 		return super.onKeyDown(keyCode, e);
 	}
 
@@ -142,7 +99,6 @@ public class MainActivity
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main, menu);
-
 		return true;
 	}
 
@@ -209,7 +165,6 @@ public class MainActivity
 				showSettings();
 				return true;
 		}
-
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -288,7 +243,7 @@ public class MainActivity
 		super.onCreate(state);
 		setContentView(R.layout.activity_main);
 
-		initSystemBars(this);
+		SystemBarMetrics.initSystemBars(this);
 		initToolbar();
 		initQualitySpinner();
 		initDrawer();
@@ -329,21 +284,18 @@ public class MainActivity
 			state.putLong(SELECTED_SHADER, selectedShaderId);
 			state.putBoolean(CODE_VISIBLE, editorFragment.isCodeVisible());
 		}
-
 		super.onSaveInstanceState(state);
 	}
 
 	@Override
 	protected void onPostCreate(Bundle state) {
 		super.onPostCreate(state);
-
 		drawerToggle.syncState();
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-
 		updateUiToPreferences();
 		getShadersAsync();
 	}
@@ -351,11 +303,9 @@ public class MainActivity
 	@Override
 	protected void onPause() {
 		super.onPause();
-
 		if (shaderView.getVisibility() == View.VISIBLE) {
 			shaderView.onPause();
 		}
-
 		autoSave();
 	}
 
@@ -376,19 +326,15 @@ public class MainActivity
 	}
 
 	private void closeDrawer() {
-		if (drawerLayout == null) {
-			return;
+		if (drawerLayout != null) {
+			drawerLayout.closeDrawer(menuFrame);
 		}
-
-		drawerLayout.closeDrawer(menuFrame);
 	}
 
 	private void openDrawer() {
-		if (drawerLayout == null) {
-			return;
+		if (drawerLayout != null) {
+			drawerLayout.openDrawer(menuFrame);
 		}
-
-		drawerLayout.openDrawer(menuFrame);
 	}
 
 	private void initToolbar() {
@@ -623,7 +569,6 @@ public class MainActivity
 			if (cursor != null) {
 				cursor.close();
 			}
-
 			showNoShadersAvailable();
 			return;
 		}
@@ -716,7 +661,7 @@ public class MainActivity
 				sb.append(new String(buffer, 0, len, "UTF-8"));
 			}
 			return sb.toString();
-		} catch (java.io.IOException e) {
+		} catch (IOException e) {
 			return null;
 		}
 	}
@@ -828,7 +773,6 @@ public class MainActivity
 		if (id < 1) {
 			return;
 		}
-
 		new AlertDialog.Builder(this)
 				.setMessage(R.string.sure_remove_shader)
 				.setPositiveButton(

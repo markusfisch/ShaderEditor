@@ -1,20 +1,55 @@
 package de.markusfisch.android.shadereditor.view;
 
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.R;
+
+import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.res.Configuration;
-import android.content.res.Resources;
-import android.graphics.Point;
+import android.graphics.Rect;
+import android.support.v4.view.OnApplyWindowInsetsListener;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.WindowInsetsCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.os.Build;
+import android.view.View;
+import android.view.Window;
 import android.util.TypedValue;
 
 public class SystemBarMetrics {
-	public static int getStatusAndToolBarHeight(Context context) {
-		return getStatusBarHeight(context.getResources()) +
-				getToolBarHeight(context);
+	public static void initSystemBars(AppCompatActivity activity) {
+		initSystemBars(activity, null);
 	}
 
-	public static int getStatusBarHeight(Resources res) {
-		return getIdentifierDimen(res, "status_bar_height");
+	public static void initSystemBars(AppCompatActivity activity,
+			Rect insets) {
+		View mainLayout;
+		if (activity != null &&
+				(mainLayout = activity.findViewById(R.id.main_layout)) != null &&
+				setSystemBarColor(
+						activity.getWindow(),
+						ShaderEditorApp.preferences.getSystemBarColor(),
+						true)) {
+			setWindowInsets(mainLayout, insets);
+		}
+	}
+
+	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+	public static boolean setSystemBarColor(
+			Window window,
+			int color,
+			boolean expand) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+			return false;
+		}
+		if (expand) {
+			window.getDecorView().setSystemUiVisibility(
+					View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+							View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
+							View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+		}
+		window.setStatusBarColor(color);
+		window.setNavigationBarColor(color);
+		return true;
 	}
 
 	public static int getToolBarHeight(Context context) {
@@ -22,50 +57,29 @@ public class SystemBarMetrics {
 		return context.getTheme().resolveAttribute(
 				android.R.attr.actionBarSize,
 				tv,
-				true) ?
-			TypedValue.complexToDimensionPixelSize(
-					tv.data,
-					context.getResources().getDisplayMetrics()) :
-			0;
+				true) ? TypedValue.complexToDimensionPixelSize(
+						tv.data,
+						context.getResources().getDisplayMetrics()) : 0;
 	}
 
-	public static Point getNavigationBarSize(Resources res) {
-		Point size = new Point(0, 0);
-		if (!getIdentifierBoolean(res, "config_showNavigationBar")) {
-			return size;
-		}
-
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-			Configuration conf = res.getConfiguration();
-			if (conf.orientation == Configuration.ORIENTATION_LANDSCAPE &&
-					// according to https://developer.android.com/training/multiscreen/screensizes.html#TaskUseSWQuali
-					// only a screen < 600 dp is considered to be a phone
-					// and can move its navigation bar to the side
-					conf.smallestScreenWidthDp < 600) {
-				size.x = getIdentifierDimen(
-						res,
-						"navigation_bar_height_landscape");
-				return size;
+	private static void setWindowInsets(final View mainLayout,
+			final Rect windowInsets) {
+		ViewCompat.setOnApplyWindowInsetsListener(mainLayout, new OnApplyWindowInsetsListener() {
+			@Override
+			public WindowInsetsCompat onApplyWindowInsets(View v,
+					WindowInsetsCompat insets) {
+				if (insets.hasSystemWindowInsets()) {
+					int left = insets.getSystemWindowInsetLeft();
+					int top = insets.getSystemWindowInsetTop();
+					int right = insets.getSystemWindowInsetRight();
+					int bottom = insets.getSystemWindowInsetBottom();
+					mainLayout.setPadding(left, top, right, bottom);
+					if (windowInsets != null) {
+						windowInsets.set(left, top, right, bottom);
+					}
+				}
+				return insets.consumeSystemWindowInsets();
 			}
-		}
-
-		size.y = getIdentifierDimen(res, "navigation_bar_height");
-		return size;
-	}
-
-	private static boolean getIdentifierBoolean(Resources res, String name) {
-		int id = res.getIdentifier(
-				name,
-				"bool",
-				"android");
-		return id > 0 && res.getBoolean(id);
-	}
-
-	private static int getIdentifierDimen(Resources res, String name) {
-		int id = res.getIdentifier(
-				name,
-				"dimen",
-				"android");
-		return id > 0 ? res.getDimensionPixelSize(id) : 0;
+		});
 	}
 }

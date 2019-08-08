@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.activity;
 
 import de.markusfisch.android.shadereditor.fragment.CubeMapFragment;
 import de.markusfisch.android.shadereditor.widget.CubeMapView;
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.R;
 
 import android.os.Bundle;
@@ -23,7 +24,7 @@ public class CubeMapActivity
 
 		cubeMapImageView = (CubeMapView) findViewById(R.id.cube_map_view);
 
-		MainActivity.initSystemBars(this);
+		SystemBarMetrics.initSystemBars(this, cubeMapImageView.insets);
 		AbstractSubsequentActivity.initToolbar(this);
 
 		if (state == null) {
