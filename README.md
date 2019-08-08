@@ -7,10 +7,10 @@ your Android phone or tablet and use them as live wallpaper.
 
 <img
 	src="https://raw.githubusercontent.com/markusfisch/ShaderEditor/gh-pages/screenshot-main.png"
-	alt="Screenshot Gallery" width="160"/>
+	alt="Screenshot" width="160"/>
 <img
 	src="https://raw.githubusercontent.com/markusfisch/ShaderEditor/gh-pages/screenshot-keyboard.png"
-	alt="Screenshot Theme" width="160"/>
+	alt="Screenshot with soft keyboard" width="160"/>
 
 ## Download
 
