@@ -6,6 +6,7 @@ import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.R;
+import fi.iki.asb.android.logo.TextViewUndoRedo;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ public class EditorFragment extends Fragment {
 
 	private ScrollView scrollView;
 	private ShaderEditor shaderEditor;
+	private TextViewUndoRedo undoRedo;
 	private int yOffset;
 
 	@Override
@@ -38,6 +40,7 @@ public class EditorFragment extends Fragment {
 
 		scrollView = view.findViewById(R.id.scroll_view);
 		shaderEditor = view.findViewById(R.id.editor);
+		undoRedo = new TextViewUndoRedo(shaderEditor);
 
 		Activity activity = getActivity();
 		try {
@@ -56,6 +59,18 @@ public class EditorFragment extends Fragment {
 	public void onResume() {
 		super.onResume();
 		updateToPreferences();
+	}
+
+	public void undo() {
+		if (undoRedo.canUndo()) {
+			undoRedo.undo();
+		}
+	}
+
+	public void redo() {
+		if (undoRedo.canRedo()) {
+			undoRedo.redo();
+		}
 	}
 
 	public boolean hasErrorLine() {
@@ -101,6 +116,7 @@ public class EditorFragment extends Fragment {
 
 	public void setText(String text) {
 		clearError();
+		undoRedo.clearHistory();
 		shaderEditor.setTextHighlighted(text);
 	}
 

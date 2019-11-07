@@ -10,6 +10,8 @@
 	<string name="insert_tab">Insert tab</string>
 	<string name="run_code">Run code</string>
 	<string name="toggle_code">Toggle code</string>
+	<string name="undo">Undo</string>
+	<string name="redo">Redo</string>
 	<string name="save_shader">Save shader</string>
 	<string name="add_shader">New shader</string>
 	<string name="duplicate_shader">Save as new shader</string>

@@ -17,6 +17,16 @@
 		android:title="@string/toggle_code"
 		material:showAsAction="ifRoom"/>
 	<item
+		android:id="@+id/undo"
+		android:icon="@drawable/ic_action_undo"
+		android:title="@string/undo"
+		material:showAsAction="ifRoom"/>
+	<item
+		android:id="@+id/redo"
+		android:icon="@drawable/ic_action_redo"
+		android:title="@string/redo"
+		material:showAsAction="ifRoom"/>
+	<item
 		android:id="@+id/save_shader"
 		android:icon="@drawable/ic_action_save"
 		android:title="@string/save_shader"

@@ -127,6 +127,12 @@ public class MainActivity
 			case R.id.run_code:
 				runShader();
 				return true;
+			case R.id.undo:
+				editorFragment.undo();
+				return true;
+			case R.id.redo:
+				editorFragment.redo();
+				return true;
 			case R.id.save_shader:
 				saveShader(selectedShaderId);
 				return true;
