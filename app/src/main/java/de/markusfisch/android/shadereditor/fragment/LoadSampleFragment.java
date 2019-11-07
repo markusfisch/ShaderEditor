@@ -15,7 +15,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 public class LoadSampleFragment extends Fragment {
-	private SamplesAdapter samplesAdapter;
 	private ListView listView;
 
 	@Override
@@ -35,7 +34,7 @@ public class LoadSampleFragment extends Fragment {
 	}
 
 	private void initListView(Context context) {
-		samplesAdapter = new SamplesAdapter(context);
+		final SamplesAdapter samplesAdapter = new SamplesAdapter(context);
 
 		listView.setAdapter(samplesAdapter);
 		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
