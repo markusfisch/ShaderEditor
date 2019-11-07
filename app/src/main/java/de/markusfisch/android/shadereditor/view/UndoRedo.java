@@ -1,6 +1,5 @@
 package de.markusfisch.android.shadereditor.view;
 
-import android.content.SharedPreferences;
 import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
@@ -195,86 +194,6 @@ public class UndoRedo {
 
 		Selection.setSelection(text, edit.after == null ? start
 				: (start + edit.after.length()));
-	}
-
-	public void storePersistentState(SharedPreferences.Editor editor,
-			String prefix) {
-		// Store hash code of text in the editor so that we can check if the
-		// editor contents has changed.
-		editor.putString(prefix + ".hash",
-				String.valueOf(textView.getText().toString().hashCode()));
-		editor.putInt(prefix + ".maxSize", editHistory.maxHistorySize);
-		editor.putInt(prefix + ".position", editHistory.position);
-		editor.putInt(prefix + ".size", editHistory.history.size());
-
-		int i = 0;
-		for (EditItem ei : editHistory.history) {
-			String pre = prefix + "." + i;
-
-			editor.putInt(pre + ".start", ei.start);
-			editor.putString(pre + ".before", ei.before.toString());
-			editor.putString(pre + ".after", ei.after.toString());
-
-			++i;
-		}
-	}
-
-	/**
-	 * Restore preferences.
-	 *
-	 * @param prefix
-	 *            The preference key prefix used when state was stored.
-	 * @return did restore succeed? If this is false, the undo history will be
-	 *         empty.
-	 */
-	public boolean restorePersistentState(SharedPreferences sp, String prefix)
-			throws IllegalStateException {
-		boolean ok = doRestorePersistentState(sp, prefix);
-		if (!ok) {
-			editHistory.clear();
-		}
-		return ok;
-	}
-
-	private boolean doRestorePersistentState(SharedPreferences sp,
-			String prefix) {
-		String hash = sp.getString(prefix + ".hash", null);
-		if (hash == null) {
-			// No state to be restored.
-			return true;
-		}
-
-		if (Integer.parseInt(hash) != textView.getText().toString().hashCode()) {
-			return false;
-		}
-
-		editHistory.clear();
-		editHistory.maxHistorySize = sp.getInt(prefix + ".maxSize", -1);
-
-		int count = sp.getInt(prefix + ".size", -1);
-		if (count == -1) {
-			return false;
-		}
-
-		for (int i = 0; i < count; i++) {
-			String pre = prefix + "." + i;
-
-			int start = sp.getInt(pre + ".start", -1);
-			String before = sp.getString(pre + ".before", null);
-			String after = sp.getString(pre + ".after", null);
-
-			if (start == -1 || before == null || after == null) {
-				return false;
-			}
-			editHistory.add(new EditItem(start, before, after));
-		}
-
-		editHistory.position = sp.getInt(prefix + ".position", -1);
-		if (editHistory.position == -1) {
-			return false;
-		}
-
-		return true;
 	}
 
 	/**
