@@ -22,14 +22,14 @@
 		android:title="@string/save_shader"
 		material:showAsAction="ifRoom"/>
 	<item
-		android:id="@+id/add_shader"
-		android:icon="@drawable/ic_action_add"
-		android:title="@string/add_shader"
-		material:showAsAction="ifRoom"/>
-	<item
 		android:id="@+id/duplicate_shader"
 		android:icon="@drawable/ic_action_duplicate"
 		android:title="@string/duplicate_shader"
+		material:showAsAction="ifRoom"/>
+	<item
+		android:id="@+id/add_shader"
+		android:icon="@drawable/ic_action_add"
+		android:title="@string/add_shader"
 		material:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/delete_shader"
