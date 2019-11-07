@@ -16,7 +16,7 @@ import java.util.LinkedList;
  */
 public class UndoRedo {
 	public static final class EditHistory {
-		private final LinkedList<EditItem> history = new LinkedList<EditItem>();
+		private final LinkedList<EditItem> history = new LinkedList<>();
 
 		/**
 		 * The position from which an EditItem will be retrieved when getNext()
@@ -98,7 +98,7 @@ public class UndoRedo {
 		}
 	}
 	private final EditTextChangeListener changeListener =
-			new EditTextChangeListener();;
+			new EditTextChangeListener();
 
 	/**
 	 * Is undo/redo being performed? This member signals if an undo/redo
@@ -113,7 +113,7 @@ public class UndoRedo {
 	public UndoRedo(TextView textView, EditHistory editHistory) {
 		this.textView = textView;
 		this.editHistory = editHistory;
-		attachListener();
+		textView.addTextChangedListener(changeListener);
 	}
 
 	public UndoRedo(TextView textView) {
@@ -126,10 +126,6 @@ public class UndoRedo {
 
 	public void stopListeningForChanges() {
 		isListening = false;
-	}
-
-	public void attachListener() {
-		textView.addTextChangedListener(changeListener);
 	}
 
 	public void detachListener() {
@@ -216,7 +212,7 @@ public class UndoRedo {
 		 * Constructs EditItem of a modification that was applied at position
 		 * start and replaced CharSequence before with CharSequence after.
 		 */
-		public EditItem(int start, CharSequence before, CharSequence after) {
+		private EditItem(int start, CharSequence before, CharSequence after) {
 			this.start = start;
 			this.before = before;
 			this.after = after;
@@ -228,16 +224,12 @@ public class UndoRedo {
 		/** The text that will be removed by the change event. */
 		private CharSequence beforeChange;
 
-		/** The text that was inserted by the change event. */
-		private CharSequence afterChange;
-
 		@Override
 		public void beforeTextChanged(CharSequence s, int start, int count,
 				int after) {
 			if (isUndoOrRedo || !isListening) {
 				return;
 			}
-
 			beforeChange = s.subSequence(start, start + count);
 		}
 
@@ -247,9 +239,8 @@ public class UndoRedo {
 			if (isUndoOrRedo || !isListening) {
 				return;
 			}
-
-			afterChange = s.subSequence(start, start + count);
-			editHistory.add(new EditItem(start, beforeChange, afterChange));
+			editHistory.add(new EditItem(start, beforeChange,
+					s.subSequence(start, start + count)));
 		}
 
 		@Override
