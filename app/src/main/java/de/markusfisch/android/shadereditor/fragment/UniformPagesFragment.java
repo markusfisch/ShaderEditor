@@ -16,6 +16,9 @@ public class UniformPagesFragment extends Fragment {
 			LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
+		// reset title if we're coming back from another fragment
+		getActivity().setTitle(R.string.add_uniform);
+
 		View view = inflater.inflate(
 				R.layout.fragment_uniform_pages,
 				container,
