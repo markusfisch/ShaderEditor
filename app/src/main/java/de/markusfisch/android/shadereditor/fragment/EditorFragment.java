@@ -118,25 +118,19 @@ public class EditorFragment extends Fragment {
 
 	public boolean toggleCode() {
 		boolean visible = isCodeVisible();
-
 		scrollView.setVisibility(visible ? View.GONE : View.VISIBLE);
-
 		if (visible) {
 			SoftKeyboard.hide(getActivity(), shaderEditor);
 		}
-
 		return visible;
 	}
 
 	private void updateToPreferences() {
 		Preferences preferences = ShaderEditorApp.preferences;
-
 		shaderEditor.setUpdateDelay(preferences.getUpdateDelay());
-
 		shaderEditor.setTextSize(
 				android.util.TypedValue.COMPLEX_UNIT_SP,
 				preferences.getTextSize());
-
 		shaderEditor.setTabWidth(preferences.getTabWidth());
 	}
 

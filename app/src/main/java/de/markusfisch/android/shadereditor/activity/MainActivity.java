@@ -106,19 +106,15 @@ public class MainActivity
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		menu.findItem(R.id.insert_tab).setVisible(
 				ShaderEditorApp.preferences.doesShowInsertTab());
-
 		menu.findItem(R.id.run_code).setVisible(
 				!ShaderEditorApp.preferences.doesRunOnChange());
-
 		menu.findItem(R.id.toggle_code).setVisible(
 				ShaderEditorApp.preferences.doesRunInBackground());
-
 		menu.findItem(R.id.update_wallpaper).setTitle(
 				ShaderEditorApp.preferences.getWallpaperShader() ==
 						selectedShaderId ?
 								R.string.update_wallpaper :
 								R.string.set_as_wallpaper);
-
 		return true;
 	}
 
@@ -672,7 +668,6 @@ public class MainActivity
 
 	private void runShader() {
 		String src = editorFragment.getText();
-
 		editorFragment.clearError();
 
 		if (ShaderEditorApp.preferences.doesSaveOnRun()) {
@@ -854,8 +849,8 @@ public class MainActivity
 	}
 
 	private void showFaq() {
-		Uri url = Uri.parse("https://github.com/markusfisch/ShaderEditor/blob/master/FAQ.md");
-		Intent intent = new Intent(Intent.ACTION_VIEW, url);
+		Uri uri = Uri.parse("https://github.com/markusfisch/ShaderEditor/blob/master/FAQ.md");
+		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
 		if (intent.resolveActivity(getPackageManager()) != null) {
 			startActivity(intent);
 		}
@@ -876,7 +871,6 @@ public class MainActivity
 		if (name != null) {
 			nameView.setText(name);
 		}
-
 		new AlertDialog.Builder(this)
 				.setMessage(R.string.rename_shader)
 				.setView(view)
@@ -961,11 +955,9 @@ public class MainActivity
 
 	private void setToolbarTitle(long id) {
 		Cursor cursor = ShaderEditorApp.db.getShader(id);
-
 		if (Database.closeIfEmpty(cursor)) {
 			return;
 		}
-
 		setQualitySpinner(cursor);
 		setToolbarTitle(cursor);
 		cursor.close();
