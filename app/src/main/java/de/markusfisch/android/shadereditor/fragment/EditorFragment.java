@@ -3,10 +3,10 @@ package de.markusfisch.android.shadereditor.fragment;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.opengl.InfoLog;
 import de.markusfisch.android.shadereditor.preference.Preferences;
+import de.markusfisch.android.shadereditor.view.UndoRedo;
 import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.R;
-import fi.iki.asb.android.logo.TextViewUndoRedo;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -25,7 +25,7 @@ public class EditorFragment extends Fragment {
 
 	private ScrollView scrollView;
 	private ShaderEditor shaderEditor;
-	private TextViewUndoRedo undoRedo;
+	private UndoRedo undoRedo;
 	private int yOffset;
 
 	@Override
@@ -40,7 +40,7 @@ public class EditorFragment extends Fragment {
 
 		scrollView = view.findViewById(R.id.scroll_view);
 		shaderEditor = view.findViewById(R.id.editor);
-		undoRedo = new TextViewUndoRedo(shaderEditor);
+		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
 
 		Activity activity = getActivity();
 		try {
@@ -56,9 +56,16 @@ public class EditorFragment extends Fragment {
 	}
 
 	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		undoRedo.detachListener();
+	}
+
+	@Override
 	public void onResume() {
 		super.onResume();
 		updateToPreferences();
+		undoRedo.listenForChanges();
 	}
 
 	public void undo() {
@@ -117,7 +124,9 @@ public class EditorFragment extends Fragment {
 	public void setText(String text) {
 		clearError();
 		undoRedo.clearHistory();
+		undoRedo.stopListeningForChanges();
 		shaderEditor.setTextHighlighted(text);
+		undoRedo.listenForChanges();
 	}
 
 	public void insertTab() {
