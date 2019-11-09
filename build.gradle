@@ -14,10 +14,6 @@ buildscript {
 	}
 }
 
-plugins {
-	id 'org.sonarqube' version '2.6.2'
-}
-
 allprojects {
 	repositories {
 		google()
