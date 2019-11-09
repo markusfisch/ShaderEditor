@@ -108,16 +108,13 @@ public class CubeMapFragment extends Fragment {
 		for (int i = faces.length; i-- > 0; ) {
 			if (faces[i].getUri() == null) {
 				Activity activity = getActivity();
-
 				if (activity == null) {
 					return;
 				}
-
 				Toast.makeText(
 						activity,
 						R.string.not_enough_faces,
 						Toast.LENGTH_SHORT).show();
-
 				return;
 			}
 		}
