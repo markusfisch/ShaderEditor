@@ -166,11 +166,7 @@ public class CubeMapView extends ScalingImageView {
 			if (i == selectedFace) {
 				selectedBounds = bounds;
 			} else if (bitmap != null) {
-				canvas.drawBitmap(
-						bitmap,
-						null,
-						bounds,
-						null);
+				canvas.drawBitmap(bitmap, null, bounds, null);
 			}
 
 			canvas.drawRect(bounds, unselectedPaint);
@@ -433,6 +429,10 @@ public class CubeMapView extends ScalingImageView {
 	}
 
 	private void selectFace(int n) {
+		if (selectedFace == n) {
+			return;
+		}
+
 		saveSelectedFace();
 
 		if (selectedBitmap != null) {

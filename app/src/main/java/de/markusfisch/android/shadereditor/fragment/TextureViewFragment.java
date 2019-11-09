@@ -85,7 +85,18 @@ public class TextureViewFragment extends Fragment {
 		activity.setTitle(textureName);
 		cursor.close();
 
-		return null;
+		View view = inflater.inflate(
+				R.layout.fragment_view_texture,
+				container,
+				false);
+		view.findViewById(R.id.insert_code).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				insertUniformSamplerStatement();
+			}
+		});
+
+		return view;
 	}
 
 	@Override
@@ -96,9 +107,6 @@ public class TextureViewFragment extends Fragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.insert_code:
-				insertUniformSamplerStatement();
-				return true;
 			case R.id.remove_texture:
 				askToRemoveTexture(textureId);
 				return true;

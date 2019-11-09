@@ -70,7 +70,7 @@ public class CropImageFragment extends Fragment {
 		}
 
 		View view = inflater.inflate(
-				R.layout.progress_view,
+				R.layout.fragment_crop_image,
 				container,
 				false);
 		progressView = view.findViewById(R.id.progress_view);
@@ -78,6 +78,13 @@ public class CropImageFragment extends Fragment {
 		// make cropImageView in activity visible (again)
 		cropImageView.setVisibility(View.VISIBLE);
 		initUpdateListener();
+
+		view.findViewById(R.id.crop).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				cropImage();
+			}
+		});
 
 		return view;
 	}
@@ -96,9 +103,6 @@ public class CropImageFragment extends Fragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.crop:
-				cropImage();
-				return true;
 			case R.id.rotate_clockwise:
 				rotateClockwise();
 				return true;

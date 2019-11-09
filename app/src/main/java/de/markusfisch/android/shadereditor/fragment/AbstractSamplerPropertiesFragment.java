@@ -11,14 +11,10 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.InputFilter;
 import android.text.Spanned;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
@@ -48,28 +44,6 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 	private TextureParametersView textureParameterView;
 	private View progressView;
 	private String samplerType = SAMPLER_2D;
-
-	@Override
-	public void onCreate(Bundle state) {
-		super.onCreate(state);
-		setHasOptionsMenu(true);
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.fragment_sampler_properties, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.save:
-				saveSamplerAsync();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
-	}
 
 	protected void setSizeCaption(String caption) {
 		sizeCaption.setText(caption);
@@ -106,6 +80,13 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 		textureParameterView = view.findViewById(
 				R.id.texture_parameters);
 		progressView = view.findViewById(R.id.progress_view);
+
+		view.findViewById(R.id.save).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				saveSamplerAsync();
+			}
+		});
 
 		if (activity.getCallingActivity() == null) {
 			addUniformView.setVisibility(View.GONE);

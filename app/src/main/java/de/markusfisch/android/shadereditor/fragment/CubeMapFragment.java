@@ -53,11 +53,16 @@ public class CubeMapFragment extends Fragment {
 				container,
 				false);
 
-		View fab = view.findViewById(R.id.add_texture);
-		fab.setOnClickListener(new View.OnClickListener() {
+		view.findViewById(R.id.add_texture).setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				addTexture();
+			}
+		});
+		view.findViewById(R.id.crop).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				composeMap();
 			}
 		});
 
@@ -75,9 +80,6 @@ public class CubeMapFragment extends Fragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
-			case R.id.crop:
-				composeMap();
-				return true;
 			case R.id.rotate_clockwise:
 				rotateClockwise();
 				return true;
@@ -92,9 +94,7 @@ public class CubeMapFragment extends Fragment {
 			int resultCode,
 			Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-
 		Uri imageUri;
-
 		if (requestCode == PICK_IMAGE &&
 				resultCode == Activity.RESULT_OK &&
 				(imageUri = data.getData()) != null) {

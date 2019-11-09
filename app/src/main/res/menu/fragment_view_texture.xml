@@ -2,11 +2,6 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:material="http://schemas.android.com/apk/res-auto">
 	<item
-		android:id="@+id/insert_code"
-		android:icon="@drawable/ic_action_insert_code"
-		android:title="@string/insert_uniform_sampler"
-		material:showAsAction="ifRoom"/>
-	<item
 		android:id="@+id/remove_texture"
 		android:icon="@drawable/ic_action_delete"
 		android:title="@string/remove_texture"

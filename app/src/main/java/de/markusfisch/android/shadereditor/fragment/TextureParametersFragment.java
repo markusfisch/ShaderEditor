@@ -12,9 +12,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -39,12 +36,6 @@ public class TextureParametersFragment extends Fragment {
 		fragment.setArguments(args);
 
 		return fragment;
-	}
-
-	@Override
-	public void onCreate(Bundle state) {
-		super.onCreate(state);
-		setHasOptionsMenu(true);
 	}
 
 	@Override
@@ -84,23 +75,14 @@ public class TextureParametersFragment extends Fragment {
 					R.id.backbuffer_parameters);
 		}
 
-		return view;
-	}
-
-	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.fragment_texture_parameters, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.insert_code:
+		view.findViewById(R.id.insert_code).setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
 				insertUniform();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
+			}
+		});
+
+		return view;
 	}
 
 	private void insertUniform() {

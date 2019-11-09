@@ -4,21 +4,16 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
-	<ScrollView
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:padding="16dp">
-		<include layout="@layout/widget_texture_parameters"/>
-	</ScrollView>
+	<include layout="@layout/progress_view"/>
 	<android.support.design.widget.FloatingActionButton
 		tools:ignore="UnusedAttribute"
-		android:id="@+id/insert_code"
+		android:id="@+id/crop"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignParentEnd="true"
 		android:layout_alignParentRight="true"
 		android:layout_alignParentBottom="true"
 		android:layout_margin="20dp"
-		android:src="@drawable/ic_fab_insert_code"
+		android:src="@drawable/ic_fab_crop"
 		app:elevation="4dp"/>
 </RelativeLayout>

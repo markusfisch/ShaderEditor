@@ -6,13 +6,24 @@
 	android:layout_height="match_parent">
 	<android.support.design.widget.FloatingActionButton
 		tools:ignore="UnusedAttribute"
-		android:id="@+id/add_texture"
+		android:id="@+id/crop"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_alignParentEnd="true"
 		android:layout_alignParentRight="true"
 		android:layout_alignParentBottom="true"
 		android:layout_margin="20dp"
-		android:src="@drawable/ic_action_add_texture"
+		android:src="@drawable/ic_fab_crop"
+		app:elevation="4dp"/>
+	<android.support.design.widget.FloatingActionButton
+		tools:ignore="UnusedAttribute"
+		android:id="@+id/add_texture"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentStart="true"
+		android:layout_alignParentLeft="true"
+		android:layout_alignParentBottom="true"
+		android:layout_margin="20dp"
+		android:src="@drawable/ic_fab_add_texture"
 		app:elevation="4dp"/>
 </RelativeLayout>
