@@ -1,5 +1,14 @@
 # Change Log
 
+## 2.17.0
+* Add undo/redo to editor
+* Make all default actions Floating Action Buttons
+* Move "Save as" menu item directly below "Save"
+* Add more intent filters for application/glsl files
+* Load shaders as UTF-8 text
+* Prefer TYPE_GAME_ROTATION_VECTOR for the rotation uniform
+* Fix showing inactive cube map bitmaps in composer
+
 ## 2.16.0
 * Add uniform for rotation vector sensor
 * Alternatively calculate rotation matrix from rotation vector if necessary
