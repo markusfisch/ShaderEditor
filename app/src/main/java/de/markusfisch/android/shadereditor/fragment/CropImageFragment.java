@@ -28,11 +28,6 @@ public class CropImageFragment extends Fragment {
 	}
 
 	private static boolean inProgress = false;
-	private static UpdateListener updateListener;
-
-	private interface UpdateListener {
-		void updateBitmap(Bitmap b);
-	}
 
 	private CropImageView cropImageView;
 	private View progressView;
@@ -77,7 +72,6 @@ public class CropImageFragment extends Fragment {
 
 		// make cropImageView in activity visible (again)
 		cropImageView.setVisibility(View.VISIBLE);
-		initUpdateListener();
 
 		view.findViewById(R.id.crop).setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -109,22 +103,6 @@ public class CropImageFragment extends Fragment {
 			default:
 				return super.onOptionsItemSelected(item);
 		}
-	}
-
-	private void initUpdateListener() {
-		// realize changes from AsyncTask in loadBitmapAsync() in
-		// the Fragment object that is currently displayed
-		updateListener = new UpdateListener() {
-			@Override
-			public void updateBitmap(Bitmap b) {
-				if (!isAdded()) {
-					return;
-				}
-
-				bitmap = b;
-				cropImageView.setImageBitmap(bitmap);
-			}
-		};
 	}
 
 	// this AsyncTask is running for a short and finite time only
@@ -159,7 +137,10 @@ public class CropImageFragment extends Fragment {
 					return;
 				}
 
-				updateListener.updateBitmap(b);
+				if (isAdded()) {
+					bitmap = b;
+					cropImageView.setImageBitmap(b);
+				}
 			}
 		}.execute();
 	}
