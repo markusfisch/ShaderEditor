@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Locale;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
@@ -31,7 +32,7 @@ public class ImportExport {
 			int failCount = 0;
 
 			for (File file : files) {
-				if (file.getName().toLowerCase().endsWith(SHADER_FILE_EXTENSION)) {
+				if (file.getName().toLowerCase(Locale.US).endsWith(SHADER_FILE_EXTENSION)) {
 					try {
 						String shaderName = file.getName();
 						shaderName = shaderName.substring(0, shaderName.length()
@@ -132,7 +133,7 @@ public class ImportExport {
 		File shaderFile = new File(directory, filename + SHADER_FILE_EXTENSION);
 		int fileCounter = 1;
 		while (shaderFile.exists()) {
-			shaderFile = new File(directory, String.format("%s_%d%s",
+			shaderFile = new File(directory, String.format(Locale.US, "%s_%d%s",
 					filename, fileCounter++, SHADER_FILE_EXTENSION));
 		}
 

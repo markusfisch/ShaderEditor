@@ -5,9 +5,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 
 public class AccelerometerListener extends AbstractListener {
-	public final float gravity[] = new float[]{0, 0, 0};
-	public final float linear[] = new float[]{0, 0, 0};
-	public final float values[] = new float[]{0, 0, 0};
+	public final float[] gravity = new float[]{0, 0, 0};
+	public final float[] linear = new float[]{0, 0, 0};
+	public final float[] values = new float[]{0, 0, 0};
 
 	public AccelerometerListener(Context context) {
 		super(context);

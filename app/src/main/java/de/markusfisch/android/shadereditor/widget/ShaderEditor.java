@@ -421,7 +421,7 @@ public class ShaderEditor extends AppCompatEditText {
 	private static void clearSpans(Editable e, int length) {
 		// remove foreground color spans
 		{
-			ForegroundColorSpan spans[] = e.getSpans(
+			ForegroundColorSpan[] spans = e.getSpans(
 					0,
 					length,
 					ForegroundColorSpan.class);
@@ -433,7 +433,7 @@ public class ShaderEditor extends AppCompatEditText {
 
 		// remove background color spans
 		{
-			BackgroundColorSpan spans[] = e.getSpans(
+			BackgroundColorSpan[] spans = e.getSpans(
 					0,
 					length,
 					BackgroundColorSpan.class);
@@ -544,7 +544,7 @@ public class ShaderEditor extends AppCompatEditText {
 	private static class TabWidthSpan extends ReplacementSpan {
 		private int width;
 
-		public TabWidthSpan(int width) {
+		private TabWidthSpan(int width) {
 			this.width = width;
 		}
 

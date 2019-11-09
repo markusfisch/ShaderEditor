@@ -63,7 +63,7 @@ public class TextureParametersView extends LinearLayout {
 	}
 
 	private String getSpinnerValue(Spinner spinner, int valuesId) {
-		String values[] = getResources().getStringArray(valuesId);
+		String[] values = getResources().getStringArray(valuesId);
 		return values[spinner.getSelectedItemPosition()];
 	}
 
@@ -71,7 +71,7 @@ public class TextureParametersView extends LinearLayout {
 			Spinner spinner,
 			int valuesId,
 			String value) {
-		String values[] = getResources().getStringArray(valuesId);
+		String[] values = getResources().getStringArray(valuesId);
 		for (int i = 0; i < values.length; ++i) {
 			if (values[i].equals(value)) {
 				spinner.setSelection(i);

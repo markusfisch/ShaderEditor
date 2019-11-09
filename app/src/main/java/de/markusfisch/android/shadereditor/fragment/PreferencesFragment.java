@@ -148,7 +148,7 @@ public class PreferencesFragment
 		String summary = cursor.getString(
 				cursor.getColumnIndex(Database.SHADERS_NAME));
 
-		if (summary == null || summary.length() < 0) {
+		if (summary == null || summary.length() < 1) {
 			summary = cursor.getString(
 					cursor.getColumnIndex(Database.SHADERS_MODIFIED));
 		}
@@ -202,7 +202,7 @@ public class PreferencesFragment
 						break;
 				}
 			} else {
-				int messageId = 0;
+				int messageId;
 				switch (requestCode) {
 					default:
 						// make FindBugs happy

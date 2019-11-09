@@ -54,7 +54,7 @@ public class TextureAdapter extends CursorAdapter {
 	}
 
 	void setData(ViewHolder holder, Cursor cursor) {
-		byte bytes[] = cursor.getBlob(thumbIndex);
+		byte[] bytes = cursor.getBlob(thumbIndex);
 
 		if (bytes != null && bytes.length > 0) {
 			holder.preview.setImageBitmap(BitmapFactory.decodeByteArray(

@@ -6,7 +6,7 @@ import android.hardware.SensorEvent;
 import android.os.Build;
 
 public class RotationVectorListener extends AbstractListener {
-	public final float values[] = new float[]{0, 0, 0};
+	public final float[] values = new float[]{0, 0, 0};
 
 	public RotationVectorListener(Context context) {
 		super(context);

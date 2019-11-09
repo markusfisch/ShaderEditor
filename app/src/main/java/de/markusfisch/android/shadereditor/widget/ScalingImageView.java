@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.Matrix;
@@ -72,6 +73,8 @@ public class ScalingImageView extends AppCompatImageView {
 		return scaleType;
 	}
 
+	// click handling is correct
+	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		if (gestureDetector.onTouchEvent(event)) {

@@ -73,7 +73,7 @@ public class MainActivity
 	private ShaderView shaderView;
 	private long selectedShaderId = FIRST_SHADER;
 	private volatile int fps;
-	private float qualityValues[];
+	private float[] qualityValues;
 	private float quality = 1f;
 
 	@Override
@@ -113,8 +113,8 @@ public class MainActivity
 		menu.findItem(R.id.update_wallpaper).setTitle(
 				ShaderEditorApp.preferences.getWallpaperShader() ==
 						selectedShaderId ?
-								R.string.update_wallpaper :
-								R.string.set_as_wallpaper);
+						R.string.update_wallpaper :
+						R.string.set_as_wallpaper);
 		return true;
 	}
 
@@ -357,39 +357,39 @@ public class MainActivity
 		qualitySpinner.setAdapter(adapter);
 		qualitySpinner.setOnItemSelectedListener(
 				new Spinner.OnItemSelectedListener() {
-			@Override
-			public void onItemSelected(
-					AdapterView<?> parent,
-					View view,
-					int position,
-					long id) {
-				float q = qualityValues[position];
+					@Override
+					public void onItemSelected(
+							AdapterView<?> parent,
+							View view,
+							int position,
+							long id) {
+						float q = qualityValues[position];
 
-				if (q == quality) {
-					return;
-				}
+						if (q == quality) {
+							return;
+						}
 
-				quality = q;
+						quality = q;
 
-				if (selectedShaderId > 0) {
-					ShaderEditorApp.db.updateShaderQuality(
-							selectedShaderId,
-							quality);
-				}
+						if (selectedShaderId > 0) {
+							ShaderEditorApp.db.updateShaderQuality(
+									selectedShaderId,
+									quality);
+						}
 
-				if (shaderView.getVisibility() != View.VISIBLE) {
-					return;
-				}
+						if (shaderView.getVisibility() != View.VISIBLE) {
+							return;
+						}
 
-				shaderView.getRenderer().setQuality(quality);
-				shaderView.onPause();
-				shaderView.onResume();
-			}
+						shaderView.getRenderer().setQuality(quality);
+						shaderView.onPause();
+						shaderView.onResume();
+					}
 
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-			}
-		});
+					@Override
+					public void onNothingSelected(AdapterView<?> parent) {
+					}
+				});
 	}
 
 	private void setQualityValues() {
@@ -397,7 +397,7 @@ public class MainActivity
 			return;
 		}
 
-		String qualityStringValues[] = getResources().getStringArray(
+		String[] qualityStringValues = getResources().getStringArray(
 				R.array.quality_values);
 		int len = qualityStringValues.length;
 		qualityValues = new float[len];
@@ -468,18 +468,18 @@ public class MainActivity
 		shaderView = (ShaderView) findViewById(R.id.preview);
 		shaderView.getRenderer().setOnRendererListener(
 				new ShaderRenderer.OnRendererListener() {
-			@Override
-			public void onFramesPerSecond(int fps) {
-				// invoked from the GL thread
-				postUpdateFps(fps);
-			}
+					@Override
+					public void onFramesPerSecond(int fps) {
+						// invoked from the GL thread
+						postUpdateFps(fps);
+					}
 
-			@Override
-			public void onInfoLog(String infoLog) {
-				// invoked from the GL thread
-				postInfoLog(infoLog);
-			}
-		});
+					@Override
+					public void onInfoLog(String infoLog) {
+						// invoked from the GL thread
+						postInfoLog(infoLog);
+					}
+				});
 	}
 
 	private void postUpdateFps(int fps) {
@@ -618,7 +618,7 @@ public class MainActivity
 		}
 
 		String type = intent.getType();
-		String text = null;
+		String text;
 		if ("text/plain".equals(type)) {
 			text = intent.getStringExtra(Intent.EXTRA_TEXT);
 		} else if ("application/octet-stream".equals(type) ||
@@ -657,6 +657,9 @@ public class MainActivity
 	private static String getTextFromUri(ContentResolver resolver, Uri uri) {
 		try {
 			InputStream in = resolver.openInputStream(uri);
+			if (in == null) {
+				return null;
+			}
 			StringBuilder sb = new StringBuilder();
 			byte[] buffer = new byte[2048];
 			for (int len; (len = in.read(buffer)) > 0; ) {
@@ -698,7 +701,7 @@ public class MainActivity
 		}
 
 		String fragmentShader = editorFragment.getText();
-		byte thumbnail[] = ShaderEditorApp.preferences.doesRunInBackground() ?
+		byte[] thumbnail = ShaderEditorApp.preferences.doesRunInBackground() ?
 				shaderView.getRenderer().getThumbnail() :
 				PreviewActivity.renderStatus.thumbnail;
 

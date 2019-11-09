@@ -49,7 +49,7 @@ class Program {
 
 		GLES20.glLinkProgram(p);
 
-		int linkStatus[] = new int[1];
+		int[] linkStatus = new int[1];
 		GLES20.glGetProgramiv(
 				p,
 				GLES20.GL_LINK_STATUS,
@@ -76,7 +76,7 @@ class Program {
 		GLES20.glShaderSource(s, src);
 		GLES20.glCompileShader(s);
 
-		int compiled[] = new int[1];
+		int[] compiled = new int[1];
 		GLES20.glGetShaderiv(
 				s,
 				GLES20.GL_COMPILE_STATUS,

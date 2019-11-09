@@ -58,8 +58,8 @@ public class SystemBarMetrics {
 				android.R.attr.actionBarSize,
 				tv,
 				true) ? TypedValue.complexToDimensionPixelSize(
-						tv.data,
-						context.getResources().getDisplayMetrics()) : 0;
+				tv.data,
+				context.getResources().getDisplayMetrics()) : 0;
 	}
 
 	private static void setWindowInsets(final View mainLayout,

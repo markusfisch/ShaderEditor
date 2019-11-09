@@ -184,7 +184,7 @@ public class Database {
 			return null;
 		}
 
-		byte thumbnail[] = cursor.getBlob(
+		byte[] thumbnail = cursor.getBlob(
 				cursor.getColumnIndex(SHADERS_THUMB));
 
 		cursor.close();
@@ -246,7 +246,7 @@ public class Database {
 			SQLiteDatabase db,
 			String shader,
 			String name,
-			byte thumbnail[],
+			byte[] thumbnail,
 			float quality) {
 		String now = currentTime();
 
@@ -345,7 +345,7 @@ public class Database {
 	public void updateShader(
 			long id,
 			String shader,
-			byte thumbnail[],
+			byte[] thumbnail,
 			float quality) {
 		ContentValues cv = new ContentValues();
 		cv.put(SHADERS_FRAGMENT_SHADER, shader);
@@ -394,7 +394,7 @@ public class Database {
 	}
 
 	private static Bitmap textureFromCursor(Cursor cursor) {
-		byte data[] = cursor.getBlob(cursor.getColumnIndex(
+		byte[] data = cursor.getBlob(cursor.getColumnIndex(
 				TEXTURES_MATRIX));
 		return BitmapFactory.decodeByteArray(data, 0, data.length);
 	}
@@ -406,7 +406,7 @@ public class Database {
 		try {
 			in = context.getResources().openRawResource(id);
 			int l = in.available();
-			byte b[] = new byte[l];
+			byte[] b = new byte[l];
 			return in.read(b) == l ? new String(b, "UTF-8") : null;
 		} finally {
 			if (in != null) {

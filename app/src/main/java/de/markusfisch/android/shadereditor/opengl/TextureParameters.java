@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
+import android.support.annotation.NonNull;
 
 public class TextureParameters {
 	protected static final String HEADER = "///";
@@ -15,6 +16,7 @@ public class TextureParameters {
 	private static final String WRAP_S = "s";
 	private static final String WRAP_T = "t";
 	private static final Matrix flipMatrix = new Matrix();
+
 	static {
 		flipMatrix.postScale(1f, -1f);
 	}
@@ -61,6 +63,7 @@ public class TextureParameters {
 		wrapT = shortcutToWrap(wrapTShortcut);
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		if (min == defaultMin &&
@@ -153,7 +156,7 @@ public class TextureParameters {
 		}
 		params = params.substring(p + 3);
 		for (String param : params.split(SEPARATOR)) {
-			String exp[] = param.split(ASSIGN);
+			String[] exp = param.split(ASSIGN);
 			if (exp.length != 2) {
 				continue;
 			}

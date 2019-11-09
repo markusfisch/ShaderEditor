@@ -19,9 +19,9 @@ import android.view.ViewGroup;
 public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFragment {
 	private static final String FACES = "faces";
 
-	private CubeMapView.Face faces[];
+	private CubeMapView.Face[] faces;
 
-	public static Fragment newInstance(CubeMapView.Face faces[]) {
+	public static Fragment newInstance(CubeMapView.Face[] faces) {
 		Bundle args = new Bundle();
 		args.putParcelableArray(FACES, faces);
 

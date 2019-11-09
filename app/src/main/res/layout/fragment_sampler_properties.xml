@@ -36,12 +36,14 @@
 				android:layout_height="wrap_content"
 				android:text="@string/texture_name"/>
 			<EditText
+				tools:targetApi="o"
 				android:id="@+id/name"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
 				android:layout_marginBottom="8dp"
 				android:hint="@string/input_texture_name"
-				android:inputType="text"/>
+				android:inputType="text"
+				android:importantForAutofill="no"/>
 			<android.support.v7.widget.AppCompatCheckBox
 				android:id="@+id/should_add_uniform"
 				android:layout_width="match_parent"

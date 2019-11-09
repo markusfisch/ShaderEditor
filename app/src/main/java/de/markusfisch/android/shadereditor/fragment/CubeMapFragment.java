@@ -103,7 +103,7 @@ public class CubeMapFragment extends Fragment {
 	}
 
 	private void composeMap() {
-		CubeMapView.Face faces[] = cubeMapView.getFaces();
+		CubeMapView.Face[] faces = cubeMapView.getFaces();
 
 		for (int i = faces.length; i-- > 0; ) {
 			if (faces[i].getUri() == null) {

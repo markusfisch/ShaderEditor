@@ -40,7 +40,7 @@ public class SamplesAdapter extends BaseAdapter {
 		}
 	}
 
-	private final Sample samples[];
+	private final Sample[] samples;
 
 	public SamplesAdapter(Context context) {
 		samples = new Sample[]{

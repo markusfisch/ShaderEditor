@@ -14,7 +14,7 @@ import java.util.List;
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
 public class CameraListener {
 	public final int cameraId;
-	public final float addent[] = new float[]{0, 0};
+	public final float[] addent = new float[]{0, 0};
 
 	private final int cameraTextureId;
 
@@ -142,13 +142,13 @@ public class CameraListener {
 		surfaceTexture = new SurfaceTexture(cameraTextureId);
 		surfaceTexture.setOnFrameAvailableListener(
 				new SurfaceTexture.OnFrameAvailableListener() {
-			@Override
-			public void onFrameAvailable(SurfaceTexture st) {
-				synchronized (CameraListener.this) {
-					available = true;
-				}
-			}
-		});
+					@Override
+					public void onFrameAvailable(SurfaceTexture st) {
+						synchronized (CameraListener.this) {
+							available = true;
+						}
+					}
+				});
 
 		try {
 			camera.setPreviewTexture(surfaceTexture);
@@ -171,39 +171,39 @@ public class CameraListener {
 
 	private void setOrientationAndFlip(int orientation) {
 		switch (orientation) {
-		default:
-		case 0:
-			orientationMatrix = FloatBuffer.wrap(new float[] {
-				1f, 0f,
-				0f, -1f,
-			});
-			addent[0] = 0f;
-			addent[1] = 1f;
-			break;
-		case 90:
-			orientationMatrix = FloatBuffer.wrap(new float[] {
-				0f, -1f,
-				-1f, 0f,
-			});
-			addent[0] = 1f;
-			addent[1] = 1f;
-			break;
-		case 180:
-			orientationMatrix = FloatBuffer.wrap(new float[] {
-				-1f, 0f,
-				0f, 1f,
-			});
-			addent[0] = 1f;
-			addent[1] = 0f;
-			break;
-		case 270:
-			orientationMatrix = FloatBuffer.wrap(new float[] {
-				0f, 1f,
-				1f, 0f,
-			});
-			addent[0] = 0f;
-			addent[1] = 0f;
-			break;
+			default:
+			case 0:
+				orientationMatrix = FloatBuffer.wrap(new float[]{
+						1f, 0f,
+						0f, -1f,
+				});
+				addent[0] = 0f;
+				addent[1] = 1f;
+				break;
+			case 90:
+				orientationMatrix = FloatBuffer.wrap(new float[]{
+						0f, -1f,
+						-1f, 0f,
+				});
+				addent[0] = 1f;
+				addent[1] = 1f;
+				break;
+			case 180:
+				orientationMatrix = FloatBuffer.wrap(new float[]{
+						-1f, 0f,
+						0f, 1f,
+				});
+				addent[0] = 1f;
+				addent[1] = 0f;
+				break;
+			case 270:
+				orientationMatrix = FloatBuffer.wrap(new float[]{
+						0f, 1f,
+						1f, 0f,
+				});
+				addent[0] = 0f;
+				addent[1] = 0f;
+				break;
 		}
 	}
 
@@ -270,7 +270,7 @@ public class CameraListener {
 
 	private static void setFastestFps(Camera.Parameters parameters) {
 		try {
-			int range[] = findFastestFpsRange(
+			int[] range = findFastestFpsRange(
 					parameters.getSupportedPreviewFpsRange());
 
 			if (range[0] > 0) {
@@ -284,10 +284,10 @@ public class CameraListener {
 	}
 
 	private static int[] findFastestFpsRange(List<int[]> ranges) {
-		int fastest[] = new int[]{0, 0};
+		int[] fastest = new int[]{0, 0};
 
-		for (int n = ranges.size(); n-- > 0;) {
-			int range[] = ranges.get(n);
+		for (int n = ranges.size(); n-- > 0; ) {
+			int[] range = ranges.get(n);
 
 			if (range[0] >= fastest[0] && range[1] > fastest[1]) {
 				fastest = range;

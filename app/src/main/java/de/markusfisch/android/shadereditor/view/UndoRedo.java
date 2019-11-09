@@ -97,6 +97,7 @@ public class UndoRedo {
 			return item;
 		}
 	}
+
 	private final EditTextChangeListener changeListener =
 			new EditTextChangeListener();
 

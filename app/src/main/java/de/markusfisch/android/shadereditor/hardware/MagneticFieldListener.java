@@ -5,8 +5,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 
 public class MagneticFieldListener extends AbstractListener {
-	public final float values[] = new float[]{0, 0, 0};
-	public final float filtered[] = new float[]{0, 0, 0};
+	public final float[] values = new float[]{0, 0, 0};
+	public final float[] filtered = new float[]{0, 0, 0};
 
 	public MagneticFieldListener(Context context) {
 		super(context);

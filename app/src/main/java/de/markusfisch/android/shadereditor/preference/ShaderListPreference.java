@@ -9,7 +9,7 @@ public class ShaderListPreference extends ListPreference {
 		super(context, attrs);
 
 		// never used
-		String dummy[] = {"nix"};
+		String[] dummy = {"nix"};
 		setEntries(dummy);
 		setEntryValues(dummy);
 	}

@@ -31,24 +31,24 @@ public class BackBufferParametersView extends LinearLayout {
 		super.onAttachedToWindow();
 
 		Context context = getContext();
-		MatrixCursor matrixCursor = new MatrixCursor(new String[] {
-			Database.TEXTURES_ID,
-			Database.TEXTURES_NAME,
-			Database.TEXTURES_WIDTH,
-			Database.TEXTURES_HEIGHT,
-			Database.TEXTURES_THUMB
+		MatrixCursor matrixCursor = new MatrixCursor(new String[]{
+				Database.TEXTURES_ID,
+				Database.TEXTURES_NAME,
+				Database.TEXTURES_WIDTH,
+				Database.TEXTURES_HEIGHT,
+				Database.TEXTURES_THUMB
 		});
-		matrixCursor.addRow(new Object[] {
-			-1,
-			context.getString(R.string.no_preset),
-			0,
-			0,
-			null
+		matrixCursor.addRow(new Object[]{
+				-1,
+				context.getString(R.string.no_preset),
+				0,
+				0,
+				null
 		});
 
-		MergeCursor mergeCursor = new MergeCursor(new Cursor[] {
-			matrixCursor,
-			ShaderEditorApp.db.getTextures()
+		MergeCursor mergeCursor = new MergeCursor(new Cursor[]{
+				matrixCursor,
+				ShaderEditorApp.db.getTextures()
 		});
 
 		adapter = new TextureSpinnerAdapter(context, mergeCursor);

@@ -1,12 +1,16 @@
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="vertical"
 	android:padding="16dp">
 	<EditText
+		tools:targetApi="o"
+		style="@android:style/Widget.EditText"
 		android:id="@+id/name"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		style="@android:style/Widget.EditText"/>
+		android:hint="@string/enter_name"
+		android:importantForAutofill="no"/>
 </LinearLayout>

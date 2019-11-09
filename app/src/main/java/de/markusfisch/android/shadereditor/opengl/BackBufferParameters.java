@@ -8,6 +8,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.opengl.GLES20;
+import android.support.annotation.NonNull;
 
 public class BackBufferParameters extends TextureParameters {
 	private static final String PRESET = "p";
@@ -25,6 +26,7 @@ public class BackBufferParameters extends TextureParameters {
 		this.preset = preset;
 	}
 
+	@NonNull
 	@Override
 	public String toString() {
 		String params = super.toString();

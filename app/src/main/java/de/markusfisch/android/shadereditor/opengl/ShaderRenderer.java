@@ -52,6 +52,7 @@ import java.util.regex.Matcher;
 public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public interface OnRendererListener {
 		void onInfoLog(String error);
+
 		void onFramesPerSecond(int fps);
 	}
 
@@ -88,7 +89,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_TIME = "time";
 	public static final String UNIFORM_TOUCH = "touch";
 
-	private static final int TEXTURE_UNITS[] = {
+	private static final int[] TEXTURE_UNITS = {
 			GLES20.GL_TEXTURE0,
 			GLES20.GL_TEXTURE1,
 			GLES20.GL_TEXTURE2,
@@ -121,7 +122,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			GLES20.GL_TEXTURE29,
 			GLES20.GL_TEXTURE30,
 			GLES20.GL_TEXTURE31};
-	private static final int CUBE_MAP_TARGETS[] = {
+	private static final int[] CUBE_MAP_TARGETS = {
 			// all sides of a cube are stored in a single
 			// rectangular source image for compactness:
 			//
@@ -194,21 +195,21 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			new ArrayList<>();
 	private final BackBufferParameters backBufferTextureParams =
 			new BackBufferParameters();
-	private final int fb[] = new int[]{0, 0};
-	private final int tx[] = new int[]{0, 0};
-	private final int textureLocs[] = new int[32];
-	private final int textureTargets[] = new int[32];
-	private final int textureIds[] = new int[32];
-	private final float surfaceResolution[] = new float[]{0, 0};
-	private final float resolution[] = new float[]{0, 0};
-	private final float touch[] = new float[]{0, 0};
-	private final float mouse[] = new float[]{0, 0};
-	private final float pointers[] = new float[30];
-	private final float offset[] = new float[]{0, 0};
-	private final float dateTime[] = new float[]{0, 0, 0, 0};
-	private final float rotationMatrix[] = new float[9];
-	private final float inclinationMatrix[] = new float[9];
-	private final float orientation[] = new float[]{0, 0, 0};
+	private final int[] fb = new int[]{0, 0};
+	private final int[] tx = new int[]{0, 0};
+	private final int[] textureLocs = new int[32];
+	private final int[] textureTargets = new int[32];
+	private final int[] textureIds = new int[32];
+	private final float[] surfaceResolution = new float[]{0, 0};
+	private final float[] resolution = new float[]{0, 0};
+	private final float[] touch = new float[]{0, 0};
+	private final float[] mouse = new float[]{0, 0};
+	private final float[] pointers = new float[30];
+	private final float[] offset = new float[]{0, 0};
+	private final float[] dateTime = new float[]{0, 0, 0, 0};
+	private final float[] rotationMatrix = new float[9];
+	private final float[] inclinationMatrix = new float[9];
+	private final float[] orientation = new float[]{0, 0, 0};
 	private final Context context;
 	private final ByteBuffer vertexBuffer;
 
@@ -274,10 +275,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private float quality = 1f;
 	private float startRandom;
 	private float fTimeMax;
-	private float gravityValues[];
-	private float linearValues[];
+	private float[] gravityValues;
+	private float[] linearValues;
 
-	private volatile byte thumbnail[] = new byte[1];
+	private volatile byte[] thumbnail = new byte[1];
 	private volatile long nextFpsUpdate = 0;
 	private volatile float sum;
 	private volatile float samples;
@@ -802,8 +803,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				version == 3 ? VERTEX_SHADER_300 : VERTEX_SHADER;
 
 		if (((surfaceProgram = Program.loadProgram(
-						VERTEX_SHADER,
-						FRAGMENT_SHADER)) == 0 ||
+				VERTEX_SHADER,
+				FRAGMENT_SHADER)) == 0 ||
 				(program = Program.loadProgram(
 						vertexShader,
 						fragmentShader)) == 0) &&
@@ -996,8 +997,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				surfaceResolution[0],
 				surfaceResolution[1]);
 		final int pixels = min * min;
-		final int rgba[] = new int[pixels];
-		final int bgra[] = new int[pixels];
+		final int[] rgba = new int[pixels];
+		final int[] bgra = new int[pixels];
 		final IntBuffer colorBuffer = IntBuffer.wrap(rgba);
 
 		GLES20.glReadPixels(
@@ -1253,7 +1254,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			TextureParameters tp) {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, id);
 		tp.setParameters(GLES20.GL_TEXTURE_2D);
-		tp.setBitmap(bitmap);
+		TextureParameters.setBitmap(bitmap);
 		GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
 	}
 

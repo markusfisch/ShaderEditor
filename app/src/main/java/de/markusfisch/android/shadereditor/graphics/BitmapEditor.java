@@ -18,6 +18,9 @@ public class BitmapEditor {
 		InputStream in = null;
 		try {
 			in = context.getContentResolver().openInputStream(uri);
+			if (in == null) {
+				return null;
+			}
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			setSampleSize(options, in, maxSize, maxSize);
 

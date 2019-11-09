@@ -5,7 +5,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 
 public class LinearAccelerationListener extends AbstractListener {
-	public final float values[] = new float[]{0, 0, 0};
+	public final float[] values = new float[]{0, 0, 0};
 
 	public LinearAccelerationListener(Context context) {
 		super(context);

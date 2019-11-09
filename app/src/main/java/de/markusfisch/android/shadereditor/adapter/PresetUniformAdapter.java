@@ -47,7 +47,7 @@ public class PresetUniformAdapter extends BaseAdapter {
 	}
 
 	private final String uniformFormat;
-	private final Uniform uniforms[];
+	private final Uniform[] uniforms;
 
 	public PresetUniformAdapter(Context context) {
 		uniformFormat = context.getString(R.string.uniform_format);

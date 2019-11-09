@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.widget;
 
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLSurfaceView.EGLContextFactory;
@@ -37,6 +38,8 @@ public class ShaderView extends GLSurfaceView {
 		renderer.unregisterListeners();
 	}
 
+	// click handling is implemented in renderer
+	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		renderer.touchAt(event);
@@ -70,7 +73,7 @@ public class ShaderView extends GLSurfaceView {
 		private static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
 		private ShaderRenderer renderer;
 
-		public ContextFactory(ShaderRenderer renderer) {
+		private ContextFactory(ShaderRenderer renderer) {
 			this.renderer = renderer;
 		}
 
@@ -78,20 +81,20 @@ public class ShaderView extends GLSurfaceView {
 		public EGLContext createContext(EGL10 egl, EGLDisplay display,
 				EGLConfig eglConfig) {
 			EGLContext context = egl.eglCreateContext(display, eglConfig,
-					EGL10.EGL_NO_CONTEXT, new int[] {
-				EGL_CONTEXT_CLIENT_VERSION, 3,
-				EGL10.EGL_NONE
-			});
+					EGL10.EGL_NO_CONTEXT, new int[]{
+							EGL_CONTEXT_CLIENT_VERSION, 3,
+							EGL10.EGL_NONE
+					});
 			if (context != null && context != EGL10.EGL_NO_CONTEXT &&
 					context.getGL() != null) {
 				renderer.setVersion(3);
 				return context;
 			}
 			return egl.eglCreateContext(display, eglConfig,
-					EGL10.EGL_NO_CONTEXT, new int[] {
-				EGL_CONTEXT_CLIENT_VERSION, 2,
-				EGL10.EGL_NONE
-			});
+					EGL10.EGL_NO_CONTEXT, new int[]{
+							EGL_CONTEXT_CLIENT_VERSION, 2,
+							EGL10.EGL_NONE
+					});
 		}
 
 		@Override

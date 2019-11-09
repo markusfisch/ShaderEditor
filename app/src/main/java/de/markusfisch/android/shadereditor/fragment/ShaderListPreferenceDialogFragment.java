@@ -92,22 +92,22 @@ public class ShaderListPreferenceDialogFragment
 	private Cursor addEmptyItem(Cursor cursor) {
 		MatrixCursor matrixCursor = null;
 		try {
-			matrixCursor = new MatrixCursor(new String[] {
-				Database.SHADERS_ID,
-				Database.SHADERS_THUMB,
-				Database.SHADERS_NAME,
-				Database.SHADERS_MODIFIED
+			matrixCursor = new MatrixCursor(new String[]{
+					Database.SHADERS_ID,
+					Database.SHADERS_THUMB,
+					Database.SHADERS_NAME,
+					Database.SHADERS_MODIFIED
 			});
-			matrixCursor.addRow(new Object[] {
-				0,
-				null,
-				getString(R.string.no_shader_selected),
-				null
+			matrixCursor.addRow(new Object[]{
+					0,
+					null,
+					getString(R.string.no_shader_selected),
+					null
 			});
 
-			return new MergeCursor(new Cursor[] {
-				matrixCursor,
-				cursor
+			return new MergeCursor(new Cursor[]{
+					matrixCursor,
+					cursor
 			});
 		} finally {
 			if (matrixCursor != null) {

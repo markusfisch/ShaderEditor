@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v4.widget.DrawerLayout;
 import android.util.AttributeSet;
@@ -26,6 +27,8 @@ public class TouchThruDrawerLayout extends DrawerLayout {
 		return !touchThru && super.onInterceptTouchEvent(event);
 	}
 
+	// click is handled in super class
+	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		return !touchThru && super.onTouchEvent(event);

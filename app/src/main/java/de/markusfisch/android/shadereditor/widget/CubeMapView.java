@@ -4,6 +4,7 @@ import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.R;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -22,7 +23,7 @@ import android.view.ViewConfiguration;
 
 public class CubeMapView extends ScalingImageView {
 	private static final int PREVIEW_SIZE = 256;
-	private static final int LABEL_ID[] = new int[]{
+	private static final int[] LABEL_ID = new int[]{
 			R.string.cube_map_negative_x,
 			R.string.cube_map_negative_z,
 			R.string.cube_map_positive_y,
@@ -31,8 +32,7 @@ public class CubeMapView extends ScalingImageView {
 			R.string.cube_map_positive_x};
 
 	public static class Face implements Parcelable {
-		public static final Parcelable.Creator<Face> CREATOR =
-				new Parcelable.Creator<Face>() {
+		public static final Parcelable.Creator<Face> CREATOR = new Parcelable.Creator<Face>() {
 			@Override
 			public Face createFromParcel(Parcel in) {
 				return new Face(in);
@@ -91,7 +91,7 @@ public class CubeMapView extends ScalingImageView {
 
 	public final Rect insets = new Rect();
 
-	private final Face faces[] = new Face[6];
+	private final Face[] faces = new Face[6];
 	private final Paint selectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	private final Paint unselectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -127,6 +127,8 @@ public class CubeMapView extends ScalingImageView {
 		setImageFromUri(imageUri);
 	}
 
+	// click actions are handled correctly
+	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		long now = System.currentTimeMillis();
@@ -486,20 +488,20 @@ public class CubeMapView extends ScalingImageView {
 
 	private static class SavedState extends BaseSavedState {
 		private final int savedSelectedFace;
-		private final Face savedFaces[];
+		private final Face[] savedFaces;
 
 		public static final Parcelable.Creator<SavedState> CREATOR =
 				new Parcelable.Creator<SavedState>() {
-			@Override
-			public SavedState createFromParcel(Parcel in) {
-				return new SavedState(in);
-			}
+					@Override
+					public SavedState createFromParcel(Parcel in) {
+						return new SavedState(in);
+					}
 
-			@Override
-			public SavedState[] newArray(int size) {
-				return new SavedState[size];
-			}
-		};
+					@Override
+					public SavedState[] newArray(int size) {
+						return new SavedState[size];
+					}
+				};
 
 		@Override
 		public void writeToParcel(Parcel out, int flags) {
@@ -511,7 +513,7 @@ public class CubeMapView extends ScalingImageView {
 
 		private SavedState(
 				Parcelable superState,
-				Face faces[],
+				Face[] faces,
 				int selectedFace) {
 			super(superState);
 

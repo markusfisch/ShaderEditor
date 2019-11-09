@@ -81,7 +81,7 @@ public class ShaderAdapter extends CursorAdapter {
 	}
 
 	void setData(ViewHolder holder, Cursor cursor) {
-		byte bytes[] = cursor.getBlob(thumbIndex);
+		byte[] bytes = cursor.getBlob(thumbIndex);
 		Bitmap bitmap = null;
 
 		if (bytes != null && bytes.length > 0) {
