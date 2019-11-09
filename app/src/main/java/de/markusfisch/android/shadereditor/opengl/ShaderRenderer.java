@@ -1500,10 +1500,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private static int getDeviceRotation(Context context) {
-		switch (((WindowManager) context
-				.getSystemService(Context.WINDOW_SERVICE))
-				.getDefaultDisplay()
-				.getRotation()) {
+		WindowManager wm = (WindowManager) context.getSystemService(
+				Context.WINDOW_SERVICE);
+		if (wm == null) {
+			return 0;
+		}
+		switch (wm.getDefaultDisplay().getRotation()) {
 			default:
 			case Surface.ROTATION_0:
 				return 0;
