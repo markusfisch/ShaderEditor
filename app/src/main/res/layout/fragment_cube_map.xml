@@ -1,29 +1,13 @@
 <RelativeLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 	<android.support.design.widget.FloatingActionButton
-		tools:ignore="UnusedAttribute,RelativeOverlap"
-		android:id="@+id/crop"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignParentEnd="true"
-		android:layout_alignParentRight="true"
-		android:layout_alignParentBottom="true"
-		android:layout_margin="20dp"
-		android:src="@drawable/ic_fab_crop"
-		app:elevation="4dp"/>
-	<android.support.design.widget.FloatingActionButton
-		tools:ignore="UnusedAttribute,RelativeOverlap"
+		style="@style/FABLeft"
 		android:id="@+id/add_texture"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignParentStart="true"
-		android:layout_alignParentLeft="true"
-		android:layout_alignParentBottom="true"
-		android:layout_margin="20dp"
-		android:src="@drawable/ic_fab_add_texture"
-		app:elevation="4dp"/>
+		android:src="@drawable/ic_fab_add_texture"/>
+	<android.support.design.widget.FloatingActionButton
+		style="@style/FABRight"
+		android:id="@+id/crop"
+		android:src="@drawable/ic_fab_crop"/>
 </RelativeLayout>

@@ -36,4 +36,21 @@
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:textColor">@drawable/drawer_item_selector</item>
 	</style>
+	<style
+		name="FAB"
+		parent="Widget.Design.FloatingActionButton">
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">wrap_content</item>
+		<item name="android:layout_margin">20dp</item>
+		<item name="android:layout_alignParentBottom">true</item>
+		<item name="elevation">4dp</item>
+	</style>
+	<style name="FABLeft" parent="FAB">
+		<item name="android:layout_alignParentStart">true</item>
+		<item name="android:layout_alignParentLeft">true</item>
+	</style>
+	<style name="FABRight" parent="FAB">
+		<item name="android:layout_alignParentEnd">true</item>
+		<item name="android:layout_alignParentRight">true</item>
+	</style>
 </resources>

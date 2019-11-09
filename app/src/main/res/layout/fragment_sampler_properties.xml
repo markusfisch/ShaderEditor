@@ -58,17 +58,10 @@
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
 		<android.support.design.widget.FloatingActionButton
-			tools:ignore="UnusedAttribute"
+			style="@style/FABRight"
 			android:id="@+id/save"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentEnd="true"
-			android:layout_alignParentRight="true"
-			android:layout_alignParentBottom="true"
-			android:layout_margin="20dp"
 			android:contentDescription="@string/save_texture"
-			android:src="@drawable/ic_fab_save"
-			app:elevation="4dp"/>
+			android:src="@drawable/ic_fab_save"/>
 	</RelativeLayout>
 	<include layout="@layout/progress_view"/>
 </FrameLayout>
