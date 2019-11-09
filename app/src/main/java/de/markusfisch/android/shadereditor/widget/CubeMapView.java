@@ -95,6 +95,7 @@ public class CubeMapView extends ScalingImageView {
 	private final Paint selectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	private final Paint unselectedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 	private final Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+	private final Paint antiAliasPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
 	private final int tapTimeout = ViewConfiguration.getTapTimeout();
 
 	private int mapPadding;
@@ -168,7 +169,7 @@ public class CubeMapView extends ScalingImageView {
 			if (i == selectedFace) {
 				selectedBounds = bounds;
 			} else if (bitmap != null) {
-				canvas.drawBitmap(bitmap, null, bounds, null);
+				canvas.drawBitmap(bitmap, null, bounds, antiAliasPaint);
 			}
 
 			canvas.drawRect(bounds, unselectedPaint);
