@@ -33,6 +33,9 @@ uninstall:
 meminfo:
 	adb shell dumpsys meminfo $(PACKAGE).debug
 
+glxinfo:
+	adb shell dumpsys gfxinfo $(PACKAGE).debug
+
 images:
 	svg/update.sh
 
