@@ -47,7 +47,7 @@ public class Preferences {
 	private int systemBarColor;
 	private long defaultNewShaderId = 0;
 	private boolean disableHighlighting = false;
-	private boolean autoSave = false;
+	private boolean autoSave = true;
 
 	public void init(Context context) {
 		systemBarColor = ContextCompat.getColor(
