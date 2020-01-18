@@ -10,15 +10,20 @@ uniform vec3 pointers[10];
 uniform sampler2D backbuffer;
 
 float get(float x, float y) {
-	return texture2D(
-		backbuffer,
+	return texture2D(backbuffer,
 		(gl_FragCoord.xy + vec2(x, y)) / resolution).r;
 }
 
+float oneIfZero(float value) {
+	return step(abs(value), 0.1);
+}
+
 vec3 evaluate(float sum) {
-	float a = 1.0 - abs(clamp(sum - 3.0, -1.0, 1.0));
-	float b = 1.0 - abs(clamp(sum - 2.0, -1.0, 1.0));
-	return vec3(a + b * get(0.0, 0.0));
+	float has3 = oneIfZero(sum - 3.0);
+	float has2 = oneIfZero(sum - 2.0);
+	// a cell is (or becomes) alive if it has 3 neighbors
+	// or if it has 2 neighbors *and* was alive already
+	return vec3(has3 + has2 * get(0.0, 0.0));
 }
 
 void main() {
