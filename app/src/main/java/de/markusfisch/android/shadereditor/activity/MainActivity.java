@@ -651,6 +651,7 @@ public class MainActivity
 
 		selectedShaderId = NO_SHADER;
 		editorFragment.setText(text);
+		setQualitySpinner(.5f);
 		setDefaultToolbarTitle();
 	}
 
@@ -984,9 +985,11 @@ public class MainActivity
 	}
 
 	private void setQualitySpinner(Cursor cursor) {
-		float q = cursor.getFloat(cursor.getColumnIndex(
-				Database.SHADERS_QUALITY));
+		setQualitySpinner(cursor.getFloat(cursor.getColumnIndex(
+				Database.SHADERS_QUALITY)));
+	}
 
+	private void setQualitySpinner(float q) {
 		for (int i = 0, l = qualityValues.length; i < l; ++i) {
 			if (qualityValues[i] == q) {
 				qualitySpinner.setSelection(i);
