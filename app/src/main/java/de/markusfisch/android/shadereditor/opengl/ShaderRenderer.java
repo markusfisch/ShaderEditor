@@ -660,7 +660,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private void loadPrograms() {
-		String vertexShader = fragmentShader.contains("#version 300") &&
+		String vertexShader = fragmentShader.contains("#version 3") &&
 				version == 3 ? VERTEX_SHADER_300 : VERTEX_SHADER;
 
 		if (((surfaceProgram = Program.loadProgram(
