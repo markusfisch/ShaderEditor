@@ -2,6 +2,8 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	tools:ignore="TypographyFractions">
 	<string-array name="quality_names">
+		<item>1/32</item>
+		<item>1/16</item>
 		<item>1/8</item>
 		<item>1/4</item>
 		<item>1/2</item>
@@ -9,6 +11,8 @@
 		<item>2/1</item>
 	</string-array>
 	<string-array name="quality_values">
+		<item>.03125</item>
+		<item>.0625</item>
 		<item>.125</item>
 		<item>.25</item>
 		<item>.5</item>
