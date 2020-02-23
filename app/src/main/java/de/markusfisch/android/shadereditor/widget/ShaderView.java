@@ -82,7 +82,8 @@ public class ShaderView extends GLSurfaceView {
 				EGLConfig eglConfig) {
 			EGLContext context = egl.eglCreateContext(display, eglConfig,
 					EGL10.EGL_NO_CONTEXT, new int[]{
-							EGL_CONTEXT_CLIENT_VERSION, 3,
+							EGL_CONTEXT_CLIENT_VERSION,
+							3,
 							EGL10.EGL_NONE
 					});
 			if (context != null && context != EGL10.EGL_NO_CONTEXT &&
