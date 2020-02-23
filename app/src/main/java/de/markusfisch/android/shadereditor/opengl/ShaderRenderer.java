@@ -163,6 +163,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private static final Pattern PATTERN_FTIME = Pattern.compile(
 			"^#define[ \\t]+FTIME_PERIOD[ \\t]+([0-9\\.]+)[ \\t]*$",
 			Pattern.MULTILINE);
+	private static final Pattern PATTERN_VERSION = Pattern.compile(
+			"^#version 3[0-9]{2} es$", Pattern.MULTILINE);
 	private static final String OES_EXTERNAL =
 			"#extension GL_OES_EGL_image_external : require\n";
 	private static final String VERTEX_SHADER =
@@ -170,9 +172,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					"void main() {" +
 					"gl_Position = vec4(position, 0., 1.);" +
 					"}";
-	private static final String VERTEX_SHADER_300 =
-			"#version 300 es\n" +
-					"in vec2 position;" +
+	private static final String VERTEX_SHADER_3 =
+			"in vec2 position;" +
 					"void main() {" +
 					"gl_Position = vec4(position, 0., 1.);" +
 					"}";
@@ -660,17 +661,27 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private void loadPrograms() {
-		String vertexShader = fragmentShader.contains("#version 3") &&
-				version == 3 ? VERTEX_SHADER_300 : VERTEX_SHADER;
-
 		if (((surfaceProgram = Program.loadProgram(
 				VERTEX_SHADER,
 				FRAGMENT_SHADER)) == 0 ||
 				(program = Program.loadProgram(
-						vertexShader,
+						getVertexShader(),
 						fragmentShader)) == 0) &&
 				onRendererListener != null) {
 			onRendererListener.onInfoLog(Program.getInfoLog());
+		}
+	}
+
+	private String getVertexShader() {
+		Matcher m = PATTERN_VERSION.matcher(fragmentShader);
+		if (version == 3 && m.find()) {
+			StringBuilder sb = new StringBuilder();
+			sb.append(m.group(0));
+			sb.append("\n");
+			sb.append(VERTEX_SHADER_3);
+			return sb.toString();
+		} else {
+			return VERTEX_SHADER;
 		}
 	}
 
