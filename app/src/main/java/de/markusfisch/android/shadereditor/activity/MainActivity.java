@@ -889,13 +889,13 @@ public class MainActivity
 							public void onClick(
 									DialogInterface dialog,
 									int which) {
-								ShaderEditorApp.db.updateShaderName(
-										id,
-										nameView.getText().toString());
+								String name = nameView.getText().toString();
+								ShaderEditorApp.db.updateShaderName(id, name);
+								if (id == selectedShaderId) {
+									setToolbarTitle(name);
+								}
 								getShadersAsync();
-								SoftKeyboard.hide(
-										MainActivity.this,
-										nameView);
+								SoftKeyboard.hide(MainActivity.this, nameView);
 							}
 						})
 				.setNegativeButton(android.R.string.cancel, null)
