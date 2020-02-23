@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.18.0
+* Turn on autosave by default
+* Add support for GLES 310 and 320
+* Add GLES 300 sample shader
+* Add Cloudy Conway sample shader
+
 ## 2.17.0
 * Add undo/redo to editor
 * Make all default actions Floating Action Buttons
