@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.19.0
+* Add 1/16 and 1/32 quality levels
+* Set quality to 1/2 for shaders added by intents
+* Update toolbar title when shader is renamed
+
 ## 2.18.0
 * Turn on autosave by default
 * Add support for GLES 310 and 320
