@@ -39,5 +39,8 @@ glxinfo:
 images:
 	svg/update.sh
 
+avocado:
+	avocado $(shell fgrep -rl '<vector' app/src/main/res)
+
 clean:
 	./gradlew clean
