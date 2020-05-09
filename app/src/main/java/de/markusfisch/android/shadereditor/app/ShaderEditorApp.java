@@ -34,6 +34,6 @@ public class ShaderEditorApp extends Application {
 		}
 
 		preferences.init(this);
-		db.openAsync(this);
+		db.open(this);
 	}
 }

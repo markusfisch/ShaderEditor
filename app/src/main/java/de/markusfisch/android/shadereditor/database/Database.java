@@ -11,7 +11,6 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.AsyncTask;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
@@ -43,37 +42,19 @@ public class Database {
 	private SQLiteDatabase db;
 	private int textureThumbnailSize;
 
-	// the parent instance of this AsyncTask will never be
-	// garbage collected anyway
-	@SuppressLint("StaticFieldLeak")
-	public void openAsync(final Context context) {
+	public boolean open(Context context) {
 		textureThumbnailSize = Math.round(
 				context.getResources().getDisplayMetrics().density * 48f);
-
-		final OpenHelper helper = new OpenHelper(context);
-
-		new AsyncTask<Void, Void, Boolean>() {
-			@Override
-			protected Boolean doInBackground(Void... nothings) {
-				try {
-					return (db = helper.getWritableDatabase()) != null;
-				} catch (SQLException e) {
-					return false;
-				}
-			}
-
-			@Override
-			protected void onPostExecute(Boolean success) {
-				if (success) {
-					return;
-				}
-
-				Toast.makeText(
-						context,
-						R.string.cannot_open_database,
-						Toast.LENGTH_LONG).show();
-			}
-		}.execute();
+		try {
+			db = new OpenHelper(context).getWritableDatabase();
+			return true;
+		} catch (SQLException e) {
+			Toast.makeText(
+					context,
+					R.string.cannot_open_database,
+					Toast.LENGTH_LONG).show();
+			return false;
+		}
 	}
 
 	public boolean isOpen() {
