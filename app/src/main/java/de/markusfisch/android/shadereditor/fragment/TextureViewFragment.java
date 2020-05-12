@@ -63,8 +63,8 @@ public class TextureViewFragment extends Fragment {
 				(args = getArguments()) == null ||
 				(textureId = args.getLong(TEXTURE_ID)) < 1 ||
 				(samplerType = args.getString(SAMPLER_TYPE)) == null ||
-				Database.closeIfEmpty((cursor = ShaderEditorApp
-						.db.getTexture(textureId)))) {
+				(cursor = ShaderEditorApp.db.getTexture(textureId)) == null ||
+				Database.closeIfEmpty(cursor)) {
 			activity.finish();
 			return null;
 		}
@@ -74,8 +74,8 @@ public class TextureViewFragment extends Fragment {
 		try {
 			textureName = cursor.getString(cursor.getColumnIndex(
 					Database.TEXTURES_NAME));
-			imageView.setImageBitmap(ShaderEditorApp
-					.db.getTextureBitmap(cursor));
+			imageView.setImageBitmap(
+					ShaderEditorApp.db.getTextureBitmap(cursor));
 		} catch (IllegalStateException e) {
 			if (textureName == null) {
 				textureName = getString(R.string.image_too_big);
