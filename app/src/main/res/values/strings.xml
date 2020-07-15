@@ -24,7 +24,9 @@
 	<string name="sure_remove_shader">Are you sure you want to delete this shader?</string>
 	<string name="rename_shader">Rename shader</string>
 	<string name="enter_name">Enter a name</string>
-	<string name="remember_to_set_live_wallpaper">Remember to set this app as live wallpaper</string>
+	<string name="wallpaper_set">Wallpaper set</string>
+	<string name="pick_live_wallpaper">Please pick this app as Live Wallpaper to set this wallpaper</string>
+	<string name="pick_live_wallpaper_manually">You need to pick this app as Live Wallpaper first</string>
 
 	<!-- PreferencesFragment -->
 	<string name="preferences">Preferences</string>

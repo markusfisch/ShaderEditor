@@ -831,19 +831,32 @@ public class MainActivity
 			saveShader(id);
 		}
 
-		if (!ShaderWallpaperService.didRun() &&
-				ShaderEditorApp.preferences.getWallpaperShader() !=
-						selectedShaderId) {
-			Toast.makeText(
-					this,
-					R.string.remember_to_set_live_wallpaper,
-					Toast.LENGTH_SHORT).show();
-		}
-
 		// the onSharedPreferenceChanged() listener in WallpaperService
 		// is only triggered if the value has changed so force this
 		ShaderEditorApp.preferences.setWallpaperShader(0);
 		ShaderEditorApp.preferences.setWallpaperShader(id);
+
+		int message;
+		if (ShaderWallpaperService.isRunning()) {
+			message = R.string.wallpaper_set;
+		} else if (startLiveWallpaperPicker()) {
+			message = R.string.pick_live_wallpaper;
+		} else {
+			message = R.string.pick_live_wallpaper_manually;
+		}
+		Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+	}
+
+	private boolean startLiveWallpaperPicker() {
+		Intent intent = new Intent(Intent.ACTION_SET_WALLPAPER);
+		intent.setClassName(
+				"com.android.wallpaper.livepicker",
+				"com.android.wallpaper.livepicker.LiveWallpaperActivity");
+		if (intent.resolveActivity(getPackageManager()) != null) {
+			startActivity(intent);
+			return true;
+		}
+		return false;
 	}
 
 	private void addUniform() {
