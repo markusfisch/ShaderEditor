@@ -2,8 +2,7 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:title="@string/preferences"
 	android:key="preferences">
-	<PreferenceCategory
-		android:title="@string/wallpaper">
+	<PreferenceCategory android:title="@string/wallpaper">
 		<de.markusfisch.android.shadereditor.preference.ShaderListPreference
 			android:key="shader"
 			android:title="@string/shader"/>
@@ -14,8 +13,7 @@
 			android:checked="true"
 			android:defaultValue="true"/>
 	</PreferenceCategory>
-	<PreferenceCategory
-		android:title="@string/editor">
+	<PreferenceCategory android:title="@string/editor">
 		<ListPreference
 			android:key="run_mode"
 			android:title="@string/run_mode"
@@ -74,8 +72,7 @@
 			android:key="default_new_shader"
 			android:title="@string/default_new_shader"/>
 	</PreferenceCategory>
-	<PreferenceCategory
-		android:title="@string/sensors">
+	<PreferenceCategory android:title="@string/sensors">
 		<ListPreference
 			android:key="sensor_delay"
 			android:title="@string/sensor_delay"
@@ -83,8 +80,7 @@
 			android:entryValues="@array/sensor_delay_values"
 			android:defaultValue="Normal"/>
 	</PreferenceCategory>
-	<PreferenceCategory
-		android:title="@string/import_export">
+	<PreferenceCategory android:title="@string/import_export">
 		<Preference
 			android:key="import_from_directory"
 			android:title="@string/import_shaders"
