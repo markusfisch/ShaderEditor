@@ -5,17 +5,14 @@ all: debug install start
 debug:
 	./gradlew assembleDebug
 
-release: lint findbugs
+release: lint
 	./gradlew assembleRelease
 
-bundle: lint findbugs
+bundle: lint
 	./gradlew bundleRelease
 
 lint:
 	./gradlew lintDebug
-
-findbugs:
-	./gradlew findBugs
 
 infer: clean
 	infer -- ./gradlew assembleDebug
