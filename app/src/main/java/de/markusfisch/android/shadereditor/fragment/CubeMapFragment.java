@@ -1,9 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
-import de.markusfisch.android.shadereditor.widget.CubeMapView;
-import de.markusfisch.android.shadereditor.R;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -16,6 +12,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
+import de.markusfisch.android.shadereditor.widget.CubeMapView;
 
 public class CubeMapFragment extends Fragment {
 	private static final int PICK_IMAGE = 1;

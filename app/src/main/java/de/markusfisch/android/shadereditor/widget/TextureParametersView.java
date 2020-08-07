@@ -1,13 +1,13 @@
 package de.markusfisch.android.shadereditor.widget;
 
-import de.markusfisch.android.shadereditor.opengl.TextureParameters;
-import de.markusfisch.android.shadereditor.R;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.opengl.TextureParameters;
 
 public class TextureParametersView extends LinearLayout {
 	private Spinner minView;

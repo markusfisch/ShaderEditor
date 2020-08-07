@@ -1,12 +1,12 @@
 package de.markusfisch.android.shadereditor.hardware;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public abstract class AbstractListener implements SensorEventListener {
 	long last = 0;

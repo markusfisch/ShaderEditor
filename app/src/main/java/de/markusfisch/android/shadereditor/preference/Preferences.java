@@ -1,14 +1,12 @@
 package de.markusfisch.android.shadereditor.preference;
 
-import de.markusfisch.android.shadereditor.R;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.SensorManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.PreferenceManager;
 
-import java.lang.NumberFormatException;
+import de.markusfisch.android.shadereditor.R;
 
 public class Preferences {
 	public static final String WALLPAPER_SHADER = "shader";

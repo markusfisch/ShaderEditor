@@ -1,11 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.adapter.ShaderSpinnerAdapter;
-import de.markusfisch.android.shadereditor.database.Database;
-import de.markusfisch.android.shadereditor.preference.Preferences;
-import de.markusfisch.android.shadereditor.R;
-
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -13,6 +7,12 @@ import android.database.MergeCursor;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.preference.ListPreferenceDialogFragmentCompat;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.adapter.ShaderSpinnerAdapter;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.Database;
+import de.markusfisch.android.shadereditor.preference.Preferences;
 
 public class ShaderListPreferenceDialogFragment
 		extends ListPreferenceDialogFragmentCompat {

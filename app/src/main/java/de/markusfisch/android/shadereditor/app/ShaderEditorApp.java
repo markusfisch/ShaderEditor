@@ -1,12 +1,12 @@
 package de.markusfisch.android.shadereditor.app;
 
+import android.app.Application;
+import android.os.StrictMode;
+
+import de.markusfisch.android.shadereditor.BuildConfig;
 import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.view.UndoRedo;
-import de.markusfisch.android.shadereditor.BuildConfig;
-
-import android.app.Application;
-import android.os.StrictMode;
 
 public class ShaderEditorApp extends Application {
 	public static final Preferences preferences = new Preferences();

@@ -1,12 +1,12 @@
 package de.markusfisch.android.shadereditor.activity;
 
-import de.markusfisch.android.shadereditor.fragment.UniformPagesFragment;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+
+import de.markusfisch.android.shadereditor.fragment.UniformPagesFragment;
 
 public class AddUniformActivity extends AbstractContentActivity {
 	public static final String STATEMENT = "statement";

@@ -1,11 +1,11 @@
 package de.markusfisch.android.shadereditor.activity;
 
-import de.markusfisch.android.shadereditor.fragment.LoadSampleFragment;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+
+import de.markusfisch.android.shadereditor.fragment.LoadSampleFragment;
 
 public class LoadSampleActivity extends AbstractContentActivity {
 	public static final String NAME = "name";

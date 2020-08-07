@@ -1,10 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
-import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
-import de.markusfisch.android.shadereditor.widget.CropImageView;
-import de.markusfisch.android.shadereditor.R;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
@@ -19,6 +14,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
+import de.markusfisch.android.shadereditor.widget.CropImageView;
 
 public class CropImageFragment extends Fragment {
 	public static final String IMAGE_URI = "image_uri";

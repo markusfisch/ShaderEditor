@@ -1,9 +1,9 @@
 package de.markusfisch.android.shadereditor.activity;
 
-import de.markusfisch.android.shadereditor.R;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+
+import de.markusfisch.android.shadereditor.R;
 
 public abstract class AbstractContentActivity
 		extends AbstractSubsequentActivity {

@@ -1,18 +1,5 @@
 package de.markusfisch.android.shadereditor.opengl;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.fragment.AbstractSamplerPropertiesFragment;
-import de.markusfisch.android.shadereditor.hardware.AccelerometerListener;
-import de.markusfisch.android.shadereditor.hardware.CameraListener;
-import de.markusfisch.android.shadereditor.hardware.GravityListener;
-import de.markusfisch.android.shadereditor.hardware.GyroscopeListener;
-import de.markusfisch.android.shadereditor.hardware.MagneticFieldListener;
-import de.markusfisch.android.shadereditor.hardware.LightListener;
-import de.markusfisch.android.shadereditor.hardware.LinearAccelerationListener;
-import de.markusfisch.android.shadereditor.hardware.PressureListener;
-import de.markusfisch.android.shadereditor.hardware.ProximityListener;
-import de.markusfisch.android.shadereditor.hardware.RotationVectorListener;
-
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -35,19 +22,29 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.IllegalArgumentException;
-import java.lang.InterruptedException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11ExtensionPack;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.fragment.AbstractSamplerPropertiesFragment;
+import de.markusfisch.android.shadereditor.hardware.AccelerometerListener;
+import de.markusfisch.android.shadereditor.hardware.CameraListener;
+import de.markusfisch.android.shadereditor.hardware.GravityListener;
+import de.markusfisch.android.shadereditor.hardware.GyroscopeListener;
+import de.markusfisch.android.shadereditor.hardware.LightListener;
+import de.markusfisch.android.shadereditor.hardware.LinearAccelerationListener;
+import de.markusfisch.android.shadereditor.hardware.MagneticFieldListener;
+import de.markusfisch.android.shadereditor.hardware.PressureListener;
+import de.markusfisch.android.shadereditor.hardware.ProximityListener;
+import de.markusfisch.android.shadereditor.hardware.RotationVectorListener;
 
 public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public interface OnRendererListener {
@@ -675,11 +672,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private String getVertexShader() {
 		Matcher m = PATTERN_VERSION.matcher(fragmentShader);
 		if (version == 3 && m.find()) {
-			StringBuilder sb = new StringBuilder();
-			sb.append(m.group(0));
-			sb.append("\n");
-			sb.append(VERTEX_SHADER_3);
-			return sb.toString();
+			return m.group(0) + "\n" + VERTEX_SHADER_3;
 		} else {
 			return VERTEX_SHADER;
 		}

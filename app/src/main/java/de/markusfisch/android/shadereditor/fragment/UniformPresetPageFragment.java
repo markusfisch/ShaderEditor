@@ -1,10 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
-import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
-import de.markusfisch.android.shadereditor.adapter.PresetUniformAdapter;
-import de.markusfisch.android.shadereditor.R;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -14,6 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
+import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
+import de.markusfisch.android.shadereditor.adapter.PresetUniformAdapter;
 
 public class UniformPresetPageFragment extends Fragment {
 	private PresetUniformAdapter uniformsAdapter;

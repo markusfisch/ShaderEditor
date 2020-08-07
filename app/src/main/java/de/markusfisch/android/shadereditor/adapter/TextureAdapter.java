@@ -1,8 +1,5 @@
 package de.markusfisch.android.shadereditor.adapter;
 
-import de.markusfisch.android.shadereditor.database.Database;
-import de.markusfisch.android.shadereditor.R;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.BitmapFactory;
@@ -12,6 +9,9 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.database.Database;
 
 public class TextureAdapter extends CursorAdapter {
 	private final String sizeFormat;

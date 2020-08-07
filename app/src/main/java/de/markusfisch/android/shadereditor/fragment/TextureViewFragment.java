@@ -1,11 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.database.Database;
-import de.markusfisch.android.shadereditor.widget.ScalingImageView;
-import de.markusfisch.android.shadereditor.R;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,6 +14,12 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.Database;
+import de.markusfisch.android.shadereditor.widget.ScalingImageView;
 
 public class TextureViewFragment extends Fragment {
 	public static final String TEXTURE_ID = "texture_id";

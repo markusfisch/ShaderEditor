@@ -1,14 +1,14 @@
 package de.markusfisch.android.shadereditor.widget;
 
-import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
-import de.markusfisch.android.shadereditor.R;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 
 public class CropImageView extends ScalingImageView {
 	public final Rect insets = new Rect();

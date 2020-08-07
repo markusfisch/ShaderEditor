@@ -1,13 +1,13 @@
 package de.markusfisch.android.shadereditor.adapter;
 
-import de.markusfisch.android.shadereditor.R;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SpinnerAdapter;
+
+import de.markusfisch.android.shadereditor.R;
 
 public class ShaderSpinnerAdapter
 		extends ShaderAdapter

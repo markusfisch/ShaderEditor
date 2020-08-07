@@ -1,11 +1,5 @@
 package de.markusfisch.android.shadereditor.widget;
 
-import de.markusfisch.android.shadereditor.adapter.TextureSpinnerAdapter;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.database.Database;
-import de.markusfisch.android.shadereditor.opengl.BackBufferParameters;
-import de.markusfisch.android.shadereditor.R;
-
 import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
@@ -13,6 +7,12 @@ import android.database.MergeCursor;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.adapter.TextureSpinnerAdapter;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.Database;
+import de.markusfisch.android.shadereditor.opengl.BackBufferParameters;
 
 public class BackBufferParametersView extends LinearLayout {
 	private TextureSpinnerAdapter adapter;

@@ -1,12 +1,12 @@
 package de.markusfisch.android.shadereditor.receiver;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.service.ShaderWallpaperService;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.opengl.GLSurfaceView;
+
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.service.ShaderWallpaperService;
 
 public class BatteryLevelReceiver extends BroadcastReceiver {
 	@Override

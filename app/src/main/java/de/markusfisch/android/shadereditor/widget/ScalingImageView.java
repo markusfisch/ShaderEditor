@@ -2,14 +2,14 @@ package de.markusfisch.android.shadereditor.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.Drawable;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.util.SparseArray;
-import android.support.v7.widget.AppCompatImageView;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.ImageView;

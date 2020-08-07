@@ -1,19 +1,19 @@
 package de.markusfisch.android.shadereditor.view;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.R;
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Build;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
-import android.util.TypedValue;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public class SystemBarMetrics {
 	public static void initSystemBars(AppCompatActivity activity) {

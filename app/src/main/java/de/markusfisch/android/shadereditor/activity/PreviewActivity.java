@@ -1,12 +1,12 @@
 package de.markusfisch.android.shadereditor.activity;
 
-import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
-import de.markusfisch.android.shadereditor.widget.ShaderView;
-import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
+import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
+import de.markusfisch.android.shadereditor.widget.ShaderView;
 
 public class PreviewActivity extends AppCompatActivity {
 	static class RenderStatus {

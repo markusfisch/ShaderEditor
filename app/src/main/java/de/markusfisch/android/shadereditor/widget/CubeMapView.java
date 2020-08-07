@@ -1,9 +1,5 @@
 package de.markusfisch.android.shadereditor.widget;
 
-import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
-import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
-import de.markusfisch.android.shadereditor.R;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -11,8 +7,8 @@ import android.graphics.Canvas;
 import android.graphics.DashPathEffect;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -20,6 +16,10 @@ import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 
 public class CubeMapView extends ScalingImageView {
 	private static final int PREVIEW_SIZE = 256;

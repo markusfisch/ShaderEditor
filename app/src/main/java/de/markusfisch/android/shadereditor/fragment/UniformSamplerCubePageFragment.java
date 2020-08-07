@@ -1,12 +1,12 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.CubeMapActivity;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+
+import de.markusfisch.android.shadereditor.activity.CubeMapActivity;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public class UniformSamplerCubePageFragment
 		extends UniformSampler2dPageFragment {

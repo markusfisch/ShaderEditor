@@ -1,19 +1,19 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
-import de.markusfisch.android.shadereditor.opengl.BackBufferParameters;
-import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
-import de.markusfisch.android.shadereditor.opengl.TextureParameters;
-import de.markusfisch.android.shadereditor.widget.BackBufferParametersView;
-import de.markusfisch.android.shadereditor.widget.TextureParametersView;
-import de.markusfisch.android.shadereditor.R;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
+import de.markusfisch.android.shadereditor.opengl.BackBufferParameters;
+import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
+import de.markusfisch.android.shadereditor.opengl.TextureParameters;
+import de.markusfisch.android.shadereditor.widget.BackBufferParametersView;
+import de.markusfisch.android.shadereditor.widget.TextureParametersView;
 
 public class TextureParametersFragment extends Fragment {
 	private static final String TYPE = "type";

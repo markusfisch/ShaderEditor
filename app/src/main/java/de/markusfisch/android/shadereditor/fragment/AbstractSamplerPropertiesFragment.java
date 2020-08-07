@@ -1,12 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
-import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
-import de.markusfisch.android.shadereditor.opengl.TextureParameters;
-import de.markusfisch.android.shadereditor.view.SoftKeyboard;
-import de.markusfisch.android.shadereditor.widget.TextureParametersView;
-import de.markusfisch.android.shadereditor.R;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -25,6 +18,13 @@ import android.widget.Toast;
 
 import java.util.Locale;
 import java.util.regex.Pattern;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
+import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
+import de.markusfisch.android.shadereditor.opengl.TextureParameters;
+import de.markusfisch.android.shadereditor.view.SoftKeyboard;
+import de.markusfisch.android.shadereditor.widget.TextureParametersView;
 
 public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 	public static final String TEXTURE_NAME_PATTERN = "[a-zA-Z0-9_]+";

@@ -6,7 +6,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
-/** Required to get touches through DrawerLayout */
+/**
+ * Required to get touches through DrawerLayout
+ */
 public class TouchThruDrawerLayout extends DrawerLayout {
 	private boolean touchThru = false;
 

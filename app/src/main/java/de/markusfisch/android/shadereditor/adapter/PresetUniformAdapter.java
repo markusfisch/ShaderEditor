@@ -1,11 +1,8 @@
 package de.markusfisch.android.shadereditor.adapter;
 
-import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
-import de.markusfisch.android.shadereditor.R;
-
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
 import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +10,9 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.Locale;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 
 public class PresetUniformAdapter extends BaseAdapter {
 	public static final class Uniform {

@@ -10,7 +10,7 @@ import java.util.LinkedList;
 
 /**
  * A generic undo/redo implementation for TextViews.
- *
+ * <p>
  * Based on this gist:
  * https://gist.github.com/zeleven/0cfa738c1e8b65b23ff7df1fc30c9f7e
  */
@@ -59,7 +59,9 @@ public class UndoRedo {
 			}
 		}
 
-		/** Trim history when it exceeds max history size. */
+		/**
+		 * Trim history when it exceeds max history size.
+		 */
 		private void trimHistory() {
 			while (history.size() > maxHistorySize) {
 				history.removeFirst();
@@ -203,7 +205,9 @@ public class UndoRedo {
 		}
 	}
 
-	/** Represents the changes performed by a single edit operation. */
+	/**
+	 * Represents the changes performed by a single edit operation.
+	 */
 	private static final class EditItem {
 		private final int start;
 		private final CharSequence before;
@@ -220,9 +224,13 @@ public class UndoRedo {
 		}
 	}
 
-	/** Class that listens to changes in the text. */
+	/**
+	 * Class that listens to changes in the text.
+	 */
 	private final class EditTextChangeListener implements TextWatcher {
-		/** The text that will be removed by the change event. */
+		/**
+		 * The text that will be removed by the change event.
+		 */
 		private CharSequence beforeChange;
 
 		@Override

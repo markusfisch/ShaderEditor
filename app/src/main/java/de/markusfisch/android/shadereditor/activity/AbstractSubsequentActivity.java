@@ -1,9 +1,5 @@
 package de.markusfisch.android.shadereditor.activity;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
-import de.markusfisch.android.shadereditor.R;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +9,10 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 
 public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 	private FragmentManager fm;

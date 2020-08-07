@@ -1,14 +1,14 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.adapter.UniformPageAdapter;
-import de.markusfisch.android.shadereditor.R;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.adapter.UniformPageAdapter;
 
 public class UniformPagesFragment extends Fragment {
 	@Override

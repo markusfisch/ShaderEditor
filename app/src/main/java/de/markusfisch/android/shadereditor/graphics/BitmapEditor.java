@@ -7,8 +7,8 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.net.Uri;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class BitmapEditor {
 	public static Bitmap getBitmapFromUri(

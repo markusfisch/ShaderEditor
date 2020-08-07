@@ -1,24 +1,23 @@
 package de.markusfisch.android.shadereditor.database;
 
-import de.markusfisch.android.shadereditor.R;
-
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import de.markusfisch.android.shadereditor.R;
 
 public class Database {
 	public static final String SHADERS = "shaders";
@@ -42,18 +41,16 @@ public class Database {
 	private SQLiteDatabase db;
 	private int textureThumbnailSize;
 
-	public boolean open(Context context) {
+	public void open(Context context) {
 		textureThumbnailSize = Math.round(
 				context.getResources().getDisplayMetrics().density * 48f);
 		try {
 			db = new OpenHelper(context).getWritableDatabase();
-			return true;
 		} catch (SQLException e) {
 			Toast.makeText(
 					context,
 					R.string.cannot_open_database,
 					Toast.LENGTH_LONG).show();
-			return false;
 		}
 	}
 

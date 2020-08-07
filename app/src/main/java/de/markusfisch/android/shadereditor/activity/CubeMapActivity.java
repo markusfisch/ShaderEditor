@@ -1,11 +1,11 @@
 package de.markusfisch.android.shadereditor.activity;
 
-import de.markusfisch.android.shadereditor.fragment.CubeMapFragment;
-import de.markusfisch.android.shadereditor.widget.CubeMapView;
-import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
-import de.markusfisch.android.shadereditor.R;
-
 import android.os.Bundle;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.fragment.CubeMapFragment;
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
+import de.markusfisch.android.shadereditor.widget.CubeMapView;
 
 public class CubeMapActivity
 		extends AbstractSubsequentActivity

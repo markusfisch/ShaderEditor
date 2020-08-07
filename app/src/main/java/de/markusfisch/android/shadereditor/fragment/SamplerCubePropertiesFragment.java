@@ -1,10 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
-import de.markusfisch.android.shadereditor.widget.CubeMapView;
-import de.markusfisch.android.shadereditor.R;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -15,6 +10,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
+import de.markusfisch.android.shadereditor.widget.CubeMapView;
 
 public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFragment {
 	private static final String FACES = "faces";

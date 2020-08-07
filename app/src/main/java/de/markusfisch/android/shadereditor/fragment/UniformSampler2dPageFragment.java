@@ -1,11 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
-import de.markusfisch.android.shadereditor.activity.TextureViewActivity;
-import de.markusfisch.android.shadereditor.adapter.TextureAdapter;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.R;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -19,6 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
+import de.markusfisch.android.shadereditor.activity.TextureViewActivity;
+import de.markusfisch.android.shadereditor.adapter.TextureAdapter;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public class UniformSampler2dPageFragment extends Fragment {
 	private ListView listView;

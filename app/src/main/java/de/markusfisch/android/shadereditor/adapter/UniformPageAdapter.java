@@ -1,14 +1,14 @@
 package de.markusfisch.android.shadereditor.adapter;
 
-import de.markusfisch.android.shadereditor.fragment.UniformSamplerCubePageFragment;
-import de.markusfisch.android.shadereditor.fragment.UniformSampler2dPageFragment;
-import de.markusfisch.android.shadereditor.fragment.UniformPresetPageFragment;
-import de.markusfisch.android.shadereditor.R;
-
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.fragment.UniformPresetPageFragment;
+import de.markusfisch.android.shadereditor.fragment.UniformSampler2dPageFragment;
+import de.markusfisch.android.shadereditor.fragment.UniformSamplerCubePageFragment;
 
 public class UniformPageAdapter extends FragmentStatePagerAdapter {
 	private final Context context;

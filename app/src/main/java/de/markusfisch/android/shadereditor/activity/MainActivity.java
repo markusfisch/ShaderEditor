@@ -1,18 +1,5 @@
 package de.markusfisch.android.shadereditor.activity;
 
-import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.database.Database;
-import de.markusfisch.android.shadereditor.fragment.EditorFragment;
-import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
-import de.markusfisch.android.shadereditor.service.ShaderWallpaperService;
-import de.markusfisch.android.shadereditor.view.SoftKeyboard;
-import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
-import de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout;
-import de.markusfisch.android.shadereditor.widget.ShaderEditor;
-import de.markusfisch.android.shadereditor.widget.ShaderView;
-import de.markusfisch.android.shadereditor.R;
-
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -21,13 +8,13 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -42,6 +29,19 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.Database;
+import de.markusfisch.android.shadereditor.fragment.EditorFragment;
+import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
+import de.markusfisch.android.shadereditor.service.ShaderWallpaperService;
+import de.markusfisch.android.shadereditor.view.SoftKeyboard;
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
+import de.markusfisch.android.shadereditor.widget.ShaderEditor;
+import de.markusfisch.android.shadereditor.widget.ShaderView;
+import de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout;
 
 public class MainActivity
 		extends AppCompatActivity
@@ -403,7 +403,7 @@ public class MainActivity
 		qualityValues = new float[len];
 
 		for (int i = 0; i < len; ++i) {
-			qualityValues[i] = Float.valueOf(qualityStringValues[i]);
+			qualityValues[i] = Float.parseFloat(qualityStringValues[i]);
 		}
 	}
 

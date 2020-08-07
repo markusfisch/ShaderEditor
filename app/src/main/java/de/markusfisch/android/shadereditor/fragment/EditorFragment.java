@@ -1,13 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.opengl.InfoLog;
-import de.markusfisch.android.shadereditor.preference.Preferences;
-import de.markusfisch.android.shadereditor.view.UndoRedo;
-import de.markusfisch.android.shadereditor.view.SoftKeyboard;
-import de.markusfisch.android.shadereditor.widget.ShaderEditor;
-import de.markusfisch.android.shadereditor.R;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,6 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.Toast;
+
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.opengl.InfoLog;
+import de.markusfisch.android.shadereditor.preference.Preferences;
+import de.markusfisch.android.shadereditor.view.SoftKeyboard;
+import de.markusfisch.android.shadereditor.view.UndoRedo;
+import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 
 public class EditorFragment extends Fragment {
 	public static final String TAG = "EditorFragment";
