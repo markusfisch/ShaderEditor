@@ -24,6 +24,8 @@ public class Preferences {
 	public static final String AUTO_SAVE = "auto_save";
 	public static final String IMPORT_FROM_DIRECTORY = "import_from_directory";
 	public static final String EXPORT_TO_DIRECTORY = "export_to_directory";
+	public static final String IMPORT_FROM_DATABASE = "import_from_database";
+	public static final String EXPORT_TO_DATABASE = "export_to_database";
 
 	private static final int RUN_AUTO = 1;
 	private static final int RUN_MANUALLY = 2;

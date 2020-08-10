@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -12,6 +13,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceCategory;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceGroup;
 import android.widget.Toast;
@@ -33,34 +35,7 @@ public class PreferencesFragment
 	@Override
 	public void onCreatePreferences(Bundle state, String rootKey) {
 		addPreferencesFromResource(R.xml.preferences);
-
-		Preference importPreference = findPreference(
-				Preferences.IMPORT_FROM_DIRECTORY);
-		importPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				if (checkExternalStoragePermission(
-						READ_EXTERNAL_STORAGE_REQUEST,
-						Manifest.permission.READ_EXTERNAL_STORAGE)) {
-					ImportExport.importFromDirectory(getContext());
-				}
-				return true;
-			}
-		});
-
-		Preference exportPreference = findPreference(
-				Preferences.EXPORT_TO_DIRECTORY);
-		exportPreference.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				if (checkExternalStoragePermission(
-						WRITE_EXTERNAL_STORAGE_REQUEST,
-						Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-					ImportExport.exportToDirectory(getContext());
-				}
-				return true;
-			}
-		});
+		wireImportExport();
 	}
 
 	@Override
@@ -218,6 +193,41 @@ public class PreferencesFragment
 						getString(messageId),
 						Toast.LENGTH_LONG).show();
 			}
+		}
+	}
+
+	private void wireImportExport() {
+		Preference importFromDirectory = findPreference(Preferences.IMPORT_FROM_DIRECTORY);
+		Preference exportToDirectory = findPreference(Preferences.EXPORT_TO_DIRECTORY);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+			importFromDirectory.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					if (checkExternalStoragePermission(
+							READ_EXTERNAL_STORAGE_REQUEST,
+							Manifest.permission.READ_EXTERNAL_STORAGE)) {
+						ImportExport.importFromDirectory(getContext());
+					}
+					return true;
+				}
+			});
+			exportToDirectory.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+				@Override
+				public boolean onPreferenceClick(Preference preference) {
+					if (checkExternalStoragePermission(
+							WRITE_EXTERNAL_STORAGE_REQUEST,
+							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+						ImportExport.exportToDirectory(getContext());
+					}
+					return true;
+				}
+			});
+		} else {
+			PreferenceCategory cat = (PreferenceCategory) findPreference(
+					"import_export");
+			cat.removePreference(importFromDirectory);
+			cat.removePreference(exportToDirectory);
+			cat.setVisible(false);
 		}
 	}
 }

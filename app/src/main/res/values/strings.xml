@@ -53,11 +53,11 @@
 	<string name="auto_save">Auto save</string>
 	<string name="auto_save_summary">Save shader automatically</string>
 	<string name="default_new_shader">Default new shader</string>
-	<string name="import_export">Import / Export</string>
-	<string name="import_shaders">Import shaders</string>
-	<string name="import_from_directory">Import all *.glsl files from Download/ShaderEditor</string>
-	<string name="export_shaders">Export shaders</string>
-	<string name="export_to_directory">Export all shaders to Download/ShaderEditor</string>
+	<string name="import_export">Import &amp; Export</string>
+	<string name="import_shaders_files">Import shaders from files</string>
+	<string name="import_shaders_files_summary">Import all *.glsl files from Download/ShaderEditor</string>
+	<string name="export_shaders_files">Export shaders to files</string>
+	<string name="export_shaders_files_summary">Export all shaders to Download/ShaderEditor</string>
 
 	<!-- Preferences -->
 	<string name="run_auto">Auto run on change</string>
