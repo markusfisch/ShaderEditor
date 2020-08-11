@@ -1,0 +1,19 @@
+* Live preview in background or on an extra screen
+* Syntax highlighting
+* Error highlighting
+* FPS display
+* Use any shader as live wallpaper
+* Exposure of hardware sensors
+* Support for wallpaper offset
+* Exposure of battery level
+* Supports multiple touches
+* Previous rendered frame in backbuffer texture
+* Import and use arbitrary textures
+* Disables rendering when battery is low
+
+Some devices limit GPU usage to consume less power when not plugged in. Always check the performance with the soft keyboard hidden and the power cord off. A shader should make at least around 30 fps to not slow down the UI if you intend to use it as a live wallpaper.
+
+Unfortunately error information is disabled on some devices (e.g. Huawei Ideos X3, Asus Transformer). Error highlighting/reporting is not possible on these devices.
+
+Please report bugs here:
+https://github.com/markusfisch/ShaderEditor/issues

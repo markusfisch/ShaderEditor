@@ -1,0 +1,3 @@
+* Support custom texture parameters for each sampler
+* Removed laser lines shader
+

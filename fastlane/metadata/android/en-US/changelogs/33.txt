@@ -1,0 +1,3 @@
+* Use previous defaults for sampler texture params
+* Converted shader samples indenting style
+

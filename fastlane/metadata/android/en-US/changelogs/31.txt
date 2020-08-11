@@ -1,0 +1,2 @@
+* Enable/disable listening for battery events in wallpaper service
+

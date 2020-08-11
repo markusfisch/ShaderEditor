@@ -1,0 +1,2 @@
+* Try to aquire a GLES 3.0 context if available
+

@@ -1,0 +1,2 @@
+* Insert preprocessor directives after #version
+

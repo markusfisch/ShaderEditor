@@ -1,0 +1,3 @@
+* Fixed clearing empty backbuffer
+* Fixed floating action button icon color
+

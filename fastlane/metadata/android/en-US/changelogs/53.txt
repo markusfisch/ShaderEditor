@@ -1,0 +1,5 @@
+* Turn on autosave by default
+* Add support for GLES 310 and 320
+* Add GLES 300 sample shader
+* Add Cloudy Conway sample shader
+

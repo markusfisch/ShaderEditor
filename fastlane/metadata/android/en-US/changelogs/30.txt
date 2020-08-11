@@ -1,0 +1,3 @@
+* Fixed terminating wallpaper service after use
+* Fixed reusing list items
+

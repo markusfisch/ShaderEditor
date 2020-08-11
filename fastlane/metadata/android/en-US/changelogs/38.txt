@@ -1,0 +1,3 @@
+* Fix broken backbuffer preset selection
+* Fix crash when setting backbuffer parameters
+

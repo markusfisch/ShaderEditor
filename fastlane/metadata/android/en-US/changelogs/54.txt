@@ -1,0 +1,4 @@
+* Add 1/16 and 1/32 quality levels
+* Set quality to 1/2 for shaders added by intents
+* Update toolbar title when shader is renamed
+

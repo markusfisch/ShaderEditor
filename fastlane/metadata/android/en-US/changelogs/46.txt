@@ -1,0 +1,6 @@
+* New app icon
+* Added adaptive app icon for Android 8.0
+* Added FAQ menu item to answer common questions
+* Added swirl gun example
+* Shows a message for "Set wallpaper" when not set as live wallpaper
+

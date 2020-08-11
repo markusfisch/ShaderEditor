@@ -1,0 +1,2 @@
+* Remove non-ascii characters from pasted source code
+

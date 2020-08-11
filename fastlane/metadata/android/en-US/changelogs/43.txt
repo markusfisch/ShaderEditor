@@ -1,0 +1,3 @@
+* Fix remapping of orientation uniform
+* Use system-calculated gravity and linear acceleration data
+

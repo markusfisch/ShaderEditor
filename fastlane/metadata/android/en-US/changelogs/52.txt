@@ -1,0 +1,8 @@
+* Add undo/redo to editor
+* Make all default actions Floating Action Buttons
+* Move "Save as" menu item directly below "Save"
+* Add more intent filters for application/glsl files
+* Load shaders as UTF-8 text
+* Prefer TYPE_GAME_ROTATION_VECTOR for the rotation uniform
+* Fix showing inactive cube map bitmaps in composer
+

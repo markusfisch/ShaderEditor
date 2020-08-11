@@ -6,10 +6,10 @@ your Android phone or tablet and use them as live wallpaper.
 ## Screenshots
 
 <img
-	src="https://raw.githubusercontent.com/markusfisch/ShaderEditor/gh-pages/screenshot-main.png"
+	src="fastlane/metadata/android/en-US/images/phoneScreenshots/screencap-main.png"
 	alt="Screenshot" width="160"/>
 <img
-	src="https://raw.githubusercontent.com/markusfisch/ShaderEditor/gh-pages/screenshot-keyboard.png"
+	src="fastlane/metadata/android/en-US/images/phoneScreenshots/screencap-keyboard.png"
 	alt="Screenshot with soft keyboard" width="160"/>
 
 ## Download

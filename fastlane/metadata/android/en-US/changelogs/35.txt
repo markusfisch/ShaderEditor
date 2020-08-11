@@ -1,0 +1,4 @@
+* Set a texture for the initial backbuffer
+* Replace already existing uniform statements when adding them
+* Samples can have a lower quality setting
+

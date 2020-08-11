@@ -1,0 +1,3 @@
+* Expose rotation and inclination matrix as uniforms
+* Rename rotation uniform to gyroscope
+

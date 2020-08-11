@@ -1,0 +1,4 @@
+* Add uniform for rotation vector sensor
+* Alternatively calculate rotation matrix from rotation vector if necessary
+* Fix using accelerometer sensor to calculate gravity
+

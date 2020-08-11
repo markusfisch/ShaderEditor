@@ -1,0 +1,3 @@
+* Fallback to old gravity and linear acceleration calculation if necessary
+* Add uniform for geomagnetic inclination angle
+
