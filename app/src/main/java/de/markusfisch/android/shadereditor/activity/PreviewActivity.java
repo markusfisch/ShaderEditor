@@ -77,7 +77,7 @@ public class PreviewActivity extends AppCompatActivity {
 				});
 
 		setContentView(shaderView);
-		SystemBarMetrics.setSystemBarColor(getWindow(), 0, true);
+		SystemBarMetrics.hideNavigation(getWindow());
 	}
 
 	@Override

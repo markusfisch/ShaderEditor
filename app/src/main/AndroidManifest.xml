@@ -115,6 +115,7 @@
 		<activity
 			android:name=".activity.PreviewActivity"
 			android:label="@string/preview"
+			android:theme="@style/PreviewTheme"
 			android:launchMode="singleInstance"
 			android:documentLaunchMode="intoExisting"/>
 		<activity

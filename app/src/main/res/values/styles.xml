@@ -14,6 +14,13 @@
 		<item name="android:windowBackground">@drawable/background_splash</item>
 	</style>
 	<style
+		name="PreviewTheme"
+		parent="Theme.AppCompat.NoActionBar">
+		<item name="android:windowNoTitle">true</item>
+		<item name="android:windowFullscreen">true</item>
+		<item name="android:windowContentOverlay">@null</item>
+	</style>
+	<style
 		name="Title"
 		parent="@android:style/TextAppearance.Medium">
 	</style>
