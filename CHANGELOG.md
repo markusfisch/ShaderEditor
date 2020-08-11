@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.20.0
+* Open live wallpaper picker if app is not set as live wallpaper
+* Apply Material Design to preferences
+* Extra preview is completely full screen now
+
 ## 2.19.0
 * Add 1/16 and 1/32 quality levels
 * Set quality to 1/2 for shaders added by intents
