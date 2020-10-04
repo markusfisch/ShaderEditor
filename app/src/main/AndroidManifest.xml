@@ -22,6 +22,12 @@
 		android:required="false"/>
 	<uses-feature android:name="android.software.live_wallpaper"/>
 	<uses-sdk tools:overrideLibrary="android.support.v14.preference"/>
+	<queries>
+		<intent>
+			<action android:name="android.intent.action.VIEW"/>
+			<data android:scheme="https"/>
+		</intent>
+	</queries>
 	<application
 		tools:ignore="UnusedAttribute"
 		android:name=".app.ShaderEditorApp"
