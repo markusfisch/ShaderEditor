@@ -1,0 +1,4 @@
+* Open live wallpaper picker if app is not set as live wallpaper
+* Apply Material Design to preferences
+* Extra preview is completely full screen now
+
