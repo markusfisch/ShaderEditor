@@ -60,6 +60,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_CAMERA_FRONT = "cameraFront";
 	public static final String UNIFORM_CAMERA_ORIENTATION = "cameraOrientation";
 	public static final String UNIFORM_DATE = "date";
+	public static final String UNIFORM_DAYTIME = "daytime";
 	public static final String UNIFORM_FRAME_NUMBER = "frame";
 	public static final String UNIFORM_FTIME = "ftime";
 	public static final String UNIFORM_GRAVITY = "gravity";
@@ -204,6 +205,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private final float[] mouse = new float[]{0, 0};
 	private final float[] pointers = new float[30];
 	private final float[] offset = new float[]{0, 0};
+	private final float[] daytime = new float[]{0, 0, 0};
 	private final float[] dateTime = new float[]{0, 0, 0, 0};
 	private final float[] rotationMatrix = new float[9];
 	private final float[] inclinationMatrix = new float[9];
@@ -256,6 +258,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int offsetLoc;
 	private int batteryLoc;
 	private int dateTimeLoc;
+	private int daytimeLoc;
 	private int startRandomLoc;
 	private int backBufferLoc;
 	private int cameraOrientationLoc;
@@ -464,19 +467,30 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			}
 			GLES20.glUniform1f(batteryLoc, batteryLevel);
 		}
-		if (dateTimeLoc > -1) {
+		if (dateTimeLoc > -1 || daytimeLoc > -1) {
 			if (now - lastDateUpdate > DATE_UPDATE_INTERVAL) {
 				Calendar calendar = Calendar.getInstance();
-				dateTime[0] = calendar.get(Calendar.YEAR);
-				dateTime[1] = calendar.get(Calendar.MONTH);
-				dateTime[2] = calendar.get(Calendar.DAY_OF_MONTH);
-				dateTime[3] = calendar.get(Calendar.HOUR_OF_DAY) * 3600f +
-						calendar.get(Calendar.MINUTE) * 60f +
-						calendar.get(Calendar.SECOND);
-
+				if (dateTimeLoc > -1) {
+					dateTime[0] = calendar.get(Calendar.YEAR);
+					dateTime[1] = calendar.get(Calendar.MONTH);
+					dateTime[2] = calendar.get(Calendar.DAY_OF_MONTH);
+					dateTime[3] = calendar.get(Calendar.HOUR_OF_DAY) * 3600f +
+							calendar.get(Calendar.MINUTE) * 60f +
+							calendar.get(Calendar.SECOND);
+				}
+				if (daytimeLoc > -1) {
+					daytime[0] = calendar.get(Calendar.HOUR_OF_DAY);
+					daytime[1] = calendar.get(Calendar.MINUTE);
+					daytime[2] = calendar.get(Calendar.SECOND);
+				}
 				lastDateUpdate = now;
 			}
-			GLES20.glUniform4fv(dateTimeLoc, 1, dateTime, 0);
+			if (dateTimeLoc > -1) {
+				GLES20.glUniform4fv(dateTimeLoc, 1, dateTime, 0);
+			}
+			if (daytimeLoc > -1) {
+				GLES20.glUniform3fv(daytimeLoc, 1, daytime, 0);
+			}
 		}
 		if (startRandomLoc > -1) {
 			GLES20.glUniform1f(startRandomLoc, startRandom);
@@ -738,6 +752,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, UNIFORM_BATTERY);
 		dateTimeLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_DATE);
+		daytimeLoc = GLES20.glGetUniformLocation(
+				program, UNIFORM_DAYTIME);
 		startRandomLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_START_RANDOM);
 		backBufferLoc = GLES20.glGetUniformLocation(
