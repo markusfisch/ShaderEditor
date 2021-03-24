@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.21.0
+* Add daytime uniform
+
 ## 2.20.0
 * Open live wallpaper picker if app is not set as live wallpaper
 * Apply Material Design to preferences
