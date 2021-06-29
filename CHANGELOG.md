@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.22.0
+* Import/Export SQLite database
+
 ## 2.21.0
 * Add daytime uniform
 
