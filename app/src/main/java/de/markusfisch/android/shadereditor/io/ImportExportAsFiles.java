@@ -1,4 +1,4 @@
-package de.markusfisch.android.shadereditor.database;
+package de.markusfisch.android.shadereditor.io;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -14,8 +14,9 @@ import java.util.Locale;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.Database;
 
-public class ImportExport {
+public class ImportExportAsFiles {
 	private static final String IMPORT_EXPORT_DIRECTORY = "ShaderEditor";
 	private static final String SHADER_FILE_EXTENSION = ".glsl";
 	private static final String ILLEGAL_CHARACTER_REPLACEMENT = "_";

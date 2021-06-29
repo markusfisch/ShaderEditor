@@ -1,6 +1,9 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -21,7 +24,9 @@ import android.widget.Toast;
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.Database;
-import de.markusfisch.android.shadereditor.database.ImportExport;
+import de.markusfisch.android.shadereditor.io.DatabaseExporter;
+import de.markusfisch.android.shadereditor.io.DatabaseImporter;
+import de.markusfisch.android.shadereditor.io.ImportExportAsFiles;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.preference.ShaderListPreference;
 import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
@@ -31,6 +36,21 @@ public class PreferencesFragment
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
 	private static final int READ_EXTERNAL_STORAGE_REQUEST = 1;
 	private static final int WRITE_EXTERNAL_STORAGE_REQUEST = 2;
+	private static final int PICK_FILE_RESULT_CODE = 1;
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode,
+			Intent resultData) {
+		if (requestCode == PICK_FILE_RESULT_CODE &&
+				resultCode == Activity.RESULT_OK && resultData != null) {
+			Context context = getContext();
+			Toast.makeText(context,
+					DatabaseImporter.importDatabase(context, resultData.getData()) ?
+							R.string.successfully_imported :
+							R.string.import_failed,
+					Toast.LENGTH_LONG).show();
+		}
+	}
 
 	@Override
 	public void onCreatePreferences(Bundle state, String rootKey) {
@@ -170,10 +190,10 @@ public class PreferencesFragment
 						// make FindBugs happy
 						continue;
 					case WRITE_EXTERNAL_STORAGE_REQUEST:
-						ImportExport.exportToDirectory(getContext());
+						ImportExportAsFiles.exportToDirectory(getContext());
 						break;
 					case READ_EXTERNAL_STORAGE_REQUEST:
-						ImportExport.importFromDirectory(getContext());
+						ImportExportAsFiles.importFromDirectory(getContext());
 						break;
 				}
 			} else {
@@ -206,7 +226,7 @@ public class PreferencesFragment
 					if (checkExternalStoragePermission(
 							READ_EXTERNAL_STORAGE_REQUEST,
 							Manifest.permission.READ_EXTERNAL_STORAGE)) {
-						ImportExport.importFromDirectory(getContext());
+						ImportExportAsFiles.importFromDirectory(getContext());
 					}
 					return true;
 				}
@@ -217,7 +237,7 @@ public class PreferencesFragment
 					if (checkExternalStoragePermission(
 							WRITE_EXTERNAL_STORAGE_REQUEST,
 							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-						ImportExport.exportToDirectory(getContext());
+						ImportExportAsFiles.exportToDirectory(getContext());
 					}
 					return true;
 				}
@@ -227,7 +247,32 @@ public class PreferencesFragment
 					"import_export");
 			cat.removePreference(importFromDirectory);
 			cat.removePreference(exportToDirectory);
-			cat.setVisible(false);
 		}
+		findPreference(Preferences.IMPORT_DATABASE).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+				// in theory, it should be "application/x-sqlite3"
+				// or the newer "application/vnd.sqlite3" but
+				// only "application/octet-stream" works
+				chooseFile.setType("application/octet-stream");
+				startActivityForResult(
+						Intent.createChooser(
+								chooseFile,
+								getString(R.string.import_database)),
+						PICK_FILE_RESULT_CODE);
+				return true;
+			}
+		});
+		findPreference(Preferences.EXPORT_DATABASE).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Context context = getContext();
+				Toast.makeText(context,
+						DatabaseExporter.exportDatabase(context),
+						Toast.LENGTH_LONG).show();
+				return true;
+			}
+		});
 	}
 }

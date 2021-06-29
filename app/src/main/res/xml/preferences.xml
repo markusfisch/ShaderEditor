@@ -91,5 +91,13 @@
 			android:key="export_to_directory"
 			android:title="@string/export_shaders_files"
 			android:summary="@string/export_shaders_files_summary"/>
+		<Preference
+			android:key="import_database"
+			android:title="@string/import_database"
+			android:summary="@string/import_database_summary"/>
+		<Preference
+			android:key="export_database"
+			android:title="@string/export_database"
+			android:summary="@string/export_database_summary"/>
 	</PreferenceCategory>
 </PreferenceScreen>

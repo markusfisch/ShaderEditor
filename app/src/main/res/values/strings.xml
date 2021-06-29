@@ -58,6 +58,10 @@
 	<string name="import_shaders_files_summary">Import all *.glsl files from Download/ShaderEditor</string>
 	<string name="export_shaders_files">Export shaders to files</string>
 	<string name="export_shaders_files_summary">Export all shaders to Download/ShaderEditor</string>
+	<string name="import_database">Import database</string>
+	<string name="import_database_summary">Import a previously exported SQLite database</string>
+	<string name="export_database">Export database</string>
+	<string name="export_database_summary">Export all shaders into a SQLite database</string>
 
 	<!-- Preferences -->
 	<string name="run_auto">Auto run on change</string>
@@ -225,4 +229,8 @@
 	<string name="no_shaders_found">No shaders found</string>
 	<string name="no_shaders_could_be_written">No shaders could be written to directory</string>
 	<string name="path_is_no_directory">Path %1$s is not a directory</string>
+	<string name="cant_find_db">Cannot find database</string>
+	<string name="storage_not_writeable">Cannot write database</string>
+	<string name="successfully_exported">Exported to Downloads</string>
+	<string name="successfully_imported">Database imported</string>
 </resources>

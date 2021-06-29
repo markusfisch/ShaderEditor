@@ -2,7 +2,9 @@ package de.markusfisch.android.shadereditor.database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.database.Cursor;
+import android.database.DatabaseErrorHandler;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -11,6 +13,7 @@ import android.graphics.BitmapFactory;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -20,6 +23,8 @@ import java.util.Locale;
 import de.markusfisch.android.shadereditor.R;
 
 public class Database {
+	public static final String FILE_NAME = "shaders.db";
+
 	public static final String SHADERS = "shaders";
 	public static final String SHADERS_ID = "_id";
 	public static final String SHADERS_FRAGMENT_SHADER = "shader";
@@ -40,6 +45,30 @@ public class Database {
 
 	private SQLiteDatabase db;
 	private int textureThumbnailSize;
+
+	public boolean importDatabase(Context context, String fileName) {
+		SQLiteDatabase edb = null;
+		try {
+			edb = new ImportHelper(new ExternalDatabaseContext(context),
+					fileName).getReadableDatabase();
+			db.beginTransaction();
+			if (importShaders(db, edb) && importTextures(db, edb)) {
+				db.setTransactionSuccessful();
+				return true;
+			} else {
+				return false;
+			}
+		} catch (SQLException e) {
+			return false;
+		} finally {
+			if (db.inTransaction()) {
+				db.endTransaction();
+			}
+			if (edb != null) {
+				edb.close();
+			}
+		}
+	}
 
 	public void open(Context context) {
 		textureThumbnailSize = Math.round(
@@ -224,19 +253,28 @@ public class Database {
 			SQLiteDatabase db,
 			String shader,
 			String name,
+			String created,
+			String modified,
 			byte[] thumbnail,
 			float quality) {
-		String now = currentTime();
-
 		ContentValues cv = new ContentValues();
 		cv.put(SHADERS_FRAGMENT_SHADER, shader);
 		cv.put(SHADERS_THUMB, thumbnail);
 		cv.put(SHADERS_NAME, name);
-		cv.put(SHADERS_CREATED, now);
-		cv.put(SHADERS_MODIFIED, now);
+		cv.put(SHADERS_CREATED, created);
+		cv.put(SHADERS_MODIFIED, modified);
 		cv.put(SHADERS_QUALITY, quality);
-
 		return db.insert(SHADERS, null, cv);
+	}
+
+	public static long insertShader(
+			SQLiteDatabase db,
+			String shader,
+			String name,
+			byte[] thumbnail,
+			float quality) {
+		String now = currentTime();
+		return insertShader(db, shader, name, now, now, thumbnail, quality);
 	}
 
 	public long insertShader(
@@ -251,7 +289,8 @@ public class Database {
 			String shader,
 			String name) {
 		return insertShader(db, shader, name,
-				loadBitmapResource(context, R.drawable.thumbnail_new_shader), 1f);
+				loadBitmapResource(context, R.drawable.thumbnail_new_shader),
+				1f);
 	}
 
 	public long insertNewShader(Context context) {
@@ -284,6 +323,24 @@ public class Database {
 	public static long insertTexture(
 			SQLiteDatabase db,
 			String name,
+			int width,
+			int height,
+			float ratio,
+			byte[] thumb,
+			byte[] matrix) {
+		ContentValues cv = new ContentValues();
+		cv.put(TEXTURES_NAME, name);
+		cv.put(TEXTURES_WIDTH, width);
+		cv.put(TEXTURES_HEIGHT, height);
+		cv.put(TEXTURES_RATIO, ratio);
+		cv.put(TEXTURES_THUMB, thumb);
+		cv.put(TEXTURES_MATRIX, matrix);
+		return db.insert(TEXTURES, null, cv);
+	}
+
+	public static long insertTexture(
+			SQLiteDatabase db,
+			String name,
 			Bitmap bitmap,
 			int thumbnailSize) {
 		Bitmap thumbnail;
@@ -301,15 +358,14 @@ public class Database {
 		int w = bitmap.getWidth();
 		int h = bitmap.getHeight();
 
-		ContentValues cv = new ContentValues();
-		cv.put(TEXTURES_NAME, name);
-		cv.put(TEXTURES_WIDTH, w);
-		cv.put(TEXTURES_HEIGHT, h);
-		cv.put(TEXTURES_RATIO, calculateRatio(w, h));
-		cv.put(TEXTURES_THUMB, bitmapToPng(thumbnail));
-		cv.put(TEXTURES_MATRIX, bitmapToPng(bitmap));
-
-		return db.insert(TEXTURES, null, cv);
+		return insertTexture(
+				db,
+				name,
+				w,
+				h,
+				calculateRatio(w, h),
+				bitmapToPng(thumbnail),
+				bitmapToPng(bitmap));
 	}
 
 	public long insertTexture(String name, Bitmap bitmap) {
@@ -420,7 +476,7 @@ public class Database {
 				SHADERS_NAME + " TEXT," +
 				SHADERS_CREATED + " DATETIME," +
 				SHADERS_MODIFIED + " DATETIME," +
-				SHADERS_QUALITY + " REAL );");
+				SHADERS_QUALITY + " REAL);");
 
 		insertInitalShaders(db, context);
 	}
@@ -459,7 +515,7 @@ public class Database {
 				TEXTURES_HEIGHT + " INTEGER," +
 				TEXTURES_RATIO + " REAL," +
 				TEXTURES_THUMB + " BLOB," +
-				TEXTURES_MATRIX + " BLOB );");
+				TEXTURES_MATRIX + " BLOB);");
 
 		insertInitalTextures(db, context);
 	}
@@ -523,6 +579,124 @@ public class Database {
 				textureThumbnailSize);
 	}
 
+	private static boolean importShaders(
+			SQLiteDatabase dst,
+			SQLiteDatabase src) {
+		Cursor cursor = src.rawQuery(
+				"SELECT *" +
+						" FROM " + SHADERS +
+						" ORDER BY " + SHADERS_ID,
+				null);
+		if (cursor == null) {
+			return false;
+		}
+		int idIndex = cursor.getColumnIndex(SHADERS_ID);
+		int shaderIndex =  cursor.getColumnIndex(SHADERS_FRAGMENT_SHADER);
+		int thumbIndex =  cursor.getColumnIndex(SHADERS_THUMB);
+		int nameIndex =  cursor.getColumnIndex(SHADERS_NAME);
+		int createdIndex =  cursor.getColumnIndex(SHADERS_CREATED);
+		int modifiedIndex =  cursor.getColumnIndex(SHADERS_MODIFIED);
+		int qualityIndex =  cursor.getColumnIndex(SHADERS_QUALITY);
+		boolean success = true;
+		if (cursor.moveToFirst()) {
+			do {
+				String createdDate = cursor.getString(createdIndex);
+				String modifiedDate = cursor.getString(modifiedIndex);
+				if (createdDate == null || modifiedDate == null ||
+						shaderExists(dst, createdDate, modifiedDate)) {
+					continue;
+				}
+				long shaderId = insertShader(dst,
+					cursor.getString(shaderIndex),
+					cursor.getString(nameIndex),
+					createdDate,
+					modifiedDate,
+					cursor.getBlob(thumbIndex),
+					cursor.getFloat(qualityIndex));
+				if (shaderId < 1) {
+					success = false;
+					break;
+				}
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return success;
+	}
+
+	private static boolean shaderExists(
+			SQLiteDatabase db,
+			String createdDate,
+			String modifiedDate) {
+		Cursor cursor = db.rawQuery(
+				"SELECT " + SHADERS_ID +
+						" FROM " + SHADERS +
+						" WHERE " + SHADERS_CREATED + " = ?" +
+						" AND " + SHADERS_MODIFIED + " = ?",
+				new String[]{createdDate, modifiedDate});
+		if (cursor == null) {
+			return false;
+		}
+		boolean exists = cursor.moveToFirst() && cursor.getCount() > 0;
+		cursor.close();
+		return exists;
+	}
+
+	private static boolean importTextures(
+			SQLiteDatabase dst,
+			SQLiteDatabase src) {
+		Cursor cursor = src.rawQuery(
+				"SELECT *" +
+						" FROM " + TEXTURES +
+						" ORDER BY " + TEXTURES_ID,
+				null);
+		if (cursor == null) {
+			return false;
+		}
+		int idIndex = cursor.getColumnIndex(TEXTURES_ID);
+		int nameIndex = cursor.getColumnIndex(TEXTURES_NAME);
+		int widthIndex = cursor.getColumnIndex(TEXTURES_WIDTH);
+		int heightIndex = cursor.getColumnIndex(TEXTURES_HEIGHT);
+		int ratioIndex = cursor.getColumnIndex(TEXTURES_RATIO);
+		int thumbIndex = cursor.getColumnIndex(TEXTURES_THUMB);
+		int matrixIndex = cursor.getColumnIndex(TEXTURES_MATRIX);
+		boolean success = true;
+		if (cursor.moveToFirst()) {
+			do {
+				String name = cursor.getString(nameIndex);
+				if (name == null || textureExists(dst, name)) {
+					continue;
+				}
+				long textureId = insertTexture(dst,
+					name,
+					cursor.getInt(widthIndex),
+					cursor.getInt(heightIndex),
+					cursor.getFloat(ratioIndex),
+					cursor.getBlob(thumbIndex),
+					cursor.getBlob(matrixIndex));
+				if (textureId < 1) {
+					success = false;
+					break;
+				}
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return success;
+	}
+
+	private static boolean textureExists(SQLiteDatabase db, String name) {
+		Cursor cursor = db.rawQuery(
+				"SELECT " + TEXTURES_ID +
+						" FROM " + TEXTURES +
+						" WHERE " + TEXTURES_NAME + " = ?",
+				new String[]{name});
+		if (cursor == null) {
+			return false;
+		}
+		boolean exists = cursor.moveToFirst() && cursor.getCount() > 0;
+		cursor.close();
+		return exists;
+	}
+
 	private class OpenHelper extends SQLiteOpenHelper {
 		private final Context context;
 
@@ -565,8 +739,65 @@ public class Database {
 		}
 
 		private OpenHelper(Context context) {
-			super(context, "shaders.db", null, 5);
+			super(context, FILE_NAME, null, 5);
 			this.context = context;
+		}
+	}
+
+	private static class ImportHelper extends SQLiteOpenHelper {
+		private ImportHelper(Context context, String path) {
+			super(context, path, null, 1);
+		}
+
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			// do nothing
+		}
+
+		@Override
+		public void onDowngrade(
+				SQLiteDatabase db,
+				int oldVersion,
+				int newVersion) {
+			// do nothing, but without that method we cannot open
+			// different versions
+		}
+
+		@Override
+		public void onUpgrade(
+				SQLiteDatabase db,
+				int oldVersion,
+				int newVersion) {
+			// do nothing, but without that method we cannot open
+			// different versions
+		}
+	}
+
+	// somehow it's required to use this ContextWrapper to access the
+	// tables in an external database; without this, the database will
+	// only contain the table "android_metadata"
+	public static class ExternalDatabaseContext extends ContextWrapper {
+		public ExternalDatabaseContext(Context base) {
+			super(base);
+		}
+
+		@Override
+		public File getDatabasePath(String name) {
+			return new File(getFilesDir(), name);
+		}
+
+		@Override
+		public SQLiteDatabase openOrCreateDatabase(String name, int mode,
+				SQLiteDatabase.CursorFactory factory,
+				DatabaseErrorHandler errorHandler) {
+			return openOrCreateDatabase(name, mode, factory);
+		}
+
+		@Override
+		public SQLiteDatabase openOrCreateDatabase(String name, int mode,
+				SQLiteDatabase.CursorFactory factory) {
+			return SQLiteDatabase.openOrCreateDatabase(
+					getDatabasePath(name), null);
 		}
 	}
 }
