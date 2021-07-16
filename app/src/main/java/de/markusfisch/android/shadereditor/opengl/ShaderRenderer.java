@@ -288,12 +288,20 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public ShaderRenderer(Context context) {
 		this.context = context;
 
+		// -1/1   1/1
+		//    +---+
+		//    |  /|
+		//    | 0 |
+		//    |/  |
+		//    +---+
+		// -1/-1  1/-1
 		vertexBuffer = ByteBuffer.allocateDirect(8);
 		vertexBuffer.put(new byte[]{
-				-1, 1,
-				-1, -1,
-				1, 1,
-				1, -1}).position(0);
+				-1, 1, // left top
+				-1, -1, // left bottom
+				1, 1, // right top, first triangle from last 3 vertices
+				1, -1 // right bottom, second triangle from last 3 vertices
+		}).position(0);
 	}
 
 	public void setVersion(int version) {
