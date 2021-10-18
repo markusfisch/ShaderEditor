@@ -112,6 +112,7 @@
 	<string name="pressure">Atmospheric pressure in hPa (millibar)</string>
 	<string name="proximity">Proximity sensor distance measured in centimeters</string>
 	<string name="battery_level">Battery level from 0.0 to 1.0</string>
+	<string name="power_connected">1 when power cable is connected, 0 otherwise</string>
 	<string name="wallpaper_offset">Wallpaper offset from 0.0 to 1.0</string>
 	<string name="previous_frame">Previous rendered frame</string>
 	<string name="camera_back">Back camera (only on Ice Cream Sandwich or better)</string>

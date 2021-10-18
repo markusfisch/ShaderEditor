@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.opengl.GLSurfaceView;
+import android.os.BatteryManager;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.service.ShaderWallpaperService;
@@ -15,11 +16,25 @@ public class BatteryLevelReceiver extends BroadcastReceiver {
 
 		if (Intent.ACTION_BATTERY_LOW.equals(action)) {
 			setLowPowerMode(context, true);
+			setPowerConnected(false);
 		} else if (Intent.ACTION_BATTERY_OKAY.equals(action)) {
 			setLowPowerMode(context, false);
+			setPowerConnected(false);
 		} else if (Intent.ACTION_POWER_CONNECTED.equals(action)) {
 			setLowPowerMode(context, false);
+			setPowerConnected(true);
+		} else if (Intent.ACTION_POWER_DISCONNECTED.equals(action)) {
+			setPowerConnected(false);
+		} else if (Intent.ACTION_BATTERY_CHANGED.equals(action)) {
+			int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+			setPowerConnected(
+					status == BatteryManager.BATTERY_STATUS_CHARGING ||
+					status == BatteryManager.BATTERY_STATUS_FULL);
 		}
+	}
+
+	private static void setPowerConnected(boolean connected) {
+		ShaderEditorApp.preferences.setPowerConnected(connected);
 	}
 
 	public static void setLowPowerMode(Context context, boolean low) {

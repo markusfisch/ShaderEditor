@@ -141,6 +141,10 @@ public class PresetUniformAdapter extends BaseAdapter {
 						ShaderRenderer.UNIFORM_POINTER_COUNT,
 						context.getString(R.string.number_of_touches)),
 				new Uniform(
+						"int",
+						ShaderRenderer.UNIFORM_POWER_CONNECTED,
+						context.getString(R.string.power_connected)),
+				new Uniform(
 						"float",
 						ShaderRenderer.UNIFORM_PRESSURE,
 						context.getString(R.string.pressure)),

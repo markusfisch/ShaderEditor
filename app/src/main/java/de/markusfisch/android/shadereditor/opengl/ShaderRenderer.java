@@ -76,6 +76,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_POINTERS = "pointers";
 	public static final String UNIFORM_POINTER_COUNT = "pointerCount";
 	public static final String UNIFORM_POSITION = "position";
+	public static final String UNIFORM_POWER_CONNECTED = "powerConnected";
 	public static final String UNIFORM_PRESSURE = "pressure";
 	public static final String UNIFORM_PROXIMITY = "proximity";
 	public static final String UNIFORM_RESOLUTION = "resolution";
@@ -243,6 +244,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int mouseLoc;
 	private int pointerCountLoc;
 	private int pointersLoc;
+	private int powerConnectedLoc;
 	private int gravityLoc;
 	private int linearLoc;
 	private int gyroscopeLoc;
@@ -474,6 +476,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				lastBatteryUpdate = now;
 			}
 			GLES20.glUniform1f(batteryLoc, batteryLevel);
+		}
+		if (powerConnectedLoc > -1) {
+			GLES20.glUniform1i(powerConnectedLoc,
+					ShaderEditorApp.preferences.isPowerConnected() ? 1 : 0);
 		}
 		if (dateTimeLoc > -1 || daytimeLoc > -1) {
 			if (now - lastDateUpdate > DATE_UPDATE_INTERVAL) {
@@ -730,6 +736,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, UNIFORM_POINTER_COUNT);
 		pointersLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_POINTERS);
+		powerConnectedLoc = GLES20.glGetUniformLocation(
+				program, UNIFORM_POWER_CONNECTED);
 		gravityLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_GRAVITY);
 		gyroscopeLoc = GLES20.glGetUniformLocation(

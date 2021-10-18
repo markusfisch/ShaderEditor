@@ -44,6 +44,7 @@ public class Preferences {
 	private boolean showInsertTab = true;
 	private boolean saveOnRun = true;
 	private boolean batteryLow = false;
+	private boolean powerConnected = false;
 	private int systemBarColor;
 	private long defaultNewShaderId = 0;
 	private boolean disableHighlighting = false;
@@ -180,6 +181,14 @@ public class Preferences {
 
 	public void setBatteryLow(boolean isLow) {
 		batteryLow = isLow;
+	}
+
+	public boolean isPowerConnected() {
+		return powerConnected;
+	}
+
+	public void setPowerConnected(boolean isConnected) {
+		powerConnected = isConnected;
 	}
 
 	public boolean disableHighlighting() {
