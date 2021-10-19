@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.23.0
+* Add powerConnected uniform
+* Fix registering for battery updates on Android N+
+
 ## 2.22.0
 * Import/Export SQLite database
 
