@@ -20,16 +20,13 @@ public class BatteryLevelReceiver extends BroadcastReceiver {
 		} else if (Intent.ACTION_BATTERY_OKAY.equals(action)) {
 			setLowPowerMode(context, false);
 			setPowerConnected(false);
-		} else if (Intent.ACTION_POWER_CONNECTED.equals(action)) {
-			setLowPowerMode(context, false);
-			setPowerConnected(true);
-		} else if (Intent.ACTION_POWER_DISCONNECTED.equals(action)) {
-			setPowerConnected(false);
 		} else if (Intent.ACTION_BATTERY_CHANGED.equals(action)) {
 			int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-			setPowerConnected(
+			boolean isConnected =
 					status == BatteryManager.BATTERY_STATUS_CHARGING ||
-					status == BatteryManager.BATTERY_STATUS_FULL);
+					status == BatteryManager.BATTERY_STATUS_FULL;
+			setLowPowerMode(context, isConnected);
+			setPowerConnected(isConnected);
 		}
 	}
 

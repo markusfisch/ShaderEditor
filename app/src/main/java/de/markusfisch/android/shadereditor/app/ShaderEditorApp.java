@@ -53,8 +53,6 @@ public class ShaderEditorApp extends Application {
 		filter.addAction(Intent.ACTION_BATTERY_LOW);
 		filter.addAction(Intent.ACTION_BATTERY_OKAY);
 		filter.addAction(Intent.ACTION_BATTERY_CHANGED);
-		filter.addAction(Intent.ACTION_POWER_CONNECTED);
-		filter.addAction(Intent.ACTION_POWER_DISCONNECTED);
 		registerReceiver(batteryLevelReceiver, filter);
 		// Note it's not required to unregister the receiver because it
 		// needs to be there as long as this application is running.
