@@ -1,0 +1,3 @@
+* Add powerConnected uniform
+* Fix registering for battery updates on Android N+
+
