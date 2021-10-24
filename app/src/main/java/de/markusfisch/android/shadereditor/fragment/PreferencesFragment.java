@@ -93,7 +93,6 @@ public class PreferencesFragment
 		if (Preferences.SAVE_BATTERY.equals(key) &&
 				ShaderEditorApp.preferences.isBatteryLow()) {
 			BatteryLevelReceiver.setLowPowerMode(
-					getActivity(),
 					ShaderEditorApp.preferences.saveBattery());
 		}
 	}

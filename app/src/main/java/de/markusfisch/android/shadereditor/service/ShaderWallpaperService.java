@@ -1,7 +1,6 @@
 package de.markusfisch.android.shadereditor.service;
 
 import android.content.ComponentName;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -18,15 +17,18 @@ import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 
 public class ShaderWallpaperService extends WallpaperService {
-	public static final String RENDER_MODE = "render_mode";
-
-	private static boolean isRunning = false;
+	private static ShaderWallpaperEngine engine;
 
 	private ComponentName batteryLevelComponent;
-	private ShaderWallpaperEngine engine;
 
 	public static boolean isRunning() {
-		return isRunning;
+		return engine != null;
+	}
+
+	public static void setRenderMode(int renderMode) {
+		if (engine != null) {
+			engine.setRenderMode(renderMode);
+		}
 	}
 
 	@Override
@@ -41,27 +43,13 @@ public class ShaderWallpaperService extends WallpaperService {
 	public void onDestroy() {
 		super.onDestroy();
 		enableComponent(batteryLevelComponent, false);
-	}
-
-	@Override
-	public int onStartCommand(
-			Intent intent,
-			int flags,
-			int startId) {
-		if (intent != null && engine != null) {
-			int renderMode = intent.getIntExtra(RENDER_MODE, -1);
-
-			if (renderMode > -1) {
-				engine.setRenderMode(renderMode);
-			}
-		}
-
-		return super.onStartCommand(intent, flags, startId);
+		engine = null;
 	}
 
 	@Override
 	public Engine onCreateEngine() {
-		return (engine = new ShaderWallpaperEngine());
+		engine = new ShaderWallpaperEngine();
+		return engine;
 	}
 
 	private class ShaderWallpaperEngine
@@ -84,7 +72,6 @@ public class ShaderWallpaperService extends WallpaperService {
 		public void onCreate(SurfaceHolder holder) {
 			super.onCreate(holder);
 			view = new ShaderWallpaperView();
-			isRunning = true;
 			setShader();
 		}
 

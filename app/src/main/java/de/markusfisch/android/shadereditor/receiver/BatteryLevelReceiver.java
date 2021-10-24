@@ -15,17 +15,18 @@ public class BatteryLevelReceiver extends BroadcastReceiver {
 		String action = intent.getAction();
 
 		if (Intent.ACTION_BATTERY_LOW.equals(action)) {
-			setLowPowerMode(context, true);
+			setLowPowerMode(true);
 			setPowerConnected(false);
 		} else if (Intent.ACTION_BATTERY_OKAY.equals(action)) {
-			setLowPowerMode(context, false);
+			setLowPowerMode(false);
 			setPowerConnected(false);
 		} else if (Intent.ACTION_BATTERY_CHANGED.equals(action)) {
 			int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-			boolean isConnected =
-					status == BatteryManager.BATTERY_STATUS_CHARGING ||
+			boolean isConnected = status == BatteryManager.BATTERY_STATUS_CHARGING ||
 					status == BatteryManager.BATTERY_STATUS_FULL;
-			setLowPowerMode(context, isConnected);
+			if (isConnected) {
+				setLowPowerMode(false);
+			}
 			setPowerConnected(isConnected);
 		}
 	}
@@ -34,7 +35,7 @@ public class BatteryLevelReceiver extends BroadcastReceiver {
 		ShaderEditorApp.preferences.setPowerConnected(connected);
 	}
 
-	public static void setLowPowerMode(Context context, boolean low) {
+	public static void setLowPowerMode(boolean low) {
 		if (!ShaderEditorApp.preferences.saveBattery()) {
 			low = false;
 		}
@@ -43,18 +44,8 @@ public class BatteryLevelReceiver extends BroadcastReceiver {
 		// have changed while battery is low
 
 		ShaderEditorApp.preferences.setBatteryLow(low);
-
-		if (context == null) {
-			return;
-		}
-
-		Intent intent = new Intent(
-				context,
-				ShaderWallpaperService.class);
-		intent.putExtra(ShaderWallpaperService.RENDER_MODE, low ?
-				GLSurfaceView.RENDERMODE_WHEN_DIRTY :
-				GLSurfaceView.RENDERMODE_CONTINUOUSLY);
-
-		context.startService(intent);
+		ShaderWallpaperService.setRenderMode(low
+				? GLSurfaceView.RENDERMODE_WHEN_DIRTY
+				: GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 	}
 }
