@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.23.1
+* Fix handling battery updates on Android O+
+
 ## 2.23.0
 * Add powerConnected uniform
 * Fix registering for battery updates on Android N+
