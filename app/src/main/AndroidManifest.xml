@@ -14,7 +14,9 @@
 	<uses-permission
 		android:name="android.permission.READ_EXTERNAL_STORAGE"
 		android:maxSdkVersion="19"/>
-	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<!-- Required below API < 28 for exporting shaders -->
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+		android:maxSdkVersion="28"/>
 	<uses-feature android:glEsVersion="0x00020000"/>
 	<uses-feature android:name="android.hardware.camera.any"
 		android:required="false"/>
