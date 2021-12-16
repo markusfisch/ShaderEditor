@@ -1,0 +1,3 @@
+* Fix opening FAQs in browser
+* Remove unnecessary WRITE permissions for Android Q+
+
