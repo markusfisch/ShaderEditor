@@ -17,5 +17,6 @@
 	<android.support.design.widget.FloatingActionButton
 		style="@style/FABRight"
 		android:id="@+id/insert_code"
+		android:contentDescription="@string/insert_code"
 		android:src="@drawable/ic_fab_insert_code"/>
 </RelativeLayout>

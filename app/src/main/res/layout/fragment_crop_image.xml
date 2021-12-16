@@ -6,5 +6,6 @@
 	<android.support.design.widget.FloatingActionButton
 		style="@style/FABRight"
 		android:id="@+id/crop"
+		android:contentDescription="@string/crop_image"
 		android:src="@drawable/ic_fab_crop"/>
 </RelativeLayout>

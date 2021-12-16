@@ -139,6 +139,7 @@
 	<!-- CubeMapFragment -->
 	<string name="compose_sampler_cube">Compose cube map</string>
 	<string name="not_enough_faces">Not enough faces</string>
+	<string name="add_texture">Add texture</string>
 
 	<!-- CubeMapView -->
 	<string name="cube_map_negative_x">-X Left</string>
@@ -178,6 +179,7 @@
 	<!-- BackBufferParametersFragment -->
 	<string name="backbuffer_preset">Preset texture</string>
 	<string name="no_preset">(no preset)</string>
+	<string name="insert_code">Insert Code</string>
 
 	<!-- LoadSampleFragment -->
 	<string name="load_sample">Load sample</string>
