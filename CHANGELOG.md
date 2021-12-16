@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.23.2
+* Fix opening FAQs in browser
+* Remove unnecessary WRITE permissions for Android Q+
+
 ## 2.23.1
 * Fix handling battery updates on Android O+
 
