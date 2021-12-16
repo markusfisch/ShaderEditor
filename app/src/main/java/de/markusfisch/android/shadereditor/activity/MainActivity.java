@@ -3,6 +3,7 @@ package de.markusfisch.android.shadereditor.activity;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -874,8 +875,13 @@ public class MainActivity
 	private void showFaq() {
 		Uri uri = Uri.parse("https://github.com/markusfisch/ShaderEditor/blob/master/FAQ.md");
 		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-		if (intent.resolveActivity(getPackageManager()) != null) {
+		try {
 			startActivity(intent);
+		} catch (ActivityNotFoundException e) {
+			Toast.makeText(
+					this,
+					R.string.cannot_open_content,
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 
