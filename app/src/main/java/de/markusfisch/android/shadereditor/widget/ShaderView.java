@@ -69,7 +69,7 @@ public class ShaderView extends GLSurfaceView {
 
 	private static class ContextFactory
 			implements GLSurfaceView.EGLContextFactory {
-		private ShaderRenderer renderer;
+		private final ShaderRenderer renderer;
 
 		private ContextFactory(ShaderRenderer renderer) {
 			this.renderer = renderer;
