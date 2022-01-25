@@ -1271,8 +1271,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private static float parseFTime(String source) {
 		if (source != null) {
 			Matcher m = PATTERN_FTIME.matcher(source);
-			if (m.find() && m.groupCount() > 0) {
-				return Float.parseFloat(m.group(1));
+			String s;
+			if (m.find() && m.groupCount() > 0 &&
+					(s = m.group(1)) != null) {
+				return Float.parseFloat(s);
 			}
 		}
 		return 3f;
