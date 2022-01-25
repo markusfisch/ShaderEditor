@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -268,16 +269,12 @@ public class MainActivity
 	}
 
 	@Override
-	protected void onRestoreInstanceState(Bundle state) {
+	protected void onRestoreInstanceState(@NonNull Bundle state) {
 		super.onRestoreInstanceState(state);
 
-		if (state != null) {
-			selectedShaderId = state.getLong(SELECTED_SHADER);
-			if (!state.getBoolean(CODE_VISIBLE)) {
-				toggleCode();
-			}
-		} else {
-			selectedShaderId = FIRST_SHADER;
+		selectedShaderId = state.getLong(SELECTED_SHADER);
+		if (!state.getBoolean(CODE_VISIBLE)) {
+			toggleCode();
 		}
 	}
 
