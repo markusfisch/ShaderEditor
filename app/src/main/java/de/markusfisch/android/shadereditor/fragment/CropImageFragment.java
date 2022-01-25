@@ -73,12 +73,7 @@ public class CropImageFragment extends Fragment {
 		// make cropImageView in activity visible (again)
 		cropImageView.setVisibility(View.VISIBLE);
 
-		view.findViewById(R.id.crop).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				cropImage();
-			}
-		});
+		view.findViewById(R.id.crop).setOnClickListener(v -> cropImage());
 
 		return view;
 	}

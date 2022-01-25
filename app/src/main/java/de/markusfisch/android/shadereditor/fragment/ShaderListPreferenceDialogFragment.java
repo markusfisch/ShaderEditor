@@ -58,25 +58,20 @@ public class ShaderListPreferenceDialogFragment
 		builder.setSingleChoiceItems(
 				adapter,
 				0,
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(
-							DialogInterface dialog,
-							int which) {
-						if (Preferences.WALLPAPER_SHADER.equals(key)) {
-							ShaderEditorApp.preferences.setWallpaperShader(
-									adapter.getItemId(which));
-						} else {
-							ShaderEditorApp.preferences.setDefaultNewShader(
-									adapter.getItemId(which));
-						}
-
-						ShaderListPreferenceDialogFragment.this.onClick(
-								dialog,
-								DialogInterface.BUTTON_POSITIVE);
-
-						dialog.dismiss();
+				(dialog, which) -> {
+					if (Preferences.WALLPAPER_SHADER.equals(key)) {
+						ShaderEditorApp.preferences.setWallpaperShader(
+								adapter.getItemId(which));
+					} else {
+						ShaderEditorApp.preferences.setDefaultNewShader(
+								adapter.getItemId(which));
 					}
+
+					ShaderListPreferenceDialogFragment.this.onClick(
+							dialog,
+							DialogInterface.BUTTON_POSITIVE);
+
+					dialog.dismiss();
 				});
 
 		builder.setPositiveButton(null, null);

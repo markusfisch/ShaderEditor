@@ -29,12 +29,7 @@ public class PreviewActivity extends AppCompatActivity {
 	public static final String QUALITY = "quality";
 	public static final RenderStatus renderStatus = new RenderStatus();
 
-	private final Runnable finishRunnable = new Runnable() {
-		@Override
-		public void run() {
-			finish();
-		}
-	};
+	private final Runnable finishRunnable = () -> finish();
 	private final Runnable thumbnailRunnable = new Runnable() {
 		@Override
 		public void run() {

@@ -245,28 +245,19 @@ public class ShaderEditor extends AppCompatEditText {
 	private void init(Context context) {
 		setHorizontallyScrolling(true);
 
-		setFilters(new InputFilter[]{new InputFilter() {
-			@Override
-			public CharSequence filter(
-					CharSequence source,
-					int start,
-					int end,
-					Spanned dest,
-					int dstart,
-					int dend) {
-				if (modified &&
-						end - start == 1 &&
-						start < source.length() &&
-						dstart < dest.length()) {
-					char c = source.charAt(start);
+		setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
+			if (modified &&
+					end - start == 1 &&
+					start < source.length() &&
+					dstart < dest.length()) {
+				char c = source.charAt(start);
 
-					if (c == '\n') {
-						return autoIndent(source, dest, dstart, dend);
-					}
+				if (c == '\n') {
+					return autoIndent(source, dest, dstart, dend);
 				}
-
-				return source;
 			}
+
+			return source;
 		}});
 
 		addTextChangedListener(new TextWatcher() {

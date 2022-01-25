@@ -5,7 +5,6 @@ import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -435,30 +434,16 @@ public class MainActivity
 	private void initListView() {
 		listView = (ListView) findViewById(R.id.shaders);
 		listView.setEmptyView(findViewById(R.id.no_shaders));
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(
-					AdapterView<?> parent,
-					View view,
-					int position,
-					long id) {
-				selectShaderAndUpdate(id);
-				closeDrawer();
-			}
+		listView.setOnItemClickListener((parent, view, position, id) -> {
+			selectShaderAndUpdate(id);
+			closeDrawer();
 		});
-		listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClick(
-					AdapterView<?> parent,
-					View view,
-					int position,
-					long id) {
-				if (shaderAdapter != null) {
-					editShaderName(id, shaderAdapter.getName(position));
-					return true;
-				}
-				return false;
+		listView.setOnItemLongClickListener((parent, view, position, id) -> {
+			if (shaderAdapter != null) {
+				editShaderName(id, shaderAdapter.getName(position));
+				return true;
 			}
+			return false;
 		});
 	}
 
@@ -494,12 +479,9 @@ public class MainActivity
 			return;
 		}
 
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (editorFragment != null) {
-					editorFragment.showError(infoLog);
-				}
+		runOnUiThread(() -> {
+			if (editorFragment != null) {
+				editorFragment.showError(infoLog);
 			}
 		});
 	}
@@ -778,15 +760,10 @@ public class MainActivity
 				.setMessage(R.string.sure_remove_shader)
 				.setPositiveButton(
 						android.R.string.ok,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(
-									DialogInterface dialog,
-									int which) {
-								ShaderEditorApp.db.removeShader(id);
-								selectShaderAndUpdate(ShaderEditorApp
-										.db.getFirstShaderId());
-							}
+						(dialog, which) -> {
+							ShaderEditorApp.db.removeShader(id);
+							selectShaderAndUpdate(ShaderEditorApp
+									.db.getFirstShaderId());
 						})
 				.setNegativeButton(android.R.string.cancel, null)
 				.show();
@@ -899,19 +876,14 @@ public class MainActivity
 				.setMessage(R.string.rename_shader)
 				.setView(view)
 				.setPositiveButton(android.R.string.ok,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(
-									DialogInterface dialog,
-									int which) {
-								String name = nameView.getText().toString();
-								ShaderEditorApp.db.updateShaderName(id, name);
-								if (id == selectedShaderId) {
-									setToolbarTitle(name);
-								}
-								getShadersAsync();
-								SoftKeyboard.hide(MainActivity.this, nameView);
+						(dialog, which) -> {
+							String name1 = nameView.getText().toString();
+							ShaderEditorApp.db.updateShaderName(id, name1);
+							if (id == selectedShaderId) {
+								setToolbarTitle(name1);
 							}
+							getShadersAsync();
+							SoftKeyboard.hide(MainActivity.this, nameView);
 						})
 				.setNegativeButton(android.R.string.cancel, null)
 				.show();

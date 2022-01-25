@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import de.markusfisch.android.shadereditor.R;
@@ -37,16 +36,8 @@ public class LoadSampleFragment extends Fragment {
 		final SamplesAdapter samplesAdapter = new SamplesAdapter(context);
 
 		listView.setAdapter(samplesAdapter);
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(
-					AdapterView<?> parent,
-					View view,
-					int position,
-					long id) {
-				loadSample(samplesAdapter.getItem(position));
-			}
-		});
+		listView.setOnItemClickListener((parent, view, position, id) ->
+				loadSample(samplesAdapter.getItem(position)));
 	}
 
 	private void loadSample(SamplesAdapter.Sample sample) {

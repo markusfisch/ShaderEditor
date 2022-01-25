@@ -53,18 +53,8 @@ public class CubeMapFragment extends Fragment {
 				container,
 				false);
 
-		view.findViewById(R.id.add_texture).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				addTexture();
-			}
-		});
-		view.findViewById(R.id.crop).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				composeMap();
-			}
-		});
+		view.findViewById(R.id.add_texture).setOnClickListener(v -> addTexture());
+		view.findViewById(R.id.crop).setOnClickListener(v -> composeMap());
 
 		// make cubeMapView in activity visible (again)
 		cubeMapView.setVisibility(View.VISIBLE);

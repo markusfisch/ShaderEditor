@@ -75,12 +75,7 @@ public class TextureParametersFragment extends Fragment {
 					R.id.backbuffer_parameters);
 		}
 
-		view.findViewById(R.id.insert_code).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				insertUniform();
-			}
-		});
+		view.findViewById(R.id.insert_code).setOnClickListener(v -> insertUniform());
 
 		return view;
 	}

@@ -219,27 +219,21 @@ public class PreferencesFragment
 		Preference importFromDirectory = findPreference(Preferences.IMPORT_FROM_DIRECTORY);
 		Preference exportToDirectory = findPreference(Preferences.EXPORT_TO_DIRECTORY);
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-			importFromDirectory.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
-					if (checkExternalStoragePermission(
-							READ_EXTERNAL_STORAGE_REQUEST,
-							Manifest.permission.READ_EXTERNAL_STORAGE)) {
-						ImportExportAsFiles.importFromDirectory(getContext());
-					}
-					return true;
+			importFromDirectory.setOnPreferenceClickListener(preference -> {
+				if (checkExternalStoragePermission(
+						READ_EXTERNAL_STORAGE_REQUEST,
+						Manifest.permission.READ_EXTERNAL_STORAGE)) {
+					ImportExportAsFiles.importFromDirectory(getContext());
 				}
+				return true;
 			});
-			exportToDirectory.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-				@Override
-				public boolean onPreferenceClick(Preference preference) {
-					if (checkExternalStoragePermission(
-							WRITE_EXTERNAL_STORAGE_REQUEST,
-							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-						ImportExportAsFiles.exportToDirectory(getContext());
-					}
-					return true;
+			exportToDirectory.setOnPreferenceClickListener(preference -> {
+				if (checkExternalStoragePermission(
+						WRITE_EXTERNAL_STORAGE_REQUEST,
+						Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+					ImportExportAsFiles.exportToDirectory(getContext());
 				}
+				return true;
 			});
 		} else {
 			PreferenceCategory cat = (PreferenceCategory) findPreference(
@@ -247,31 +241,25 @@ public class PreferencesFragment
 			cat.removePreference(importFromDirectory);
 			cat.removePreference(exportToDirectory);
 		}
-		findPreference(Preferences.IMPORT_DATABASE).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
-				// in theory, it should be "application/x-sqlite3"
-				// or the newer "application/vnd.sqlite3" but
-				// only "application/octet-stream" works
-				chooseFile.setType("application/octet-stream");
-				startActivityForResult(
-						Intent.createChooser(
-								chooseFile,
-								getString(R.string.import_database)),
-						PICK_FILE_RESULT_CODE);
-				return true;
-			}
+		findPreference(Preferences.IMPORT_DATABASE).setOnPreferenceClickListener(preference -> {
+			Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+			// in theory, it should be "application/x-sqlite3"
+			// or the newer "application/vnd.sqlite3" but
+			// only "application/octet-stream" works
+			chooseFile.setType("application/octet-stream");
+			startActivityForResult(
+					Intent.createChooser(
+							chooseFile,
+							getString(R.string.import_database)),
+					PICK_FILE_RESULT_CODE);
+			return true;
 		});
-		findPreference(Preferences.EXPORT_DATABASE).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				Context context = getContext();
-				Toast.makeText(context,
-						DatabaseExporter.exportDatabase(context),
-						Toast.LENGTH_LONG).show();
-				return true;
-			}
+		findPreference(Preferences.EXPORT_DATABASE).setOnPreferenceClickListener(preference -> {
+			Context context = getContext();
+			Toast.makeText(context,
+					DatabaseExporter.exportDatabase(context),
+					Toast.LENGTH_LONG).show();
+			return true;
 		});
 	}
 }

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
 import android.text.InputFilter;
-import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,12 +80,7 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 				R.id.texture_parameters);
 		progressView = view.findViewById(R.id.progress_view);
 
-		view.findViewById(R.id.save).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				saveSamplerAsync();
-			}
-		});
+		view.findViewById(R.id.save).setOnClickListener(v -> saveSamplerAsync());
 
 		if (activity.getCallingActivity() == null) {
 			addUniformView.setVisibility(View.GONE);
@@ -135,20 +129,9 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 
 	private void initNameView() {
 		nameView.setFilters(new InputFilter[]{
-				new InputFilter() {
-					@Override
-					public CharSequence filter(
-							CharSequence source,
-							int start,
-							int end,
-							Spanned dest,
-							int dstart,
-							int dend) {
-						return NAME_PATTERN
-								.matcher(source)
-								.find() ? null : "";
-					}
-				}});
+				(source, start, end, dest, dstart, dend) -> NAME_PATTERN
+						.matcher(source)
+						.find() ? null : ""});
 	}
 
 	// this AsyncTask is running for a short and finite time only

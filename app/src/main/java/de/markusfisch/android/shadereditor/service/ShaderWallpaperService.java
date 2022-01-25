@@ -129,12 +129,7 @@ public class ShaderWallpaperService extends WallpaperService {
 
 		private void setShader() {
 			if (!ShaderEditorApp.db.isOpen()) {
-				handler.postDelayed(new Runnable() {
-					@Override
-					public void run() {
-						setShader();
-					}
-				}, 100);
+				handler.postDelayed(this::setShader, 100);
 
 				return;
 			}

@@ -4,9 +4,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
-import android.support.v4.view.OnApplyWindowInsetsListener;
 import android.support.v4.view.ViewCompat;
-import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.View;
@@ -78,22 +76,18 @@ public class SystemBarMetrics {
 
 	private static void setWindowInsets(final View mainLayout,
 			final Rect windowInsets) {
-		ViewCompat.setOnApplyWindowInsetsListener(mainLayout, new OnApplyWindowInsetsListener() {
-			@Override
-			public WindowInsetsCompat onApplyWindowInsets(View v,
-					WindowInsetsCompat insets) {
-				if (insets.hasSystemWindowInsets()) {
-					int left = insets.getSystemWindowInsetLeft();
-					int top = insets.getSystemWindowInsetTop();
-					int right = insets.getSystemWindowInsetRight();
-					int bottom = insets.getSystemWindowInsetBottom();
-					mainLayout.setPadding(left, top, right, bottom);
-					if (windowInsets != null) {
-						windowInsets.set(left, top, right, bottom);
-					}
+		ViewCompat.setOnApplyWindowInsetsListener(mainLayout, (v, insets) -> {
+			if (insets.hasSystemWindowInsets()) {
+				int left = insets.getSystemWindowInsetLeft();
+				int top = insets.getSystemWindowInsetTop();
+				int right = insets.getSystemWindowInsetRight();
+				int bottom = insets.getSystemWindowInsetBottom();
+				mainLayout.setPadding(left, top, right, bottom);
+				if (windowInsets != null) {
+					windowInsets.set(left, top, right, bottom);
 				}
-				return insets.consumeSystemWindowInsets();
 			}
+			return insets.consumeSystemWindowInsets();
 		});
 	}
 }

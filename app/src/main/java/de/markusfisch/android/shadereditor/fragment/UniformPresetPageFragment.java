@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import de.markusfisch.android.shadereditor.R;
@@ -39,16 +38,9 @@ public class UniformPresetPageFragment extends Fragment {
 		uniformsAdapter = new PresetUniformAdapter(context);
 
 		listView.setAdapter(uniformsAdapter);
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(
-					AdapterView<?> parent,
-					View view,
-					int position,
-					long id) {
-				if (view.isEnabled()) {
-					addUniform(uniformsAdapter.getItem(position));
-				}
+		listView.setOnItemClickListener((parent, view, position, id) -> {
+			if (view.isEnabled()) {
+				addUniform(uniformsAdapter.getItem(position));
 			}
 		});
 	}

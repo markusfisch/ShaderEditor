@@ -3,7 +3,6 @@ package de.markusfisch.android.shadereditor.fragment;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -89,12 +88,8 @@ public class TextureViewFragment extends Fragment {
 				R.layout.fragment_view_texture,
 				container,
 				false);
-		view.findViewById(R.id.insert_code).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				insertUniformSamplerStatement();
-			}
-		});
+		view.findViewById(R.id.insert_code).setOnClickListener(
+				v -> insertUniformSamplerStatement());
 
 		return view;
 	}
@@ -124,14 +119,7 @@ public class TextureViewFragment extends Fragment {
 				.setMessage(R.string.sure_remove_texture)
 				.setPositiveButton(
 						android.R.string.ok,
-						new DialogInterface.OnClickListener() {
-							@Override
-							public void onClick(
-									DialogInterface dialog,
-									int whichButton) {
-								removeTextureAsync(id);
-							}
-						})
+						(dialog, whichButton) -> removeTextureAsync(id))
 				.setNegativeButton(android.R.string.cancel, null)
 				.show();
 	}

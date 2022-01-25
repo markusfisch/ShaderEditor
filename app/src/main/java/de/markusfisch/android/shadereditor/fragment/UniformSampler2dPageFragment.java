@@ -11,7 +11,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import de.markusfisch.android.shadereditor.R;
@@ -162,15 +161,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 
 	private void initListView(View view) {
 		listView.setEmptyView(view.findViewById(R.id.no_textures));
-		listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-			@Override
-			public void onItemClick(
-					AdapterView<?> parent,
-					View view,
-					int position,
-					long id) {
-				showTexture(id);
-			}
-		});
+		listView.setOnItemClickListener(
+				(parent, view1, position, id) -> showTexture(id));
 	}
 }

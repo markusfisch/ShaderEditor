@@ -141,12 +141,9 @@ public class CameraListener {
 
 		surfaceTexture = new SurfaceTexture(cameraTextureId);
 		surfaceTexture.setOnFrameAvailableListener(
-				new SurfaceTexture.OnFrameAvailableListener() {
-					@Override
-					public void onFrameAvailable(SurfaceTexture st) {
-						synchronized (CameraListener.this) {
-							available = true;
-						}
+				st -> {
+					synchronized (CameraListener.this) {
+						available = true;
 					}
 				});
 
