@@ -122,52 +122,52 @@ public class MainActivity
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.insert_tab:
-				insertTab();
-				return true;
-			case R.id.run_code:
-				runShader();
-				return true;
-			case R.id.undo:
-				editorFragment.undo();
-				return true;
-			case R.id.redo:
-				editorFragment.redo();
-				return true;
-			case R.id.save_shader:
-				saveShader(selectedShaderId);
-				return true;
-			case R.id.toggle_code:
-				toggleCode();
-				return true;
-			case R.id.add_shader:
-				addShader();
-				return true;
-			case R.id.duplicate_shader:
-				duplicateSelectedShader();
-				return true;
-			case R.id.delete_shader:
-				deleteShader(selectedShaderId);
-				return true;
-			case R.id.share_shader:
-				shareShader();
-				return true;
-			case R.id.update_wallpaper:
-				updateWallpaper(selectedShaderId);
-				return true;
-			case R.id.add_uniform:
-				addUniform();
-				return true;
-			case R.id.load_sample:
-				loadSample();
-				return true;
-			case R.id.faq:
-				showFaq();
-				return true;
-			case R.id.settings:
-				showSettings();
-				return true;
+		int itemId = item.getItemId();
+		if (itemId == R.id.insert_tab) {
+			insertTab();
+			return true;
+		} else if (itemId == R.id.run_code) {
+			runShader();
+			return true;
+		} else if (itemId == R.id.undo) {
+			editorFragment.undo();
+			return true;
+		} else if (itemId == R.id.redo) {
+			editorFragment.redo();
+			return true;
+		} else if (itemId == R.id.save_shader) {
+			saveShader(selectedShaderId);
+			return true;
+		} else if (itemId == R.id.toggle_code) {
+			toggleCode();
+			return true;
+		} else if (itemId == R.id.add_shader) {
+			addShader();
+			return true;
+		} else if (itemId == R.id.duplicate_shader) {
+			duplicateSelectedShader();
+			return true;
+		} else if (itemId == R.id.delete_shader) {
+			deleteShader(selectedShaderId);
+			return true;
+		} else if (itemId == R.id.share_shader) {
+			shareShader();
+			return true;
+		} else if (itemId == R.id.update_wallpaper) {
+			updateWallpaper(selectedShaderId);
+			return true;
+		} else if (itemId == R.id.add_uniform) {
+			addUniform();
+			return true;
+		} else if (itemId == R.id.load_sample) {
+			loadSample();
+			return true;
+		} else if (itemId == R.id.faq) {
+			showFaq();
+			return true;
+		} else if (itemId == R.id.settings) {
+			showSettings();
+			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}

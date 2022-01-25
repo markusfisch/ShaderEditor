@@ -96,13 +96,11 @@ public class CropImageFragment extends Fragment {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.rotate_clockwise:
-				rotateClockwise();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == R.id.rotate_clockwise) {
+			rotateClockwise();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	// this AsyncTask is running for a short and finite time only

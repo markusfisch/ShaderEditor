@@ -106,13 +106,11 @@ public class TextureViewFragment extends Fragment {
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.remove_texture:
-				askToRemoveTexture(textureId);
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == R.id.remove_texture) {
+			askToRemoveTexture(textureId);
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	private void askToRemoveTexture(final long id) {
