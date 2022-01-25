@@ -139,12 +139,12 @@ public class PreferencesFragment
 			return getString(R.string.no_shader_selected);
 		}
 
-		String summary = cursor.getString(
-				cursor.getColumnIndex(Database.SHADERS_NAME));
+		String summary = Database.getString(
+				cursor, Database.SHADERS_NAME);
 
 		if (summary == null || summary.length() < 1) {
-			summary = cursor.getString(
-					cursor.getColumnIndex(Database.SHADERS_MODIFIED));
+			summary = Database.getString(
+					cursor, Database.SHADERS_MODIFIED);
 		}
 
 		cursor.close();

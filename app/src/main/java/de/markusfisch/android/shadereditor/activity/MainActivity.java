@@ -746,11 +746,9 @@ public class MainActivity
 			return;
 		}
 		selectShaderAndUpdate(ShaderEditorApp.db.insertShader(
-				cursor.getString(cursor.getColumnIndex(
-						Database.SHADERS_FRAGMENT_SHADER)),
+				Database.getString(cursor, Database.SHADERS_FRAGMENT_SHADER),
 				ShaderEditorApp.db.getThumbnail(id),
-				cursor.getFloat(cursor.getColumnIndex(
-						Database.SHADERS_QUALITY))));
+				Database.getFloat(cursor, Database.SHADERS_QUALITY)));
 		cursor.close();
 	}
 
@@ -964,8 +962,8 @@ public class MainActivity
 
 		setToolbarTitle(cursor);
 
-		String fragmentShader = cursor.getString(
-				cursor.getColumnIndex(Database.SHADERS_FRAGMENT_SHADER));
+		String fragmentShader = Database.getString(
+				cursor, Database.SHADERS_FRAGMENT_SHADER);
 
 		if (editorFragment != null) {
 			// runs setFragmentShader() in onTextChanged()
@@ -1001,8 +999,8 @@ public class MainActivity
 	}
 
 	private void setQualitySpinner(Cursor cursor) {
-		setQualitySpinner(cursor.getFloat(cursor.getColumnIndex(
-				Database.SHADERS_QUALITY)));
+		setQualitySpinner(Database.getFloat(cursor,
+				Database.SHADERS_QUALITY));
 	}
 
 	private void setQualitySpinner(float q) {

@@ -80,20 +80,19 @@ public class ImportExportAsFiles {
 			int failCount = 0;
 
 			do {
-				long shaderId = shadersCursor.getLong(shadersCursor.getColumnIndex(
-						Database.SHADERS_ID));
+				long shaderId = Database.getLong(shadersCursor, Database.SHADERS_ID);
 				Cursor shaderCursor = ShaderEditorApp.db.getShader(shaderId);
 				if (Database.closeIfEmpty(shaderCursor)) {
 					continue;
 				}
-				String shaderName = shaderCursor.getString(shaderCursor.getColumnIndex(
-						Database.SHADERS_NAME));
+				String shaderName = Database.getString(shaderCursor,
+						Database.SHADERS_NAME);
 				if (shaderName == null) {
-					shaderName = shaderCursor.getString(shaderCursor.getColumnIndex(
-							Database.SHADERS_MODIFIED));
+					shaderName = Database.getString(shaderCursor,
+							Database.SHADERS_MODIFIED);
 				}
-				String fragmentShader = shaderCursor.getString(shaderCursor.getColumnIndex(
-						Database.SHADERS_FRAGMENT_SHADER));
+				String fragmentShader = Database.getString(shaderCursor,
+						Database.SHADERS_FRAGMENT_SHADER);
 				shaderCursor.close();
 
 				try {

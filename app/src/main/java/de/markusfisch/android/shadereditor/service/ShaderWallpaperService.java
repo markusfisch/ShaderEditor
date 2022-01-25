@@ -159,16 +159,13 @@ public class ShaderWallpaperService extends WallpaperService {
 
 			if (randomShader) {
 				ShaderEditorApp.preferences.setWallpaperShader(
-						cursor.getLong(cursor.getColumnIndex(
-								Database.SHADERS_ID)));
+						Database.getLong(cursor, Database.SHADERS_ID));
 			}
 
 			if (view != null) {
 				view.getRenderer().setFragmentShader(
-						cursor.getString(cursor.getColumnIndex(
-								Database.SHADERS_FRAGMENT_SHADER)),
-						cursor.getFloat(cursor.getColumnIndex(
-								Database.SHADERS_QUALITY)));
+						Database.getString(cursor, Database.SHADERS_FRAGMENT_SHADER),
+						Database.getFloat(cursor, Database.SHADERS_QUALITY));
 			}
 
 			cursor.close();

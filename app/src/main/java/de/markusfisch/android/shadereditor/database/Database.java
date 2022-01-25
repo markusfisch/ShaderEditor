@@ -87,6 +87,38 @@ public class Database {
 		return db != null;
 	}
 
+	public static long getLong(Cursor cursor, String column) {
+		int index = cursor.getColumnIndex(column);
+		if (index < 0) {
+			return 0L;
+		}
+		return cursor.getLong(index);
+	}
+
+	public static float getFloat(Cursor cursor, String column) {
+		int index = cursor.getColumnIndex(column);
+		if (index < 0) {
+			return 0f;
+		}
+		return cursor.getFloat(index);
+	}
+
+	public static String getString(Cursor cursor, String column) {
+		int index = cursor.getColumnIndex(column);
+		if (index < 0) {
+			return "";
+		}
+		return cursor.getString(index);
+	}
+
+	public static byte[] getBlob(Cursor cursor, String column) {
+		int index = cursor.getColumnIndex(column);
+		if (index < 0) {
+			return null;
+		}
+		return cursor.getBlob(index);
+	}
+
 	public static boolean closeIfEmpty(Cursor cursor) {
 		if (cursor != null && cursor.moveToFirst()) {
 			return false;
@@ -191,9 +223,7 @@ public class Database {
 			return null;
 		}
 
-		byte[] thumbnail = cursor.getBlob(
-				cursor.getColumnIndex(SHADERS_THUMB));
-
+		byte[] thumbnail = getBlob(cursor, SHADERS_THUMB);
 		cursor.close();
 
 		return thumbnail;
@@ -212,7 +242,7 @@ public class Database {
 			return 0;
 		}
 
-		long id = cursor.getLong(cursor.getColumnIndex(SHADERS_ID));
+		long id = getLong(cursor, SHADERS_ID);
 		cursor.close();
 
 		return id;
@@ -428,8 +458,7 @@ public class Database {
 	}
 
 	private static Bitmap textureFromCursor(Cursor cursor) {
-		byte[] data = cursor.getBlob(cursor.getColumnIndex(
-				TEXTURES_MATRIX));
+		byte[] data = getBlob(cursor, TEXTURES_MATRIX);
 		return BitmapFactory.decodeByteArray(data, 0, data.length);
 	}
 
@@ -556,8 +585,8 @@ public class Database {
 					TEXTURES_WIDTH + " = " + width + ", " +
 					TEXTURES_HEIGHT + " = " + height + ", " +
 					TEXTURES_RATIO + " = " + ratio +
-					" WHERE " + TEXTURES_ID + " = " + cursor.getLong(
-					cursor.getColumnIndex(TEXTURES_ID)) + ";");
+					" WHERE " + TEXTURES_ID + " = " +
+					getLong(cursor, TEXTURES_ID) + ";");
 
 		} while (cursor.moveToNext());
 

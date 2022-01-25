@@ -72,8 +72,8 @@ public class TextureViewFragment extends Fragment {
 		imageView.setVisibility(View.VISIBLE);
 
 		try {
-			textureName = cursor.getString(cursor.getColumnIndex(
-					Database.TEXTURES_NAME));
+			textureName = Database.getString(cursor,
+					Database.TEXTURES_NAME);
 			imageView.setImageBitmap(
 					ShaderEditorApp.db.getTextureBitmap(cursor));
 		} catch (IllegalStateException e) {
