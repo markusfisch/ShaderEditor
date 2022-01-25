@@ -619,13 +619,12 @@ public class Database {
 		if (cursor == null) {
 			return false;
 		}
-		int idIndex = cursor.getColumnIndex(SHADERS_ID);
-		int shaderIndex =  cursor.getColumnIndex(SHADERS_FRAGMENT_SHADER);
-		int thumbIndex =  cursor.getColumnIndex(SHADERS_THUMB);
-		int nameIndex =  cursor.getColumnIndex(SHADERS_NAME);
-		int createdIndex =  cursor.getColumnIndex(SHADERS_CREATED);
-		int modifiedIndex =  cursor.getColumnIndex(SHADERS_MODIFIED);
-		int qualityIndex =  cursor.getColumnIndex(SHADERS_QUALITY);
+		int shaderIndex = cursor.getColumnIndex(SHADERS_FRAGMENT_SHADER);
+		int thumbIndex = cursor.getColumnIndex(SHADERS_THUMB);
+		int nameIndex = cursor.getColumnIndex(SHADERS_NAME);
+		int createdIndex = cursor.getColumnIndex(SHADERS_CREATED);
+		int modifiedIndex = cursor.getColumnIndex(SHADERS_MODIFIED);
+		int qualityIndex = cursor.getColumnIndex(SHADERS_QUALITY);
 		boolean success = true;
 		if (cursor.moveToFirst()) {
 			do {
@@ -636,12 +635,12 @@ public class Database {
 					continue;
 				}
 				long shaderId = insertShader(dst,
-					cursor.getString(shaderIndex),
-					cursor.getString(nameIndex),
-					createdDate,
-					modifiedDate,
-					cursor.getBlob(thumbIndex),
-					cursor.getFloat(qualityIndex));
+						cursor.getString(shaderIndex),
+						cursor.getString(nameIndex),
+						createdDate,
+						modifiedDate,
+						cursor.getBlob(thumbIndex),
+						cursor.getFloat(qualityIndex));
 				if (shaderId < 1) {
 					success = false;
 					break;
@@ -681,7 +680,6 @@ public class Database {
 		if (cursor == null) {
 			return false;
 		}
-		int idIndex = cursor.getColumnIndex(TEXTURES_ID);
 		int nameIndex = cursor.getColumnIndex(TEXTURES_NAME);
 		int widthIndex = cursor.getColumnIndex(TEXTURES_WIDTH);
 		int heightIndex = cursor.getColumnIndex(TEXTURES_HEIGHT);
@@ -696,12 +694,12 @@ public class Database {
 					continue;
 				}
 				long textureId = insertTexture(dst,
-					name,
-					cursor.getInt(widthIndex),
-					cursor.getInt(heightIndex),
-					cursor.getFloat(ratioIndex),
-					cursor.getBlob(thumbIndex),
-					cursor.getBlob(matrixIndex));
+						name,
+						cursor.getInt(widthIndex),
+						cursor.getInt(heightIndex),
+						cursor.getFloat(ratioIndex),
+						cursor.getBlob(thumbIndex),
+						cursor.getBlob(matrixIndex));
 				if (textureId < 1) {
 					success = false;
 					break;
