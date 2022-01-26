@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -825,11 +826,7 @@ public class MainActivity
 		intent.setClassName(
 				"com.android.wallpaper.livepicker",
 				"com.android.wallpaper.livepicker.LiveWallpaperActivity");
-		if (intent.resolveActivity(getPackageManager()) != null) {
-			startActivity(intent);
-			return true;
-		}
-		return false;
+		return startActivity(this, intent);
 	}
 
 	private void addUniform() {
@@ -847,9 +844,7 @@ public class MainActivity
 	private void showFaq() {
 		Uri uri = Uri.parse("https://github.com/markusfisch/ShaderEditor/blob/master/FAQ.md");
 		Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-		try {
-			startActivity(intent);
-		} catch (ActivityNotFoundException e) {
+		if (!startActivity(this, intent)) {
 			Toast.makeText(
 					this,
 					R.string.cannot_open_content,
@@ -1005,6 +1000,23 @@ public class MainActivity
 			startActivity(intent);
 		} else {
 			startActivityForResult(intent, PREVIEW_SHADER);
+		}
+	}
+
+	private static boolean startActivity(Context context, Intent intent) {
+		try {
+			// Avoid using `intent.resolveActivity()` at API level 30+ due
+			// to the new package visibility restrictions. In order for
+			// `resolveActivity()` to "see" another package, we would need
+			// to list that package/intent in a `<queries>` block in the
+			// Manifest. But since we used `resolveActivity()` only to avoid
+			// an exception if the Intent cannot be resolved, it's much easier
+			// and more robust to just try and catch that exception if
+			// necessary.
+			context.startActivity(intent);
+			return true;
+		} catch (ActivityNotFoundException e) {
+			return false;
 		}
 	}
 }
