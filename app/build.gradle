@@ -2,7 +2,6 @@ apply plugin: 'com.android.application'
 
 android {
 	compileSdkVersion sdk_version
-	buildToolsVersion build_tools_version
 
 	defaultConfig {
 		minSdkVersion 9
