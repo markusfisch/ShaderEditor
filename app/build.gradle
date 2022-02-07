@@ -12,7 +12,7 @@ android {
 	}
 
 	signingConfigs {
-		config {
+		release {
 			keyAlias System.getenv('ANDROID_KEY_ALIAS')
 			keyPassword System.getenv('ANDROID_KEY_PASSWORD')
 			storePassword System.getenv('ANDROID_STORE_PASSWORD')
@@ -29,7 +29,7 @@ android {
 		release {
 			minifyEnabled true
 			shrinkResources true
-			signingConfig signingConfigs.config
+			signingConfig signingConfigs.release
 		}
 	}
 }
