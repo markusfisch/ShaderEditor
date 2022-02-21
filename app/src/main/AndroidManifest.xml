@@ -81,22 +81,11 @@
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW"/>
 				<category android:name="android.intent.category.DEFAULT"/>
-				<!-- ignore AppLinkUrlError because this filter
-					doesn't work with `host="*"` -->
-				<data
-					tools:ignore="AppLinkUrlError"
-					android:scheme="content"
-					android:mimeType="text/plain"
-					android:pathPattern=".*\\.glsl"/>
-				<data
-					tools:ignore="AppLinkUrlError"
-					android:scheme="content"
-					android:mimeType="application/octet-stream"
-					android:pathPattern=".*\\.glsl"/>
-				<data
-					tools:ignore="AppLinkUrlError"
-					android:scheme="content"
-					android:mimeType="application/glsl"/>
+				<data android:scheme="content"/>
+				<data android:mimeType="text/plain"/>
+				<data android:mimeType="application/octet-stream"/>
+				<data android:mimeType="application/glsl"/>
+				<data android:pathPattern=".*\\.glsl"/>
 			</intent-filter>
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW"/>
