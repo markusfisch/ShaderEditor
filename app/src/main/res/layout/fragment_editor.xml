@@ -9,12 +9,15 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:background="@color/background_editor">
+	<!-- Hardcode gravity to left because GLSL source code is always
+		aligned to the left. -->
 	<de.markusfisch.android.shadereditor.widget.ShaderEditor
+		tools:ignore="RtlHardcoded"
 		android:id="@+id/editor"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:padding="8dp"
-		android:gravity="start|top"
+		android:gravity="left|top"
 		android:typeface="monospace"
 		android:textSize="12sp"
 		android:textColor="@color/editor_text"
