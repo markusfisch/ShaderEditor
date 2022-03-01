@@ -532,7 +532,7 @@ public class ShaderEditor extends AppCompatEditText {
 	}
 
 	private static class TabWidthSpan extends ReplacementSpan {
-		private int width;
+		private final int width;
 
 		private TabWidthSpan(int width) {
 			this.width = width;
