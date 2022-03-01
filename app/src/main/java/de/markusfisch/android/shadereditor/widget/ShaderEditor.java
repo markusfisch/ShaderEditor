@@ -61,6 +61,10 @@ public class ShaderEditor extends AppCompatEditText {
 			Pattern.MULTILINE);
 	private static final Pattern PATTERN_ENDIF = Pattern.compile(
 			"(#endif)\\b");
+	private static final Pattern PATTERN_SHADER_TOY = Pattern.compile(
+			".*void\\s+mainImage\\s*\\(.*");
+	private static final Pattern PATTERN_MAIN = Pattern.compile(
+			".*void\\s+main\\s*\\(.*");
 
 	private final Handler updateHandler = new Handler();
 	private final Runnable updateRunnable = new Runnable() {
@@ -286,6 +290,11 @@ public class ShaderEditor extends AppCompatEditText {
 			public void afterTextChanged(Editable e) {
 				cancelUpdate();
 				convertTabs(e, start, count);
+
+				String converted = convertShaderToySource(e.toString());
+				if (converted != null) {
+					setTextHighlighted(converted);
+				}
 
 				if (!modified) {
 					return;
@@ -529,6 +538,32 @@ public class ShaderEditor extends AppCompatEditText {
 					start + 1,
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
+	}
+
+	private static String convertShaderToySource(String src) {
+		if (!PATTERN_SHADER_TOY.matcher(src).find() ||
+				PATTERN_MAIN.matcher(src).find()) {
+			return null;
+		}
+		// Only include and translate uniforms that have an equivalent.
+		return "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
+				"precision highp float;\n" +
+				"#else\n" +
+				"precision mediump float;\n" +
+				"#endif\n\n" +
+				"uniform vec2 resolution;\n" +
+				"uniform float time;\n" +
+				"uniform vec4 mouse;\n" +
+				"uniform vec4 date;\n\n" +
+				src.replaceAll("iResolution", "resolution")
+						.replaceAll("iGlobalTime", "time")
+						.replaceAll("iMouse", "mouse")
+						.replaceAll("iDate", "date") +
+				"\n\nvoid main() {\n" +
+				"\tvec4 fragment_color;\n" +
+				"\tmainImage(fragment_color, gl_FragCoord.xy);\n" +
+				"\tgl_FragColor = fragment_color;\n" +
+				"}\n";
 	}
 
 	private static class TabWidthSpan extends ReplacementSpan {
