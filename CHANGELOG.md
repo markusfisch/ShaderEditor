@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.23.3
+* Hard-code text orientation of the source editor to left
+* Automatically convert ShaderToy sources
+* Add a monochome launcher icon for Android 13
+
 ## 2.23.2
 * Fix opening FAQs in browser
 * Remove unnecessary WRITE permissions for Android Q+
