@@ -36,7 +36,7 @@
 		android:allowBackup="true"
 		android:fullBackupContent="@xml/backup_rules"
 		android:dataExtractionRules="@xml/extraction_rules"
-		android:supportsRtl="true"
+		android:supportsRtl="false"
 		android:resizeableActivity="true"
 		android:label="@string/app_name"
 		android:icon="@mipmap/ic_launcher"
