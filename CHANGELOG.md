@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.23.4
+* Fix support for RTL layouts
+
 ## 2.23.3
 * Hard-code text orientation of the source editor to left
 * Automatically convert ShaderToy sources

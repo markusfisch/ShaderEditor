@@ -1,0 +1,4 @@
+* Hard-code text orientation of the source editor to left
+* Automatically convert ShaderToy sources
+* Add a monochome launcher icon for Android 13
+

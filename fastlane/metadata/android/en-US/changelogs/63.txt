@@ -1,0 +1,2 @@
+* Fix support for RTL layouts
+
