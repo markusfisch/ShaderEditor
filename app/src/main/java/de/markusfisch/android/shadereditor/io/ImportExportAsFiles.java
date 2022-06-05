@@ -119,7 +119,7 @@ public class ImportExportAsFiles {
 				Toast.makeText(context, str, Toast.LENGTH_LONG).show();
 			}
 		} catch (IOException e) {
-			Toast.makeText(context, context.getString(R.string.export_failed,
+			Toast.makeText(context, context.getString(R.string.n_shaders_export_failed,
 					e.getMessage()), Toast.LENGTH_LONG).show();
 		}
 	}

@@ -46,7 +46,7 @@ public class Database {
 	private SQLiteDatabase db;
 	private int textureThumbnailSize;
 
-	public boolean importDatabase(Context context, String fileName) {
+	public String importDatabase(Context context, String fileName) {
 		SQLiteDatabase edb = null;
 		try {
 			edb = new ImportHelper(new ExternalDatabaseContext(context),
@@ -54,12 +54,12 @@ public class Database {
 			db.beginTransaction();
 			if (importShaders(db, edb) && importTextures(db, edb)) {
 				db.setTransactionSuccessful();
-				return true;
+				return null;
 			} else {
-				return false;
+				return context.getString(R.string.import_failed, "");
 			}
 		} catch (SQLException e) {
-			return false;
+			return e.getMessage();
 		} finally {
 			if (db.inTransaction()) {
 				db.endTransaction();

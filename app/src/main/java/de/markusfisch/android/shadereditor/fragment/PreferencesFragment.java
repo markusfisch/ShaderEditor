@@ -45,9 +45,8 @@ public class PreferencesFragment
 				resultCode == Activity.RESULT_OK && resultData != null) {
 			Context context = getContext();
 			Toast.makeText(context,
-					DatabaseImporter.importDatabase(context, resultData.getData()) ?
-							R.string.successfully_imported :
-							R.string.import_failed,
+					DatabaseImporter.importDatabase(context,
+							resultData.getData()),
 					Toast.LENGTH_LONG).show();
 		}
 	}
@@ -216,8 +215,10 @@ public class PreferencesFragment
 	}
 
 	private void wireImportExport() {
-		Preference importFromDirectory = findPreference(Preferences.IMPORT_FROM_DIRECTORY);
-		Preference exportToDirectory = findPreference(Preferences.EXPORT_TO_DIRECTORY);
+		Preference importFromDirectory = findPreference(
+				Preferences.IMPORT_FROM_DIRECTORY);
+		Preference exportToDirectory = findPreference(
+				Preferences.EXPORT_TO_DIRECTORY);
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
 			importFromDirectory.setOnPreferenceClickListener(preference -> {
 				if (checkExternalStoragePermission(

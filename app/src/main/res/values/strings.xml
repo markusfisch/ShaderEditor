@@ -220,7 +220,7 @@
 		<item quantity="one">%1$d shader successfully exported, %2$d failed</item>
 		<item quantity="other">%1$d shaders successfully exported, %2$d failed</item>
 	</plurals>
-	<string name="export_failed">Export failed: %1$s</string>
+	<string name="n_shaders_export_failed">Export failed: %1$s</string>
 	<plurals name="n_shaders_successfully_imported">
 		<item quantity="one">%1$d shader successfully imported</item>
 		<item quantity="other">%1$d shaders successfully imported</item>
