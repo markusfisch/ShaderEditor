@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.23.5
+* Skip too large textures when importing
+* Fix showing SQL exceptions when importing a database
+
 ## 2.23.4
 * Fix support for RTL layouts
 
