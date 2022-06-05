@@ -3,13 +3,16 @@ package de.markusfisch.android.shadereditor.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.database.AbstractWindowedCursor;
 import android.database.Cursor;
+import android.database.CursorWindow;
 import android.database.DatabaseErrorHandler;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
@@ -673,10 +676,45 @@ public class Database {
 			SQLiteDatabase dst,
 			SQLiteDatabase src) {
 		Cursor cursor = src.rawQuery(
-				"SELECT *" +
+				"SELECT " +
+						TEXTURES_ID + ", " +
+						TEXTURES_NAME +
 						" FROM " + TEXTURES +
 						" ORDER BY " + TEXTURES_ID,
 				null);
+		if (cursor == null) {
+			return false;
+		}
+		int idIndex = cursor.getColumnIndex(TEXTURES_ID);
+		int nameIndex = cursor.getColumnIndex(TEXTURES_NAME);
+		boolean success = true;
+		if (cursor.moveToFirst()) {
+			do {
+				String name = cursor.getString(nameIndex);
+				if (name == null || textureExists(dst, name)) {
+					continue;
+				}
+				// Transfer textures one at a time because all of them
+				// may be too big for one cursor window.
+				if (!importTexture(dst, src, cursor.getLong(idIndex))) {
+					success = false;
+					break;
+				}
+			} while (cursor.moveToNext());
+		}
+		cursor.close();
+		return success;
+	}
+
+	private static boolean importTexture(
+			SQLiteDatabase dst,
+			SQLiteDatabase src,
+			long srcId) {
+		Cursor cursor = src.rawQuery(
+				"SELECT * " +
+						" FROM " + TEXTURES +
+						" WHERE " + TEXTURES_ID + " = ?",
+				new String[]{String.valueOf(srcId)});
 		if (cursor == null) {
 			return false;
 		}
@@ -687,14 +725,10 @@ public class Database {
 		int thumbIndex = cursor.getColumnIndex(TEXTURES_THUMB);
 		int matrixIndex = cursor.getColumnIndex(TEXTURES_MATRIX);
 		boolean success = true;
-		if (cursor.moveToFirst()) {
+		if (moveToFirstAndCatchOutOfMemory(cursor)) {
 			do {
-				String name = cursor.getString(nameIndex);
-				if (name == null || textureExists(dst, name)) {
-					continue;
-				}
 				long textureId = insertTexture(dst,
-						name,
+						cursor.getString(nameIndex),
 						cursor.getInt(widthIndex),
 						cursor.getInt(heightIndex),
 						cursor.getFloat(ratioIndex),
@@ -708,6 +742,16 @@ public class Database {
 		}
 		cursor.close();
 		return success;
+	}
+
+	private static boolean moveToFirstAndCatchOutOfMemory(Cursor cursor) {
+		try {
+			return cursor.moveToFirst();
+		} catch (SQLException e) {
+			// Catch Row too big exceptions when the BLOB larger than
+			// the Cursor Window.
+			return false;
+		}
 	}
 
 	private static boolean textureExists(SQLiteDatabase db, String name) {
