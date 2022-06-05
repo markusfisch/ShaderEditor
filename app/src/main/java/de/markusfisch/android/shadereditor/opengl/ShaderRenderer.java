@@ -87,6 +87,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_SUB_SECOND = "subsecond";
 	public static final String UNIFORM_TIME = "time";
 	public static final String UNIFORM_TOUCH = "touch";
+	public static final String UNIFORM_TOUCH_START = "touchStart";
 
 	private static final int[] TEXTURE_UNITS = {
 			GLES20.GL_TEXTURE0,
@@ -203,6 +204,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private final float[] surfaceResolution = new float[]{0, 0};
 	private final float[] resolution = new float[]{0, 0};
 	private final float[] touch = new float[]{0, 0};
+	private final float[] touchStart = new float[]{0, 0};
 	private final float[] mouse = new float[]{0, 0};
 	private final float[] pointers = new float[30];
 	private final float[] offset = new float[]{0, 0};
@@ -241,6 +243,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int fTimeLoc;
 	private int resolutionLoc;
 	private int touchLoc;
+	private int touchStartLoc;
 	private int mouseLoc;
 	private int pointerCountLoc;
 	private int pointersLoc;
@@ -424,6 +427,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 		if (touchLoc > -1) {
 			GLES20.glUniform2fv(touchLoc, 1, touch, 0);
+		}
+		if (touchStartLoc > -1) {
+			GLES20.glUniform2fv(touchStartLoc, 1, touchStart, 0);
 		}
 		if (mouseLoc > -1) {
 			GLES20.glUniform2fv(mouseLoc, 1, mouse, 0);
@@ -636,6 +642,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		mouse[1] = 1 - y / resolution[1];
 
 		switch (e.getActionMasked()) {
+			case MotionEvent.ACTION_DOWN:
+				touchStart[0] = touch[0];
+				touchStart[1] = touch[1];
+				break;
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
 				pointerCount = 0;
@@ -730,6 +740,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, UNIFORM_RESOLUTION);
 		touchLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_TOUCH);
+		touchStartLoc = GLES20.glGetUniformLocation(
+				program, UNIFORM_TOUCH_START);
 		mouseLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_MOUSE);
 		pointerCountLoc = GLES20.glGetUniformLocation(

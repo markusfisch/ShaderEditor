@@ -184,6 +184,10 @@ public class PresetUniformAdapter extends BaseAdapter {
 						"vec2",
 						ShaderRenderer.UNIFORM_TOUCH,
 						context.getString(R.string.touch_position_in_pixels)),
+				new Uniform(
+						"vec2",
+						ShaderRenderer.UNIFORM_TOUCH_START,
+						context.getString(R.string.touch_start_position_in_pixels)),
 		};
 	}
 
