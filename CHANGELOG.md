@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.24.0
+* Add touchStart uniform
+
 ## 2.23.5
 * Skip too large textures when importing
 * Fix showing SQL exceptions when importing a database
