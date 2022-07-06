@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.25.0
+* Add nightMode uniform
+
 ## 2.24.0
 * Add touchStart uniform
 
