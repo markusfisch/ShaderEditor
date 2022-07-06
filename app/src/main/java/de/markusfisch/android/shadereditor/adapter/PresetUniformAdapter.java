@@ -125,6 +125,10 @@ public class PresetUniformAdapter extends BaseAdapter {
 						ShaderRenderer.UNIFORM_MAGNETIC,
 						context.getString(R.string.magnetic_field)),
 				new Uniform(
+						"int",
+						ShaderRenderer.UNIFORM_NIGHT_MODE,
+						context.getString(R.string.night_mode)),
+				new Uniform(
 						"vec2",
 						ShaderRenderer.UNIFORM_OFFSET,
 						context.getString(R.string.wallpaper_offset)),

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
@@ -69,6 +70,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_LINEAR = "linear";
 	public static final String UNIFORM_MAGNETIC = "magnetic";
 	public static final String UNIFORM_MOUSE = "mouse";
+	public static final String UNIFORM_NIGHT_MODE = "nightMode";
 	public static final String UNIFORM_OFFSET = "offset";
 	public static final String UNIFORM_ORIENTATION = "orientation";
 	public static final String UNIFORM_INCLINATION = "inclination";
@@ -245,6 +247,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int touchLoc;
 	private int touchStartLoc;
 	private int mouseLoc;
+	private int nightModeLoc;
 	private int pointerCountLoc;
 	private int pointersLoc;
 	private int powerConnectedLoc;
@@ -268,6 +271,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int backBufferLoc;
 	private int cameraOrientationLoc;
 	private int cameraAddentLoc;
+	private int nightMode;
 	private int numberOfTextures;
 	private int pointerCount;
 	private int frontTarget;
@@ -433,6 +437,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 		if (mouseLoc > -1) {
 			GLES20.glUniform2fv(mouseLoc, 1, mouse, 0);
+		}
+		if (nightModeLoc > -1) {
+			GLES20.glUniform1i(nightModeLoc, nightMode);
 		}
 		if (pointerCountLoc > -1) {
 			GLES20.glUniform1i(pointerCountLoc, pointerCount);
@@ -744,6 +751,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, UNIFORM_TOUCH_START);
 		mouseLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_MOUSE);
+		nightModeLoc = GLES20.glGetUniformLocation(
+				program, UNIFORM_NIGHT_MODE);
 		pointerCountLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_POINTER_COUNT);
 		pointersLoc = GLES20.glGetUniformLocation(
@@ -851,6 +860,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			if (!magneticFieldListener.register()) {
 				magneticFieldListener = null;
 			}
+		}
+
+		if (nightModeLoc > -1) {
+			nightMode = (context.getResources().getConfiguration().uiMode &
+					Configuration.UI_MODE_NIGHT_MASK) ==
+							Configuration.UI_MODE_NIGHT_YES ? 1 : 0;
 		}
 
 		if (lightLoc > -1) {

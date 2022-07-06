@@ -110,6 +110,7 @@
 	<string name="device_rotation_vector">The rotation vector represents the orientation of the device as a combination of an angle and an axis, in which the device has rotated through an angle θ around an axis of x, y, z</string>
 	<string name="device_inclination_matrix">Rotation matrix transforming the geomagnetic vector into the same coordinate space as gravity</string>
 	<string name="magnetic_field">Geomagnetic field strength along the x, y and z axis in μT</string>
+	<string name="night_mode">Night mode, 1 if set, 0 if not</string>
 	<string name="light">Ambient light level in SI lux units</string>
 	<string name="pressure">Atmospheric pressure in hPa (millibar)</string>
 	<string name="proximity">Proximity sensor distance measured in centimeters</string>
