@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -88,6 +89,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_START_RANDOM = "startRandom";
 	public static final String UNIFORM_SUB_SECOND = "subsecond";
 	public static final String UNIFORM_TIME = "time";
+	public static final String UNIFORM_MEDIA_VOLUME = "mediaVolume";
 	public static final String UNIFORM_TOUCH = "touch";
 	public static final String UNIFORM_TOUCH_START = "touchStart";
 
@@ -271,6 +273,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int backBufferLoc;
 	private int cameraOrientationLoc;
 	private int cameraAddentLoc;
+	private int mediaVolumeLoc;
 	private int nightMode;
 	private int numberOfTextures;
 	private int pointerCount;
@@ -521,6 +524,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 		if (startRandomLoc > -1) {
 			GLES20.glUniform1f(startRandomLoc, startRandom);
+		}
+		if (mediaVolumeLoc > -1) {
+			GLES20.glUniform1f(mediaVolumeLoc, getMediaVolumeLevel(context));
 		}
 
 		if (fb[0] == 0) {
@@ -799,6 +805,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, UNIFORM_CAMERA_ORIENTATION);
 		cameraAddentLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_CAMERA_ADDENT);
+		mediaVolumeLoc = GLES20.glGetUniformLocation(
+				program, UNIFORM_MEDIA_VOLUME);
 
 		for (int i = numberOfTextures; i-- > 0; ) {
 			textureLocs[i] = GLES20.glGetUniformLocation(
@@ -1419,6 +1427,15 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			case Surface.ROTATION_270:
 				return 270;
 		}
+	}
+	private static float getMediaVolumeLevel(Context context) {
+		AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+		float maxVolume = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+		float currVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
+		if (maxVolume <= 0 || currVolume < 0) {
+			return 0;
+		}
+		return currVolume / maxVolume;
 	}
 
 	private static class TextureBinder {
