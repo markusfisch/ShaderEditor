@@ -125,6 +125,7 @@
 	<string name="date_time">Year, month, day and time in seconds</string>
 	<string name="daytime">Hour, minute and seconds</string>
 	<string name="start_random">Random value from 0.0 to 1.0, initialized at load</string>
+	<string name="media_volume_level">Media volume level from 0.0 to 1.0</string>
 
 	<!-- UniformSampler2dPageFragment -->
 	<string name="texture_preview">Texture preview</string>
