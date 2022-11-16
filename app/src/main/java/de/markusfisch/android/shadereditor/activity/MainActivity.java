@@ -648,6 +648,7 @@ public class MainActivity
 				// StandardCharsets.UTF_8 would require API level 19.
 				sb.append(new String(buffer, 0, len, "UTF-8"));
 			}
+			in.close();
 			return sb.toString();
 		} catch (IOException e) {
 			return null;
