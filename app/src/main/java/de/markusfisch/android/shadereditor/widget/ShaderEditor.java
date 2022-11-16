@@ -73,8 +73,7 @@ public class ShaderEditor extends AppCompatEditText {
 			Editable e = getText();
 
 			if (onTextChangedListener != null) {
-				onTextChangedListener.onTextChanged(
-						removeNonAscii(e.toString()));
+				onTextChangedListener.onTextChanged(e.toString());
 			}
 
 			highlightWithoutChange(e);
@@ -94,10 +93,6 @@ public class ShaderEditor extends AppCompatEditText {
 	private int tabWidthInCharacters = 0;
 	private int tabWidth = 0;
 
-	public static String removeNonAscii(String text) {
-		return text.replaceAll("[^\\x0A\\x09\\x20-\\x7E]", "");
-	}
-
 	public ShaderEditor(Context context) {
 		super(context);
 		init(context);
@@ -106,6 +101,18 @@ public class ShaderEditor extends AppCompatEditText {
 	public ShaderEditor(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
+	}
+
+	@Override
+	public boolean onTextContextMenuItem(int id) {
+		boolean consumed = super.onTextContextMenuItem(id);
+		if (id == android.R.id.paste) {
+			// When pasting text from other apps, e.g. Gmail, the
+			// text is sometimes tainted with useless non-ascii
+			// characters.
+			setText(removeNonAscii(getText().toString()));
+		}
+		return consumed;
 	}
 
 	public void setOnTextChangedListener(OnTextChangedListener listener) {
@@ -152,7 +159,7 @@ public class ShaderEditor extends AppCompatEditText {
 		dirty = false;
 
 		modified = false;
-		String src = removeNonAscii(text.toString());
+		String src = text.toString();
 		setText(highlight(new SpannableStringBuilder(src)));
 		modified = true;
 
@@ -538,6 +545,10 @@ public class ShaderEditor extends AppCompatEditText {
 					start + 1,
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
+	}
+
+	private static String removeNonAscii(String text) {
+		return text.replaceAll("[^\\x0A\\x09\\x20-\\x7E]", "");
 	}
 
 	private static String convertShaderToySource(String src) {
