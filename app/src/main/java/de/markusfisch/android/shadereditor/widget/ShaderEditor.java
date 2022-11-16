@@ -103,18 +103,6 @@ public class ShaderEditor extends AppCompatEditText {
 		init(context);
 	}
 
-	@Override
-	public boolean onTextContextMenuItem(int id) {
-		boolean consumed = super.onTextContextMenuItem(id);
-		if (id == android.R.id.paste) {
-			// When pasting text from other apps, e.g. Gmail, the
-			// text is sometimes tainted with useless non-ascii
-			// characters.
-			setText(removeNonAscii(getText().toString()));
-		}
-		return consumed;
-	}
-
 	public void setOnTextChangedListener(OnTextChangedListener listener) {
 		onTextChangedListener = listener;
 	}
@@ -545,10 +533,6 @@ public class ShaderEditor extends AppCompatEditText {
 					start + 1,
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
-	}
-
-	private static String removeNonAscii(String text) {
-		return text.replaceAll("[^\\x0A\\x09\\x20-\\x7E]", "");
 	}
 
 	private static String convertShaderToySource(String src) {
