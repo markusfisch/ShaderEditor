@@ -276,10 +276,9 @@ public class Database {
 	}
 
 	public Bitmap getTextureBitmap(Cursor cursor) {
-		if (closeIfEmpty(cursor)) {
-			return null;
-		}
-		return textureFromCursor(cursor);
+		return closeIfEmpty(cursor)
+				? null
+				: textureFromCursor(cursor);
 	}
 
 	public static long insertShader(
@@ -462,7 +461,9 @@ public class Database {
 
 	private static Bitmap textureFromCursor(Cursor cursor) {
 		byte[] data = getBlob(cursor, TEXTURES_MATRIX);
-		return BitmapFactory.decodeByteArray(data, 0, data.length);
+		return data == null
+				? null
+				: BitmapFactory.decodeByteArray(data, 0, data.length);
 	}
 
 	private static String loadRawResource(
