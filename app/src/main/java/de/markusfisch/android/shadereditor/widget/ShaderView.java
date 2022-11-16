@@ -73,7 +73,9 @@ public class ShaderView extends GLSurfaceView {
 	}
 
 	private static String removeNonAscii(String text) {
-		return text.replaceAll("[^\\x0A\\x09\\x20-\\x7E]", "");
+		return text == null
+				? null
+				: text.replaceAll("[^\\x0A\\x09\\x20-\\x7E]", "");
 	}
 
 	private static class ContextFactory
