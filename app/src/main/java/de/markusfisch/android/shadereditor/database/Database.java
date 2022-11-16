@@ -3,16 +3,13 @@ package de.markusfisch.android.shadereditor.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.database.AbstractWindowedCursor;
 import android.database.Cursor;
-import android.database.CursorWindow;
 import android.database.DatabaseErrorHandler;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;

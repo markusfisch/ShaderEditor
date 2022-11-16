@@ -873,7 +873,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		if (nightModeLoc > -1) {
 			nightMode = (context.getResources().getConfiguration().uiMode &
 					Configuration.UI_MODE_NIGHT_MASK) ==
-							Configuration.UI_MODE_NIGHT_YES ? 1 : 0;
+					Configuration.UI_MODE_NIGHT_YES ? 1 : 0;
 		}
 
 		if (lightLoc > -1) {
@@ -1428,6 +1428,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				return 270;
 		}
 	}
+
 	private static float getMediaVolumeLevel(Context context) {
 		AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 		float maxVolume = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
