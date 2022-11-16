@@ -185,7 +185,7 @@ public class PreferencesFragment
 			if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
 				switch (requestCode) {
 					default:
-						// make FindBugs happy
+						// Make FindBugs happy.
 						continue;
 					case WRITE_EXTERNAL_STORAGE_REQUEST:
 						ImportExportAsFiles.exportToDirectory(getContext());
@@ -198,7 +198,7 @@ public class PreferencesFragment
 				int messageId;
 				switch (requestCode) {
 					default:
-						// make FindBugs happy
+						// Make FindBugs happy.
 						continue;
 					case WRITE_EXTERNAL_STORAGE_REQUEST:
 						messageId = R.string.write_access_required;
@@ -244,9 +244,9 @@ public class PreferencesFragment
 		}
 		findPreference(Preferences.IMPORT_DATABASE).setOnPreferenceClickListener(preference -> {
 			Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
-			// in theory, it should be "application/x-sqlite3"
+			// In theory, it should be "application/x-sqlite3"
 			// or the newer "application/vnd.sqlite3" but
-			// only "application/octet-stream" works
+			// only "application/octet-stream" works.
 			chooseFile.setType("application/octet-stream");
 			startActivityForResult(
 					Intent.createChooser(

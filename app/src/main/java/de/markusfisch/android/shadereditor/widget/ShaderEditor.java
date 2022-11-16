@@ -190,22 +190,22 @@ public class ShaderEditor extends AppCompatEditText {
 		}
 
 		if (start > -1) {
-			// add line break before statement because it's
-			// inserted before the last line-break
+			// Add line break before statement because it's
+			// inserted before the last line-break.
 			statement = "\n" + statement;
 		} else {
-			// add a line break after statement if there's no
-			// uniform already
+			// Add a line break after statement if there's no
+			// uniform already.
 			statement += "\n";
 
-			// add an empty line between the last #endif
-			// and the now following uniform
+			// Add an empty line between the last #endif
+			// and the now following uniform.
 			if ((start = endIndexOfLastEndIf(e)) > -1) {
 				statement = "\n" + statement;
 			}
 
-			// move index past line break or to the start
-			// of the text when no #endif was found
+			// Move index past line break or to the start
+			// of the text when no #endif was found.
 			++start;
 		}
 
@@ -337,8 +337,8 @@ public class ShaderEditor extends AppCompatEditText {
 		try {
 			int length = e.length();
 
-			// don't use e.clearSpans() because it will
-			// remove too much
+			// Don't use e.clearSpans() because it will
+			// remove too much.
 			clearSpans(e, length);
 
 			if (length == 0) {
@@ -349,7 +349,7 @@ public class ShaderEditor extends AppCompatEditText {
 				Matcher m = PATTERN_LINE.matcher(e);
 
 				for (int i = errorLine; i-- > 0 && m.find(); ) {
-					// {} because analyzers don't like for (); statements
+					// Because analyzers don't like `for ();` statements.
 				}
 
 				e.setSpan(
@@ -404,16 +404,16 @@ public class ShaderEditor extends AppCompatEditText {
 						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 		} catch (IllegalStateException ex) {
-			// raised by Matcher.start()/.end() when
+			// Raised by Matcher.start()/.end() when
 			// no successful match has been made what
-			// shouldn't ever happen because of find()
+			// shouldn't ever happen because of find().
 		}
 
 		return e;
 	}
 
 	private static void clearSpans(Editable e, int length) {
-		// remove foreground color spans
+		// Remove foreground color spans.
 		{
 			ForegroundColorSpan[] spans = e.getSpans(
 					0,
@@ -425,7 +425,7 @@ public class ShaderEditor extends AppCompatEditText {
 			}
 		}
 
-		// remove background color spans
+		// Remove background color spans.
 		{
 			BackgroundColorSpan[] spans = e.getSpans(
 					0,
@@ -446,7 +446,7 @@ public class ShaderEditor extends AppCompatEditText {
 		String indent = "";
 		int istart = dstart - 1;
 
-		// find start of this line
+		// Find start of this line.
 		boolean dataBefore = false;
 		int pt = 0;
 
@@ -459,7 +459,7 @@ public class ShaderEditor extends AppCompatEditText {
 
 			if (c != ' ' && c != '\t') {
 				if (!dataBefore) {
-					// indent always after those characters
+					// Indent always after those characters.
 					if (c == '{' ||
 							c == '+' ||
 							c == '-' ||
@@ -474,7 +474,7 @@ public class ShaderEditor extends AppCompatEditText {
 					dataBefore = true;
 				}
 
-				// parenthesis counter
+				// Parenthesis counter.
 				if (c == '(') {
 					--pt;
 				} else if (c == ')') {
@@ -483,7 +483,7 @@ public class ShaderEditor extends AppCompatEditText {
 			}
 		}
 
-		// copy indent of this line into the next
+		// Copy indent of this line into the next.
 		if (istart > -1) {
 			char charAtCursor = dest.charAt(dstart);
 			int iend;
@@ -491,7 +491,7 @@ public class ShaderEditor extends AppCompatEditText {
 			for (iend = ++istart; iend < dend; ++iend) {
 				char c = dest.charAt(iend);
 
-				// auto expand comments
+				// Auto expand comments.
 				if (charAtCursor != '\n' &&
 						c == '/' &&
 						iend + 1 < dend &&
@@ -508,12 +508,12 @@ public class ShaderEditor extends AppCompatEditText {
 			indent += dest.subSequence(istart, iend);
 		}
 
-		// add new indent
+		// Add new indent.
 		if (pt < 0) {
 			indent += "\t";
 		}
 
-		// append white space of previous line and new indent
+		// Append white space of previous line and new indent.
 		return source + indent;
 	}
 

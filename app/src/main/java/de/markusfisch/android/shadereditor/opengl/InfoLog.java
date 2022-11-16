@@ -34,7 +34,7 @@ public class InfoLog {
 					errorLine = Integer.parseInt(
 							infoLog.substring(from, to).trim());
 				} catch (NumberFormatException | NullPointerException e) {
-					// can't do anything about it
+					// Can't do anything about it.
 				}
 
 				from = ++to;

@@ -86,9 +86,9 @@ public class UniformSampler2dPageFragment extends Fragment {
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 		intent.setType("image/*");
 
-		// use Activity.startActivityForResult() to keep
-		// requestCode; Fragment.startActivityForResult()
-		// will modify the requestCode
+		// Use Activity.startActivityForResult() to keep
+		// requestCode. Fragment.startActivityForResult()
+		// will modify the requestCode.
 		activity.startActivityForResult(
 				Intent.createChooser(
 						intent,
@@ -110,17 +110,17 @@ public class UniformSampler2dPageFragment extends Fragment {
 		intent.putExtra(TextureViewFragment.TEXTURE_ID, id);
 		intent.putExtra(TextureViewFragment.SAMPLER_TYPE, samplerType);
 
-		// use Activity.startActivityForResult() to keep
-		// requestCode; Fragment.startActivityForResult()
-		// will modify the requestCode
+		// Use Activity.startActivityForResult() to keep
+		// requestCode. Fragment.startActivityForResult()
+		// will modify the requestCode.
 		activity.startActivityForResult(
 				intent,
 				AddUniformActivity.PICK_TEXTURE);
 	}
 
-	// this AsyncTask is running for a short and finite time only
+	// This AsyncTask is running for a short and finite time only
 	// and it's perfectly okay to delay garbage collection of the
-	// parent instance until this task has ended
+	// parent instance until this task has ended.
 	@SuppressLint("StaticFieldLeak")
 	private void loadTexturesAsync(final Context context) {
 		if (context == null) {

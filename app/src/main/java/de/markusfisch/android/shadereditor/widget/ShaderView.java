@@ -37,7 +37,7 @@ public class ShaderView extends GLSurfaceView {
 		renderer.unregisterListeners();
 	}
 
-	// click handling is implemented in renderer
+	// Click handling is implemented in renderer.
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
@@ -63,9 +63,9 @@ public class ShaderView extends GLSurfaceView {
 	private void init(Context context, int renderMode) {
 		renderer = new ShaderRenderer(context);
 
-		// on some devices it's important to setEGLContextClientVersion()
+		// On some devices it's important to setEGLContextClientVersion()
 		// even if the docs say it's not used when setEGLContextFactory()
-		// is called; not doing so will crash the app (e.g. on the FP1)
+		// is called. Not doing so will crash the app (e.g. on the FP1).
 		setEGLContextClientVersion(2);
 		setEGLContextFactory(new ContextFactory(renderer));
 		setRenderer(renderer);

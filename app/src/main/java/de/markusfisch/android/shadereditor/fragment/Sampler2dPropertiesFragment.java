@@ -75,13 +75,13 @@ public class Sampler2dPropertiesFragment extends AbstractSamplerPropertiesFragme
 			String name,
 			int size) {
 		return saveTexture(
-				// try to get a bigger source image in
-				// case the cut out is quite small
+				// Try to get a bigger source image in
+				// case the cut out is quite small.
 				BitmapEditor.getBitmapFromUri(
 						context,
 						imageUri,
-						// which doesn't work for some devices;
-						// 2048 is too much => out of memory
+						// Which doesn't work for some devices.
+						// 2048 is too much => out of memory.
 						1024),
 				cropRect,
 				imageRotation,

@@ -215,7 +215,7 @@ public class Preferences {
 				return Integer.parseInt(s);
 			}
 		} catch (NumberFormatException e) {
-			// use preset
+			// Use preset.
 		}
 
 		return preset;
@@ -227,7 +227,7 @@ public class Preferences {
 				return Long.parseLong(s);
 			}
 		} catch (NumberFormatException e) {
-			// use preset
+			// Use preset.
 		}
 
 		return preset;

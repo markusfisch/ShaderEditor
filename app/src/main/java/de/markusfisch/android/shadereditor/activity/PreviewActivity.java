@@ -59,13 +59,13 @@ public class PreviewActivity extends AppCompatActivity {
 				new ShaderRenderer.OnRendererListener() {
 					@Override
 					public void onFramesPerSecond(int fps) {
-						// invoked from the GL thread
+						// Invoked from the GL thread.
 						renderStatus.fps = fps;
 					}
 
 					@Override
 					public void onInfoLog(String infoLog) {
-						// invoked from the GL thread
+						// Invoked from the GL thread.
 						renderStatus.infoLog = infoLog;
 						runOnUiThread(finishRunnable);
 					}
@@ -86,8 +86,8 @@ public class PreviewActivity extends AppCompatActivity {
 
 	@Override
 	protected void onStart() {
-		// don't use onResume()/onPause() because in multi window mode
-		// an activity may be paused but should still show animations
+		// Don't use onResume()/onPause() because in multi window mode
+		// an activity may be paused but should still show animations.
 		super.onStart();
 
 		shaderView.onResume();

@@ -65,8 +65,8 @@ public class EditorFragment extends Fragment {
 	public void onResume() {
 		super.onResume();
 		updateToPreferences();
-		// only start listening after EditText restored its content
-		// to make sure the initial change is not recorded
+		// Only start listening after EditText restored its content
+		// to make sure the initial change is not recorded.
 		undoRedo.listenForChanges();
 	}
 

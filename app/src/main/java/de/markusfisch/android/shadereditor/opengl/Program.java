@@ -22,13 +22,13 @@ class Program {
 					fragmentShader)) != 0) {
 				p = linkProgram(vs, fs);
 
-				// mark shader objects as deleted so they get
+				// Mark shader objects as deleted so they get
 				// deleted as soon as glDeleteProgram() does
-				// detach them
+				// detach them.
 				GLES20.glDeleteShader(fs);
 			}
 
-			// same as above
+			// Same as above.
 			GLES20.glDeleteShader(vs);
 		}
 

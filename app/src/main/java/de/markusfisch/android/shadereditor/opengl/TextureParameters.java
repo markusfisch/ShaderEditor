@@ -70,7 +70,7 @@ public class TextureParameters {
 				mag == defaultMag &&
 				wrapS == defaultWrapS &&
 				wrapT == defaultWrapT) {
-			// use empty string for default values
+			// Use empty string for default values.
 			return "";
 		}
 		return HEADER +
@@ -126,7 +126,7 @@ public class TextureParameters {
 		if (bitmap == null) {
 			return;
 		}
-		// flip bitmap because 0/0 is bottom left in OpenGL
+		// Flip bitmap because 0/0 is bottom left in OpenGL.
 		Bitmap flippedBitmap = Bitmap.createBitmap(
 				bitmap,
 				0,

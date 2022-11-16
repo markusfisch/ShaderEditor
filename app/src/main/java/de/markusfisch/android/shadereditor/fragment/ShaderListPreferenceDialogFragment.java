@@ -44,9 +44,9 @@ public class ShaderListPreferenceDialogFragment
 
 	@Override
 	protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
-		// don't call super.onPrepareDialogBuilder() because it'll check
+		// Don't call super.onPrepareDialogBuilder() because it'll check
 		// for Entries and set up a setSingleChoiceItems() for them that
-		// will never be used
+		// will never be used.
 
 		final String key = getPreference().getKey();
 		Cursor cursor = ShaderEditorApp.db.getShaders();

@@ -473,6 +473,7 @@ public class Database {
 			in = context.getResources().openRawResource(id);
 			int l = in.available();
 			byte[] b = new byte[l];
+			// StandardCharsets.UTF_8 would require API level 19.
 			return in.read(b) == l ? new String(b, "UTF-8") : null;
 		} finally {
 			if (in != null) {
@@ -494,8 +495,8 @@ public class Database {
 	}
 
 	private static float calculateRatio(int width, int height) {
-		// round to two decimal places to avoid problems with
-		// rounding errors; the query will filter precisely 1 or 1.5
+		// Round to two decimal places to avoid problems with
+		// rounding errors. The query will filter precisely 1 or 1.5.
 		return Math.round(((float) height / width) * 100f) / 100f;
 	}
 
@@ -533,8 +534,8 @@ public class Database {
 							R.drawable.thumbnail_default),
 					1f);
 		} catch (IOException e) {
-			// shouldn't ever happen in production
-			// and nothing can be done if it does
+			// Shouldn't ever happen in production
+			// and nothing can be done if it does.
 		}
 	}
 
@@ -782,8 +783,8 @@ public class Database {
 				SQLiteDatabase db,
 				int oldVersion,
 				int newVersion) {
-			// without onDowngrade(), a downgrade will throw
-			// an exception; can never happen in production
+			// Without onDowngrade(), a downgrade will throw
+			// an exception. Can never happen in production.
 		}
 
 		@Override
@@ -822,7 +823,7 @@ public class Database {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			// do nothing
+			// Do nothing.
 		}
 
 		@Override
@@ -830,8 +831,8 @@ public class Database {
 				SQLiteDatabase db,
 				int oldVersion,
 				int newVersion) {
-			// do nothing, but without that method we cannot open
-			// different versions
+			// Do nothing, but without that method we cannot open
+			// different versions.
 		}
 
 		@Override
@@ -839,14 +840,14 @@ public class Database {
 				SQLiteDatabase db,
 				int oldVersion,
 				int newVersion) {
-			// do nothing, but without that method we cannot open
-			// different versions
+			// Do nothing, but without that method we cannot open
+			// different versions.
 		}
 	}
 
-	// somehow it's required to use this ContextWrapper to access the
-	// tables in an external database; without this, the database will
-	// only contain the table "android_metadata"
+	// Somehow it's required to use this ContextWrapper to access the
+	// tables in an external database. Without this, the database will
+	// only contain the table "android_metadata".
 	public static class ExternalDatabaseContext extends ContextWrapper {
 		public ExternalDatabaseContext(Context base) {
 			super(base);

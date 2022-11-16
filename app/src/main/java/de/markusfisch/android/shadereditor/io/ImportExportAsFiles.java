@@ -156,7 +156,7 @@ public class ImportExportAsFiles {
 		File file = new File(downloadsDirectory, IMPORT_EXPORT_DIRECTORY);
 
 		if (create && !file.mkdirs()) {
-			// throws in next block; just to make FindBugs happy
+			// Throws in next block. Just to make FindBugs happy.
 		}
 
 		if (!file.isDirectory()) {
@@ -175,6 +175,7 @@ public class ImportExportAsFiles {
 			byte[] buffer = new byte[1024];
 			int n;
 			while ((n = fis.read(buffer)) != -1) {
+				// StandardCharsets.UTF_8 would require API level 19.
 				sb.append(new String(buffer, 0, n, "UTF-8"));
 			}
 			return sb.toString();

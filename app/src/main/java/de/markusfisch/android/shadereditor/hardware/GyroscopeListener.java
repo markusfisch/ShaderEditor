@@ -28,27 +28,27 @@ public class GyroscopeListener extends AbstractListener {
 		if (last > 0) {
 			final float dT = (event.timestamp - last) * NS2S;
 
-			// axis of the rotation sample, not normalized yet
+			// Axis of the rotation sample, not normalized yet.
 			float axisX = event.values[0];
 			float axisY = event.values[1];
 			float axisZ = event.values[2];
 
-			// calculate the angular speed of the sample
+			// Calculate the angular speed of the sample.
 			float omegaMagnitude = (float) Math.sqrt(
 					axisX * axisX + axisY * axisY + axisZ * axisZ);
 
-			// normalize the rotation vector
+			// Normalize the rotation vector.
 			if (omegaMagnitude > EPSILON) {
 				axisX /= omegaMagnitude;
 				axisY /= omegaMagnitude;
 				axisZ /= omegaMagnitude;
 			}
 
-			// integrate around this axis with the angular speed by the
-			// timestep in order to get a delta rotation from this sample
-			// over the timestep; then convert this axis-angle representation
+			// Integrate around this axis with the angular speed by the
+			// time step in order to get a delta rotation from this sample
+			// over the time step. Then convert this axis-angle representation
 			// of the delta rotation into a quaternion before turning it
-			// into the rotation matrix
+			// into the rotation matrix.
 			float thetaOverTwo = omegaMagnitude * dT / 2.0f;
 			float sinThetaOverTwo = (float) Math.sin(thetaOverTwo);
 			float cosThetaOverTwo = (float) Math.cos(thetaOverTwo);

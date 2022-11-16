@@ -46,7 +46,7 @@ public class DatabaseImporter {
 					out.close();
 				}
 			} catch (IOException e) {
-				// ignore, can't do anything about it
+				// Ignore, can't do anything about it.
 			}
 		}
 		String error = ShaderEditorApp.db.importDatabase(context, fileName);

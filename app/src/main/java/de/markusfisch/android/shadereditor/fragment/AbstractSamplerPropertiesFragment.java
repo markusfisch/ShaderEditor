@@ -134,9 +134,9 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 						.find() ? null : ""});
 	}
 
-	// this AsyncTask is running for a short and finite time only
+	// This AsyncTask is running for a short and finite time only
 	// and it's perfectly okay to delay garbage collection of the
-	// parent instance until this task has ended
+	// parent instance until this task has ended.
 	@SuppressLint("StaticFieldLeak")
 	private void saveSamplerAsync() {
 		final Context context = getActivity();

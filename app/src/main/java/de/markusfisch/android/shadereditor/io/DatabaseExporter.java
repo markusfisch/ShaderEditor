@@ -48,7 +48,7 @@ public class DatabaseExporter {
 					out.close();
 				}
 			} catch (IOException e) {
-				// ignore, can't do anything about it
+				// Ignore, can't do anything about it.
 			}
 		}
 	}

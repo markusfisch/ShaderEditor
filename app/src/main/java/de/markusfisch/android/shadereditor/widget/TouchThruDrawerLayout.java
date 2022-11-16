@@ -29,7 +29,7 @@ public class TouchThruDrawerLayout extends DrawerLayout {
 		return !touchThru && super.onInterceptTouchEvent(event);
 	}
 
-	// click is handled in super class
+	// Click is handled in super class.
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {

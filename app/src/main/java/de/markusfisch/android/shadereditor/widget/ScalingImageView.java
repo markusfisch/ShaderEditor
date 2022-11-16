@@ -73,7 +73,7 @@ public class ScalingImageView extends AppCompatImageView {
 		return scaleType;
 	}
 
-	// click handling is correct
+	// Click handling is correct.
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
@@ -93,7 +93,7 @@ public class ScalingImageView extends AppCompatImageView {
 				return true;
 			case MotionEvent.ACTION_POINTER_UP:
 				initTransform(event,
-						// ignore the pointer that has gone up
+						// Ignore the pointer that has gone up.
 						event.getActionIndex());
 				return true;
 			case MotionEvent.ACTION_CANCEL:
@@ -158,8 +158,8 @@ public class ScalingImageView extends AppCompatImageView {
 			int bottom) {
 		super.onLayout(changed, left, top, right, bottom);
 
-		// use a separate method to layout the image so it's possible
-		// to override this behaviour without skipping super.onLayout()
+		// Use a separate method to layout the image so it's possible
+		// to override this behaviour without skipping super.onLayout().
 		layoutImage(changed, left, top, right, bottom);
 	}
 
@@ -202,7 +202,7 @@ public class ScalingImageView extends AppCompatImageView {
 	}
 
 	protected void setMinWidth(RectF rect, Matrix matrix) {
-		// don't try to store the drawable dimensions by overriding
+		// Don't try to store the drawable dimensions by overriding
 		// setImageDrawable() since it is called in the ImageView's
 		// constructor and no referenced member of this object will
 		// have been initialized yet. So it's best to simply request
@@ -288,9 +288,9 @@ public class ScalingImageView extends AppCompatImageView {
 		initialMatrix.set(transformMatrix);
 		drawableRect.set(getDrawableRect());
 
-		// try to find two pointers that are down;
-		// event may contain a pointer that has
-		// gone up and must be ignored
+		// Try to find two pointers that are down.
+		// Event may contain a pointer that has
+		// gone up and must be ignored.
 		int p1 = 0xffff;
 		int p2 = 0xffff;
 

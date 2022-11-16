@@ -79,9 +79,9 @@ public class CameraListener {
 		}
 	}
 
-	// this AsyncTask is running for a short and finite time only
+	// This AsyncTask is running for a short and finite time only
 	// and it's perfectly okay to delay garbage collection of the
-	// parent instance until this task has ended
+	// parent instance until this task has ended.
 	@SuppressLint("StaticFieldLeak")
 	private void openCameraAsync() {
 		if (opening) {
@@ -206,7 +206,7 @@ public class CameraListener {
 
 	private void setPreviewSize(Camera.Parameters parameters) {
 		Camera.Size size = findBestSize(
-				// will always return at least one item
+				// Will always return at least one item.
 				parameters.getSupportedPreviewSizes(),
 				frameWidth,
 				frameHeight,
@@ -229,8 +229,8 @@ public class CameraListener {
 				break;
 			case 90:
 			case 270:
-				// swap dimensions to match orientation
-				// of preview sizes
+				// Swap dimensions to match orientation
+				// of preview sizes.
 				int tmp = width;
 				width = height;
 				height = tmp;
@@ -274,9 +274,9 @@ public class CameraListener {
 				parameters.setPreviewFpsRange(range[0], range[1]);
 			}
 		} catch (RuntimeException e) {
-			// silently ignore that exception;
-			// if the fps range can't be increased,
-			// there's nothing to do
+			// Silently ignore that exception.
+			// If the fps range can't be increased,
+			// there's nothing to do.
 		}
 	}
 
@@ -295,16 +295,16 @@ public class CameraListener {
 	}
 
 	private static void setFocusMode(Camera.Parameters parameters) {
-		// best for taking pictures
+		// Best for taking pictures.
 		String continuousPicture =
 				Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE;
-		// less aggressive than CONTINUOUS_PICTURE
+		// Less aggressive than CONTINUOUS_PICTURE.
 		String continuousVideo =
 				Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO;
-		// last resort
+		// Last resort.
 		String autoFocus = Camera.Parameters.FOCUS_MODE_AUTO;
 
-		// prefer feature detection instead of checking BUILD.VERSION
+		// Prefer feature detection instead of checking BUILD.VERSION.
 		List<String> focusModes = parameters.getSupportedFocusModes();
 
 		if (focusModes.contains(continuousPicture)) {

@@ -127,7 +127,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			GLES20.GL_TEXTURE30,
 			GLES20.GL_TEXTURE31};
 	private static final int[] CUBE_MAP_TARGETS = {
-			// all sides of a cube are stored in a single
+			// All sides of a cube are stored in a single
 			// rectangular source image for compactness:
 			//
 			//      +----+         +----+----+
@@ -142,7 +142,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			//     | +Z |/         | +Z | +X |
 			//     +----+          +----+----+
 			//
-			// so, from left to right, top to bottom:
+			// So, from left to right, top to bottom:
 			GL11ExtensionPack.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
 			GL11ExtensionPack.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
 			GL11ExtensionPack.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
@@ -357,8 +357,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 
 		if (program != 0) {
-			// Don't glDeleteProgram(program);
-			// same as above
+			// Don't glDeleteProgram(program).
+			// Same as above.
 			program = 0;
 			deleteTargets();
 		}
@@ -485,9 +485,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 		if (batteryLoc > -1) {
 			if (now - lastBatteryUpdate > BATTERY_UPDATE_INTERVAL) {
-				// profiled getBatteryLevel() on slow/old devices
-				// and it can take up to 6ms, so better do that
-				// not for every frame but only once in a while
+				// Profiled getBatteryLevel() on slow/old devices
+				// and it can take up to 6ms. So better do that
+				// not for every frame but only once in a while.
 				batteryLevel = getBatteryLevel();
 				lastBatteryUpdate = now;
 			}
@@ -533,7 +533,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			createTargets((int) resolution[0], (int) resolution[1]);
 		}
 
-		// first draw custom shader in framebuffer
+		// First draw custom shader in framebuffer.
 		GLES20.glViewport(0, 0, (int) resolution[0], (int) resolution[1]);
 
 		textureBinder.reset();
@@ -582,9 +582,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 		GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 
-		// swap buffers so the next image will be rendered
+		// Swap buffers so the next image will be rendered
 		// over the current backbuffer and the current image
-		// will be the backbuffer for the next image
+		// will be the backbuffer for the next image.
 		int t = frontTarget;
 		frontTarget = backTarget;
 		backTarget = t;
@@ -650,7 +650,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		touch[0] = x;
 		touch[1] = resolution[1] - y;
 
-		// to be compatible with http://glslsandbox.com/
+		// To be compatible with http://glslsandbox.com/
 		mouse[0] = x / resolution[0];
 		mouse[1] = 1 - y / resolution[1];
 
@@ -682,9 +682,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public byte[] getThumbnail() {
-		// settings thumbnail to null triggers
+		// Settings thumbnail to null triggers
 		// the capture on the OpenGL thread in
-		// onDrawFrame()
+		// onDrawFrame().
 		thumbnail = null;
 
 		try {
@@ -696,9 +696,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			Thread.currentThread().interrupt();
 		}
 
-		// don't clone() because the data doesn't need to be
+		// Don't clone() because the data doesn't need to be
 		// protected from modification what means copying would
-		// only mean using more memory than necessary
+		// only mean using more memory than necessary.
 		return thumbnail;
 	}
 
@@ -971,8 +971,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 			return out.toByteArray();
 		} catch (IllegalArgumentException e) {
-			// will never happen because neither
-			// width nor height <= 0
+			// Will never happen because neither
+			// width nor height <= 0.
 			return null;
 		}
 	}
@@ -1031,7 +1031,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private void updateFps(long now) {
 		long delta = now - lastRender;
 
-		// because sum and samples are volatile
+		// Because sum and samples are volatile.
 		synchronized (this) {
 			sum += Math.min(NS_PER_SECOND / delta, 60f);
 
@@ -1111,8 +1111,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				0);
 
 		if (!useBitmap) {
-			// clear texture because some drivers
-			// don't initialize texture memory
+			// Clear texture because some drivers
+			// don't initialize texture memory.
 			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT |
 					GLES20.GL_DEPTH_BUFFER_BIT);
 		}
@@ -1133,9 +1133,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			String name = textureNames.get(i);
 			if (UNIFORM_CAMERA_BACK.equals(name) ||
 					UNIFORM_CAMERA_FRONT.equals(name)) {
-				// handled in onSurfaceChanged() because we need
+				// Handled in onSurfaceChanged() because we need
 				// the dimensions of the surface to pick a preview
-				// resolution
+				// resolution.
 				continue;
 			}
 
@@ -1191,10 +1191,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					bitmap,
 					x,
 					y,
-					// cube textures need to be quadratic
+					// Cube textures need to be quadratic.
 					sideLength,
 					sideLength,
-					// don't flip cube textures
+					// Don't flip cube textures.
 					null,
 					true);
 
@@ -1234,7 +1234,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				openCameraListener(name, textureIds[i],
 						textureParameters.get(i));
 
-				// only one camera can be opened at a time
+				// Only one camera can be opened at a time.
 				break;
 			}
 		}
@@ -1352,11 +1352,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				case SAMPLER_EXTERNAL_OES:
 					if (Build.VERSION.SDK_INT >
 							Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-						// needs to be done here or lint won't recognize
-						// we're checking SDK version
+						// Needs to be done here or lint won't recognize
+						// we're checking SDK version.
 						target = GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
 					} else {
-						// ignore that uniform on lower SDKs
+						// Ignore that uniform on lower SDKs.
 						continue;
 					}
 					if (!source.contains(OES_EXTERNAL)) {
@@ -1378,11 +1378,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 	private static String addPreprocessorDirective(String source,
 			String directive) {
-		// #version must always be the very first directive
+		// #version must always be the very first directive.
 		if (source.trim().startsWith("#version")) {
 			int lf = source.indexOf("\n");
 			if (lf < 0) {
-				// no line break?
+				// No line break?
 				return source;
 			}
 			++lf;

@@ -35,7 +35,7 @@ public class BitmapEditor {
 				try {
 					in.close();
 				} catch (IOException e) {
-					// ignore
+					// Ignore.
 				}
 			}
 		}

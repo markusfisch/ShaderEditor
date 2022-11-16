@@ -39,9 +39,9 @@ public class BatteryLevelReceiver extends BroadcastReceiver {
 		if (!ShaderEditorApp.preferences.saveBattery()) {
 			low = false;
 		}
-		// fall through to update battery flag and
+		// Fall through to update battery flag and
 		// render mode because the preference may
-		// have changed while battery is low
+		// have changed while battery is low.
 
 		ShaderEditorApp.preferences.setBatteryLow(low);
 		ShaderWallpaperService.setRenderMode(low

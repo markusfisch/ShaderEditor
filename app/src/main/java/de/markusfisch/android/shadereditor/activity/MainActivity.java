@@ -59,7 +59,7 @@ public class MainActivity
 	private final Runnable updateFpsRunnable = new Runnable() {
 		@Override
 		public void run() {
-			// "fps" should be the same in all languages
+			// "fps" should be the same in all languages.
 			toolbar.setSubtitle(fps + " fps");
 		}
 	};
@@ -193,7 +193,7 @@ public class MainActivity
 			Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
-		// add uniform statement
+		// Add uniform statement.
 		if (editorFragment != null &&
 				requestCode == ADD_UNIFORM &&
 				resultCode == RESULT_OK &&
@@ -202,7 +202,7 @@ public class MainActivity
 					AddUniformActivity.STATEMENT));
 		}
 
-		// load sample
+		// Load sample.
 		if (editorFragment != null &&
 				requestCode == LOAD_SAMPLE &&
 				resultCode == RESULT_OK &&
@@ -221,7 +221,7 @@ public class MainActivity
 							1f)));
 		}
 
-		// update fps, info log and thumbnail after shader ran
+		// Update fps, info log and thumbnail after shader ran.
 		if (requestCode == PREVIEW_SHADER) {
 			PreviewActivity.RenderStatus status =
 					PreviewActivity.renderStatus;
@@ -313,7 +313,7 @@ public class MainActivity
 	protected void onDestroy() {
 		super.onDestroy();
 
-		// close last cursor
+		// Close last cursor.
 		if (shaderAdapter != null) {
 			shaderAdapter.changeCursor(null);
 		}
@@ -454,13 +454,13 @@ public class MainActivity
 				new ShaderRenderer.OnRendererListener() {
 					@Override
 					public void onFramesPerSecond(int fps) {
-						// invoked from the GL thread
+						// Invoked from the GL thread.
 						postUpdateFps(fps);
 					}
 
 					@Override
 					public void onInfoLog(String infoLog) {
-						// invoked from the GL thread
+						// Invoked from the GL thread.
 						postInfoLog(infoLog);
 					}
 				});
@@ -516,9 +516,9 @@ public class MainActivity
 		}
 	}
 
-	// this AsyncTask is running for a short and finite time only
+	// This AsyncTask is running for a short and finite time only
 	// and it's perfectly okay to delay garbage collection of the
-	// parent instance until this task has ended
+	// parent instance until this task has ended.
 	@SuppressLint("StaticFieldLeak")
 	private void getShadersAsync() {
 		if (!ShaderEditorApp.db.isOpen()) {
@@ -613,12 +613,12 @@ public class MainActivity
 			return;
 		}
 
-		// don't use an old thumbnail
+		// Don't use an old thumbnail.
 		PreviewActivity.renderStatus.reset();
 
-		// consume this intent; this is necessary because
+		// Consume this intent. This is necessary because
 		// a orientation change will start a new activity
-		// with the exact same intent
+		// with the exact same intent.
 		intent.setAction(null);
 
 		int len = text.length();
@@ -645,6 +645,7 @@ public class MainActivity
 			StringBuilder sb = new StringBuilder();
 			byte[] buffer = new byte[2048];
 			for (int len; (len = in.read(buffer)) > 0; ) {
+				// StandardCharsets.UTF_8 would require API level 19.
 				sb.append(new String(buffer, 0, len, "UTF-8"));
 			}
 			return sb.toString();
@@ -662,9 +663,9 @@ public class MainActivity
 		editorFragment.clearError();
 
 		if (ShaderEditorApp.preferences.doesSaveOnRun()) {
-			// don't save the old thumbnail;
+			// Don't save the old thumbnail.
 			// onActivityResult() will add an
-			// updated one
+			// updated one.
 			PreviewActivity.renderStatus.reset();
 
 			saveShader(selectedShaderId);
@@ -700,7 +701,7 @@ public class MainActivity
 					quality));
 		}
 
-		// update thumbnails
+		// Update thumbnails.
 		getShadersAsync();
 	}
 
@@ -749,7 +750,7 @@ public class MainActivity
 				ShaderEditorApp.db.getThumbnail(selectedShaderId),
 				quality));
 
-		// update thumbnails
+		// Update thumbnails.
 		getShadersAsync();
 	}
 
@@ -805,8 +806,8 @@ public class MainActivity
 			saveShader(id);
 		}
 
-		// the onSharedPreferenceChanged() listener in WallpaperService
-		// is only triggered if the value has changed so force this
+		// The onSharedPreferenceChanged() listener in WallpaperService
+		// is only triggered if the value has changed so force this.
 		ShaderEditorApp.preferences.setWallpaperShader(0);
 		ShaderEditorApp.preferences.setWallpaperShader(id);
 
@@ -860,8 +861,8 @@ public class MainActivity
 	private void editShaderName(final long id, String name) {
 		View view = getLayoutInflater().inflate(
 				R.layout.dialog_rename_shader,
-				// a dialog does not have a parent view group
-				// so InflateParams must be suppressed
+				// A dialog does not have a parent view group
+				// so InflateParams must be suppressed.
 				null);
 		final EditText nameView = view.findViewById(R.id.name);
 		if (name != null) {
@@ -891,7 +892,7 @@ public class MainActivity
 	}
 
 	private void selectShader(long id) {
-		// remove thumbnail from previous shader
+		// Remove thumbnail from previous shader.
 		PreviewActivity.renderStatus.reset();
 
 		if ((selectedShaderId = loadShader(id)) < 1) {
@@ -933,7 +934,7 @@ public class MainActivity
 				cursor, Database.SHADERS_FRAGMENT_SHADER);
 
 		if (editorFragment != null) {
-			// runs setFragmentShader() in onTextChanged()
+			// Runs setFragmentShader() in onTextChanged().
 			editorFragment.setText(fragmentShader);
 		} else if (ShaderEditorApp.preferences.doesRunInBackground()) {
 			setFragmentShader(fragmentShader);

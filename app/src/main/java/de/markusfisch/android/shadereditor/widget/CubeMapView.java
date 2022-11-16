@@ -128,7 +128,7 @@ public class CubeMapView extends ScalingImageView {
 		setImageFromUri(imageUri);
 	}
 
-	// click actions are handled correctly
+	// Click actions are handled correctly.
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
@@ -250,7 +250,7 @@ public class CubeMapView extends ScalingImageView {
 			center(getBounds());
 			saveSelectedFace();
 
-			// matrix is already set in center()
+			// Matrix is already set in center().
 			return;
 		}
 
@@ -371,7 +371,7 @@ public class CubeMapView extends ScalingImageView {
 		int cols = 2;
 		int rows = 3;
 
-		// prefer 3 by 2 for landscape layouts
+		// Prefer 3 by 2 for landscape layouts.
 		if (viewWidth > viewHeight) {
 			cols = 3;
 			rows = 2;
@@ -380,8 +380,8 @@ public class CubeMapView extends ScalingImageView {
 		float mapWidth = cols;
 		float mapHeight = rows;
 
-		// calculate a map rectangle that fits inside the
-		// view rectangle
+		// Calculate a map rectangle that fits inside the
+		// view rectangle.
 		if (viewWidth * mapHeight > viewHeight * mapWidth) {
 			mapWidth = mapWidth * viewHeight / mapHeight;
 			mapHeight = viewHeight;
@@ -390,7 +390,7 @@ public class CubeMapView extends ScalingImageView {
 			mapWidth = viewWidth;
 		}
 
-		// center map inside view
+		// Center map inside view.
 		{
 			int h = Math.round((viewWidth - mapWidth) / 2f);
 			int v = Math.round((viewHeight - mapHeight) / 2f);
@@ -398,10 +398,10 @@ public class CubeMapView extends ScalingImageView {
 			left += h;
 			top += v;
 			right -= h;
-			// bottom is never used below this point
+			// Bottom is never used below this point.
 		}
 
-		// lay out face bounds
+		// Lay out face bounds.
 		int faceSize = Math.round(mapWidth / cols);
 		int x = left;
 		int y = top;

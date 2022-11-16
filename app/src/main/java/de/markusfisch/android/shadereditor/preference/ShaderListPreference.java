@@ -8,7 +8,7 @@ public class ShaderListPreference extends ListPreference {
 	public ShaderListPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
-		// never used
+		// Never used.
 		String[] dummy = {"nix"};
 		setEntries(dummy);
 		setEntryValues(dummy);

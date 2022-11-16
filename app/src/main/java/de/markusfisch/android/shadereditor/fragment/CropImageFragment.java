@@ -70,7 +70,7 @@ public class CropImageFragment extends Fragment {
 				false);
 		progressView = view.findViewById(R.id.progress_view);
 
-		// make cropImageView in activity visible (again)
+		// Make cropImageView in activity visible (again).
 		cropImageView.setVisibility(View.VISIBLE);
 
 		view.findViewById(R.id.crop).setOnClickListener(v -> cropImage());
@@ -98,9 +98,9 @@ public class CropImageFragment extends Fragment {
 		return super.onOptionsItemSelected(item);
 	}
 
-	// this AsyncTask is running for a short and finite time only
+	// This AsyncTask is running for a short and finite time only
 	// and it's perfectly okay to delay garbage collection of the
-	// parent instance until this task has ended
+	// parent instance until this task has ended.
 	@SuppressLint("StaticFieldLeak")
 	private void loadBitmapAsync() {
 		final Activity activity = getActivity();

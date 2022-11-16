@@ -56,7 +56,7 @@ public class CubeMapFragment extends Fragment {
 		view.findViewById(R.id.add_texture).setOnClickListener(v -> addTexture());
 		view.findViewById(R.id.crop).setOnClickListener(v -> composeMap());
 
-		// make cubeMapView in activity visible (again)
+		// Make cubeMapView in activity visible (again).
 		cubeMapView.setVisibility(View.VISIBLE);
 
 		return view;
@@ -128,9 +128,9 @@ public class CubeMapFragment extends Fragment {
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 		intent.setType("image/*");
 
-		// use Activity.startActivityForResult() to keep
-		// requestCode; Fragment.startActivityForResult()
-		// will modify the requestCode
+		// Use Activity.startActivityForResult() to keep
+		// requestCode. Fragment.startActivityForResult()
+		// will modify the requestCode.
 		startActivityForResult(
 				Intent.createChooser(
 						intent,
