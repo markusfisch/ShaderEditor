@@ -44,9 +44,9 @@ public class PreferencesFragment
 		if (requestCode == PICK_FILE_RESULT_CODE &&
 				resultCode == Activity.RESULT_OK && resultData != null) {
 			Context context = getContext();
-			Toast.makeText(context,
-					DatabaseImporter.importDatabase(context,
-							resultData.getData()),
+			String message = DatabaseImporter.importDatabase(context,
+					resultData.getData());
+			Toast.makeText(context, message,
 					Toast.LENGTH_LONG).show();
 		}
 	}
