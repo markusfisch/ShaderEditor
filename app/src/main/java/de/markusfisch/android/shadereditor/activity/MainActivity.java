@@ -522,13 +522,7 @@ public class MainActivity
 	@SuppressLint("StaticFieldLeak")
 	private void getShadersAsync() {
 		if (!ShaderEditorApp.db.isOpen()) {
-			listView.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					getShadersAsync();
-				}
-			}, 500);
-
+			listView.postDelayed(this::getShadersAsync, 500);
 			return;
 		}
 

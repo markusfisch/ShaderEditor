@@ -37,12 +37,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 				false);
 
 		View fab = view.findViewById(R.id.add_texture);
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				addTexture();
-			}
-		});
+		fab.setOnClickListener(v -> addTexture());
 
 		listView = view.findViewById(R.id.textures);
 		initListView(view);
