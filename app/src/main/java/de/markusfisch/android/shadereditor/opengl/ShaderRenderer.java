@@ -171,6 +171,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			"^#version 3[0-9]{2} es$", Pattern.MULTILINE);
 	private static final String OES_EXTERNAL =
 			"#extension GL_OES_EGL_image_external : require\n";
+	private static final String SHADER_EDITOR =
+			"#define SHADER_EDITOR 1\n";
 	private static final String VERTEX_SHADER =
 			"attribute vec2 position;" +
 					"void main() {" +
@@ -1371,6 +1373,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			textureTargets[numberOfTextures++] = target;
 			textureNames.add(name);
 			textureParameters.add(new TextureParameters(params));
+		}
+
+		if (!source.contains(SHADER_EDITOR)) {
+			source = addPreprocessorDirective(source, SHADER_EDITOR);
 		}
 
 		return source;
