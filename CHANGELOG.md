@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.27.0
+* Define SHADER_EDITOR in fragment shader
+
 ## 2.26.0
 * Add media volume uniform
 * Fix cleaning source from invalid characters
