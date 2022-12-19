@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.28.0
+* Add a setting to use the tab key for indent or focus navigation
+
 ## 2.27.0
 * Define SHADER_EDITOR in fragment shader
 
