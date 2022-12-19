@@ -309,7 +309,8 @@ public class ShaderEditor extends AppCompatEditText {
 		setOnKeyListener(new OnKeyListener() {
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if (event.getAction() == KeyEvent.ACTION_DOWN &&
+				if (ShaderEditorApp.preferences.useTabForIndent() &&
+						event.getAction() == KeyEvent.ACTION_DOWN &&
 						keyCode == KeyEvent.KEYCODE_TAB) {
 					// Insert a tab character instead of doing focus
 					// navigation.

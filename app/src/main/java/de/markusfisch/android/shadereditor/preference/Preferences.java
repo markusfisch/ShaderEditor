@@ -17,6 +17,7 @@ public class Preferences {
 	public static final String TEXT_SIZE = "text_size";
 	public static final String TAB_WIDTH = "tab_width";
 	public static final String SHOW_INSERT_TAB = "show_insert_tab";
+	public static final String USE_TAB_FOR_INDENT = "use_tab_for_indent";
 	public static final String EXPORT_TABS = "export_tabs";
 	public static final String SAVE_ON_RUN = "save_on_run";
 	public static final String DEFAULT_NEW_SHADER = "default_new_shader";
@@ -42,6 +43,7 @@ public class Preferences {
 	private int tabWidth = 4;
 	private boolean exportTabs = false;
 	private boolean showInsertTab = true;
+	private boolean useTabForIndent = true;
 	private boolean saveOnRun = true;
 	private boolean batteryLow = false;
 	private boolean powerConnected = false;
@@ -98,6 +100,9 @@ public class Preferences {
 		showInsertTab = preferences.getBoolean(
 				SHOW_INSERT_TAB,
 				showInsertTab);
+		useTabForIndent = preferences.getBoolean(
+				USE_TAB_FOR_INDENT,
+				useTabForIndent);
 		saveOnRun = preferences.getBoolean(
 				SAVE_ON_RUN,
 				saveOnRun);
@@ -151,6 +156,10 @@ public class Preferences {
 
 	public boolean doesShowInsertTab() {
 		return showInsertTab;
+	}
+
+	public boolean useTabForIndent() {
+		return useTabForIndent;
 	}
 
 	public boolean doesSaveOnRun() {

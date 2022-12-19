@@ -39,6 +39,12 @@
 			android:entryValues="@array/tab_width_values"
 			android:defaultValue="2"/>
 		<android.support.v7.preference.SwitchPreferenceCompat
+			android:key="use_tab_for_indent"
+			android:title="@string/use_tab_for_indent"
+			android:summary="@string/use_tab_for_indent_summary"
+			android:checked="true"
+			android:defaultValue="true"/>
+		<android.support.v7.preference.SwitchPreferenceCompat
 			android:key="export_tabs"
 			android:title="@string/export_tabs"
 			android:summary="@string/export_tabs_summary"
