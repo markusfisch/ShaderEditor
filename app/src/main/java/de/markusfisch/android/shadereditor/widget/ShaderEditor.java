@@ -17,6 +17,8 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
+import android.view.View;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -303,6 +305,20 @@ public class ShaderEditor extends AppCompatEditText {
 		setSyntaxColors(context);
 		setUpdateDelay(ShaderEditorApp.preferences.getUpdateDelay());
 		setTabWidth(ShaderEditorApp.preferences.getTabWidth());
+
+		setOnKeyListener(new OnKeyListener() {
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if (event.getAction() == KeyEvent.ACTION_DOWN &&
+						keyCode == KeyEvent.KEYCODE_TAB) {
+					// Insert a tab character instead of doing focus
+					// navigation.
+					insertTab();
+					return true;
+				}
+				return false;
+			}
+		});
 	}
 
 	private void setSyntaxColors(Context context) {
