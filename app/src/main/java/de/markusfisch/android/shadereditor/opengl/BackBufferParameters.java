@@ -47,14 +47,14 @@ public class BackBufferParameters extends TextureParameters {
 		preset = null;
 	}
 
-	boolean setPresetBitmap(int width, int height) {
+	Bitmap getPresetBitmap(int width, int height) {
 		if (preset == null) {
-			return false;
+			return null;
 		}
 
 		Bitmap tile = ShaderEditorApp.db.getTextureBitmap(preset);
 		if (tile == null) {
-			return false;
+			return null;
 		}
 
 		Bitmap background = Bitmap.createBitmap(
@@ -79,9 +79,7 @@ public class BackBufferParameters extends TextureParameters {
 				Shader.TileMode.MIRROR));
 		canvas.drawPaint(paint);
 
-		setBitmap(background);
-
-		return true;
+		return background;
 	}
 
 	@Override

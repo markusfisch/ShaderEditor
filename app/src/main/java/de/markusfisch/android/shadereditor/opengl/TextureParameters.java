@@ -122,9 +122,9 @@ public class TextureParameters {
 				wrapT);
 	}
 
-	static void setBitmap(Bitmap bitmap) {
+	static String setBitmap(Bitmap bitmap) {
 		if (bitmap == null) {
-			return;
+			return null;
 		}
 		// Flip bitmap because 0/0 is bottom left in OpenGL.
 		Bitmap flippedBitmap = Bitmap.createBitmap(
@@ -135,14 +135,21 @@ public class TextureParameters {
 				bitmap.getHeight(),
 				flipMatrix,
 				true);
-		GLUtils.texImage2D(
-				GLES20.GL_TEXTURE_2D,
-				0,
-				GLES20.GL_RGBA,
-				flippedBitmap,
-				GLES20.GL_UNSIGNED_BYTE,
-				0);
+		String message = null;
+		try {
+			GLUtils.texImage2D(
+					GLES20.GL_TEXTURE_2D,
+					0,
+					GLES20.GL_RGBA,
+					flippedBitmap,
+					GLES20.GL_UNSIGNED_BYTE,
+					0);
+		} catch (IllegalArgumentException e) {
+			// Format/color space is invalid.
+			message = e.getMessage();
+		}
 		flippedBitmap.recycle();
+		return message;
 	}
 
 	void parse(String params) {

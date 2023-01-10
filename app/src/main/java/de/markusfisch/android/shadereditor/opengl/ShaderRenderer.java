@@ -1087,8 +1087,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			BackBufferParameters tp) {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, tx[idx]);
 
-		boolean useBitmap = tp.setPresetBitmap(width, height);
-		if (!useBitmap) {
+		Bitmap bitmap = tp.getPresetBitmap(width, height);
+		if (bitmap != null) {
+			setTexture(bitmap);
+		} else {
 			GLES20.glTexImage2D(
 					GLES20.GL_TEXTURE_2D,
 					0,
@@ -1112,7 +1114,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				tx[idx],
 				0);
 
-		if (!useBitmap) {
+		if (bitmap == null) {
 			// Clear texture because some drivers
 			// don't initialize texture memory.
 			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT |
@@ -1169,8 +1171,15 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			TextureParameters tp) {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, id);
 		tp.setParameters(GLES20.GL_TEXTURE_2D);
-		TextureParameters.setBitmap(bitmap);
+		setTexture(bitmap);
 		GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+	}
+
+	private void setTexture(Bitmap bitmap) {
+		String message = TextureParameters.setBitmap(bitmap);
+		if (message != null && onRendererListener != null) {
+			onRendererListener.onInfoLog(message);
+		}
 	}
 
 	private void createCubeTexture(
