@@ -230,9 +230,9 @@ public class PresetUniformAdapter extends BaseAdapter {
 
 		holder.name.setTextColor(ContextCompat.getColor(
 				parent.getContext(),
-				enabled ?
-						android.R.color.primary_text_dark :
-						R.color.disabled_text));
+				enabled
+						? android.R.color.primary_text_dark
+						: R.color.disabled_text));
 		holder.name.setText(String.format(
 				Locale.US,
 				uniformFormat,

@@ -477,12 +477,9 @@ public class CubeMapView extends ScalingImageView {
 	}
 
 	private void setImageFromUri(Uri uri) {
-		selectedBitmap = uri != null ?
-				BitmapEditor.getBitmapFromUri(
-						getContext(),
-						uri,
-						PREVIEW_SIZE) :
-				null;
+		selectedBitmap = uri != null
+				? BitmapEditor.getBitmapFromUri(getContext(), uri, PREVIEW_SIZE)
+				: null;
 
 		setImageBitmap(selectedBitmap);
 	}

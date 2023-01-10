@@ -114,9 +114,9 @@ public class MainActivity
 				ShaderEditorApp.preferences.doesRunInBackground());
 		menu.findItem(R.id.update_wallpaper).setTitle(
 				ShaderEditorApp.preferences.getWallpaperShader() ==
-						selectedShaderId ?
-						R.string.update_wallpaper :
-						R.string.set_as_wallpaper);
+						selectedShaderId
+						? R.string.update_wallpaper
+						: R.string.set_as_wallpaper);
 		return true;
 	}
 
@@ -679,9 +679,9 @@ public class MainActivity
 		}
 
 		String fragmentShader = editorFragment.getText();
-		byte[] thumbnail = ShaderEditorApp.preferences.doesRunInBackground() ?
-				shaderView.getRenderer().getThumbnail() :
-				PreviewActivity.renderStatus.thumbnail;
+		byte[] thumbnail = ShaderEditorApp.preferences.doesRunInBackground()
+				? shaderView.getRenderer().getThumbnail()
+				: PreviewActivity.renderStatus.thumbnail;
 
 		if (id > 0) {
 			ShaderEditorApp.db.updateShader(

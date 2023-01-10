@@ -378,12 +378,12 @@ public class ScalingImageView extends AppCompatImageView {
 		float fh = frame.height();
 		float minX = frame.right - w;
 		float minY = frame.bottom - h;
-		float dx = w > fw ?
-				Math.max(minX - x, Math.min(frame.left - x, 0)) :
-				(frame.left + Math.round((fw - w) * .5f)) - x;
-		float dy = h > fh ?
-				Math.max(minY - y, Math.min(frame.top - y, 0)) :
-				(frame.top + Math.round((fh - h) * .5f)) - y;
+		float dx = w > fw
+				? Math.max(minX - x, Math.min(frame.left - x, 0))
+				: (frame.left + Math.round((fw - w) * .5f)) - x;
+		float dy = h > fh
+				? Math.max(minY - y, Math.min(frame.top - y, 0))
+				: (frame.top + Math.round((fh - h) * .5f)) - y;
 
 		if (dx != 0 || dy != 0) {
 			matrix.postTranslate(dx, dy);

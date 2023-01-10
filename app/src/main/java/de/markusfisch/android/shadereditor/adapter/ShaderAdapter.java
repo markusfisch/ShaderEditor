@@ -42,9 +42,9 @@ public class ShaderAdapter extends CursorAdapter {
 
 	public String getTitle(Cursor cursor) {
 		String title = cursor.getString(nameIndex);
-		return title != null && title.length() > 0 ?
-				title :
-				cursor.getString(modifiedIndex);
+		return title != null && title.length() > 0
+				? title
+				: cursor.getString(modifiedIndex);
 	}
 
 	@Override
@@ -62,9 +62,9 @@ public class ShaderAdapter extends CursorAdapter {
 		setData(holder, cursor);
 
 		holder.title.setTextColor(
-				cursor.getLong(idIndex) == selectedShaderId ?
-						textColorSelected :
-						textColorUnselected);
+				cursor.getLong(idIndex) == selectedShaderId
+						? textColorSelected
+						: textColorUnselected);
 	}
 
 	ViewHolder getViewHolder(View view) {

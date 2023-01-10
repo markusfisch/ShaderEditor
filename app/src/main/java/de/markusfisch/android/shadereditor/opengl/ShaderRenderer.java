@@ -1261,9 +1261,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 
 		int cameraId = CameraListener.findCameraId(
-				UNIFORM_CAMERA_BACK.equals(name) ?
-						Camera.CameraInfo.CAMERA_FACING_BACK :
-						Camera.CameraInfo.CAMERA_FACING_FRONT);
+				UNIFORM_CAMERA_BACK.equals(name)
+						? Camera.CameraInfo.CAMERA_FACING_BACK
+						: Camera.CameraInfo.CAMERA_FACING_FRONT);
 
 		if (cameraId < 0) {
 			return;

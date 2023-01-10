@@ -47,9 +47,9 @@ public class CropImageView extends ScalingImageView {
 
 		int width = right - left;
 		int height = bottom - top;
-		int size = width < height ?
-				width - padding * 2 :
-				height - padding * 2;
+		int size = width < height
+				? width - padding * 2
+				: height - padding * 2;
 		int hpad = (width - size) / 2;
 		int vpad = (height - size) / 2;
 

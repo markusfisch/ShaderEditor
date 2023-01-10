@@ -120,9 +120,9 @@ public class PreferencesFragment
 
 	private void setSummary(Preference preference) {
 		if (preference instanceof ShaderListPreference) {
-			long id = Preferences.WALLPAPER_SHADER.equals(preference.getKey()) ?
-					ShaderEditorApp.preferences.getWallpaperShader() :
-					ShaderEditorApp.preferences.getDefaultNewShader();
+			long id = Preferences.WALLPAPER_SHADER.equals(preference.getKey())
+					? ShaderEditorApp.preferences.getWallpaperShader()
+					: ShaderEditorApp.preferences.getDefaultNewShader();
 			preference.setSummary(getShaderSummary(id));
 		} else if (preference instanceof ListPreference) {
 			preference.setSummary(((ListPreference) preference).getEntry());
@@ -160,9 +160,9 @@ public class PreferencesFragment
 			if (ActivityCompat.shouldShowRequestPermissionRationale(
 					activity,
 					permission)) {
-				int strId = request == WRITE_EXTERNAL_STORAGE_REQUEST ?
-						R.string.write_access_required :
-						R.string.read_access_required;
+				int strId = request == WRITE_EXTERNAL_STORAGE_REQUEST
+						? R.string.write_access_required
+						: R.string.read_access_required;
 				Toast.makeText(getActivity(), getString(strId),
 						Toast.LENGTH_LONG).show();
 			}

@@ -169,9 +169,9 @@ public class ShaderWallpaperService extends WallpaperService {
 		private class ShaderWallpaperView extends ShaderView {
 			public ShaderWallpaperView() {
 				super(ShaderWallpaperService.this,
-						ShaderEditorApp.preferences.isBatteryLow() ?
-								GLSurfaceView.RENDERMODE_WHEN_DIRTY :
-								GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+						ShaderEditorApp.preferences.isBatteryLow()
+								? GLSurfaceView.RENDERMODE_WHEN_DIRTY
+								: GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 			}
 
 			@Override
