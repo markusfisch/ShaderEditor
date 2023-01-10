@@ -89,7 +89,7 @@ public class Sampler2dPropertiesFragment extends AbstractSamplerPropertiesFragme
 				size);
 	}
 
-	private int saveTexture(
+	private static int saveTexture(
 			Bitmap bitmap,
 			RectF rect,
 			float rotation,
