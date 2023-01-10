@@ -10,6 +10,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ColorSpace;
+import android.os.Build;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
@@ -487,6 +489,19 @@ public class Database {
 	}
 
 	private static byte[] bitmapToPng(Bitmap bitmap) {
+		// Convert color space to SRGB because GLUtils.texImage2D()
+		// can't handle other formats.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+				bitmap.getColorSpace() != ColorSpace.get(ColorSpace.Named.SRGB)) {
+			int width = bitmap.getWidth();
+			int height = bitmap.getWidth();
+			Bitmap copy = Bitmap.createBitmap(width, height,
+					Bitmap.Config.ARGB_8888);
+			int[] pixels = new int[width * height];
+			bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+			copy.setPixels(pixels, 0, width, 0, 0, width, height);
+			bitmap = copy;
+		}
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
 		return out.toByteArray();
