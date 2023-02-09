@@ -1,0 +1,3 @@
+* Skip too large textures when importing
+* Fix showing SQL exceptions when importing a database
+
