@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.28.2
+* Remove too big textures to keep the app working
+
 ## 2.28.1
 * Improve importing textures
 

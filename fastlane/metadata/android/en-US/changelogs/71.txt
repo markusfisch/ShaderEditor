@@ -1,0 +1,2 @@
+* Remove too big textures to keep the app working
+
