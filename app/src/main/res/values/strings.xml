@@ -173,6 +173,7 @@
 	<string name="remove_texture">Remove texture</string>
 	<string name="sure_remove_texture">Do you want to remove this texture?</string>
 	<string name="image_too_big">Image too big</string>
+	<string name="removed_invalid_texture">Texture was too big to handle</string>
 
 	<!-- TextureParametersFragment -->
 	<string name="texture_parameters">Texture parameters</string>

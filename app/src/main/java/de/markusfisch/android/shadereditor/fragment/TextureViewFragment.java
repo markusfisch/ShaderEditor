@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
@@ -56,7 +57,7 @@ public class TextureViewFragment extends Fragment {
 		}
 
 		Bundle args;
-		Cursor cursor;
+		Cursor cursor = null;
 
 		if (imageView == null ||
 				(args = getArguments()) == null ||
@@ -64,6 +65,12 @@ public class TextureViewFragment extends Fragment {
 				(samplerType = args.getString(SAMPLER_TYPE)) == null ||
 				(cursor = ShaderEditorApp.db.getTexture(textureId)) == null ||
 				Database.closeIfEmpty(cursor)) {
+			if (cursor != null && textureId > 0) {
+				// Automatically remove defect textures.
+				ShaderEditorApp.db.removeTexture(textureId);
+				Toast.makeText(activity, R.string.removed_invalid_texture,
+						Toast.LENGTH_LONG).show();
+			}
 			activity.finish();
 			return null;
 		}
