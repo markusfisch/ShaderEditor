@@ -122,8 +122,15 @@ public class Database {
 	}
 
 	public static boolean closeIfEmpty(Cursor cursor) {
-		if (cursor != null && cursor.moveToFirst()) {
-			return false;
+		try {
+			if (cursor != null && cursor.moveToFirst()) {
+				return false;
+			}
+		} catch (SQLException e) {
+			// Cursor.moveToFirst() may throw an exception when
+			// the row is too big to fit into CursorWindow.
+			// Catch this exception but still try to close the
+			// Cursor object to free its resources.
 		}
 
 		if (cursor != null) {
