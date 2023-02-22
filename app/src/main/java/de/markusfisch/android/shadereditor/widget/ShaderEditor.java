@@ -67,6 +67,8 @@ public class ShaderEditor extends AppCompatEditText {
 			".*void\\s+mainImage\\s*\\(.*");
 	private static final Pattern PATTERN_MAIN = Pattern.compile(
 			".*void\\s+main\\s*\\(.*");
+	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
+			"[\\xA0]");
 
 	private final Handler updateHandler = new Handler();
 	private final Runnable updateRunnable = new Runnable() {
@@ -103,6 +105,18 @@ public class ShaderEditor extends AppCompatEditText {
 	public ShaderEditor(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
+	}
+
+	@Override
+	public boolean onTextContextMenuItem(int id) {
+		boolean consumed = super.onTextContextMenuItem(id);
+		if (id == android.R.id.paste) {
+			// When pasting text from other apps, e.g. Github Mobile code
+			// viewer, the text can be tainted with No-Break Space (U+00A0)
+			// characters.
+			setText(removeNoBreakSpace(getText().toString()));
+		}
+		return consumed;
 	}
 
 	public void setOnTextChangedListener(OnTextChangedListener listener) {
@@ -149,7 +163,7 @@ public class ShaderEditor extends AppCompatEditText {
 		dirty = false;
 
 		modified = false;
-		String src = text.toString();
+		String src = removeNoBreakSpace(text.toString());
 		setText(highlight(new SpannableStringBuilder(src)));
 		modified = true;
 
@@ -576,6 +590,10 @@ public class ShaderEditor extends AppCompatEditText {
 				"\tmainImage(fragment_color, gl_FragCoord.xy);\n" +
 				"\tgl_FragColor = fragment_color;\n" +
 				"}\n";
+	}
+
+	private static String removeNoBreakSpace(String text) {
+		return PATTERN_NO_BREAK_SPACE.matcher(text).replaceAll(" ");
 	}
 
 	private static class TabWidthSpan extends ReplacementSpan {
