@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.28.3
+* Replace no-break spaces with single spaces
+
 ## 2.28.2
 * Remove too big textures to keep the app working
 

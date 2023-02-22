@@ -1,0 +1,2 @@
+* Replace no-break spaces with single spaces
+
