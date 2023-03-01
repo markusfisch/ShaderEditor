@@ -1,0 +1,2 @@
+* Fix loosing scroll position when pasting text
+
