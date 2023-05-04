@@ -1,7 +1,7 @@
 # Change Log
 
 ## 2.28.4
-* Fix loosing scroll position when pasting text
+* Fix loss of scroll position when pasting text
 
 ## 2.28.3
 * Replace no-break spaces with single spaces
