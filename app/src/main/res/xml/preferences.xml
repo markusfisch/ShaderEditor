@@ -6,7 +6,7 @@
 		<de.markusfisch.android.shadereditor.preference.ShaderListPreference
 			android:key="shader"
 			android:title="@string/shader"/>
-		<android.support.v7.preference.SwitchPreferenceCompat
+		<androidx.preference.SwitchPreferenceCompat
 			android:key="save_battery"
 			android:title="@string/save_battery"
 			android:summary="@string/save_battery_summary"
@@ -38,37 +38,37 @@
 			android:entries="@array/tab_width_names"
 			android:entryValues="@array/tab_width_values"
 			android:defaultValue="2"/>
-		<android.support.v7.preference.SwitchPreferenceCompat
+		<androidx.preference.SwitchPreferenceCompat
 			android:key="use_tab_for_indent"
 			android:title="@string/use_tab_for_indent"
 			android:summary="@string/use_tab_for_indent_summary"
 			android:checked="true"
 			android:defaultValue="true"/>
-		<android.support.v7.preference.SwitchPreferenceCompat
+		<androidx.preference.SwitchPreferenceCompat
 			android:key="export_tabs"
 			android:title="@string/export_tabs"
 			android:summary="@string/export_tabs_summary"
 			android:checked="false"
 			android:defaultValue="false"/>
-		<android.support.v7.preference.SwitchPreferenceCompat
+		<androidx.preference.SwitchPreferenceCompat
 			android:key="show_insert_tab"
 			android:title="@string/show_insert_tab"
 			android:summary="@string/show_insert_tab_summary"
 			android:checked="true"
 			android:defaultValue="true"/>
-		<android.support.v7.preference.SwitchPreferenceCompat
+		<androidx.preference.SwitchPreferenceCompat
 			android:key="save_on_run"
 			android:title="@string/save_on_run"
 			android:summary="@string/save_on_run_summary"
 			android:checked="true"
 			android:defaultValue="true"/>
-		<android.support.v7.preference.SwitchPreferenceCompat
+		<androidx.preference.SwitchPreferenceCompat
 			android:key="disable_highlighting"
 			android:title="@string/disable_highlighting"
 			android:summary="@string/disable_highlighting_summary"
 			android:checked="false"
 			android:defaultValue="false"/>
-		<android.support.v7.preference.SwitchPreferenceCompat
+		<androidx.preference.SwitchPreferenceCompat
 			android:key="auto_save"
 			android:title="@string/auto_save"
 			android:summary="@string/auto_save_summary"
