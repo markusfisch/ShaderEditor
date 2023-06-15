@@ -2,12 +2,12 @@
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
-	<android.support.design.widget.FloatingActionButton
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
 		style="@style/FABLeft"
 		android:id="@+id/add_texture"
 		android:contentDescription="@string/add_texture"
 		android:src="@drawable/ic_fab_add_texture"/>
-	<android.support.design.widget.FloatingActionButton
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
 		style="@style/FABRight"
 		android:id="@+id/crop"
 		android:contentDescription="@string/crop_image"

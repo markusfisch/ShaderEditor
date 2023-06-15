@@ -1,7 +1,7 @@
 package de.markusfisch.android.shadereditor.preference;
 
 import android.content.Context;
-import android.support.v7.preference.ListPreference;
+import androidx.preference.ListPreference;
 import android.util.AttributeSet;
 
 public class ShaderListPreference extends ListPreference {
