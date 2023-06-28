@@ -1,0 +1,17 @@
+[versions]
+agp = "8.2.0-alpha11"
+appcompat = "1.6.1"
+legacy-preference-v14 = "1.0.0"
+preference = "1.2.0"
+material = "1.9.0"
+
+[libraries]
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-legacy-preference-v14 = { module = "androidx.legacy:legacy-preference-v14", version.ref = "legacy-preference-v14" }
+androidx-preference = { module = "androidx.preference:preference", version.ref = "preference" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
+
+[plugins]
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+[bundles]
+

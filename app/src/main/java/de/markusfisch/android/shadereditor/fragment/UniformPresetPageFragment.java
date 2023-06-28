@@ -3,6 +3,8 @@ package de.markusfisch.android.shadereditor.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -46,7 +48,7 @@ public class UniformPresetPageFragment extends Fragment {
 	}
 
 	@Override
-	public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 		SearchMenu.addSearchMenu(menu, inflater, this::filterUniforms);
 	}
 
@@ -69,7 +71,7 @@ public class UniformPresetPageFragment extends Fragment {
 	private void addUniform(PresetUniformAdapter.Uniform uniform) {
 		if (uniform.isSampler()) {
 			AbstractSubsequentActivity.addFragment(
-					getParentFragment().getFragmentManager(),
+					getParentFragmentManager(),
 					TextureParametersFragment.newInstance(
 							uniform.type,
 							uniform.name));
