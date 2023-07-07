@@ -67,6 +67,7 @@ public class MainActivity
 	private EditorFragment editorFragment;
 	private Toolbar toolbar;
 	private Spinner qualitySpinner;
+	private MenuItem insertTabMenuItem;
 	private TouchThruDrawerLayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
 	private View menuFrame;
@@ -106,7 +107,8 @@ public class MainActivity
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		menu.findItem(R.id.insert_tab).setVisible(
+		insertTabMenuItem = menu.findItem(R.id.insert_tab);
+		insertTabMenuItem.setVisible(
 				ShaderEditorApp.preferences.doesShowInsertTab());
 		menu.findItem(R.id.run_code).setVisible(
 				!ShaderEditorApp.preferences.doesRunOnChange());
@@ -702,7 +704,9 @@ public class MainActivity
 
 	private void toggleCode() {
 		if (editorFragment != null) {
-			drawerLayout.setTouchThru(editorFragment.toggleCode());
+			boolean isVisible = editorFragment.toggleCode();
+			drawerLayout.setTouchThru(isVisible);
+			insertTabMenuItem.setEnabled(!isVisible);
 		}
 	}
 
