@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 
 import de.markusfisch.android.shadereditor.R;
@@ -45,9 +47,9 @@ public class PresetUniformAdapter extends BaseAdapter {
 			this.minSdk = minSdk;
 		}
 	}
-
 	private final String uniformFormat;
 	private final Uniform[] uniforms;
+	private ArrayList<Uniform> filteredUniforms;
 
 	public PresetUniformAdapter(Context context) {
 		uniformFormat = context.getString(R.string.uniform_format);
@@ -197,16 +199,17 @@ public class PresetUniformAdapter extends BaseAdapter {
 						ShaderRenderer.UNIFORM_TOUCH_START,
 						context.getString(R.string.touch_start_position_in_pixels)),
 		};
+		filteredUniforms = new ArrayList<>(Arrays.asList(uniforms));
 	}
 
 	@Override
 	public int getCount() {
-		return uniforms.length;
+		return filteredUniforms.size();
 	}
 
 	@Override
 	public Uniform getItem(int position) {
-		return uniforms[position];
+		return filteredUniforms.get(position);
 	}
 
 	@Override
@@ -223,7 +226,7 @@ public class PresetUniformAdapter extends BaseAdapter {
 		}
 
 		ViewHolder holder = getViewHolder(convertView);
-		Uniform uniform = uniforms[position];
+		Uniform uniform = filteredUniforms.get(position);
 		boolean enabled = uniform.isAvailable();
 
 		convertView.setEnabled(enabled);
@@ -241,6 +244,20 @@ public class PresetUniformAdapter extends BaseAdapter {
 		holder.rationale.setText(uniform.rationale);
 
 		return convertView;
+	}
+
+	public void setSearchQuery(CharSequence query) {
+		if (query.length() == 0) {
+			filteredUniforms = new ArrayList<>(Arrays.asList(uniforms));
+		} else {
+			filteredUniforms.clear();
+			for (Uniform uniform :
+					uniforms) {
+				if (uniform.name.contains(query)) {
+					filteredUniforms.add(uniform);
+				}
+			}
+		}
 	}
 
 	private ViewHolder getViewHolder(View view) {
