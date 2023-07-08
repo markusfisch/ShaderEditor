@@ -8,9 +8,12 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import de.markusfisch.android.shadereditor.R;
@@ -22,6 +25,8 @@ import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 public class UniformSampler2dPageFragment extends Fragment {
 	private ListView listView;
 	private TextureAdapter texturesAdapter;
+	private EditText searchBar;
+	protected String searchQuery;
 	private View progressBar;
 	private View noTexturesMessage;
 	private String samplerType = AbstractSamplerPropertiesFragment.SAMPLER_2D;
@@ -41,6 +46,9 @@ public class UniformSampler2dPageFragment extends Fragment {
 
 		listView = view.findViewById(R.id.textures);
 		initListView(view);
+
+		searchBar = getActivity().findViewById(R.id.search_bar);
+		initSearchBar();
 
 		progressBar = view.findViewById(R.id.progress_bar);
 		noTexturesMessage = view.findViewById(R.id.no_textures_message);
@@ -92,7 +100,11 @@ public class UniformSampler2dPageFragment extends Fragment {
 	}
 
 	protected Cursor loadTextures() {
-		return ShaderEditorApp.db.getTextures();
+		if (searchQuery == null) {
+			return ShaderEditorApp.db.getTextures();
+		}
+
+		return ShaderEditorApp.db.getTexturesWith(searchQuery);
 	}
 
 	private void showTexture(long id) {
@@ -158,5 +170,30 @@ public class UniformSampler2dPageFragment extends Fragment {
 		listView.setEmptyView(view.findViewById(R.id.no_textures));
 		listView.setOnItemClickListener(
 				(parent, view1, position, id) -> showTexture(id));
+	}
+
+	private void initSearchBar() {
+		searchBar.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				if (s.length() == 0) {
+					searchQuery = null;
+				} else {
+					searchQuery = s.toString().toLowerCase();
+				}
+
+				loadTexturesAsync(getActivity());
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+
+			}
+		});
 	}
 }

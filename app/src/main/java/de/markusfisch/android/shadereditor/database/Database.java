@@ -166,6 +166,20 @@ public class Database {
 				null);
 	}
 
+	public Cursor getTexturesWith(String substring) {
+		return db.rawQuery(
+				"SELECT " +
+						TEXTURES_ID + "," +
+						TEXTURES_NAME + "," +
+						TEXTURES_WIDTH + "," +
+						TEXTURES_HEIGHT + "," +
+						TEXTURES_THUMB +
+						" FROM " + TEXTURES +
+						" WHERE " + TEXTURES_RATIO + " = 1 AND " + TEXTURES_NAME + " LIKE ?" +
+						" ORDER BY " + TEXTURES_ID,
+				new String[]{"%" + substring + "%"});
+	}
+
 	public Cursor getSamplerCubeTextures() {
 		return db.rawQuery(
 				"SELECT " +
@@ -178,6 +192,20 @@ public class Database {
 						" WHERE " + TEXTURES_RATIO + " = 1.5" +
 						" ORDER BY " + TEXTURES_ID,
 				null);
+	}
+
+	public Cursor getSamplerCubeTexturesWith(String substring) {
+		return db.rawQuery(
+				"SELECT " +
+						TEXTURES_ID + "," +
+						TEXTURES_NAME + "," +
+						TEXTURES_WIDTH + "," +
+						TEXTURES_HEIGHT + "," +
+						TEXTURES_THUMB +
+						" FROM " + TEXTURES +
+						" WHERE " + TEXTURES_RATIO + " = 1.5 AND " + TEXTURES_NAME + " LIKE ?" +
+						" ORDER BY " + TEXTURES_ID,
+				new String[]{"%" + substring + "%"});
 	}
 
 	public boolean isShaderAvailable(long id) {
