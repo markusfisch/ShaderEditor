@@ -62,6 +62,7 @@ public class UniformPresetPageFragment extends Fragment {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before, int count) {
 				uniformsAdapter.getFilter().filter(s);
+				uniformsAdapter.notifyDataSetChanged();
 			}
 
 			@Override

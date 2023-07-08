@@ -296,7 +296,6 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 		@Override
 		protected void publishResults(CharSequence constraint, FilterResults results) {
 			filteredUniforms = (ArrayList<Uniform>) results.values;
-			notifyDataSetChanged();
 		}
 	}
 }
