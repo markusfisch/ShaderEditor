@@ -7,16 +7,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 
-public class PresetUniformAdapter extends BaseAdapter {
+public class PresetUniformAdapter extends BaseAdapter implements Filterable {
+
 	public static final class Uniform {
 		public final String type;
 		public final String name;
@@ -47,17 +51,18 @@ public class PresetUniformAdapter extends BaseAdapter {
 			this.minSdk = minSdk;
 		}
 	}
+
 	private final String uniformFormat;
-	private final Uniform[] uniforms;
-	private ArrayList<Uniform> filteredUniforms;
+	private final List<Uniform> uniforms;
+	private List<Uniform> filteredUniforms;
+	private final UniformFilter filter = new UniformFilter();
 
 	public PresetUniformAdapter(Context context) {
 		uniformFormat = context.getString(R.string.uniform_format);
-		uniforms = new Uniform[]{
-				new Uniform(
-						"sampler2D",
-						ShaderRenderer.UNIFORM_BACKBUFFER,
-						context.getString(R.string.previous_frame)),
+		uniforms = Arrays.asList(new Uniform(
+				"sampler2D",
+				ShaderRenderer.UNIFORM_BACKBUFFER,
+				context.getString(R.string.previous_frame)),
 				new Uniform(
 						"float",
 						ShaderRenderer.UNIFORM_BATTERY,
@@ -197,9 +202,8 @@ public class PresetUniformAdapter extends BaseAdapter {
 				new Uniform(
 						"vec2",
 						ShaderRenderer.UNIFORM_TOUCH_START,
-						context.getString(R.string.touch_start_position_in_pixels)),
-		};
-		filteredUniforms = new ArrayList<>(Arrays.asList(uniforms));
+						context.getString(R.string.touch_start_position_in_pixels)));
+		filteredUniforms = uniforms;
 	}
 
 	@Override
@@ -246,20 +250,6 @@ public class PresetUniformAdapter extends BaseAdapter {
 		return convertView;
 	}
 
-	public void setSearchQuery(CharSequence query) {
-		if (query.length() == 0) {
-			filteredUniforms = new ArrayList<>(Arrays.asList(uniforms));
-		} else {
-			filteredUniforms.clear();
-			for (Uniform uniform :
-					uniforms) {
-				if (uniform.name.contains(query)) {
-					filteredUniforms.add(uniform);
-				}
-			}
-		}
-	}
-
 	private ViewHolder getViewHolder(View view) {
 		ViewHolder holder;
 		if ((holder = (ViewHolder) view.getTag()) == null) {
@@ -272,8 +262,41 @@ public class PresetUniformAdapter extends BaseAdapter {
 		return holder;
 	}
 
+	@Override
+	public Filter getFilter() {
+		return this.filter;
+	}
+
 	private static final class ViewHolder {
 		private TextView name;
 		private TextView rationale;
+	}
+
+	private class UniformFilter extends Filter {
+		@Override
+		protected FilterResults performFiltering(CharSequence constraint) {
+			String filterString = constraint.toString().toLowerCase();
+
+			final List<Uniform> filteredUniforms = new ArrayList<>(uniforms.size());
+
+			for (int i = 0; i < uniforms.size(); i++) {
+				Uniform currentUniform = uniforms.get(i);
+				if (currentUniform.name.contains(filterString)) {
+					filteredUniforms.add(currentUniform);
+				}
+			}
+
+			FilterResults results = new FilterResults();
+			results.values = filteredUniforms;
+			results.count = filteredUniforms.size();
+
+			return results;
+		}
+
+		@Override
+		protected void publishResults(CharSequence constraint, FilterResults results) {
+			filteredUniforms = (ArrayList<Uniform>) results.values;
+			notifyDataSetChanged();
+		}
 	}
 }
