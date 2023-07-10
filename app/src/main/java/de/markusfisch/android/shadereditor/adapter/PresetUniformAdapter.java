@@ -59,10 +59,11 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 
 	public PresetUniformAdapter(Context context) {
 		uniformFormat = context.getString(R.string.uniform_format);
-		uniforms = Arrays.asList(new Uniform(
-				"sampler2D",
-				ShaderRenderer.UNIFORM_BACKBUFFER,
-				context.getString(R.string.previous_frame)),
+		uniforms = Arrays.asList(
+				new Uniform(
+						"sampler2D",
+						ShaderRenderer.UNIFORM_BACKBUFFER,
+						context.getString(R.string.previous_frame)),
 				new Uniform(
 						"float",
 						ShaderRenderer.UNIFORM_BATTERY,
