@@ -32,10 +32,12 @@ public class UniformPresetPageFragment extends Fragment {
 				container,
 				false);
 
-		listView = view.findViewById(R.id.uniforms);
-		initListView(getActivity());
+		Activity activity = getActivity();
 
-		searchBar = getActivity().findViewById(R.id.search_bar);
+		listView = view.findViewById(R.id.uniforms);
+		initListView(activity);
+
+		searchBar = activity.findViewById(R.id.search_bar);
 		initSearchBar();
 
 		return view;
