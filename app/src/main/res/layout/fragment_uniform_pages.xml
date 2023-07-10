@@ -1,10 +1,23 @@
-<android.support.v4.view.ViewPager
+<LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/pager"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
-	<android.support.v4.view.PagerTabStrip
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+	<android.support.v4.view.ViewPager
+		android:id="@+id/pager"
+		android:layout_weight="1.0"
+		android:layout_width="match_parent"
+		android:layout_height="0dp">
+		<android.support.v4.view.PagerTabStrip
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:background="@color/primary_translucent"/>
+	</android.support.v4.view.ViewPager>
+	<EditText
+		android:id="@+id/search_bar"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:background="@color/primary_translucent"/>
-</android.support.v4.view.ViewPager>
+		android:drawableStart="@drawable/ic_action_search"
+		android:hint="@string/search_uniforms_hint"
+		android:inputType="textFilter" />
+</LinearLayout>

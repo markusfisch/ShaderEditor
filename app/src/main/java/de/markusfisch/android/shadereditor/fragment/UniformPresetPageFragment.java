@@ -4,9 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import de.markusfisch.android.shadereditor.R;
@@ -17,6 +20,7 @@ import de.markusfisch.android.shadereditor.adapter.PresetUniformAdapter;
 public class UniformPresetPageFragment extends Fragment {
 	private PresetUniformAdapter uniformsAdapter;
 	private ListView listView;
+	private EditText searchBar;
 
 	@Override
 	public View onCreateView(
@@ -31,6 +35,9 @@ public class UniformPresetPageFragment extends Fragment {
 		listView = view.findViewById(R.id.uniforms);
 		initListView(getActivity());
 
+		searchBar = getActivity().findViewById(R.id.search_bar);
+		initSearchBar();
+
 		return view;
 	}
 
@@ -41,6 +48,26 @@ public class UniformPresetPageFragment extends Fragment {
 		listView.setOnItemClickListener((parent, view, position, id) -> {
 			if (view.isEnabled()) {
 				addUniform(uniformsAdapter.getItem(position));
+			}
+		});
+	}
+
+	private void initSearchBar() {
+		searchBar.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				uniformsAdapter.getFilter().filter(s);
+				uniformsAdapter.notifyDataSetChanged();
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {
+
 			}
 		});
 	}

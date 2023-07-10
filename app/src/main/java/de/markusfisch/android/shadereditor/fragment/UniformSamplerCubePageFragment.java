@@ -27,6 +27,10 @@ public class UniformSamplerCubePageFragment
 
 	@Override
 	protected Cursor loadTextures() {
-		return ShaderEditorApp.db.getSamplerCubeTextures();
+		if (searchQuery == null) {
+			return ShaderEditorApp.db.getSamplerCubeTextures();
+		}
+
+		return ShaderEditorApp.db.getSamplerCubeTexturesWith(searchQuery);
 	}
 }
