@@ -20,7 +20,6 @@ import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 
 public class PresetUniformAdapter extends BaseAdapter implements Filterable {
-
 	public static final class Uniform {
 		public final String type;
 		public final String name;
