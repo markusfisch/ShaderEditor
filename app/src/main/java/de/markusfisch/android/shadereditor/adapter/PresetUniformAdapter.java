@@ -277,25 +277,27 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 		@Override
 		protected FilterResults performFiltering(CharSequence constraint) {
 			String filterString = constraint.toString().toLowerCase();
+			int size = uniforms.size();
+			List<Uniform> filtered = new ArrayList<>(size);
 
-			final List<Uniform> filteredUniforms = new ArrayList<>(uniforms.size());
-
-			for (int i = 0; i < uniforms.size(); i++) {
+			for (int i = 0; i < size; ++i) {
 				Uniform currentUniform = uniforms.get(i);
 				if (currentUniform.name.contains(filterString)) {
-					filteredUniforms.add(currentUniform);
+					filtered.add(currentUniform);
 				}
 			}
 
 			FilterResults results = new FilterResults();
-			results.values = filteredUniforms;
-			results.count = filteredUniforms.size();
+			results.values = filtered;
+			results.count = filtered.size();
 
 			return results;
 		}
 
 		@Override
-		protected void publishResults(CharSequence constraint, FilterResults results) {
+		@SuppressWarnings("unchecked")
+		protected void publishResults(CharSequence constraint,
+				FilterResults results) {
 			filteredUniforms = (ArrayList<Uniform>) results.values;
 		}
 	}
