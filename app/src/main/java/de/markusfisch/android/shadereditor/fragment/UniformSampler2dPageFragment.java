@@ -7,10 +7,11 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -21,6 +22,7 @@ import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
 import de.markusfisch.android.shadereditor.activity.TextureViewActivity;
 import de.markusfisch.android.shadereditor.adapter.TextureAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.widget.SearchMenu;
 
 public class UniformSampler2dPageFragment extends Fragment {
 	protected String searchQuery;
@@ -31,6 +33,12 @@ public class UniformSampler2dPageFragment extends Fragment {
 	private View progressBar;
 	private View noTexturesMessage;
 	private String samplerType = AbstractSamplerPropertiesFragment.SAMPLER_2D;
+
+	@Override
+	public void onCreate(Bundle state) {
+		super.onCreate(state);
+		setHasOptionsMenu(true);
+	}
 
 	@Override
 	public View onCreateView(
@@ -48,8 +56,8 @@ public class UniformSampler2dPageFragment extends Fragment {
 		listView = view.findViewById(R.id.textures);
 		initListView(view);
 
-		searchBar = getActivity().findViewById(R.id.search_bar);
-		initSearchBar();
+		//searchBar = getActivity().findViewById(R.id.search_bar);
+		//initSearchBar();
 
 		progressBar = view.findViewById(R.id.progress_bar);
 		noTexturesMessage = view.findViewById(R.id.no_textures_message);
@@ -75,6 +83,11 @@ public class UniformSampler2dPageFragment extends Fragment {
 		listView = null;
 		progressBar = null;
 		noTexturesMessage = null;
+	}
+
+	@Override
+	public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
+		SearchMenu.addSearchMenu(menu, inflater, this::filterTextures);
 	}
 
 	public void setSamplerType(String type) {
@@ -169,26 +182,11 @@ public class UniformSampler2dPageFragment extends Fragment {
 				(parent, view1, position, id) -> showTexture(id));
 	}
 
-	private void initSearchBar() {
-		searchBar.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start,
-					int count, int after) {
-			}
+	private void filterTextures(String query) {
+		searchQuery = query == null
+				? null
+				: query.toLowerCase();
 
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-				searchQuery = s.length() == 0
-						? null
-						: s.toString().toLowerCase();
-
-				loadTexturesAsync(getActivity());
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-			}
-		});
+		loadTexturesAsync(getActivity());
 	}
 }
