@@ -152,7 +152,8 @@ public class Database {
 				null);
 	}
 
-	public Cursor getTextures() {
+	public Cursor getTextures(String substring) {
+		boolean useSubstring = substring != null;
 		return db.rawQuery(
 				"SELECT " +
 						TEXTURES_ID + "," +
@@ -162,25 +163,17 @@ public class Database {
 						TEXTURES_THUMB +
 						" FROM " + TEXTURES +
 						" WHERE " + TEXTURES_RATIO + " = 1" +
+						(useSubstring
+								? " AND " + TEXTURES_NAME + " LIKE ?"
+								: "") +
 						" ORDER BY " + TEXTURES_ID,
-				null);
+				useSubstring
+						? new String[]{"%" + substring + "%"}
+						: null);
 	}
 
-	public Cursor getTexturesWith(String substring) {
-		return db.rawQuery(
-				"SELECT " +
-						TEXTURES_ID + "," +
-						TEXTURES_NAME + "," +
-						TEXTURES_WIDTH + "," +
-						TEXTURES_HEIGHT + "," +
-						TEXTURES_THUMB +
-						" FROM " + TEXTURES +
-						" WHERE " + TEXTURES_RATIO + " = 1 AND " + TEXTURES_NAME + " LIKE ?" +
-						" ORDER BY " + TEXTURES_ID,
-				new String[]{"%" + substring + "%"});
-	}
-
-	public Cursor getSamplerCubeTextures() {
+	public Cursor getSamplerCubeTextures(String substring) {
+		boolean useSubstring = substring != null;
 		return db.rawQuery(
 				"SELECT " +
 						TEXTURES_ID + "," +
@@ -190,22 +183,13 @@ public class Database {
 						TEXTURES_THUMB +
 						" FROM " + TEXTURES +
 						" WHERE " + TEXTURES_RATIO + " = 1.5" +
+						(useSubstring
+								? " AND " + TEXTURES_NAME + " LIKE ?"
+								: "") +
 						" ORDER BY " + TEXTURES_ID,
-				null);
-	}
-
-	public Cursor getSamplerCubeTexturesWith(String substring) {
-		return db.rawQuery(
-				"SELECT " +
-						TEXTURES_ID + "," +
-						TEXTURES_NAME + "," +
-						TEXTURES_WIDTH + "," +
-						TEXTURES_HEIGHT + "," +
-						TEXTURES_THUMB +
-						" FROM " + TEXTURES +
-						" WHERE " + TEXTURES_RATIO + " = 1.5 AND " + TEXTURES_NAME + " LIKE ?" +
-						" ORDER BY " + TEXTURES_ID,
-				new String[]{"%" + substring + "%"});
+				useSubstring
+						? new String[]{"%" + substring + "%"}
+						: null);
 	}
 
 	public boolean isShaderAvailable(long id) {

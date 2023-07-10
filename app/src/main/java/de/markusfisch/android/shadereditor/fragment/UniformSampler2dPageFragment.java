@@ -101,11 +101,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 	}
 
 	protected Cursor loadTextures() {
-		if (searchQuery == null) {
-			return ShaderEditorApp.db.getTextures();
-		}
-
-		return ShaderEditorApp.db.getTexturesWith(searchQuery);
+		return ShaderEditorApp.db.getTextures(searchQuery);
 	}
 
 	private void showTexture(long id) {
