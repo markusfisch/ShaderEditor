@@ -53,8 +53,9 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 
 	private final String uniformFormat;
 	private final List<Uniform> uniforms;
-	private List<Uniform> filteredUniforms;
 	private final UniformFilter filter = new UniformFilter();
+
+	private List<Uniform> filteredUniforms;
 
 	public PresetUniformAdapter(Context context) {
 		uniformFormat = context.getString(R.string.uniform_format);
@@ -207,6 +208,11 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 	}
 
 	@Override
+	public Filter getFilter() {
+		return filter;
+	}
+
+	@Override
 	public int getCount() {
 		return filteredUniforms.size();
 	}
@@ -260,11 +266,6 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 		}
 
 		return holder;
-	}
-
-	@Override
-	public Filter getFilter() {
-		return this.filter;
 	}
 
 	private static final class ViewHolder {
