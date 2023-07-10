@@ -90,6 +90,7 @@
 	<string name="sampler_2d">sampler2D</string>
 	<string name="sampler_cube">samplerCube</string>
 	<string name="preset">preset</string>
+	<string name="search_uniforms_hint">Search uniforms…</string>
 
 	<!-- UniformPresetPageFragment -->
 	<string name="uniform_format">%1$s (%2$s)</string>
@@ -243,5 +244,4 @@
 	<string name="storage_not_writeable">Cannot write database</string>
 	<string name="successfully_exported">Exported to Downloads</string>
 	<string name="successfully_imported">Database imported</string>
-    <string name="search_uniforms_hint">Search uniforms…</string>
 </resources>
