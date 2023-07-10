@@ -181,12 +181,11 @@ public class UniformSampler2dPageFragment extends Fragment {
 			}
 
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				if (s.length() == 0) {
-					searchQuery = null;
-				} else {
-					searchQuery = s.toString().toLowerCase();
-				}
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				searchQuery = s.length() == 0
+						? null
+						: s.toString().toLowerCase();
 
 				loadTexturesAsync(getActivity());
 			}
