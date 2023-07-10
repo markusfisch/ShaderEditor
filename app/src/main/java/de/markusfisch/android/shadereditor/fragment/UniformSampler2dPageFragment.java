@@ -23,10 +23,11 @@ import de.markusfisch.android.shadereditor.adapter.TextureAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public class UniformSampler2dPageFragment extends Fragment {
+	protected String searchQuery;
+
 	private ListView listView;
 	private TextureAdapter texturesAdapter;
 	private EditText searchBar;
-	protected String searchQuery;
 	private View progressBar;
 	private View noTexturesMessage;
 	private String samplerType = AbstractSamplerPropertiesFragment.SAMPLER_2D;
