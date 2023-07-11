@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat;
 import de.markusfisch.android.shadereditor.R;
 
 public class Highlighter {
+    // order has to match the one defined in `highlighter.c`
     enum Highlight {
         HIGHLIGHT_INVALID(R.color.syntax_invalid),
         HIGHLIGHT_KEYWORD(R.color.syntax_keyword),

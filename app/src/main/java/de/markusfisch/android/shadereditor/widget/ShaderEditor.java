@@ -4,16 +4,16 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Handler;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.appcompat.widget.AppCompatEditText;
+
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
-import android.text.SpannedString;
 import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
@@ -30,7 +30,7 @@ import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.highlighter.Highlighter;
 
-public class ShaderEditor extends AppCompatEditText {
+public class ShaderEditor extends LineNumberEditText {
     public void highlightError() {
         Editable e = getText();
         if (e == null) return;
@@ -389,16 +389,16 @@ public class ShaderEditor extends AppCompatEditText {
         return e;
     }
 
-    private static <T>void clearSpans(Spannable e, int length, Class<T> clazz) {
+    private static <T> void clearSpans(Spannable e, int length, Class<T> clazz) {
         // Remove foreground color spans.
-            T[] spans = e.getSpans(
-                    0,
-                    length,
-                    clazz);
+        T[] spans = e.getSpans(
+                0,
+                length,
+                clazz);
 
-            for (int i = spans.length; i-- > 0; ) {
-                e.removeSpan(spans[i]);
-            }
+        for (int i = spans.length; i-- > 0; ) {
+            e.removeSpan(spans[i]);
+        }
     }
 
     private CharSequence autoIndent(
