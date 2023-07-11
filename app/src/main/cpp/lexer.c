@@ -174,8 +174,8 @@ Token next_token(Lexer *lexer) {
           tok.category = TRIVIA;
           do {
             read_next(lexer);
-          } while (!(!*lexer->iter ||
-                     *lexer->iter == '*' && iter_peek_c(lexer->iter) == '/'));
+          } while (*lexer->iter &&
+                   !(*lexer->iter == '*' && iter_peek_c(lexer->iter) == '/'));
           if (*lexer->iter) {
             read_next(lexer);
             read_next(lexer);
@@ -186,7 +186,8 @@ Token next_token(Lexer *lexer) {
           tok.category = TRIVIA;
           do {
             read_next(lexer);
-          } while (*lexer->iter != '\n' && *lexer->iter != '\r');
+          } while (*lexer->iter &&
+                   !(*lexer->iter == '\n' || *lexer->iter == '\r'));
           break;
         default:
           tok.type = advance(lexer, SLASH);
@@ -428,7 +429,10 @@ static TokenType read_number(Lexer *lexer) {
       read_next(lexer);
     } while ((isdigit(*lexer->iter)));
   }
-  if (type == FLOATCONSTANT) return FLOATCONSTANT;
+  if (type == FLOATCONSTANT) {
+    if (*lexer->iter == 'f' || *lexer->iter == 'F') read_next(lexer);
+    return FLOATCONSTANT;
+  }
   // Check for unsigned suffix
   if (*lexer->iter == 'u' || *lexer->iter == 'U') {
     read_next(lexer);
