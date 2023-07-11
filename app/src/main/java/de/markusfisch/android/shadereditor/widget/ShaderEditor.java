@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat;
 import androidx.appcompat.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -35,17 +36,18 @@ public class ShaderEditor extends AppCompatEditText {
         if (e == null) return;
         clearSpans(e, length(), BackgroundColorSpan.class);
         if (errorLine > 0) {
-            Matcher m = PATTERN_LINE.matcher(e);
-
-            for (int i = errorLine; i-- > 0 && m.find(); ) {
-                // Because analyzers don't like `for ();` statements.
-            }
-
-            e.setSpan(
-                    new BackgroundColorSpan(colorError),
-                    m.start(),
-                    m.end(),
-                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            post(() -> {
+                if (e.length() == 0) return;
+                Layout layout = getLayout();
+                if (errorLine > layout.getLineCount()) return;
+                int start = layout.getLineStart(errorLine);
+                int end = layout.getLineEnd(errorLine);
+                e.setSpan(
+                        new BackgroundColorSpan(colorError),
+                        start,
+                        end,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            });
         }
     }
 

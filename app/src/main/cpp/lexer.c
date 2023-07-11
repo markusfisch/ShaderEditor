@@ -78,6 +78,8 @@ Token next_token(Lexer *lexer) {
       if (is_new_logic_line) {
         tok.category = PREPROC;
         tok.type = advance(lexer, PREPROC_HASH);
+      } else {
+        tok.type = advance(lexer, INVALID);
       }
       break;
       // 1 - 3 char cases + comments
@@ -172,9 +174,12 @@ Token next_token(Lexer *lexer) {
           tok.category = TRIVIA;
           do {
             read_next(lexer);
-          } while (*lexer->iter != '*' || iter_peek_c(lexer->iter) != '/');
-          read_next(lexer);
-          read_next(lexer);
+          } while (!(!*lexer->iter ||
+                     *lexer->iter == '*' && iter_peek_c(lexer->iter) == '/'));
+          if (*lexer->iter) {
+            read_next(lexer);
+            read_next(lexer);
+          }
           break;
         case '/':
           tok.type = advance(lexer, LINE_COMMENT);
