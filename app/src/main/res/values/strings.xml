@@ -90,6 +90,7 @@
 	<string name="sampler_2d">sampler2D</string>
 	<string name="sampler_cube">samplerCube</string>
 	<string name="preset">preset</string>
+	<string name="search">Search</string>
 
 	<!-- UniformPresetPageFragment -->
 	<string name="uniform_format">%1$s (%2$s)</string>

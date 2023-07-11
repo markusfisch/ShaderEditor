@@ -7,14 +7,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 
-public class PresetUniformAdapter extends BaseAdapter {
+public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 	public static final class Uniform {
 		public final String type;
 		public final String name;
@@ -47,11 +52,14 @@ public class PresetUniformAdapter extends BaseAdapter {
 	}
 
 	private final String uniformFormat;
-	private final Uniform[] uniforms;
+	private final List<Uniform> uniforms;
+	private final UniformFilter filter = new UniformFilter();
+
+	private List<Uniform> filteredUniforms;
 
 	public PresetUniformAdapter(Context context) {
 		uniformFormat = context.getString(R.string.uniform_format);
-		uniforms = new Uniform[]{
+		uniforms = Arrays.asList(
 				new Uniform(
 						"sampler2D",
 						ShaderRenderer.UNIFORM_BACKBUFFER,
@@ -195,18 +203,23 @@ public class PresetUniformAdapter extends BaseAdapter {
 				new Uniform(
 						"vec2",
 						ShaderRenderer.UNIFORM_TOUCH_START,
-						context.getString(R.string.touch_start_position_in_pixels)),
-		};
+						context.getString(R.string.touch_start_position_in_pixels)));
+		filteredUniforms = uniforms;
+	}
+
+	@Override
+	public Filter getFilter() {
+		return filter;
 	}
 
 	@Override
 	public int getCount() {
-		return uniforms.length;
+		return filteredUniforms.size();
 	}
 
 	@Override
 	public Uniform getItem(int position) {
-		return uniforms[position];
+		return filteredUniforms.get(position);
 	}
 
 	@Override
@@ -223,7 +236,7 @@ public class PresetUniformAdapter extends BaseAdapter {
 		}
 
 		ViewHolder holder = getViewHolder(convertView);
-		Uniform uniform = uniforms[position];
+		Uniform uniform = filteredUniforms.get(position);
 		boolean enabled = uniform.isAvailable();
 
 		convertView.setEnabled(enabled);
@@ -258,5 +271,34 @@ public class PresetUniformAdapter extends BaseAdapter {
 	private static final class ViewHolder {
 		private TextView name;
 		private TextView rationale;
+	}
+
+	private class UniformFilter extends Filter {
+		@Override
+		protected FilterResults performFiltering(CharSequence constraint) {
+			String filterString = constraint.toString().toLowerCase();
+			int size = uniforms.size();
+			List<Uniform> filtered = new ArrayList<>(size);
+
+			for (int i = 0; i < size; ++i) {
+				Uniform currentUniform = uniforms.get(i);
+				if (currentUniform.name.contains(filterString)) {
+					filtered.add(currentUniform);
+				}
+			}
+
+			FilterResults results = new FilterResults();
+			results.values = filtered;
+			results.count = filtered.size();
+
+			return results;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		protected void publishResults(CharSequence constraint,
+				FilterResults results) {
+			filteredUniforms = (ArrayList<Uniform>) results.values;
+		}
 	}
 }

@@ -48,7 +48,7 @@ public class BackBufferParametersView extends LinearLayout {
 
 		MergeCursor mergeCursor = new MergeCursor(new Cursor[]{
 				matrixCursor,
-				ShaderEditorApp.db.getTextures()
+				ShaderEditorApp.db.getTextures(null)
 		});
 
 		adapter = new TextureSpinnerAdapter(context, mergeCursor);

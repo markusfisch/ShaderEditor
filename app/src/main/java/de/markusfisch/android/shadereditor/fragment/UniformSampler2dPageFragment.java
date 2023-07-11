@@ -7,10 +7,15 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ListView;
 
 import de.markusfisch.android.shadereditor.R;
@@ -18,13 +23,23 @@ import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
 import de.markusfisch.android.shadereditor.activity.TextureViewActivity;
 import de.markusfisch.android.shadereditor.adapter.TextureAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.widget.SearchMenu;
 
 public class UniformSampler2dPageFragment extends Fragment {
+	protected String searchQuery;
+
 	private ListView listView;
 	private TextureAdapter texturesAdapter;
+	private EditText searchBar;
 	private View progressBar;
 	private View noTexturesMessage;
 	private String samplerType = AbstractSamplerPropertiesFragment.SAMPLER_2D;
+
+	@Override
+	public void onCreate(Bundle state) {
+		super.onCreate(state);
+		setHasOptionsMenu(true);
+	}
 
 	@Override
 	public View onCreateView(
@@ -41,6 +56,9 @@ public class UniformSampler2dPageFragment extends Fragment {
 
 		listView = view.findViewById(R.id.textures);
 		initListView(view);
+
+		//searchBar = getActivity().findViewById(R.id.search_bar);
+		//initSearchBar();
 
 		progressBar = view.findViewById(R.id.progress_bar);
 		noTexturesMessage = view.findViewById(R.id.no_textures_message);
@@ -68,6 +86,11 @@ public class UniformSampler2dPageFragment extends Fragment {
 		noTexturesMessage = null;
 	}
 
+	@Override
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+		SearchMenu.addSearchMenu(menu, inflater, this::filterTextures);
+	}
+
 	public void setSamplerType(String type) {
 		samplerType = type;
 	}
@@ -92,7 +115,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 	}
 
 	protected Cursor loadTextures() {
-		return ShaderEditorApp.db.getTextures();
+		return ShaderEditorApp.db.getTextures(searchQuery);
 	}
 
 	private void showTexture(long id) {
@@ -158,5 +181,13 @@ public class UniformSampler2dPageFragment extends Fragment {
 		listView.setEmptyView(view.findViewById(R.id.no_textures));
 		listView.setOnItemClickListener(
 				(parent, view1, position, id) -> showTexture(id));
+	}
+
+	private void filterTextures(String query) {
+		searchQuery = query == null
+				? null
+				: query.toLowerCase();
+
+		loadTexturesAsync(getActivity());
 	}
 }
