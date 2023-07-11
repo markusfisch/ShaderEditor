@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.text.Editable;
 import android.util.AttributeSet;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,7 +32,7 @@ public class LineNumberEditText extends AppCompatEditText {
 
     private void init() {
         lineNumberPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        lineNumberPaint.setColor(0xff888888);
+        lineNumberPaint.setColor(0x88888888);
         lineNumberPaint.setTypeface(getTypeface());
         lineNumberPaint.setTextSize(getTextSize());
         bigChar = lineNumberPaint.measureText("m");
@@ -39,12 +40,12 @@ public class LineNumberEditText extends AppCompatEditText {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        Editable editable = getText();
-
-        if (editable == null) return;
-
         int lineCount = getLineCount();
         final int lineCountNumDigits = numDigits(lineCount);
+        int paddingLeft = (int) (bigChar * lineCountNumDigits);
+        int spacing = 16;
+        setPadding(paddingLeft + spacing, getPaddingTop(), getPaddingRight(), getPaddingBottom());
+        super.onDraw(canvas);
 
         for (int i = 0, lineNumber = 1; i < lineCount; ++i) {
             int baseline = getLineBounds(i, null);
@@ -53,12 +54,8 @@ public class LineNumberEditText extends AppCompatEditText {
                     lineNumberPaint);
             ++lineNumber;
         }
-        int paddingLeft = (int) (bigChar * lineCountNumDigits);
-        int spacing = 16;
         canvas.drawLine(paddingLeft + spacing * .5f, 0, paddingLeft + spacing * .5f, getHeight(), lineNumberPaint);
-        setPadding(paddingLeft + spacing, getPaddingTop(), getPaddingRight(), getPaddingBottom());
 
-        super.onDraw(canvas);
     }
 
     /**

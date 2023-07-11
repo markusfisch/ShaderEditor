@@ -21,7 +21,6 @@ set(SOURCES
 
 set(HEADERS
         keywords.h
-        token_type.h
         lexer.h
         trie.h
         iter.h
