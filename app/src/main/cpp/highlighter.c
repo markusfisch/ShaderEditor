@@ -283,6 +283,7 @@ static inline Highlight highlight_group(TokenType type) {
     case PREPROC_LINE:
     case PREPROC_ERROR:
     case PREPROC_PRAGMA:
+    case PREPROC_VERSION:
       return HIGHLIGHT_DIRECTIVE;
     case TOKEN_EOF:
       return HIGHLIGHT_INVALID;
