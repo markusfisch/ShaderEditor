@@ -4,6 +4,7 @@
 .idea
 .aside
 build
+app/.cxx
 infer-out
 local.properties
 gradle.properties

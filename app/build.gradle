@@ -10,6 +10,11 @@ android {
 
 		versionCode 73
 		versionName '2.28.4'
+		externalNativeBuild {
+			cmake {
+				cppFlags ''
+			}
+		}
 	}
 
 	signingConfigs {
@@ -31,6 +36,12 @@ android {
 			minifyEnabled true
 			shrinkResources true
 			signingConfig signingConfigs.release
+		}
+	}
+	externalNativeBuild {
+		cmake {
+			path file('src/main/cpp/CMakeLists.txt')
+			version '3.22.1'
 		}
 	}
 }

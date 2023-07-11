@@ -180,7 +180,7 @@ public class MainActivity
 
 		if (editorFragment.hasErrorLine()) {
 			editorFragment.clearError();
-			editorFragment.updateHighlighting();
+			editorFragment.highlightError();
 		}
 
 		setFragmentShader(text);
