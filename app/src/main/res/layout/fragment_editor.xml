@@ -9,8 +9,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:background="@color/background_editor"
-	android:fillViewport="true"
-	tools:ignore="Overdraw">
+	android:fillViewport="true">
 	<!-- Hardcode gravity to left because GLSL source code is always
 		aligned to the left. -->
 	<HorizontalScrollView
