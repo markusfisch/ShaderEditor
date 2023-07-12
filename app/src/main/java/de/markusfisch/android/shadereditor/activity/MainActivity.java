@@ -507,9 +507,7 @@ public class MainActivity
 			editorFragment.updateHighlighting();
 		}
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-			invalidateOptionsMenu();
-		}
+		invalidateOptionsMenu();
 	}
 
 	private void autoSave() {

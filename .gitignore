@@ -12,4 +12,3 @@ app/src/main/cpp/token_type.h
 
 infer-out
 local.properties
-gradle.properties
