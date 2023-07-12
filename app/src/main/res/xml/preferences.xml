@@ -43,8 +43,7 @@
 			android:title="@string/show_line_numbers"
 			android:summary="@string/show_line_numbers_summary"
 			android:checked="true"
-			android:defaultValue="true"
-			/>
+			android:defaultValue="true"/>
 		<androidx.preference.SwitchPreferenceCompat
 			android:key="use_tab_for_indent"
 			android:title="@string/use_tab_for_indent"
