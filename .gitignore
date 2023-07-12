@@ -3,8 +3,13 @@
 .gradle
 .idea
 .aside
+
 build
 app/.cxx
+app/bin
+# because it is auto-generated
+app/src/main/cpp/token_type.h
+
 infer-out
 local.properties
 gradle.properties
