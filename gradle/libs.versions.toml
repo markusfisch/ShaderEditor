@@ -1,0 +1,13 @@
+[versions]
+agp = "7.3.1"
+appcompat-v7 = "25.3.1"
+
+[libraries]
+appcompat-v7 = { module = "com.android.support:appcompat-v7", version.ref = "appcompat-v7" }
+design = { module = "com.android.support:design", version.ref = "appcompat-v7" }
+preference-v14 = { module = "com.android.support:preference-v14", version.ref = "appcompat-v7" }
+preference-v7 = { module = "com.android.support:preference-v7", version.ref = "appcompat-v7" }
+
+[plugins]
+androidApplication = { id = "com.android.application", version.ref = "agp" }
+
