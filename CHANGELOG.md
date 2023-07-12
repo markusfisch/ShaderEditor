@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.29.0
+* Add a search menu item to filter uniforms and textures
+* Disable Insert Tab menu item when code is hidden
+
 ## 2.28.4
 * Fix loss of scroll position when pasting text
 

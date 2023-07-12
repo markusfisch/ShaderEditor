@@ -98,7 +98,7 @@ public class EditorFragment extends Fragment {
 
 		InfoLog.parse(infoLog);
 		shaderEditor.setErrorLine(InfoLog.getErrorLine());
-		shaderEditor.highlightError();
+		updateHighlighting();
 
 		Toast errorToast = Toast.makeText(
 				activity,
@@ -180,5 +180,9 @@ public class EditorFragment extends Fragment {
 
 	public void highlightError() {
 		shaderEditor.highlightError();
+	}
+
+	public void setShowLineNumbers(boolean showLineNumbers) {
+		shaderEditor.setShowLineNumbers(showLineNumbers);
 	}
 }
