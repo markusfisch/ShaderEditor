@@ -27,8 +27,8 @@ public class Preferences {
 	public static final String EXPORT_TO_DIRECTORY = "export_to_directory";
 	public static final String IMPORT_DATABASE = "import_database";
 	public static final String EXPORT_DATABASE = "export_database";
+	public static final String SHOW_LINE_NUMBERS = "show_line_numbers";
 
-	private static final String SHOW_LINE_NUMBERS = "show_line_numbers";
 	private static final int RUN_AUTO = 1;
 	private static final int RUN_MANUALLY = 2;
 	private static final int RUN_MANUALLY_EXTRA = 3;
@@ -53,49 +53,6 @@ public class Preferences {
 	private boolean disableHighlighting = false;
 	private boolean autoSave = true;
 	private boolean showLineNumbers = true;
-
-	private static int parseInt(String s, int preset) {
-		try {
-			if (s != null && s.length() > 0) {
-				return Integer.parseInt(s);
-			}
-		} catch (NumberFormatException e) {
-			// Use preset.
-		}
-
-		return preset;
-	}
-
-	private static long parseLong(String s, long preset) {
-		try {
-			if (s != null && s.length() > 0) {
-				return Long.parseLong(s);
-			}
-		} catch (NumberFormatException e) {
-			// Use preset.
-		}
-
-		return preset;
-	}
-
-	private static int parseSensorDelay(String s, int preset) {
-		if (s == null) {
-			return preset;
-		}
-
-		switch (s) {
-			case "Fastest":
-				return SensorManager.SENSOR_DELAY_FASTEST;
-			case "Game":
-				return SensorManager.SENSOR_DELAY_GAME;
-			case "Normal":
-				return SensorManager.SENSOR_DELAY_NORMAL;
-			case "UI":
-				return SensorManager.SENSOR_DELAY_UI;
-		}
-
-		return preset;
-	}
 
 	public void init(Context context) {
 		systemBarColor = ContextCompat.getColor(
@@ -266,5 +223,48 @@ public class Preferences {
 		SharedPreferences.Editor editor = preferences.edit();
 		editor.putString(key, value);
 		editor.apply();
+	}
+
+	private static int parseInt(String s, int preset) {
+		try {
+			if (s != null && s.length() > 0) {
+				return Integer.parseInt(s);
+			}
+		} catch (NumberFormatException e) {
+			// Use preset.
+		}
+
+		return preset;
+	}
+
+	private static long parseLong(String s, long preset) {
+		try {
+			if (s != null && s.length() > 0) {
+				return Long.parseLong(s);
+			}
+		} catch (NumberFormatException e) {
+			// Use preset.
+		}
+
+		return preset;
+	}
+
+	private static int parseSensorDelay(String s, int preset) {
+		if (s == null) {
+			return preset;
+		}
+
+		switch (s) {
+			case "Fastest":
+				return SensorManager.SENSOR_DELAY_FASTEST;
+			case "Game":
+				return SensorManager.SENSOR_DELAY_GAME;
+			case "Normal":
+				return SensorManager.SENSOR_DELAY_NORMAL;
+			case "UI":
+				return SensorManager.SENSOR_DELAY_UI;
+		}
+
+		return preset;
 	}
 }
