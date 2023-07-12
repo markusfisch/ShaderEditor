@@ -1,13 +1,13 @@
 [versions]
 agp = "7.3.1"
-appcompat-v7 = "25.3.1"
+appcompat = "1.6.1"
+preference = "1.2.0"
+material = "1.9.0"
 
 [libraries]
-appcompat-v7 = { module = "com.android.support:appcompat-v7", version.ref = "appcompat-v7" }
-design = { module = "com.android.support:design", version.ref = "appcompat-v7" }
-preference-v14 = { module = "com.android.support:preference-v14", version.ref = "appcompat-v7" }
-preference-v7 = { module = "com.android.support:preference-v7", version.ref = "appcompat-v7" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-preference = { module = "androidx.preference:preference", version.ref = "preference" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
-

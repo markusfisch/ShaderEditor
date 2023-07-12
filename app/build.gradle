@@ -38,8 +38,7 @@ android {
 }
 
 dependencies {
-	implementation libs.appcompat.v7
-	implementation libs.design
-	implementation libs.preference.v7
-	implementation libs.preference.v14
+	implementation libs.androidx.appcompat
+	implementation libs.material
+	implementation libs.androidx.preference
 }
