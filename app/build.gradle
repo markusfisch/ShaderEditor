@@ -5,7 +5,7 @@ android {
 	compileSdkVersion sdk_version
 
 	defaultConfig {
-		minSdkVersion 9
+		minSdkVersion 14
 		targetSdkVersion sdk_version
 
 		versionCode 73
@@ -36,8 +36,8 @@ android {
 }
 
 dependencies {
-	implementation "com.android.support:appcompat-v7:$support_version"
-	implementation "com.android.support:design:$support_version"
-	implementation "com.android.support:preference-v7:$support_version"
-	implementation "com.android.support:preference-v14:$support_version"
+	implementation 'androidx.appcompat:appcompat:1.0.0'
+	implementation 'com.google.android.material:material:1.0.0'
+	implementation 'androidx.preference:preference:1.0.0'
+	implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
 }

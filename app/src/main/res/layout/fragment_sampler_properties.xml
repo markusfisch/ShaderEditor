@@ -44,7 +44,7 @@
 				android:hint="@string/input_texture_name"
 				android:inputType="text"
 				android:importantForAutofill="no"/>
-			<android.support.v7.widget.AppCompatCheckBox
+			<androidx.appcompat.widget.AppCompatCheckBox
 				android:id="@+id/should_add_uniform"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -57,7 +57,7 @@
 	<RelativeLayout
 		android:layout_width="match_parent"
 		android:layout_height="match_parent">
-		<android.support.design.widget.FloatingActionButton
+		<com.google.android.material.floatingactionbutton.FloatingActionButton
 			style="@style/FABRight"
 			android:id="@+id/save"
 			android:contentDescription="@string/save_texture"

@@ -3,7 +3,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 	<include layout="@layout/progress_view"/>
-	<android.support.design.widget.FloatingActionButton
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
 		style="@style/FABRight"
 		android:id="@+id/crop"
 		android:contentDescription="@string/crop_image"

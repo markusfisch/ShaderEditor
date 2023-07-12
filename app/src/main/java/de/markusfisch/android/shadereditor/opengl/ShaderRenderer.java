@@ -17,8 +17,8 @@ import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.os.BatteryManager;
 import android.os.Build;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -1431,6 +1431,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		if (wm == null) {
 			return 0;
 		}
+
 		switch (wm.getDefaultDisplay().getRotation()) {
 			default:
 			case Surface.ROTATION_0:
