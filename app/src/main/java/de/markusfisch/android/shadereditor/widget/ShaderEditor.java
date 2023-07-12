@@ -31,46 +31,46 @@ import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.highlighter.Highlighter;
 
 public class ShaderEditor extends LineNumberEditText {
-    public void highlightError() {
-        Editable e = getText();
-        if (e == null) return;
-        clearSpans(e, length(), BackgroundColorSpan.class);
-        if (errorLine > 0) {
-            post(() -> {
-                if (e.length() == 0) return;
-                Layout layout = getLayout();
-                if (errorLine > layout.getLineCount()) return;
-                int start = layout.getLineStart(errorLine);
-                int end = layout.getLineEnd(errorLine);
-                e.setSpan(
-                        new BackgroundColorSpan(colorError),
-                        start,
-                        end,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            });
-        }
-    }
+	public void highlightError() {
+		Editable e = getText();
+		if (e == null) return;
+		clearSpans(e, length(), BackgroundColorSpan.class);
+		if (errorLine > 0) {
+			post(() -> {
+				if (e.length() == 0) return;
+				Layout layout = getLayout();
+				if (errorLine > layout.getLineCount()) return;
+				int start = layout.getLineStart(errorLine);
+				int end = layout.getLineEnd(errorLine);
+				e.setSpan(
+						new BackgroundColorSpan(colorError),
+						start,
+						end,
+						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			});
+		}
+	}
 
-    public interface OnTextChangedListener {
-        void onTextChanged(String text);
-    }
+	public interface OnTextChangedListener {
+		void onTextChanged(String text);
+	}
 
-    private static final Pattern PATTERN_LINE = Pattern.compile(
-            ".*\\n");
-    private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
-            "[\\t ]+$",
-            Pattern.MULTILINE);
-    private static final Pattern PATTERN_INSERT_UNIFORM = Pattern.compile(
-            "^([ \t]*uniform.+)$",
-            Pattern.MULTILINE);
-    private static final Pattern PATTERN_ENDIF = Pattern.compile(
-            "(#endif)\\b");
-    private static final Pattern PATTERN_SHADER_TOY = Pattern.compile(
-            ".*void\\s+mainImage\\s*\\(.*");
-    private static final Pattern PATTERN_MAIN = Pattern.compile(
-            ".*void\\s+main\\s*\\(.*");
-    private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
-            "[\\xA0]");
+	private static final Pattern PATTERN_LINE = Pattern.compile(
+			".*\\n");
+	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
+			"[\\t ]+$",
+			Pattern.MULTILINE);
+	private static final Pattern PATTERN_INSERT_UNIFORM = Pattern.compile(
+			"^([ \t]*uniform.+)$",
+			Pattern.MULTILINE);
+	private static final Pattern PATTERN_ENDIF = Pattern.compile(
+			"(#endif)\\b");
+	private static final Pattern PATTERN_SHADER_TOY = Pattern.compile(
+			".*void\\s+mainImage\\s*\\(.*");
+	private static final Pattern PATTERN_MAIN = Pattern.compile(
+			".*void\\s+main\\s*\\(.*");
+	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
+			"[\\xA0]");
 
 	private final Handler updateHandler = new Handler();
 	private final Runnable updateRunnable = new Runnable() {
@@ -321,12 +321,12 @@ public class ShaderEditor extends LineNumberEditText {
 		});
 	}
 
-    private void setSyntaxColors(Context context) {
-        Highlighter.init_colors(context);
-        colorError = ContextCompat.getColor(
-                context,
-                R.color.syntax_error);
-    }
+	private void setSyntaxColors(Context context) {
+		Highlighter.init_colors(context);
+		colorError = ContextCompat.getColor(
+				context,
+				R.color.syntax_error);
+	}
 
 	private void cancelUpdate() {
 		updateHandler.removeCallbacks(updateRunnable);
@@ -342,13 +342,13 @@ public class ShaderEditor extends LineNumberEditText {
 		try {
 			int length = e.length();
 
-            // Don't use e.clearSpans() because it will
-            // remove too much.
-            clearSpans(e, length, ForegroundColorSpan.class);
-            clearSpans(e, length, BackgroundColorSpan.class);
-            if (length == 0) {
-                return e;
-            }
+			// Don't use e.clearSpans() because it will
+			// remove too much.
+			clearSpans(e, length, ForegroundColorSpan.class);
+			clearSpans(e, length, BackgroundColorSpan.class);
+			if (length == 0) {
+				return e;
+			}
 
 			// When pasting text from other apps, e.g. Github Mobile code
 			// viewer, the text can be tainted with No-Break Space (U+00A0)
@@ -371,35 +371,35 @@ public class ShaderEditor extends LineNumberEditText {
 						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 
-            if (ShaderEditorApp.preferences.disableHighlighting() &&
-                    length > 4096) {
-                return e;
-            }
-            long start = System.nanoTime();
-            String string = e.toString();
-            long end = System.nanoTime();
-            Log.d("EDITOR", "string took " + (end - start) * 1e-6 + "ms");
-            Highlighter.highlight(e, string);
-        } catch (IllegalStateException ex) {
-            // Raised by Matcher.start()/.end() when
-            // no successful match has been made what
-            // shouldn't ever happen because of find().
-        }
+			if (ShaderEditorApp.preferences.disableHighlighting() &&
+					length > 4096) {
+				return e;
+			}
+			long start = System.nanoTime();
+			String string = e.toString();
+			long end = System.nanoTime();
+			Log.d("EDITOR", "string took " + (end - start) * 1e-6 + "ms");
+			Highlighter.highlight(e, string);
+		} catch (IllegalStateException ex) {
+			// Raised by Matcher.start()/.end() when
+			// no successful match has been made what
+			// shouldn't ever happen because of find().
+		}
 
 		return e;
 	}
 
-    private static <T> void clearSpans(Spannable e, int length, Class<T> clazz) {
-        // Remove foreground color spans.
-        T[] spans = e.getSpans(
-                0,
-                length,
-                clazz);
+	private static <T> void clearSpans(Spannable e, int length, Class<T> clazz) {
+		// Remove foreground color spans.
+		T[] spans = e.getSpans(
+				0,
+				length,
+				clazz);
 
-        for (int i = spans.length; i-- > 0; ) {
-            e.removeSpan(spans[i]);
-        }
-    }
+		for (int i = spans.length; i-- > 0; ) {
+			e.removeSpan(spans[i]);
+		}
+	}
 
 	private CharSequence autoIndent(
 			CharSequence source,
