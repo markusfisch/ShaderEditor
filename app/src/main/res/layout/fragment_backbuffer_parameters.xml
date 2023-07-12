@@ -14,7 +14,7 @@
 			<include layout="@layout/widget_backbuffer_parameters"/>
 		</LinearLayout>
 	</ScrollView>
-	<android.support.design.widget.FloatingActionButton
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
 		style="@style/FABRight"
 		android:id="@+id/insert_code"
 		android:contentDescription="@string/insert_code"

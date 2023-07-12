@@ -36,7 +36,7 @@
 			android:gravity="center"
 			android:visibility="gone"/>
 	</FrameLayout>
-	<android.support.design.widget.FloatingActionButton
+	<com.google.android.material.floatingactionbutton.FloatingActionButton
 		style="@style/FABRight"
 		android:id="@+id/add_texture"
 		android:contentDescription="@string/add_texture"
