@@ -3,8 +3,8 @@ package de.markusfisch.android.shadereditor.preference;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.hardware.SensorManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.preference.PreferenceManager;
+import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 
 import de.markusfisch.android.shadereditor.R;
 

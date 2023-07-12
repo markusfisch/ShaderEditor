@@ -1,11 +1,13 @@
-apply plugin: 'com.android.application'
+plugins {
+	alias(libs.plugins.androidApplication)
+}
 
 android {
 	namespace 'de.markusfisch.android.shadereditor'
-	compileSdkVersion sdk_version
+	compileSdk sdk_version
 
 	defaultConfig {
-		minSdkVersion 9
+		minSdkVersion 14
 		targetSdkVersion sdk_version
 
 		versionCode 74
@@ -36,8 +38,8 @@ android {
 }
 
 dependencies {
-	implementation "com.android.support:appcompat-v7:$support_version"
-	implementation "com.android.support:design:$support_version"
-	implementation "com.android.support:preference-v7:$support_version"
-	implementation "com.android.support:preference-v14:$support_version"
+	implementation libs.appcompat.v7
+	implementation libs.design
+	implementation libs.preference.v7
+	implementation libs.preference.v14
 }

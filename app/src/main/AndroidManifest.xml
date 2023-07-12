@@ -22,7 +22,6 @@
 	<uses-feature android:name="android.hardware.camera.autofocus"
 		android:required="false"/>
 	<uses-feature android:name="android.software.live_wallpaper"/>
-	<uses-sdk tools:overrideLibrary="android.support.v14.preference"/>
 	<queries>
 		<intent>
 			<action android:name="android.intent.action.VIEW"/>
