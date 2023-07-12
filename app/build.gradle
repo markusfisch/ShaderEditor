@@ -1,4 +1,6 @@
-apply plugin: 'com.android.application'
+plugins {
+	alias(libs.plugins.androidApplication)
+}
 
 android {
 	namespace 'de.markusfisch.android.shadereditor'
@@ -36,7 +38,8 @@ android {
 }
 
 dependencies {
-	implementation 'androidx.appcompat:appcompat:1.6.1'
-	implementation 'com.google.android.material:material:1.9.0'
-	implementation 'androidx.preference:preference:1.2.0'
+	implementation libs.appcompat.v7
+	implementation libs.design
+	implementation libs.preference.v7
+	implementation libs.preference.v14
 }
