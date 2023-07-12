@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 public class TextureParameters {
 	protected static final String HEADER = "///";
