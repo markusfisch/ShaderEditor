@@ -39,6 +39,13 @@
 			android:entryValues="@array/tab_width_values"
 			android:defaultValue="2"/>
 		<android.support.v7.preference.SwitchPreferenceCompat
+			android:key="show_line_numbers"
+			android:title="@string/show_line_numbers"
+			android:summary="@string/show_line_numbers_summary"
+			android:checked="true"
+			android:defaultValue="true"
+			/>
+		<android.support.v7.preference.SwitchPreferenceCompat
 			android:key="use_tab_for_indent"
 			android:title="@string/use_tab_for_indent"
 			android:summary="@string/use_tab_for_indent_summary"

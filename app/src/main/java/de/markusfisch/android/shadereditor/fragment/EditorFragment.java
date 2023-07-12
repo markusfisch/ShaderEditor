@@ -177,4 +177,8 @@ public class EditorFragment extends Fragment {
 
 		return yOffset;
 	}
+
+	public void setShowLineNumbers(boolean showLineNumbers) {
+		shaderEditor.setShowLineNumbers(showLineNumbers);
+	}
 }

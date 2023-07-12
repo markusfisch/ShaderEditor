@@ -503,6 +503,7 @@ public class MainActivity
 		}
 
 		if (editorFragment != null) {
+			editorFragment.setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
 			editorFragment.updateHighlighting();
 		}
 

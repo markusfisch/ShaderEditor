@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
-public class ShaderEditor extends AppCompatEditText {
+public class ShaderEditor extends LineNumberEditText {
 	public interface OnTextChangedListener {
 		void onTextChanged(String text);
 	}
