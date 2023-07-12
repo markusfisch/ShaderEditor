@@ -4,11 +4,10 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.support.v7.widget.AppCompatEditText;
+import androidx.appcompat.widget.AppCompatEditText;
 import android.util.AttributeSet;
 
 import de.markusfisch.android.shadereditor.R;
-
 
 public class LineNumberEditText extends AppCompatEditText {
 	private final float lineNumberSpacing;
