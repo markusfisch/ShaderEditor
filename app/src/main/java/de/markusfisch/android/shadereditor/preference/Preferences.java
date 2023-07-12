@@ -27,6 +27,7 @@ public class Preferences {
 	public static final String EXPORT_TO_DIRECTORY = "export_to_directory";
 	public static final String IMPORT_DATABASE = "import_database";
 	public static final String EXPORT_DATABASE = "export_database";
+	public static final String SHOW_LINE_NUMBERS = "show_line_numbers";
 
 	private static final int RUN_AUTO = 1;
 	private static final int RUN_MANUALLY = 2;
@@ -51,6 +52,7 @@ public class Preferences {
 	private long defaultNewShaderId = 0;
 	private boolean disableHighlighting = false;
 	private boolean autoSave = true;
+	private boolean showLineNumbers = true;
 
 	public void init(Context context) {
 		systemBarColor = ContextCompat.getColor(
@@ -115,6 +117,7 @@ public class Preferences {
 		defaultNewShaderId = parseLong(
 				preferences.getString(DEFAULT_NEW_SHADER, null),
 				defaultNewShaderId);
+		showLineNumbers = preferences.getBoolean(SHOW_LINE_NUMBERS, showLineNumbers);
 	}
 
 	public boolean saveBattery() {
@@ -210,6 +213,10 @@ public class Preferences {
 
 	public int getSystemBarColor() {
 		return systemBarColor;
+	}
+
+	public boolean showLineNumbers() {
+		return showLineNumbers;
 	}
 
 	private void putString(String key, String value) {

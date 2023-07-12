@@ -1,0 +1,13 @@
+[versions]
+agp = "7.3.1"
+appcompat = "1.6.1"
+preference = "1.2.0"
+material = "1.9.0"
+
+[libraries]
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-preference = { module = "androidx.preference:preference", version.ref = "preference" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
+
+[plugins]
+androidApplication = { id = "com.android.application", version.ref = "agp" }

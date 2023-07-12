@@ -1,0 +1,3 @@
+* Add a search menu item to filter uniforms and textures
+* Disable Insert Tab menu item when code is hidden
+

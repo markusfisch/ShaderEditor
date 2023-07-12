@@ -1,28 +1,36 @@
 <!-- Use a ScrollView around EditText to have a padding around the text
 	contents. If we make EditText scrollable, contents will be cut off
 	at the specified padding but before the visible border. -->
-<ScrollView
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	tools:ignore="Overdraw"
 	android:id="@+id/scroll_view"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@color/background_editor">
+	android:background="@color/background_editor"
+	android:fillViewport="true">
 	<!-- Hardcode gravity to left because GLSL source code is always
 		aligned to the left. -->
-	<de.markusfisch.android.shadereditor.widget.ShaderEditor
-		tools:ignore="RtlHardcoded"
-		android:id="@+id/editor"
+	<HorizontalScrollView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:padding="8dp"
-		android:gravity="left|top"
-		android:typeface="monospace"
-		android:textSize="12sp"
-		android:textColor="@color/editor_text"
-		android:ellipsize="end"
-		android:imeOptions="flagNoExtractUi"
-		android:inputType="textMultiLine|textNoSuggestions"
-		android:background="@android:color/transparent"/>
+		android:fillViewport="true"
+		android:scrollbars="none">
+		<de.markusfisch.android.shadereditor.widget.ShaderEditor
+			android:id="@+id/editor"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:background="@android:color/transparent"
+			android:ellipsize="end"
+			android:gravity="left|top"
+			android:imeOptions="flagNoExtractUi"
+			android:inputType="textMultiLine|textNoSuggestions"
+			android:padding="8dp"
+			android:textColor="@color/editor_text"
+			android:textSize="12sp"
+			android:typeface="monospace"
+			tools:ignore="RtlHardcoded"
+			app:showLineNumbers="true"/>
+	</HorizontalScrollView>
 </ScrollView>
