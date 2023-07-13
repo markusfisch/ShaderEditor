@@ -33,13 +33,16 @@ static TrieNode keywords_trie = {};
 static TrieNode directives_trie = {};
 // Forward declarations
 static void read_next(Lexer *lexer);
-static bool skip_whitespace(Lexer *lexer);
+static uint32_t skip_whitespace(Lexer *lexer);
 static const char *read_identifier(Lexer *lexer);
 static TokenType read_number(Lexer *lexer);
 static uint8_t utf8_codepoint_length(uint8_t utf8);
 
-Lexer create_lexer(const char *input) {
-  Lexer lexer = {.source = input, .iter = input, .read_position = 1};
+Lexer create_lexer(const char *input, uint32_t tab_width) {
+  Lexer lexer = {.source = input,
+                 .iter = input,
+                 .read_position = 1,
+                 .tab_width = tab_width};
   next_token(&lexer);
   return lexer;
 }
@@ -51,21 +54,18 @@ inline static TokenType advance(Lexer *lexer, TokenType type) {
 
 // TODO: implement preprocessor tokenization
 Token next_token(Lexer *lexer) {
-  bool is_new_logic_line = skip_whitespace(lexer);
+  bool is_new_logic_line = skip_whitespace(lexer) != 0;
   uint32_t start = lexer->position;
-#ifdef DEBUG
   uint32_t start_offset = lexer->iter - lexer->source;
-#endif
-  Token tok = {
-      .type = INVALID,
-      .start = start,
-      .end = start,
-      .category = NORMAL,
-#ifdef DEBUG
-      .start_offset = start_offset,
-      .end_offset = start_offset,
-#endif
-  };
+  Token tok = {.type = INVALID,
+               .start = start,
+               .end = start,
+               .line = lexer->line_count,
+               .category = NORMAL,
+               .start_offset = start_offset,
+               .column = lexer->position - lexer->line_start -
+                         lexer->line_tab_count +
+                         lexer->line_tab_count * lexer->tab_width};
   Token previous = lexer->previous;
 
   if (!is_new_logic_line && previous.category == PREPROC) {
@@ -186,8 +186,7 @@ Token next_token(Lexer *lexer) {
           tok.category = TRIVIA;
           do {
             read_next(lexer);
-          } while (*lexer->iter &&
-                   !(*lexer->iter == '\n' || *lexer->iter == '\r'));
+          } while (*lexer->iter && *lexer->iter != '\n');
           break;
         default:
           tok.type = advance(lexer, SLASH);
@@ -345,28 +344,43 @@ Token next_token(Lexer *lexer) {
       break;
   }
   tok.end = lexer->position;
-#ifdef DEBUG
-  tok.end_offset = lexer->iter - lexer->source;
-#endif
+
   lexer->previous = tok;
   return previous;
 }
 
 static void read_next(Lexer *lexer) {
-  do {
+  uint32_t newline_count = 0;
+  while (true) {
     ++lexer->iter;
     lexer->position = lexer->read_position++;
     // if ch == \, then check if line continuation
-  } while (*lexer->iter == '\\' && iter_move_newline(&lexer->iter));
+    if (*lexer->iter == '\\' && iter_move_newline(&lexer->iter)) {
+      ++newline_count;
+      lexer->line_start = lexer->position;
+      lexer->line_offset = lexer->iter - lexer->source;
+      continue;
+    }
+    lexer->line_count += newline_count;
+    return;
+  }
 }
 
-static bool skip_whitespace(Lexer *lexer) {
-  bool is_newline = lexer->position == 0;
+static uint32_t skip_whitespace(Lexer *lexer) {
+  uint32_t newline_count = lexer->position == 0;
   while (isspace(*lexer->iter)) {
-    if (*lexer->iter == '\n' || *lexer->iter == '\r') is_newline = true;
+    if (*lexer->iter == '\n') {
+      ++newline_count;
+      lexer->line_start = lexer->position + 1;
+      lexer->line_offset = lexer->iter - lexer->source + 1;
+      lexer->line_tab_count = 0;
+    } else if (*lexer->iter == '\t') {
+      ++lexer->line_tab_count;
+    }
     read_next(lexer);
   }
-  return is_newline;
+  lexer->line_count += newline_count;
+  return newline_count;
 }
 
 // Read an identifier

@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import androidx.appcompat.widget.AppCompatEditText;
 import android.util.AttributeSet;
+import androidx.appcompat.widget.AppCompatEditText;
 
 import de.markusfisch.android.shadereditor.R;
 
@@ -40,6 +40,15 @@ public class LineNumberEditText extends AppCompatEditText {
 		}
 		init(lineColor);
 	}
+
+	public float getLineNumberSpacing() {
+		return showLineNumbers ? lineNumberSpacing : 0;
+	}
+
+	public float getLineNumberPadding() {
+		return showLineNumbers ? lineNumberPadding : 0;
+	}
+
 
 	public void setShowLineNumbers(boolean showLineNumbers) {
 		if (showLineNumbers != this.showLineNumbers) {

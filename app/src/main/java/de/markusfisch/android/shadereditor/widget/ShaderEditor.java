@@ -28,9 +28,93 @@ import java.util.regex.Pattern;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.highlighter.Highlighter;
+import de.markusfisch.android.shadereditor.highlighter.Lexer;
 
-public class ShaderEditor extends LineNumberEditText {
+public class ShaderEditor extends SyntaxEditor {
+	private static final Pattern PATTERN_LINE = Pattern.compile(
+			".*\\n");
+	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
+			"[\\t ]+$",
+			Pattern.MULTILINE);
+	private static final Pattern PATTERN_INSERT_UNIFORM = Pattern.compile(
+			"^([ \t]*uniform.+)$",
+			Pattern.MULTILINE);
+	private static final Pattern PATTERN_ENDIF = Pattern.compile(
+			"(#endif)\\b");
+	private static final Pattern PATTERN_SHADER_TOY = Pattern.compile(
+			".*void\\s+mainImage\\s*\\(.*");
+	private static final Pattern PATTERN_MAIN = Pattern.compile(
+			".*void\\s+main\\s*\\(.*");
+	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
+			"[\\xA0]");
+	private final Handler updateHandler = new Handler();
+	private OnTextChangedListener onTextChangedListener;
+	private int updateDelay = 1000;
+	private int errorLine = 0;
+	private boolean dirty = false;
+	private boolean modified = true;
+	private int colorError;
+	private final Runnable updateRunnable = new Runnable() {
+		@Override
+		public void run() {
+			Editable e = getText();
+
+			if (onTextChangedListener != null) {
+				onTextChangedListener.onTextChanged(e.toString());
+			}
+
+			highlightWithoutChange(e);
+		}
+	};
+	private int tabWidthInCharacters = 0;
+	private int tabWidth = 0;
+	public ShaderEditor(Context context) {
+		super(context);
+		init(context);
+	}
+	public ShaderEditor(Context context, AttributeSet attrs) {
+		super(context, attrs);
+		init(context);
+	}
+
+	private static <T> void clearSpans(Spannable e, int length, Class<T> clazz) {
+		// Remove foreground color spans.
+		T[] spans = e.getSpans(
+				0,
+				length,
+				clazz);
+
+		for (int i = spans.length; i-- > 0; ) {
+			e.removeSpan(spans[i]);
+		}
+	}
+
+	private static String convertShaderToySource(String src) {
+		if (!PATTERN_SHADER_TOY.matcher(src).find() ||
+				PATTERN_MAIN.matcher(src).find()) {
+			return null;
+		}
+		// Only include and translate uniforms that have an equivalent.
+		return "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
+				"precision highp float;\n" +
+				"#else\n" +
+				"precision mediump float;\n" +
+				"#endif\n\n" +
+				"uniform vec2 resolution;\n" +
+				"uniform float time;\n" +
+				"uniform vec4 mouse;\n" +
+				"uniform vec4 date;\n\n" +
+				src.replaceAll("iResolution", "resolution")
+						.replaceAll("iGlobalTime", "time")
+						.replaceAll("iMouse", "mouse")
+						.replaceAll("iDate", "date") +
+				"\n\nvoid main() {\n" +
+				"\tvec4 fragment_color;\n" +
+				"\tmainImage(fragment_color, gl_FragCoord.xy);\n" +
+				"\tgl_FragColor = fragment_color;\n" +
+				"}\n";
+	}
+
 	public void highlightError() {
 		Editable e = getText();
 		if (e == null) return;
@@ -49,60 +133,6 @@ public class ShaderEditor extends LineNumberEditText {
 						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			});
 		}
-	}
-
-	public interface OnTextChangedListener {
-		void onTextChanged(String text);
-	}
-
-	private static final Pattern PATTERN_LINE = Pattern.compile(
-			".*\\n");
-	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
-			"[\\t ]+$",
-			Pattern.MULTILINE);
-	private static final Pattern PATTERN_INSERT_UNIFORM = Pattern.compile(
-			"^([ \t]*uniform.+)$",
-			Pattern.MULTILINE);
-	private static final Pattern PATTERN_ENDIF = Pattern.compile(
-			"(#endif)\\b");
-	private static final Pattern PATTERN_SHADER_TOY = Pattern.compile(
-			".*void\\s+mainImage\\s*\\(.*");
-	private static final Pattern PATTERN_MAIN = Pattern.compile(
-			".*void\\s+main\\s*\\(.*");
-	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
-			"[\\xA0]");
-
-	private final Handler updateHandler = new Handler();
-	private final Runnable updateRunnable = new Runnable() {
-		@Override
-		public void run() {
-			Editable e = getText();
-
-			if (onTextChangedListener != null) {
-				onTextChangedListener.onTextChanged(e.toString());
-			}
-
-			highlightWithoutChange(e);
-		}
-	};
-
-	private OnTextChangedListener onTextChangedListener;
-	private int updateDelay = 1000;
-	private int errorLine = 0;
-	private boolean dirty = false;
-	private boolean modified = true;
-	private int colorError;
-	private int tabWidthInCharacters = 0;
-	private int tabWidth = 0;
-
-	public ShaderEditor(Context context) {
-		super(context);
-		init(context);
-	}
-
-	public ShaderEditor(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		init(context);
 	}
 
 	public void setOnTextChangedListener(OnTextChangedListener listener) {
@@ -322,7 +352,7 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	private void setSyntaxColors(Context context) {
-		Highlighter.init_colors(context);
+		SyntaxEditor.init_colors(context);
 		colorError = ContextCompat.getColor(
 				context,
 				R.color.syntax_error);
@@ -379,7 +409,7 @@ public class ShaderEditor extends LineNumberEditText {
 			String string = e.toString();
 			long end = System.nanoTime();
 			Log.d("EDITOR", "string took " + (end - start) * 1e-6 + "ms");
-			Highlighter.highlight(e, string);
+			highlight();
 		} catch (IllegalStateException ex) {
 			// Raised by Matcher.start()/.end() when
 			// no successful match has been made what
@@ -387,18 +417,6 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 
 		return e;
-	}
-
-	private static <T> void clearSpans(Spannable e, int length, Class<T> clazz) {
-		// Remove foreground color spans.
-		T[] spans = e.getSpans(
-				0,
-				length,
-				clazz);
-
-		for (int i = spans.length; i-- > 0; ) {
-			e.removeSpan(spans[i]);
-		}
 	}
 
 	private CharSequence autoIndent(
@@ -498,30 +516,8 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 	}
 
-	private static String convertShaderToySource(String src) {
-		if (!PATTERN_SHADER_TOY.matcher(src).find() ||
-				PATTERN_MAIN.matcher(src).find()) {
-			return null;
-		}
-		// Only include and translate uniforms that have an equivalent.
-		return "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
-				"precision highp float;\n" +
-				"#else\n" +
-				"precision mediump float;\n" +
-				"#endif\n\n" +
-				"uniform vec2 resolution;\n" +
-				"uniform float time;\n" +
-				"uniform vec4 mouse;\n" +
-				"uniform vec4 date;\n\n" +
-				src.replaceAll("iResolution", "resolution")
-						.replaceAll("iGlobalTime", "time")
-						.replaceAll("iMouse", "mouse")
-						.replaceAll("iDate", "date") +
-				"\n\nvoid main() {\n" +
-				"\tvec4 fragment_color;\n" +
-				"\tmainImage(fragment_color, gl_FragCoord.xy);\n" +
-				"\tgl_FragColor = fragment_color;\n" +
-				"}\n";
+	public interface OnTextChangedListener {
+		void onTextChanged(String text);
 	}
 
 	private static class TabWidthSpan extends ReplacementSpan {

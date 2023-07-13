@@ -15,7 +15,6 @@ char iter_peek_c(const char *iter);
 /// create iterator to next character, ignoring C-like line continuations
 const char *iter_next_c(const char *iter);
 
-
 /// mutates iter to the end of the newline token if there is one
 bool iter_move_newline(const char **iter);
 

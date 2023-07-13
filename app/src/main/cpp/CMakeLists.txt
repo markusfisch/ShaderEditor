@@ -13,7 +13,7 @@ cmake_minimum_required(VERSION 3.22.1)
 project("app")
 
 set(SOURCES
-        highlighter.c
+        jni_lexer.c
         lexer.c
         trie.c
         iter.c
