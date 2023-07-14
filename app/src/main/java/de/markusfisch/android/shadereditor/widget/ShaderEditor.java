@@ -4,10 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Handler;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Layout;
@@ -19,16 +15,16 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.highlighter.Lexer;
 
 public class ShaderEditor extends SyntaxEditor {
 	private static final Pattern PATTERN_LINE = Pattern.compile(
@@ -66,12 +62,11 @@ public class ShaderEditor extends SyntaxEditor {
 			highlightWithoutChange(e);
 		}
 	};
-	private int tabWidthInCharacters = 0;
-	private int tabWidth = 0;
+
 	public ShaderEditor(Context context) {
-		super(context);
-		init(context);
+		this(context, null);
 	}
+
 	public ShaderEditor(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
@@ -141,15 +136,6 @@ public class ShaderEditor extends SyntaxEditor {
 
 	public void setUpdateDelay(int ms) {
 		updateDelay = ms;
-	}
-
-	public void setTabWidth(int characters) {
-		if (tabWidthInCharacters == characters) {
-			return;
-		}
-
-		tabWidthInCharacters = characters;
-		tabWidth = Math.round(getPaint().measureText("m") * characters);
 	}
 
 	public boolean hasErrorLine() {
@@ -352,7 +338,7 @@ public class ShaderEditor extends SyntaxEditor {
 	}
 
 	private void setSyntaxColors(Context context) {
-		SyntaxEditor.init_colors(context);
+		SyntaxEditor.initColors(context);
 		colorError = ContextCompat.getColor(
 				context,
 				R.color.syntax_error);
@@ -405,11 +391,7 @@ public class ShaderEditor extends SyntaxEditor {
 					length > 4096) {
 				return e;
 			}
-			long start = System.nanoTime();
-			String string = e.toString();
-			long end = System.nanoTime();
-			Log.d("EDITOR", "string took " + (end - start) * 1e-6 + "ms");
-			highlight();
+//			highlight();
 		} catch (IllegalStateException ex) {
 			// Raised by Matcher.start()/.end() when
 			// no successful match has been made what
@@ -499,6 +481,7 @@ public class ShaderEditor extends SyntaxEditor {
 	}
 
 	private void convertTabs(Editable e, int start, int count) {
+		int tabWidth = getTabWidth();
 		if (tabWidth < 1) {
 			return;
 		}
@@ -509,7 +492,7 @@ public class ShaderEditor extends SyntaxEditor {
 				(start = s.indexOf("\t", start)) > -1 && start < stop;
 				++start) {
 			e.setSpan(
-					new TabWidthSpan(tabWidth),
+					new TabWidthSpan(this::getTabWidth),
 					start,
 					start + 1,
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -521,10 +504,10 @@ public class ShaderEditor extends SyntaxEditor {
 	}
 
 	private static class TabWidthSpan extends ReplacementSpan {
-		private final int width;
+		private final @NonNull TabWidthSupplier tabWidthSupplier;
 
-		private TabWidthSpan(int width) {
-			this.width = width;
+		private TabWidthSpan(@NonNull TabWidthSupplier tabWidthSupplier) {
+			this.tabWidthSupplier = tabWidthSupplier;
 		}
 
 		@Override
@@ -534,7 +517,7 @@ public class ShaderEditor extends SyntaxEditor {
 				int start,
 				int end,
 				Paint.FontMetricsInt fm) {
-			return width;
+			return tabWidthSupplier.getTabWidth();
 		}
 
 		@Override
@@ -548,6 +531,10 @@ public class ShaderEditor extends SyntaxEditor {
 				int y,
 				int bottom,
 				@NonNull Paint paint) {
+		}
+
+		interface TabWidthSupplier {
+			int getTabWidth();
 		}
 	}
 }
