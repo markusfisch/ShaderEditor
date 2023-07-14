@@ -137,5 +137,9 @@
 			android:name=".activity.CubeMapActivity"
 			android:label="@string/add_uniform"
 			android:exported="false"/>
+
+		<meta-data
+			android:name="preloaded_fonts"
+			android:resource="@array/preloaded_fonts" />
 	</application>
 </manifest>
