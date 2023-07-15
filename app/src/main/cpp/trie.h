@@ -2,8 +2,12 @@
 // Created by Anton Pieper on 09.07.23.
 //
 
-#ifndef HIGHLIGHTER__TRIE_H_
-#define HIGHLIGHTER__TRIE_H_
+#ifndef SHADEREDITOR_APP_SRC_MAIN_CPP_TRIE_H_
+#define SHADEREDITOR_APP_SRC_MAIN_CPP_TRIE_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stddef.h>
 #include <stdint.h>
@@ -27,4 +31,8 @@ void trie_insert(TrieNode *root, const char *key, uint16_t value);
 /// returns 0 if not found. matches key up to <code>key_length</code> non-null characters.
 uint16_t trie_find(TrieNode *root, const char *key, size_t key_length);
 
-#endif  // HIGHLIGHTER__TRIE_H_
+#ifdef __cplusplus
+}
+#endif
+
+#endif  // SHADEREDITOR_APP_SRC_MAIN_CPP_TRIE_H_

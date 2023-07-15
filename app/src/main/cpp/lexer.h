@@ -3,21 +3,18 @@
 
 #include "token_type.h"
 
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef SHADEREDITOR_APP_SRC_MAIN_CPP_LEXER_H_
+#define SHADEREDITOR_APP_SRC_MAIN_CPP_LEXER_H_
 
-typedef enum __attribute((__packed__)) TokenCategory {
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef enum __attribute__((__packed__)) TokenCategory {
   NORMAL,
   PREPROC,
   TRIVIA
 } TokenCategory;
-#ifdef DEBUG
-const char *CATEGORY_DEBUG[] = {
-    [NORMAL] = "NORMAL",
-    [PREPROC] = "PREPROC",
-    [TRIVIA] = "TRIVIA",
-};
-#endif
 
 typedef struct Token {
   uint32_t start;
@@ -52,4 +49,8 @@ Token next_token(Lexer *highlighter);
 /// Needs to be run <b>once</b> before creating any lexer.
 void lexer_init_lookup();
 
+#ifdef __cplusplus
+}
 #endif
+
+#endif  // SHADEREDITOR_APP_SRC_MAIN_CPP_LEXER_H_

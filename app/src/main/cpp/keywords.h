@@ -5,6 +5,10 @@
 #ifndef SHADEREDITOR_APP_SRC_MAIN_CPP_LEXER_C_KEYWORDS_H_
 #define SHADEREDITOR_APP_SRC_MAIN_CPP_LEXER_C_KEYWORDS_H_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 
 #include "token_type.h"
@@ -373,5 +377,9 @@ static const KeywordToken KEYWORDS[] = {
     {.name = "usubBorrow", .type = BUILTIN_FUNCTION},
 };
 static const size_t KEYWORDS_LENGTH = sizeof(KEYWORDS) / sizeof(*KEYWORDS);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // SHADEREDITOR_APP_SRC_MAIN_CPP_LEXER_C_KEYWORDS_H_

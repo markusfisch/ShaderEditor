@@ -10,10 +10,11 @@ cmake_minimum_required(VERSION 3.22.1)
 # Since this is the top level CMakeLists.txt, the project name is also accessible
 # with ${CMAKE_PROJECT_NAME} (both CMake variables are in-sync within the top level
 # build script scope).
-project("app")
+project("app" LANGUAGES C CXX)
+add_compile_options(-fvisibility=hidden)
 
 set(SOURCES
-        jni_lexer.c
+        jni_lexer.cpp
         lexer.c
         trie.c
         iter.c
@@ -42,7 +43,6 @@ set(HEADERS
 add_library(${CMAKE_PROJECT_NAME} SHARED
     # List C/C++ source files with relative paths to this CMakeLists.txt.
     ${SOURCES} ${HEADERS})
-
 set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY C_STANDARD 11)
 
 # Specifies libraries CMake should link to your target library. You

@@ -61,16 +61,29 @@ tasks.register('generateTokenTypes') {
 		def cEnum = """
 #ifndef SHADEREDITOR_APP_SRC_MAIN_CPP_LEXER_C_TOKEN_TYPE_H_
 #define SHADEREDITOR_APP_SRC_MAIN_CPP_LEXER_C_TOKEN_TYPE_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+  
 typedef enum __attribute__((__packed__)) TokenType {
-""".stripIndent()
+""".stripLeading()
 		cEnum += tokenTypes.collect { "  $it,\n" }.join()
 		cEnum += "} TokenType;\n"
 		cEnum += "#define TOKEN_TYPE_COUNT ${tokenTypes.size()}\n"
 		cEnum += "#ifdef DEBUG\n"
 		cEnum += "const char *TOKEN_DEBUG[TOKEN_TYPE_COUNT] = {\n"
-		cEnum += tokenTypes.collect { "  [$it] = \"$it\",\n"}.join()
-		cEnum += "};\n#endif"
-		cEnum += "\n#endif  // SHADEREDITOR_APP_SRC_MAIN_CPP_LEXER_C_TOKEN_TYPE_H_\n"
+		cEnum += tokenTypes.collect { "  \"$it\",\n"}.join()
+		cEnum += """
+};
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  // SHADEREDITOR_APP_SRC_MAIN_CPP_LEXER_C_TOKEN_TYPE_H_
+""".stripLeading()
 		cFile.write(cEnum)
 	}
 }

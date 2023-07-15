@@ -2,8 +2,12 @@
 // Created by Anton Pieper on 10.07.23.
 //
 
-#ifndef HIGHLIGHTER__ITER_H_
-#define HIGHLIGHTER__ITER_H_
+#ifndef SHADEREDITOR_APP_SRC_MAIN_CPP_ITER_H_
+#define SHADEREDITOR_APP_SRC_MAIN_CPP_ITER_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #include <stdbool.h>
 
@@ -20,4 +24,9 @@ bool iter_move_newline(const char **iter);
 
 /// create iterator to the end of the newline token if there is one
 const char *iter_next_newline(const char *iter);
-#endif  // HIGHLIGHTER__ITER_H_
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif  // SHADEREDITOR_APP_SRC_MAIN_CPP_ITER_H_
