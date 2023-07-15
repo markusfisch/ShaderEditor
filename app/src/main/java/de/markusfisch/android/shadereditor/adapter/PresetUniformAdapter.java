@@ -276,7 +276,8 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 	private class UniformFilter extends Filter {
 		@Override
 		protected FilterResults performFiltering(CharSequence constraint) {
-			String filterString = constraint.toString().toLowerCase();
+			String filterString = constraint.toString().toLowerCase(
+					Locale.getDefault());
 			int size = uniforms.size();
 			List<Uniform> filtered = new ArrayList<>(size);
 
