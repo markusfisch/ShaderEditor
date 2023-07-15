@@ -16,7 +16,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.View;
+import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
-public class ShaderEditor extends SyntaxEditor {
+public class ShaderEditor extends FrameLayout {
 	private static final Pattern PATTERN_LINE = Pattern.compile(
 			".*\\n");
 	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
@@ -44,6 +44,8 @@ public class ShaderEditor extends SyntaxEditor {
 	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
 			"[\\xA0]");
 	private final Handler updateHandler = new Handler();
+	private final LineNumberEditText editor;
+	private final SyntaxEditor syntax;
 	private OnTextChangedListener onTextChangedListener;
 	private int updateDelay = 1000;
 	private int errorLine = 0;
@@ -53,7 +55,7 @@ public class ShaderEditor extends SyntaxEditor {
 	private final Runnable updateRunnable = new Runnable() {
 		@Override
 		public void run() {
-			Editable e = getText();
+			Editable e = editor.getText();
 
 			if (onTextChangedListener != null) {
 				onTextChangedListener.onTextChanged(e.toString());
@@ -69,7 +71,82 @@ public class ShaderEditor extends SyntaxEditor {
 
 	public ShaderEditor(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		init(context);
+		editor = new LineNumberEditText(context, attrs);
+		syntax = new SyntaxEditor(context, editor);
+		post(() -> setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers()));
+		addView(editor);
+		addView(syntax);
+		editor.setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
+			if (modified &&
+					end - start == 1 &&
+					start < source.length() &&
+					dstart < dest.length()) {
+				char c = source.charAt(start);
+
+				if (c == '\n') {
+					return autoIndent(source, dest, dstart, dend);
+				}
+			}
+
+			return source;
+		}});
+
+		editor.addTextChangedListener(new TextWatcher() {
+			private int start = 0;
+			private int count = 0;
+
+			@Override
+			public void onTextChanged(
+					CharSequence s,
+					int start,
+					int before,
+					int count) {
+				this.start = start;
+				this.count = count;
+			}
+
+			@Override
+			public void beforeTextChanged(
+					CharSequence s,
+					int start,
+					int count,
+					int after) {
+			}
+
+			@Override
+			public void afterTextChanged(Editable e) {
+				cancelUpdate();
+				convertTabs(e, start, count);
+
+				String converted = convertShaderToySource(e.toString());
+				if (converted != null) {
+					setTextHighlighted(converted);
+				}
+
+				if (!modified) {
+					return;
+				}
+
+				dirty = true;
+				updateHandler.postDelayed(updateRunnable, updateDelay);
+			}
+		});
+
+		setSyntaxColors(getContext());
+		setUpdateDelay(ShaderEditorApp.preferences.getUpdateDelay());
+		syntax.setTabWidth(ShaderEditorApp.preferences.getTabWidth());
+
+		setOnKeyListener((v, keyCode, event) -> {
+			if (ShaderEditorApp.preferences.useTabForIndent() &&
+					event.getAction() == KeyEvent.ACTION_DOWN &&
+					keyCode == KeyEvent.KEYCODE_TAB) {
+				// Insert a tab character instead of doing focus
+				// navigation.
+				insertTab();
+				return true;
+			}
+			return false;
+		});
 	}
 
 	private static <T> void clearSpans(Spannable e, int length, Class<T> clazz) {
@@ -110,14 +187,22 @@ public class ShaderEditor extends SyntaxEditor {
 				"}\n";
 	}
 
+	public LineNumberEditText getEditor() {
+		return editor;
+	}
+
+	public SyntaxEditor getSyntax() {
+		return syntax;
+	}
+
 	public void highlightError() {
-		Editable e = getText();
+		Editable e = editor.getText();
 		if (e == null) return;
-		clearSpans(e, length(), BackgroundColorSpan.class);
+		clearSpans(e, editor.length(), BackgroundColorSpan.class);
 		if (errorLine > 0) {
 			post(() -> {
 				if (e.length() == 0) return;
-				Layout layout = getLayout();
+				Layout layout = editor.getLayout();
 				if (errorLine > layout.getLineCount()) return;
 				int start = layout.getLineStart(errorLine);
 				int end = layout.getLineEnd(errorLine);
@@ -147,7 +232,7 @@ public class ShaderEditor extends SyntaxEditor {
 	}
 
 	public void updateHighlighting() {
-		highlightWithoutChange(getText());
+		highlightWithoutChange(editor.getText());
 	}
 
 	public boolean isModified() {
@@ -165,25 +250,25 @@ public class ShaderEditor extends SyntaxEditor {
 		dirty = false;
 
 		modified = false;
-		setText(highlight(new SpannableStringBuilder(text)));
+		editor.setText(highlight(new SpannableStringBuilder(text)));
 		modified = true;
 
 		if (onTextChangedListener != null) {
-			onTextChangedListener.onTextChanged(getText().toString());
+			onTextChangedListener.onTextChanged(editor.getText().toString());
 		}
 	}
 
 	public String getCleanText() {
 		return PATTERN_TRAILING_WHITE_SPACE
-				.matcher(getText())
+				.matcher(editor.getText())
 				.replaceAll("");
 	}
 
 	public void insertTab() {
-		int start = getSelectionStart();
-		int end = getSelectionEnd();
+		int start = editor.getSelectionStart();
+		int end = editor.getSelectionEnd();
 
-		getText().replace(
+		editor.getText().replace(
 				Math.min(start, end),
 				Math.max(start, end),
 				"\t",
@@ -196,7 +281,7 @@ public class ShaderEditor extends SyntaxEditor {
 			return;
 		}
 
-		Editable e = getText();
+		Editable e = editor.getText();
 		removeUniform(e, statement);
 
 		Matcher m = PATTERN_INSERT_UNIFORM.matcher(e);
@@ -258,85 +343,6 @@ public class ShaderEditor extends SyntaxEditor {
 		return idx;
 	}
 
-	private void init(Context context) {
-		setHorizontallyScrolling(true);
-
-		setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
-			if (modified &&
-					end - start == 1 &&
-					start < source.length() &&
-					dstart < dest.length()) {
-				char c = source.charAt(start);
-
-				if (c == '\n') {
-					return autoIndent(source, dest, dstart, dend);
-				}
-			}
-
-			return source;
-		}});
-
-		addTextChangedListener(new TextWatcher() {
-			private int start = 0;
-			private int count = 0;
-
-			@Override
-			public void onTextChanged(
-					CharSequence s,
-					int start,
-					int before,
-					int count) {
-				this.start = start;
-				this.count = count;
-			}
-
-			@Override
-			public void beforeTextChanged(
-					CharSequence s,
-					int start,
-					int count,
-					int after) {
-			}
-
-			@Override
-			public void afterTextChanged(Editable e) {
-				cancelUpdate();
-				convertTabs(e, start, count);
-
-				String converted = convertShaderToySource(e.toString());
-				if (converted != null) {
-					setTextHighlighted(converted);
-				}
-
-				if (!modified) {
-					return;
-				}
-
-				dirty = true;
-				updateHandler.postDelayed(updateRunnable, updateDelay);
-			}
-		});
-
-		setSyntaxColors(context);
-		setUpdateDelay(ShaderEditorApp.preferences.getUpdateDelay());
-		setTabWidth(ShaderEditorApp.preferences.getTabWidth());
-
-		setOnKeyListener(new OnKeyListener() {
-			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if (ShaderEditorApp.preferences.useTabForIndent() &&
-						event.getAction() == KeyEvent.ACTION_DOWN &&
-						keyCode == KeyEvent.KEYCODE_TAB) {
-					// Insert a tab character instead of doing focus
-					// navigation.
-					insertTab();
-					return true;
-				}
-				return false;
-			}
-		});
-	}
-
 	private void setSyntaxColors(Context context) {
 		SyntaxEditor.initColors(context);
 		colorError = ContextCompat.getColor(
@@ -391,7 +397,7 @@ public class ShaderEditor extends SyntaxEditor {
 					length > 4096) {
 				return e;
 			}
-//			highlight();
+			// syntax.highlight();
 		} catch (IllegalStateException ex) {
 			// Raised by Matcher.start()/.end() when
 			// no successful match has been made what
@@ -481,7 +487,7 @@ public class ShaderEditor extends SyntaxEditor {
 	}
 
 	private void convertTabs(Editable e, int start, int count) {
-		int tabWidth = getTabWidth();
+		int tabWidth = syntax.getTabWidth();
 		if (tabWidth < 1) {
 			return;
 		}
@@ -492,11 +498,16 @@ public class ShaderEditor extends SyntaxEditor {
 				(start = s.indexOf("\t", start)) > -1 && start < stop;
 				++start) {
 			e.setSpan(
-					new TabWidthSpan(this::getTabWidth),
+					new TabWidthSpan(syntax::getTabWidth),
 					start,
 					start + 1,
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
+	}
+
+	public void setShowLineNumbers(boolean showLineNumbers) {
+		editor.setShowLineNumbers(showLineNumbers);
+		syntax.setPadding(editor.getPaddingLeft(), editor.getPaddingTop(), editor.getPaddingRight(), editor.getPaddingBottom());
 	}
 
 	public interface OnTextChangedListener {

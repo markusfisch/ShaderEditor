@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Rect;
+import android.os.Trace;
 import android.text.Layout;
 import android.util.AttributeSet;
 import androidx.appcompat.widget.AppCompatEditText;
@@ -12,7 +12,6 @@ import androidx.appcompat.widget.AppCompatEditText;
 import de.markusfisch.android.shadereditor.R;
 
 public class LineNumberEditText extends AppCompatEditText {
-	private final Rect visibleRect = new Rect();
 	private final float lineNumberSpacing;
 	private final float lineNumberPadding;
 	int lineNumberColor;
@@ -51,10 +50,20 @@ public class LineNumberEditText extends AppCompatEditText {
 		return showLineNumbers ? lineNumberPadding : 0;
 	}
 
-
 	public void setShowLineNumbers(boolean showLineNumbers) {
 		if (showLineNumbers != this.showLineNumbers) {
 			this.showLineNumbers = showLineNumbers;
+			if (!showLineNumbers && getPaddingLeft() != paddingLeft)
+				super.setPadding(paddingLeft, getPaddingTop(), getPaddingRight(), getPaddingBottom());
+			else {
+				int lineCount = getLineCount();
+				final int lineCountNumDigits = numDigits(lineCount);
+				float bigChar = getPaint().measureText("m");
+				int editTextPaddingLeft = (int) (bigChar * lineCountNumDigits + lineNumberPadding);
+				if (getPaddingLeft() != (int) (editTextPaddingLeft + lineNumberSpacing))
+					super.setPadding((int) (editTextPaddingLeft + lineNumberSpacing), getPaddingTop(), getPaddingRight(), getPaddingBottom());
+			}
+
 			postInvalidate();
 		}
 	}
@@ -72,36 +81,43 @@ public class LineNumberEditText extends AppCompatEditText {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
+		Trace.beginSection("Draw Line Number EditText");
 		if (!showLineNumbers) {
 			if (getPaddingLeft() != paddingLeft)
 				super.setPadding(paddingLeft, getPaddingTop(), getPaddingRight(), getPaddingBottom());
 			super.onDraw(canvas);
+			Trace.endSection();
 			return;
 		}
+		Trace.beginSection("Get Line Count Num Digits");
 		int lineCount = getLineCount();
 		final int lineCountNumDigits = numDigits(lineCount);
+		Trace.endSection();
+		Trace.beginSection("Measure Tab width");
 		Paint paint = getPaint();
 		float bigChar = paint.measureText("m");
+		Trace.endSection();
 		int editTextPaddingLeft = (int) (bigChar * lineCountNumDigits + lineNumberPadding);
-		super.setPadding((int) (editTextPaddingLeft + lineNumberSpacing), getPaddingTop(), getPaddingRight(), getPaddingBottom());
+
+		Trace.beginSection("Super Draw");
 		super.onDraw(canvas);
+		Trace.endSection();
 		Layout layout = getLayout();
 		float paddingTop = getExtendedPaddingTop();
 		int oldColor = paint.getColor();
 		paint.setColor(lineNumberColor);
-		getLocalVisibleRect(visibleRect);
-		int firstLine = layout.getLineForVertical(visibleRect.top);
-		int lastLine = layout.getLineForVertical(visibleRect.bottom) + 1;
-		for (int i = firstLine; i < lastLine; ++i) {
+		Trace.beginSection("Draw lsine numbers");
+		for (int i = 0; i < lineCount; ++i) {
 			float baseline = layout.getLineBaseline(i) + paddingTop;
 			int lineNumber = i + 1;
 			canvas.drawText(Integer.toString(lineNumber),
 					bigChar * (lineCountNumDigits - numDigits(lineNumber)) + lineNumberPadding, baseline,
 					paint);
 		}
+		Trace.endSection();
 		canvas.drawLine(editTextPaddingLeft + lineNumberSpacing * .5f, 0, editTextPaddingLeft + lineNumberSpacing * .5f, getHeight(), paint);
 		paint.setColor(oldColor);
-
+		Trace.endSection();
 	}
 
 	/**

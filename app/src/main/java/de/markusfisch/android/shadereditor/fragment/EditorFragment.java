@@ -2,15 +2,15 @@ package de.markusfisch.android.shadereditor.fragment;
 
 import android.app.Activity;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.Toast;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
@@ -40,7 +40,7 @@ public class EditorFragment extends Fragment {
 
 		scrollView = view.findViewById(R.id.scroll_view);
 		shaderEditor = view.findViewById(R.id.editor);
-		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
+		undoRedo = new UndoRedo(shaderEditor.getEditor(), ShaderEditorApp.editHistory);
 
 		Activity activity = getActivity();
 		try {
@@ -151,10 +151,10 @@ public class EditorFragment extends Fragment {
 	private void updateToPreferences() {
 		Preferences preferences = ShaderEditorApp.preferences;
 		shaderEditor.setUpdateDelay(preferences.getUpdateDelay());
-		shaderEditor.setTextSize(
+		shaderEditor.getEditor().setTextSize(
 				android.util.TypedValue.COMPLEX_UNIT_SP,
 				preferences.getTextSize());
-		shaderEditor.setTabWidth(preferences.getTabWidth());
+		shaderEditor.getSyntax().setTabWidth(preferences.getTabWidth());
 	}
 
 	private int getYOffset(Activity activity) {

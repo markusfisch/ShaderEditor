@@ -4,40 +4,45 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Trace;
 import android.text.Editable;
 import android.text.Layout;
 import android.text.TextWatcher;
-import android.util.AttributeSet;
+import android.view.View;
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.highlighter.Highlight;
 import de.markusfisch.android.shadereditor.highlighter.Lexer;
 import de.markusfisch.android.shadereditor.highlighter.TokenType;
 import de.markusfisch.android.shadereditor.util.IntList;
 
-public class SyntaxEditor extends LineNumberEditText {
+public class SyntaxEditor extends View {
 	private static final int[] colors = new int[Highlight.values().length];
 	private final List<IntList> tokensByLine = new ArrayList<>();
 	private final Rect visibleRect = new Rect();
+	private final @NonNull AppCompatEditText source;
 	boolean textDirty = true;
 	private int tabWidthCharacters = 2;
 	private int tabWidth = 0;
 	private @NonNull int[] tokens = new int[256];
 	private String currentText = "";
 
-	public SyntaxEditor(Context context) {
-		this(context, null);
-	}
-
-	public SyntaxEditor(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		float charWidth = getPaint().measureText("m");
+	public SyntaxEditor(Context context, @NonNull AppCompatEditText source) {
+		super(context);
+		this.source = source;
+		float charWidth = source.getPaint().measureText("m");
 		tabWidth = (int) (charWidth * tabWidthCharacters);
-		addTextChangedListener(new TextWatcher() {
+		getViewTreeObserver().addOnScrollChangedListener(this::invalidate);
+		source.addTextChangedListener(new TextWatcher() {
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -52,9 +57,28 @@ public class SyntaxEditor extends LineNumberEditText {
 			public void afterTextChanged(Editable s) {
 				currentText = s.toString();
 				textDirty = true;
+				postInvalidate();
+				ExecutorService executor = Executors.newSingleThreadExecutor();
+				Handler handler = new Handler(Looper.getMainLooper());
+				executor.execute(() -> {
+					tokens = Lexer.runLexer(currentText, tokens, tabWidthCharacters);
+					tokensByLine.clear();
+					for (int i = 1, length = tokens[0]; i <= length; i += 5) {
+						int line = tokens[i + 3];
+						while (tokensByLine.size() <= line) tokensByLine.add(new IntList());
+						IntList tokensForLine = tokensByLine.get(line);
+						tokensForLine.add(i);
+					}
+					for (IntList list : tokensByLine)
+						list.trimToSize();
+
+					handler.post(() -> {
+						textDirty = false;
+						postInvalidate();
+					});
+				});
 			}
 		});
-
 	}
 
 	public static void initColors(@NonNull Context context) {
@@ -65,26 +89,39 @@ public class SyntaxEditor extends LineNumberEditText {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		highlight();
-		Paint paint = getPaint();
+		if (textDirty) return;
+		Trace.beginSection("Syntax Highlighting Draw");
+		Trace.beginSection("Highlighting (Java Side)");
+		Paint paint = source.getPaint();
+		Trace.endSection();
 		if (currentText == null) return;
-		Paint.FontMetrics fm = paint.getFontMetrics();
+		Trace.beginSection("Measure Font");
+//		Paint.FontMetrics fm = paint.getFontMetrics();
 //		float lineHeight = fm.bottom - fm.top + fm.leading;
 //		float descent = fm.descent;
 		float charWidth = paint.measureText("m");
+		Trace.endSection();
 		tabWidth = (int) (charWidth * tabWidthCharacters);
 		float paddingLeft = getPaddingLeft();
-		float paddingTop = getExtendedPaddingTop();
-		Layout layout = getLayout();
+		float paddingTop = source.getExtendedPaddingTop();
+		Layout layout = source.getLayout();
+		Trace.beginSection("Visible Rect");
 		getLocalVisibleRect(visibleRect);
+		Trace.endSection();
+		Trace.beginSection("Get visible lines");
 		int firstLine = layout.getLineForVertical(visibleRect.top);
 		int lastLine = layout.getLineForVertical(visibleRect.bottom) + 1;
+		Trace.endSection();
+		Trace.beginSection("Highlighting");
+		int sourceMax = source.length();
 		for (int line = firstLine; line <= lastLine; ++line) {
 			if (line >= tokensByLine.size()) break;
+			Trace.beginSection("Highlighting Line " + line);
 			for (int i : tokensByLine.get(line).getRaw()) {
+				Trace.beginSection("Highlighting Token " + i);
 				TokenType type = TokenType.values()[tokens[i]];
-				int start = tokens[i + 1];
-				int end = tokens[i + 2];
+				int start = Math.min(sourceMax, tokens[i + 1]);
+				int end = Math.min(sourceMax, tokens[i + 2]);
 				int column = tokens[i + 4];
 				Highlight highlight = Highlight.from(type);
 				paint.setColor(colors[highlight.ordinal()]);
@@ -92,26 +129,13 @@ public class SyntaxEditor extends LineNumberEditText {
 //				float y = lineHeight * line + paddingTop - descent;
 				float x = 0;
 				canvas.drawText(currentText, start, end, x + charWidth * column + paddingLeft, y, paint);
+				Trace.endSection();
 			}
+			Trace.endSection();
 		}
-		setTextColor(0);
+		Trace.endSection();
 		super.onDraw(canvas); // draw normal text
-	}
-
-	void highlight() {
-		if (textDirty) {
-			tokens = Lexer.runLexer(currentText, tokens, tabWidthCharacters);
-			tokensByLine.clear();
-			for (int i = 1, length = tokens[0]; i <= length; i += 5) {
-				int line = tokens[i + 3];
-				while (tokensByLine.size() <= line) tokensByLine.add(new IntList());
-				IntList tokensForLine = tokensByLine.get(line);
-				tokensForLine.add(i);
-			}
-			for (IntList list : tokensByLine)
-				list.trimToSize();
-			textDirty = false;
-		}
+		Trace.endSection();
 	}
 
 	public int getTabWidth() {

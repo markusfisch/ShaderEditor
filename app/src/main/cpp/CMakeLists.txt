@@ -11,7 +11,11 @@ cmake_minimum_required(VERSION 3.22.1)
 # with ${CMAKE_PROJECT_NAME} (both CMake variables are in-sync within the top level
 # build script scope).
 project("app" LANGUAGES C CXX)
+
 add_compile_options(-fvisibility=hidden)
+
+set(C_STANDARD 11)
+set(CXX_STANDARD 20)
 
 set(SOURCES
         jni_lexer.cpp
@@ -43,7 +47,6 @@ set(HEADERS
 add_library(${CMAKE_PROJECT_NAME} SHARED
     # List C/C++ source files with relative paths to this CMakeLists.txt.
     ${SOURCES} ${HEADERS})
-set_property(TARGET ${CMAKE_PROJECT_NAME} PROPERTY C_STANDARD 11)
 
 # Specifies libraries CMake should link to your target library. You
 # can link libraries from various origins, such as libraries defined in this

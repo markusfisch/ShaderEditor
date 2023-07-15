@@ -10,6 +10,31 @@
 #include "lexer.h"
 #include "trie.h"
 
+#include <android/trace.h>
+#include <dlfcn.h>
+namespace MyTracing {
+void *(*ATrace_beginSection)(const char *sectionName);
+void *(*ATrace_endSection)(void);
+
+typedef void *(*fp_ATrace_beginSection)(const char *sectionName);
+typedef void *(*fp_ATrace_endSection)(void);
+#define ATRACE_NAME(name) ScopedTrace ___tracer(name)
+
+// ATRACE_CALL is an ATRACE_NAME that uses the current function name.
+#define ATRACE_CALL() ATRACE_NAME(__FUNCTION__)
+
+class ScopedTrace {
+ public:
+  inline ScopedTrace(const char *name) {
+    ATrace_beginSection(name);
+  }
+
+  inline ~ScopedTrace() {
+    ATrace_endSection();
+  }
+};
+}
+
 struct JNIToken {
   jint type;
   jint start;
@@ -24,10 +49,15 @@ static inline uint8_t utf8_codepoint_length(uint8_t utf8) {
 
 static jintArray run_lexer(JNIEnv *env, jclass clazz, jstring source,
                            jintArray old_tokens, jint tab_width) {
+  MyTracing::ATRACE_CALL();
   const char *string = env->GetStringUTFChars(source, nullptr);
   Lexer lexer = create_lexer(string, tab_width);
   std::vector<JNIToken> tokens;
+  MyTracing::ScopedTrace tokenization{"Tokenization"};
+  int i = 0;
   for (Token current; (current = next_token(&lexer)).type != TOKEN_EOF;) {
+    std::string s{"Token " + std::to_string(i++)};
+    MyTracing::ScopedTrace token{s.data()};
     const char *end_offset = &string[current.start_offset];
     uint32_t end_marker = current.end;
     jint start;
@@ -91,6 +121,17 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
        reinterpret_cast<void *>(run_lexer)}};
   int rc = env->RegisterNatives(c, methods, sizeof(methods) / sizeof(*methods));
   if (rc != JNI_OK) return rc;
+  // Retrieve a handle to libandroid.
+  void *lib = dlopen("libandroid.so", RTLD_NOW || RTLD_LOCAL);
 
+  // Access the native tracing functions.
+  if (lib != NULL) {
+    // Use dlsym() to prevent crashes on devices running Android 5.1
+    // (API level 22) or lower.
+    MyTracing::ATrace_beginSection = reinterpret_cast<MyTracing::fp_ATrace_beginSection>(
+        dlsym(lib, "ATrace_beginSection"));
+    MyTracing::ATrace_endSection = reinterpret_cast<MyTracing::fp_ATrace_endSection>(
+        dlsym(lib, "ATrace_endSection"));
+  }
   return JNI_VERSION_1_6;
 }
