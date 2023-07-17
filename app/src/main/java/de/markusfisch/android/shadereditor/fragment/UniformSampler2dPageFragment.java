@@ -21,6 +21,8 @@ import androidx.fragment.app.Fragment;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import java.util.Locale;
+
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
 import de.markusfisch.android.shadereditor.activity.TextureViewActivity;
@@ -186,7 +188,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 	private void filterTextures(String query) {
 		searchQuery = query == null
 				? null
-				: query.toLowerCase();
+				: query.toLowerCase(Locale.getDefault());
 
 		loadTexturesAsync(getActivity());
 	}

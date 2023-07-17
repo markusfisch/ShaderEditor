@@ -1,0 +1,4 @@
+* Add show line numbers option
+* Add horizontal scrolling
+* Migrate to AndroidX
+

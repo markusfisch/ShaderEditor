@@ -10,8 +10,8 @@ android {
 		minSdkVersion 14
 		targetSdkVersion sdk_version
 
-		versionCode 74
-		versionName '2.29.0'
+		versionCode 75
+		versionName '2.30.0'
 		externalNativeBuild {
 			cmake {
 				cppFlags ''

@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.30.0
+* Add show line numbers option
+* Add horizontal scrolling
+* Migrate to AndroidX
+
 ## 2.29.0
 * Add a search menu item to filter uniforms and textures
 * Disable Insert Tab menu item when code is hidden
