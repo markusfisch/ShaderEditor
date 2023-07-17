@@ -109,19 +109,14 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 	}
 
 	private void updateLineNumbers() {
-		Trace.beginSection("Draw Line Numbers");
-		Trace.beginSection("Get Line Count Num Digits");
 		int lineCount = source.getLineCount();
 		final String lineFormat = "%" + numDigits(lineCount) + "d\n";
-		Trace.endSection();
-		Trace.beginSection("Add line numbers");
+
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < lineCount; ++i) {
 			builder.append(String.format(lineFormat, i + 1));
 		}
 		setText(builder);
-		Trace.endSection();
-		Trace.endSection();
 	}
 
 	@Override
