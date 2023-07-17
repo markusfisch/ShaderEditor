@@ -4,81 +4,42 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Trace;
 import android.text.Editable;
-import android.text.Layout;
 import android.text.TextWatcher;
+import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatEditText;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.highlighter.Highlight;
 import de.markusfisch.android.shadereditor.highlighter.Lexer;
 import de.markusfisch.android.shadereditor.highlighter.TokenType;
 import de.markusfisch.android.shadereditor.util.IntList;
 
-public class SyntaxEditor extends View {
+public class SyntaxEditor extends View implements TextWatcher {
 	private static final int[] colors = new int[Highlight.values().length];
 	private final List<IntList> tokensByLine = new ArrayList<>();
 	private final Rect visibleRect = new Rect();
-	private final @NonNull AppCompatEditText source;
 	boolean textDirty = true;
-	private int tabWidthCharacters = 2;
-	private int tabWidth = 0;
+	private @Nullable EditText source;
+	private @NonNull TabSupplier tabSupplier = () -> 2;
 	private @NonNull int[] tokens = new int[256];
 	private String currentText = "";
+	private volatile float maxX;
+	private volatile float maxY;
+	private Paint paint = new Paint();
 
-	public SyntaxEditor(Context context, @NonNull AppCompatEditText source) {
-		super(context);
-		this.source = source;
-		float charWidth = source.getPaint().measureText("m");
-		tabWidth = (int) (charWidth * tabWidthCharacters);
-		getViewTreeObserver().addOnScrollChangedListener(this::invalidate);
-		source.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-			}
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-				currentText = s.toString();
-				textDirty = true;
-				postInvalidate();
-				ExecutorService executor = Executors.newSingleThreadExecutor();
-				Handler handler = new Handler(Looper.getMainLooper());
-				executor.execute(() -> {
-					tokens = Lexer.runLexer(currentText, tokens, tabWidthCharacters);
-					tokensByLine.clear();
-					for (int i = 1, length = tokens[0]; i <= length; i += 5) {
-						int line = tokens[i + 3];
-						while (tokensByLine.size() <= line) tokensByLine.add(new IntList());
-						IntList tokensForLine = tokensByLine.get(line);
-						tokensForLine.add(i);
-					}
-					for (IntList list : tokensByLine)
-						list.trimToSize();
-
-					handler.post(() -> {
-						textDirty = false;
-						postInvalidate();
-					});
-				});
-			}
-		});
+	public SyntaxEditor(Context context, @Nullable AttributeSet attrs) {
+		super(context, attrs);
+		getViewTreeObserver().addOnScrollChangedListener(this::postInvalidate);
 	}
 
 	public static void initColors(@NonNull Context context) {
@@ -88,61 +49,139 @@ public class SyntaxEditor extends View {
 	}
 
 	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		Log.d("Measure", "onMeasure called, maxX: " + maxX + ", maxY: " + maxY);
+		setMeasuredDimension((int) maxX, (int) maxY);
+	}
+
+	public void setSource(@NonNull EditText source) {
+		if (this.source != null) {
+			this.source.setLayoutParams(new ViewGroup.LayoutParams(getLayoutParams()));
+			this.source.setOnScrollChangeListener(null);
+			this.source.removeTextChangedListener(this);
+		}
+		this.source = source;
+		source.setLayoutParams(getLayoutParams());
+		setPadding(source.getPaddingLeft(), source.getPaddingTop(), source.getPaddingRight(), source.getPaddingBottom());
+		source.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> setScrollY(scrollY));
+		source.addTextChangedListener(this);
+	}
+
+	public void setTabSupplier(@NonNull TabSupplier tabSupplier) {
+		this.tabSupplier = tabSupplier;
+	}
+
+
+	@Override
 	protected void onDraw(Canvas canvas) {
-		if (textDirty) return;
+		if (source == null) return;
+
 		Trace.beginSection("Syntax Highlighting Draw");
+
 		Trace.beginSection("Highlighting (Java Side)");
-		Paint paint = source.getPaint();
+		paint.set(source.getPaint());
 		Trace.endSection();
+
 		if (currentText == null) return;
+
 		Trace.beginSection("Measure Font");
-//		Paint.FontMetrics fm = paint.getFontMetrics();
-//		float lineHeight = fm.bottom - fm.top + fm.leading;
-//		float descent = fm.descent;
+		Paint.FontMetricsInt fm = paint.getFontMetricsInt();
 		float charWidth = paint.measureText("m");
 		Trace.endSection();
-		tabWidth = (int) (charWidth * tabWidthCharacters);
+
+		int lineHeight = fm.bottom - fm.top + fm.leading;
 		float paddingLeft = getPaddingLeft();
-		float paddingTop = source.getExtendedPaddingTop();
-		Layout layout = source.getLayout();
+		float lineOffsetY = source.getExtendedPaddingTop() - fm.descent;
+
 		Trace.beginSection("Visible Rect");
 		getLocalVisibleRect(visibleRect);
 		Trace.endSection();
+
 		Trace.beginSection("Get visible lines");
-		int firstLine = layout.getLineForVertical(visibleRect.top);
-		int lastLine = layout.getLineForVertical(visibleRect.bottom) + 1;
+		int firstLine = visibleRect.top / lineHeight;
+		int lastLine = visibleRect.bottom / lineHeight;
 		Trace.endSection();
+
 		Trace.beginSection("Highlighting");
 		int sourceMax = source.length();
-		for (int line = firstLine; line <= lastLine; ++line) {
+		float currentY = firstLine * lineHeight + lineOffsetY;
+		for (int line = firstLine; line <= lastLine; ++line, currentY += lineHeight) {
 			if (line >= tokensByLine.size()) break;
-			Trace.beginSection("Highlighting Line " + line);
+			Trace.beginSection("Highlighting Line ");
 			for (int i : tokensByLine.get(line).getRaw()) {
-				Trace.beginSection("Highlighting Token " + i);
+				Trace.beginSection("Highlighting Token ");
 				TokenType type = TokenType.values()[tokens[i]];
 				int start = Math.min(sourceMax, tokens[i + 1]);
 				int end = Math.min(sourceMax, tokens[i + 2]);
 				int column = tokens[i + 4];
 				Highlight highlight = Highlight.from(type);
 				paint.setColor(colors[highlight.ordinal()]);
-				float y = layout.getLineTop(line) + paddingTop - layout.getLineDescent(line);
-//				float y = lineHeight * line + paddingTop - descent;
-				float x = 0;
-				canvas.drawText(currentText, start, end, x + charWidth * column + paddingLeft, y, paint);
+				canvas.drawText(currentText, start, end, charWidth * column + paddingLeft, currentY, paint);
 				Trace.endSection();
 			}
 			Trace.endSection();
 		}
 		Trace.endSection();
+
 		super.onDraw(canvas); // draw normal text
 		Trace.endSection();
 	}
 
-	public int getTabWidth() {
-		return tabWidth;
+	private void highlight() {
+		int maxColumn = 0;
+		int maxLine = 0;
+		if (source != null) paint.set(source.getPaint());
+		Paint.FontMetricsInt fm = paint.getFontMetricsInt();
+		float lineHeight = fm.bottom - fm.top + fm.leading;
+		float charWidth = paint.measureText("m");
+		tokens = Lexer.runLexer(currentText, tokens, tabSupplier.getWidth());
+		tokensByLine.clear();
+		int sourceMax = source.length();
+		for (int i = 1, length = tokens[0]; i <= length; i += 5) {
+			int start = Math.min(sourceMax, tokens[i + 1]);
+			int end = Math.min(sourceMax, tokens[i + 2]);
+			int line = tokens[i + 3];
+			int column = tokens[i + 4];
+			maxLine = Math.max(maxLine, line);
+			maxColumn = Math.max(maxColumn, column + (end - start));
+			while (tokensByLine.size() <= line) tokensByLine.add(new IntList());
+			IntList tokensForLine = tokensByLine.get(line);
+			tokensForLine.add(i);
+		}
+		for (IntList list : tokensByLine)
+			list.trimToSize();
+		float maxX = (maxColumn + 1) * charWidth;
+		float maxY = (maxLine + 1) * lineHeight;
+		if ((int) (maxX - this.maxX) != 0 || (int) (maxY - this.maxY) != 0) {
+			this.maxX = maxX;
+			this.maxY = maxY;
+			requestLayout();
+		}
+		textDirty = false;
 	}
 
-	public void setTabWidth(int tabWidthCharacters) {
-		this.tabWidthCharacters = tabWidthCharacters;
+	@Override
+	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+	}
+
+	@Override
+	public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+	}
+
+	@Override
+	public void afterTextChanged(Editable s) {
+		currentText = s.toString();
+		textDirty = true;
+		post(() -> {
+			highlight();
+			invalidate();
+		});
+	}
+
+	@FunctionalInterface
+	public interface TabSupplier {
+		int getWidth();
 	}
 }

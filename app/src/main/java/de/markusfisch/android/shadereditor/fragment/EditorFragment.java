@@ -18,13 +18,17 @@ import de.markusfisch.android.shadereditor.opengl.InfoLog;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.view.UndoRedo;
+import de.markusfisch.android.shadereditor.widget.LineNumbers;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
+import de.markusfisch.android.shadereditor.widget.SyntaxEditor;
 
 public class EditorFragment extends Fragment {
 	public static final String TAG = "EditorFragment";
 
 	private ScrollView scrollView;
 	private ShaderEditor shaderEditor;
+	private LineNumbers lineNumbers;
+	private SyntaxEditor syntaxEditor;
 	private UndoRedo undoRedo;
 	private int yOffset;
 
@@ -39,15 +43,22 @@ public class EditorFragment extends Fragment {
 				false);
 
 		scrollView = view.findViewById(R.id.scroll_view);
+		lineNumbers = view.findViewById(R.id.line_numbers);
 		shaderEditor = view.findViewById(R.id.editor);
-		undoRedo = new UndoRedo(shaderEditor.getEditor(), ShaderEditorApp.editHistory);
+		syntaxEditor = view.findViewById(R.id.syntax);
+		setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
+		shaderEditor.setTabSupplier(ShaderEditorApp.preferences::getTabWidth);
+		syntaxEditor.setTabSupplier(ShaderEditorApp.preferences::getTabWidth);
+		lineNumbers.setSource(shaderEditor);
+		syntaxEditor.setSource(shaderEditor);
+		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
 
-		Activity activity = getActivity();
+		Activity activity = requireActivity();
 		try {
 			shaderEditor.setOnTextChangedListener(
 					(ShaderEditor.OnTextChangedListener) activity);
 		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString() +
+			throw new ClassCastException(activity +
 					" must implement " +
 					"ShaderEditor.OnTextChangedListener");
 		}
@@ -151,27 +162,22 @@ public class EditorFragment extends Fragment {
 	private void updateToPreferences() {
 		Preferences preferences = ShaderEditorApp.preferences;
 		shaderEditor.setUpdateDelay(preferences.getUpdateDelay());
-		shaderEditor.getEditor().setTextSize(
+		shaderEditor.setTextSize(
 				android.util.TypedValue.COMPLEX_UNIT_SP,
 				preferences.getTextSize());
-		shaderEditor.getSyntax().setTabWidth(preferences.getTabWidth());
 	}
 
 	private int getYOffset(Activity activity) {
 		if (yOffset == 0) {
 			float dp = getResources().getDisplayMetrics().density;
-
-			try {
-				ActionBar actionBar = ((AppCompatActivity) activity)
-						.getSupportActionBar();
-
+			if (activity instanceof AppCompatActivity) {
+				ActionBar actionBar = ((AppCompatActivity) activity).getSupportActionBar();
 				if (actionBar != null) {
-					yOffset = actionBar.getHeight();
+					yOffset = Math.round(48f * dp);
 				}
-			} catch (ClassCastException e) {
+			} else {
 				yOffset = Math.round(48f * dp);
 			}
-
 			yOffset += Math.round(16f * dp);
 		}
 
@@ -183,6 +189,6 @@ public class EditorFragment extends Fragment {
 	}
 
 	public void setShowLineNumbers(boolean showLineNumbers) {
-		shaderEditor.setShowLineNumbers(showLineNumbers);
+		lineNumbers.setVisibility(showLineNumbers ? View.VISIBLE : View.GONE);
 	}
 }

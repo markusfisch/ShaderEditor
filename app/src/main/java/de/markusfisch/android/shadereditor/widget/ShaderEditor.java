@@ -10,14 +10,16 @@ import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.LineHeightSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.content.ContextCompat;
 
 import java.util.regex.Matcher;
@@ -26,7 +28,7 @@ import java.util.regex.Pattern;
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
-public class ShaderEditor extends FrameLayout {
+public class ShaderEditor extends AppCompatEditText {
 	private static final Pattern PATTERN_LINE = Pattern.compile(
 			".*\\n");
 	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
@@ -44,8 +46,6 @@ public class ShaderEditor extends FrameLayout {
 	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
 			"[\\xA0]");
 	private final Handler updateHandler = new Handler();
-	private final LineNumberEditText editor;
-	private final SyntaxEditor syntax;
 	private OnTextChangedListener onTextChangedListener;
 	private int updateDelay = 1000;
 	private int errorLine = 0;
@@ -55,7 +55,7 @@ public class ShaderEditor extends FrameLayout {
 	private final Runnable updateRunnable = new Runnable() {
 		@Override
 		public void run() {
-			Editable e = editor.getText();
+			Editable e = getText();
 
 			if (onTextChangedListener != null) {
 				onTextChangedListener.onTextChanged(e.toString());
@@ -64,6 +64,7 @@ public class ShaderEditor extends FrameLayout {
 			highlightWithoutChange(e);
 		}
 	};
+	private @NonNull TabSupplier tabSupplier = () -> 2;
 
 	public ShaderEditor(Context context) {
 		this(context, null);
@@ -71,12 +72,8 @@ public class ShaderEditor extends FrameLayout {
 
 	public ShaderEditor(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		editor = new LineNumberEditText(context, attrs);
-		syntax = new SyntaxEditor(context, editor);
-		post(() -> setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers()));
-		addView(editor);
-		addView(syntax);
-		editor.setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
+		setHorizontallyScrolling(true); // setting in XML does not work
+		setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
 			if (modified &&
 					end - start == 1 &&
 					start < source.length() &&
@@ -91,7 +88,7 @@ public class ShaderEditor extends FrameLayout {
 			return source;
 		}});
 
-		editor.addTextChangedListener(new TextWatcher() {
+		addTextChangedListener(new TextWatcher() {
 			private int start = 0;
 			private int count = 0;
 
@@ -134,7 +131,6 @@ public class ShaderEditor extends FrameLayout {
 
 		setSyntaxColors(getContext());
 		setUpdateDelay(ShaderEditorApp.preferences.getUpdateDelay());
-		syntax.setTabWidth(ShaderEditorApp.preferences.getTabWidth());
 
 		setOnKeyListener((v, keyCode, event) -> {
 			if (ShaderEditorApp.preferences.useTabForIndent() &&
@@ -187,22 +183,18 @@ public class ShaderEditor extends FrameLayout {
 				"}\n";
 	}
 
-	public LineNumberEditText getEditor() {
-		return editor;
-	}
-
-	public SyntaxEditor getSyntax() {
-		return syntax;
+	public void setTabSupplier(@NonNull TabSupplier tabSupplier) {
+		this.tabSupplier = tabSupplier;
 	}
 
 	public void highlightError() {
-		Editable e = editor.getText();
+		Editable e = getText();
 		if (e == null) return;
-		clearSpans(e, editor.length(), BackgroundColorSpan.class);
+		clearSpans(e, length(), BackgroundColorSpan.class);
 		if (errorLine > 0) {
 			post(() -> {
 				if (e.length() == 0) return;
-				Layout layout = editor.getLayout();
+				Layout layout = getLayout();
 				if (errorLine > layout.getLineCount()) return;
 				int start = layout.getLineStart(errorLine);
 				int end = layout.getLineEnd(errorLine);
@@ -232,7 +224,7 @@ public class ShaderEditor extends FrameLayout {
 	}
 
 	public void updateHighlighting() {
-		highlightWithoutChange(editor.getText());
+		highlightWithoutChange(getText());
 	}
 
 	public boolean isModified() {
@@ -250,25 +242,25 @@ public class ShaderEditor extends FrameLayout {
 		dirty = false;
 
 		modified = false;
-		editor.setText(highlight(new SpannableStringBuilder(text)));
+		setText(highlight(new SpannableStringBuilder(text)));
 		modified = true;
 
 		if (onTextChangedListener != null) {
-			onTextChangedListener.onTextChanged(editor.getText().toString());
+			onTextChangedListener.onTextChanged(getText().toString());
 		}
 	}
 
 	public String getCleanText() {
 		return PATTERN_TRAILING_WHITE_SPACE
-				.matcher(editor.getText())
+				.matcher(getText())
 				.replaceAll("");
 	}
 
 	public void insertTab() {
-		int start = editor.getSelectionStart();
-		int end = editor.getSelectionEnd();
+		int start = getSelectionStart();
+		int end = getSelectionEnd();
 
-		editor.getText().replace(
+		getText().replace(
 				Math.min(start, end),
 				Math.max(start, end),
 				"\t",
@@ -281,7 +273,7 @@ public class ShaderEditor extends FrameLayout {
 			return;
 		}
 
-		Editable e = editor.getText();
+		Editable e = getText();
 		removeUniform(e, statement);
 
 		Matcher m = PATTERN_INSERT_UNIFORM.matcher(e);
@@ -487,38 +479,42 @@ public class ShaderEditor extends FrameLayout {
 	}
 
 	private void convertTabs(Editable e, int start, int count) {
-		int tabWidth = syntax.getTabWidth();
+		int tabWidth = tabSupplier.getWidth();
 		if (tabWidth < 1) {
 			return;
 		}
 
 		String s = e.toString();
-
+		int lineHeight = getLineHeight();
 		for (int stop = start + count;
-				(start = s.indexOf("\t", start)) > -1 && start < stop;
+				(start = s.indexOf('\t', start)) > -1 && start < stop;
 				++start) {
+			int lineStart = s.lastIndexOf('\n', start);
 			e.setSpan(
-					new TabWidthSpan(syntax::getTabWidth),
+					new TabWidthSpan(() -> tabSupplier.getWidth(), lineHeight),
 					start,
 					start + 1,
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
 	}
 
-	public void setShowLineNumbers(boolean showLineNumbers) {
-		editor.setShowLineNumbers(showLineNumbers);
-		syntax.setPadding(editor.getPaddingLeft(), editor.getPaddingTop(), editor.getPaddingRight(), editor.getPaddingBottom());
+	@FunctionalInterface
+	public interface TabSupplier {
+		int getWidth();
 	}
 
 	public interface OnTextChangedListener {
 		void onTextChanged(String text);
 	}
 
-	private static class TabWidthSpan extends ReplacementSpan {
-		private final @NonNull TabWidthSupplier tabWidthSupplier;
+	private static class TabWidthSpan extends ReplacementSpan implements LineHeightSpan.WithDensity {
 
-		private TabWidthSpan(@NonNull TabWidthSupplier tabWidthSupplier) {
-			this.tabWidthSupplier = tabWidthSupplier;
+		private final @NonNull TabSupplier tabSupplier;
+		private final int lineHeight;
+
+		private TabWidthSpan(@NonNull TabSupplier tabWidthSupplier, int lineHeight) {
+			this.tabSupplier = tabWidthSupplier;
+			this.lineHeight = lineHeight;
 		}
 
 		@Override
@@ -528,7 +524,7 @@ public class ShaderEditor extends FrameLayout {
 				int start,
 				int end,
 				Paint.FontMetricsInt fm) {
-			return tabWidthSupplier.getTabWidth();
+			return (int) (tabSupplier.getWidth() * paint.measureText("m"));
 		}
 
 		@Override
@@ -544,8 +540,14 @@ public class ShaderEditor extends FrameLayout {
 				@NonNull Paint paint) {
 		}
 
-		interface TabWidthSupplier {
-			int getTabWidth();
+		@Override
+		public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int lineHeight, Paint.FontMetricsInt fm, TextPaint paint) {
+			paint.getFontMetricsInt(fm);
+		}
+
+		@Override
+		public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int lineHeight, Paint.FontMetricsInt fm) {
+
 		}
 	}
 }
