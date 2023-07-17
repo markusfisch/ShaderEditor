@@ -10,9 +10,10 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,6 +32,8 @@ import androidx.appcompat.widget.Toolbar;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
@@ -76,42 +79,6 @@ public class MainActivity
 	};
 	private float[] qualityValues;
 	private float quality = 1f;
-
-	private static String getTextFromUri(ContentResolver resolver, Uri uri) {
-		try {
-			InputStream in = resolver.openInputStream(uri);
-			if (in == null) {
-				return null;
-			}
-			StringBuilder sb = new StringBuilder();
-			byte[] buffer = new byte[2048];
-			for (int len; (len = in.read(buffer)) > 0; ) {
-				// StandardCharsets.UTF_8 would require API level 19.
-				sb.append(new String(buffer, 0, len, "UTF-8"));
-			}
-			in.close();
-			return sb.toString();
-		} catch (IOException e) {
-			return null;
-		}
-	}
-
-	private static boolean startActivity(Context context, Intent intent) {
-		try {
-			// Avoid using `intent.resolveActivity()` at API level 30+ due
-			// to the new package visibility restrictions. In order for
-			// `resolveActivity()` to "see" another package, we would need
-			// to list that package/intent in a `<queries>` block in the
-			// Manifest. But since we used `resolveActivity()` only to avoid
-			// an exception if the Intent cannot be resolved, it's much easier
-			// and more robust to just try and catch that exception if
-			// necessary.
-			context.startActivity(intent);
-			return true;
-		} catch (ActivityNotFoundException e) {
-			return false;
-		}
-	}
 
 	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
@@ -561,18 +528,12 @@ public class MainActivity
 			listView.postDelayed(this::getShadersAsync, 500);
 			return;
 		}
-
-		new AsyncTask<Void, Void, Cursor>() {
-			@Override
-			protected Cursor doInBackground(Void... nothings) {
-				return ShaderEditorApp.db.getShaders();
-			}
-
-			@Override
-			protected void onPostExecute(Cursor cursor) {
-				updateShaderAdapter(cursor);
-			}
-		}.execute();
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		Handler handler = new Handler(Looper.getMainLooper());
+		executor.execute(() -> {
+			Cursor cursor = ShaderEditorApp.db.getShaders();
+			handler.post(() -> updateShaderAdapter(cursor));
+		});
 	}
 
 	private void updateShaderAdapter(Cursor cursor) {
@@ -1015,6 +976,42 @@ public class MainActivity
 			startActivity(intent);
 		} else {
 			startActivityForResult(intent, PREVIEW_SHADER);
+		}
+	}
+
+	private static String getTextFromUri(ContentResolver resolver, Uri uri) {
+		try {
+			InputStream in = resolver.openInputStream(uri);
+			if (in == null) {
+				return null;
+			}
+			StringBuilder sb = new StringBuilder();
+			byte[] buffer = new byte[2048];
+			for (int len; (len = in.read(buffer)) > 0; ) {
+				// StandardCharsets.UTF_8 would require API level 19.
+				sb.append(new String(buffer, 0, len, "UTF-8"));
+			}
+			in.close();
+			return sb.toString();
+		} catch (IOException e) {
+			return null;
+		}
+	}
+
+	private static boolean startActivity(Context context, Intent intent) {
+		try {
+			// Avoid using `intent.resolveActivity()` at API level 30+ due
+			// to the new package visibility restrictions. In order for
+			// `resolveActivity()` to "see" another package, we would need
+			// to list that package/intent in a `<queries>` block in the
+			// Manifest. But since we used `resolveActivity()` only to avoid
+			// an exception if the Intent cannot be resolved, it's much easier
+			// and more robust to just try and catch that exception if
+			// necessary.
+			context.startActivity(intent);
+			return true;
+		} catch (ActivityNotFoundException e) {
+			return false;
 		}
 	}
 }
