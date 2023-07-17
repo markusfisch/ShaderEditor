@@ -28,14 +28,13 @@ public class SyntaxEditor extends View implements TextWatcher {
 	private static final int[] colors = new int[Highlight.values().length];
 	private final List<IntList> tokensByLine = new ArrayList<>();
 	private final Rect visibleRect = new Rect();
-	boolean textDirty = true;
+	private final Paint paint = new Paint();
+	boolean needsEcho = false;
+	private boolean textDirty = true;
 	private @Nullable EditText source;
 	private @NonNull TabSupplier tabSupplier = () -> 2;
 	private @NonNull int[] tokens = new int[256];
 	private String currentText = "";
-	private volatile float maxX;
-	private volatile float maxY;
-	private Paint paint = new Paint();
 
 	public SyntaxEditor(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
@@ -50,8 +49,8 @@ public class SyntaxEditor extends View implements TextWatcher {
 
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		Log.d("Measure", "onMeasure called, maxX: " + maxX + ", maxY: " + maxY);
-		setMeasuredDimension((int) maxX, (int) maxY);
+		ViewGroup.LayoutParams layoutParams = getLayoutParams();
+		setMeasuredDimension(layoutParams.width, layoutParams.height);
 	}
 
 	public void setSource(@NonNull EditText source) {
@@ -71,10 +70,9 @@ public class SyntaxEditor extends View implements TextWatcher {
 		this.tabSupplier = tabSupplier;
 	}
 
-
 	@Override
 	protected void onDraw(Canvas canvas) {
-		if (source == null) return;
+		if (source == null || textDirty) return;
 
 		Trace.beginSection("Syntax Highlighting Draw");
 
@@ -107,20 +105,23 @@ public class SyntaxEditor extends View implements TextWatcher {
 		float currentY = firstLine * lineHeight + lineOffsetY;
 		for (int line = firstLine; line <= lastLine; ++line, currentY += lineHeight) {
 			if (line >= tokensByLine.size()) break;
-			Trace.beginSection("Highlighting Line ");
+			Trace.beginSection("Highlighting Line");
 			for (int i : tokensByLine.get(line).getRaw()) {
-				Trace.beginSection("Highlighting Token ");
+				Trace.beginSection("Highlighting Token");
 				TokenType type = TokenType.values()[tokens[i]];
+				Highlight highlight = Highlight.from(type);
 				int start = Math.min(sourceMax, tokens[i + 1]);
 				int end = Math.min(sourceMax, tokens[i + 2]);
 				int column = tokens[i + 4];
-				Highlight highlight = Highlight.from(type);
+				if (needsEcho)
+					Log.d("Token-echo", String.format("%s %d:%d | %d-%d", type.name(), line, column, start, end));
 				paint.setColor(colors[highlight.ordinal()]);
 				canvas.drawText(currentText, start, end, charWidth * column + paddingLeft, currentY, paint);
 				Trace.endSection();
 			}
 			Trace.endSection();
 		}
+		needsEcho = false;
 		Trace.endSection();
 
 		super.onDraw(canvas); // draw normal text
@@ -128,6 +129,7 @@ public class SyntaxEditor extends View implements TextWatcher {
 	}
 
 	private void highlight() {
+		needsEcho = true;
 		int maxColumn = 0;
 		int maxLine = 0;
 		if (source != null) paint.set(source.getPaint());
@@ -138,10 +140,12 @@ public class SyntaxEditor extends View implements TextWatcher {
 		tokensByLine.clear();
 		int sourceMax = source.length();
 		for (int i = 1, length = tokens[0]; i <= length; i += 5) {
+			TokenType type = TokenType.values()[tokens[i]];
 			int start = Math.min(sourceMax, tokens[i + 1]);
 			int end = Math.min(sourceMax, tokens[i + 2]);
 			int line = tokens[i + 3];
 			int column = tokens[i + 4];
+			Log.d("Token", String.format("%s %d:%d | %d-%d", type.name(), line, column, start, end));
 			maxLine = Math.max(maxLine, line);
 			maxColumn = Math.max(maxColumn, column + (end - start));
 			while (tokensByLine.size() <= line) tokensByLine.add(new IntList());
@@ -150,12 +154,14 @@ public class SyntaxEditor extends View implements TextWatcher {
 		}
 		for (IntList list : tokensByLine)
 			list.trimToSize();
-		float maxX = (maxColumn + 1) * charWidth;
-		float maxY = (maxLine + 1) * lineHeight;
-		if ((int) (maxX - this.maxX) != 0 || (int) (maxY - this.maxY) != 0) {
-			this.maxX = maxX;
-			this.maxY = maxY;
+		int maxX = (int) ((maxColumn + 1) * charWidth) + getPaddingLeft() + getPaddingRight();
+		int maxY = (int) ((maxLine + 1) * lineHeight + getPaddingTop() + getPaddingBottom());
+		ViewGroup.LayoutParams layoutParams = getLayoutParams();
+		if (maxX != layoutParams.width || maxY != layoutParams.height) {
+			layoutParams.width = maxX;
+			layoutParams.height = maxY;
 			requestLayout();
+			source.requestLayout();
 		}
 		textDirty = false;
 	}

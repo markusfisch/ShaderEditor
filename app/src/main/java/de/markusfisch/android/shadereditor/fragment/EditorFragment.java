@@ -28,6 +28,7 @@ public class EditorFragment extends Fragment {
 	private ScrollView scrollView;
 	private ShaderEditor shaderEditor;
 	private LineNumbers lineNumbers;
+	private ViewGroup lineNumbersContainer;
 	private SyntaxEditor syntaxEditor;
 	private UndoRedo undoRedo;
 	private int yOffset;
@@ -46,6 +47,7 @@ public class EditorFragment extends Fragment {
 		lineNumbers = view.findViewById(R.id.line_numbers);
 		shaderEditor = view.findViewById(R.id.editor);
 		syntaxEditor = view.findViewById(R.id.syntax);
+		// lineNumbersContainer = view.findViewById(R.id.line_numbers_container);
 		setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
 		shaderEditor.setTabSupplier(ShaderEditorApp.preferences::getTabWidth);
 		syntaxEditor.setTabSupplier(ShaderEditorApp.preferences::getTabWidth);

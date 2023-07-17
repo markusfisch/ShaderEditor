@@ -2,72 +2,68 @@
 	contents. If we make EditText scrollable, contents will be cut off
 	at the specified padding but before the visible border. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/scroll_view"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background_editor"
-    android:fillViewport="true">
-    <!-- Hardcode gravity to left because GLSL source code is always
-        aligned to the left. -->
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport="true"
-        android:scrollbars="none">
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/scroll_view"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:background="@color/background_editor"
+	android:fillViewport="true">
+	<!-- Hardcode gravity to left because GLSL source code is always
+		aligned to the left. -->
+	<HorizontalScrollView
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:fillViewport="true"
+		android:scrollbars="none">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
+		<LinearLayout
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:orientation="horizontal">
 
-            <de.markusfisch.android.shadereditor.widget.LineNumbers
-                android:id="@+id/line_numbers"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="0"
-                android:padding="@dimen/editor_padding"
-                android:textColor="@color/editor_text"
-                android:textSize="12sp"
-                android:typeface="monospace"
-                app:fontFamily="@font/jetbrains_mono" />
+			<de.markusfisch.android.shadereditor.widget.LineNumbers
+				android:id="@+id/line_numbers"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:padding="@dimen/editor_padding"
+				android:textColor="@color/editor_text"
+				android:textSize="12sp"
+				android:typeface="monospace"
+				app:fontFamily="@font/jetbrains_mono" />
 
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:background="@color/editor_text" />
+			<View
+				android:layout_width="1dp"
+				android:layout_height="match_parent"
+				android:background="@color/editor_text" />
 
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clipChildren="true">
+			<FrameLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
 
-                <!-- Behind the syntax editor, because it lags otherwise -->
-                <de.markusfisch.android.shadereditor.widget.ShaderEditor
-                    android:id="@+id/editor"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:autofillHints=""
-                    android:background="@android:color/transparent"
-                    android:ellipsize="end"
-                    android:gravity="left|top"
-                    android:hint="@string/editor_hint"
-                    android:imeOptions="flagNoExtractUi"
-                    android:inputType="textMultiLine|textNoSuggestions"
-                    android:padding="@dimen/editor_padding"
-                    android:textColor="@color/editor_text"
-                    android:textSize="12sp"
-                    android:typeface="monospace"
-                    app:fontFamily="@font/jetbrains_mono"
-                    tools:ignore="RtlHardcoded" />
+				<!-- Behind the syntax editor, because it lags otherwise -->
+				<de.markusfisch.android.shadereditor.widget.ShaderEditor
+					android:id="@+id/editor"
+					android:layout_width="match_parent"
+					android:layout_height="match_parent"
+					android:autofillHints=""
+					android:background="@android:color/transparent"
+					android:gravity="left|top"
+					android:hint="@string/editor_hint"
+					android:imeOptions="flagNoExtractUi"
+					android:inputType="textMultiLine|textNoSuggestions"
+					android:padding="@dimen/editor_padding"
+					android:textColor="@color/editor_text"
+					android:textSize="12sp"
+					android:typeface="monospace"
+					app:fontFamily="@font/jetbrains_mono"
+					tools:ignore="RtlHardcoded" />
 
-                <de.markusfisch.android.shadereditor.widget.SyntaxEditor
-                    android:id="@+id/syntax"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </FrameLayout>
-        </LinearLayout>
-    </HorizontalScrollView>
+				<de.markusfisch.android.shadereditor.widget.SyntaxEditor
+					android:id="@+id/syntax"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content" />
+			</FrameLayout>
+		</LinearLayout>
+	</HorizontalScrollView>
 </ScrollView>

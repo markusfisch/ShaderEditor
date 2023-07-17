@@ -358,7 +358,7 @@ static void read_next(Lexer *lexer) {
     if (*lexer->iter == '\\' && iter_move_newline(&lexer->iter)) {
       ++newline_count;
       lexer->position = lexer->read_position++;
-      lexer->line_start = lexer->position;
+      lexer->line_start = lexer->position + 1;
       lexer->line_offset = lexer->iter - lexer->source;
       continue;
     }

@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Paint;
 import android.os.Trace;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -20,7 +21,6 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 		this(context, null);
 	}
 
-
 	public LineNumbers(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		// Try-with-resources not allowed for API < 31
@@ -38,6 +38,20 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 		setFocusable(false);
 		setTextIsSelectable(false);
 		setText("0");
+	}
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+		if (widthMode != MeasureSpec.UNSPECIFIED || heightMode != MeasureSpec.UNSPECIFIED) {
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			return;
+		}
+		Paint.FontMetricsInt fm = getPaint().getFontMetricsInt();
+		int lineHeight = fm.bottom - fm.top + fm.leading;
+		int lineCount = source.getLineCount();
+		setMeasuredDimension((int) (getPaint().measureText("m") * numDigits(lineCount)) + getPaddingLeft() + getPaddingRight(), lineCount * lineHeight + getPaddingTop() + getPaddingBottom());
 	}
 
 	public void setSource(@NonNull TextView source) {

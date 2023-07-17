@@ -18,6 +18,7 @@ import android.text.style.LineHeightSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.content.ContextCompat;
@@ -185,6 +186,12 @@ public class ShaderEditor extends AppCompatEditText {
 
 	public void setTabSupplier(@NonNull TabSupplier tabSupplier) {
 		this.tabSupplier = tabSupplier;
+	}
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		ViewGroup.LayoutParams layoutParams = getLayoutParams();
+		setMeasuredDimension(layoutParams.width, layoutParams.height);
 	}
 
 	public void highlightError() {
