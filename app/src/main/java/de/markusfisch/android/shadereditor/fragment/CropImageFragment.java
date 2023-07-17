@@ -4,9 +4,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,6 +14,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import androidx.fragment.app.Fragment;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
@@ -21,14 +25,12 @@ import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 import de.markusfisch.android.shadereditor.widget.CropImageView;
 
 public class CropImageFragment extends Fragment {
-	public static final String IMAGE_URI = "image_uri";
-
 	public interface CropImageViewProvider {
 		CropImageView getCropImageView();
 	}
 
+	public static final String IMAGE_URI = "image_uri";
 	private static boolean inProgress = false;
-
 	private CropImageView cropImageView;
 	private View progressView;
 	private Uri imageUri;
@@ -110,18 +112,14 @@ public class CropImageFragment extends Fragment {
 
 		inProgress = true;
 		progressView.setVisibility(View.VISIBLE);
-
-		new AsyncTask<Void, Void, Bitmap>() {
-			@Override
-			protected Bitmap doInBackground(Void... nothings) {
-				return BitmapEditor.getBitmapFromUri(
-						activity,
-						imageUri,
-						1024);
-			}
-
-			@Override
-			protected void onPostExecute(Bitmap b) {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		Handler handler = new Handler(Looper.getMainLooper());
+		executor.execute(() -> {
+			Bitmap b = BitmapEditor.getBitmapFromUri(
+					activity,
+					imageUri,
+					1024);
+			handler.post(() -> {
 				inProgress = false;
 				progressView.setVisibility(View.GONE);
 
@@ -134,8 +132,8 @@ public class CropImageFragment extends Fragment {
 					bitmap = b;
 					cropImageView.setImageBitmap(b);
 				}
-			}
-		}.execute();
+			});
+		});
 	}
 
 	private void abort(Activity activity) {

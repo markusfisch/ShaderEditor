@@ -4,12 +4,15 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
 public class CameraListener {
@@ -28,17 +31,6 @@ public class CameraListener {
 	private SurfaceTexture surfaceTexture;
 	private FloatBuffer orientationMatrix;
 
-	public static int findCameraId(int facing) {
-		for (int i = 0, l = Camera.getNumberOfCameras(); i < l; ++i) {
-			Camera.CameraInfo info = new Camera.CameraInfo();
-			Camera.getCameraInfo(i, info);
-			if (info.facing == facing) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
 	public CameraListener(
 			int cameraTextureId,
 			int cameraId,
@@ -52,6 +44,17 @@ public class CameraListener {
 		frameWidth = width;
 		frameHeight = height;
 		setOrientationAndFlip(frameOrientation);
+	}
+
+	public static int findCameraId(int facing) {
+		for (int i = 0, l = Camera.getNumberOfCameras(); i < l; ++i) {
+			Camera.CameraInfo info = new Camera.CameraInfo();
+			Camera.getCameraInfo(i, info);
+			if (info.facing == facing) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	public FloatBuffer getOrientationMatrix() {
@@ -88,28 +91,23 @@ public class CameraListener {
 			return;
 		}
 		opening = true;
-
-		new AsyncTask<Void, Void, Camera>() {
-			@Override
-			protected Camera doInBackground(Void... nothings) {
-				if (pausing) {
-					return null;
-				}
-				try {
-					return Camera.open(cameraId);
-				} catch (RuntimeException e) {
-					return null;
-				}
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		Handler handler = new Handler(Looper.getMainLooper());
+		executor.execute(() -> {
+			if (pausing) {
+				return;
 			}
-
-			@Override
-			protected void onPostExecute(Camera camera) {
-				if (camera != null && !startPreview(camera)) {
-					camera.release();
-				}
-				opening = false;
+			try {
+				Camera camera = Camera.open(cameraId);
+				handler.post(() -> {
+					if (camera != null && !startPreview(camera)) {
+						camera.release();
+					}
+					opening = false;
+				});
+			} catch (RuntimeException ignored) {
 			}
-		}.execute();
+		});
 	}
 
 	private void stopPreview() {
@@ -156,14 +154,6 @@ public class CameraListener {
 		cam = camera;
 		camera.startPreview();
 		return true;
-	}
-
-	private static int getCameraDisplayOrientation(
-			int cameraId,
-			int deviceRotation) {
-		Camera.CameraInfo info = new Camera.CameraInfo();
-		Camera.getCameraInfo(cameraId, info);
-		return (info.orientation - deviceRotation + 360) % 360;
 	}
 
 	private void setOrientationAndFlip(int orientation) {
@@ -217,6 +207,14 @@ public class CameraListener {
 			frameHeight = size.height;
 			parameters.setPreviewSize(frameWidth, frameHeight);
 		}
+	}
+
+	private static int getCameraDisplayOrientation(
+			int cameraId,
+			int deviceRotation) {
+		Camera.CameraInfo info = new Camera.CameraInfo();
+		Camera.getCameraInfo(cameraId, info);
+		return (info.orientation - deviceRotation + 360) % 360;
 	}
 
 	private static Camera.Size findBestSize(

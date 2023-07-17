@@ -3,8 +3,8 @@ package de.markusfisch.android.shadereditor.fragment;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.os.AsyncTask;
-import androidx.fragment.app.Fragment;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,8 +14,11 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.fragment.app.Fragment;
 
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
 import de.markusfisch.android.shadereditor.R;
@@ -174,14 +177,11 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 		inProgress = true;
 		progressView.setVisibility(View.VISIBLE);
 
-		new AsyncTask<Void, Void, Integer>() {
-			@Override
-			protected Integer doInBackground(Void... nothings) {
-				return saveSampler(context, name, size);
-			}
-
-			@Override
-			protected void onPostExecute(Integer messageId) {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		Handler handler = new Handler(Looper.getMainLooper());
+		executor.execute(() -> {
+			int messageId = saveSampler(context, name, size);
+			handler.post(() -> {
 				inProgress = false;
 				progressView.setVisibility(View.GONE);
 
@@ -207,8 +207,8 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 				}
 
 				activity.finish();
-			}
-		}.execute();
+			});
+		});
 	}
 
 	private static int getPower(int power) {
