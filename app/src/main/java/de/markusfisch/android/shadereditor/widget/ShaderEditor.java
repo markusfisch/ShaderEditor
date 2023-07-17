@@ -6,15 +6,16 @@ import android.graphics.Paint;
 import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
-import androidx.appcompat.widget.AppCompatEditText;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.LineHeightSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
@@ -586,7 +587,8 @@ public class ShaderEditor extends LineNumberEditText {
 				"}\n";
 	}
 
-	private static class TabWidthSpan extends ReplacementSpan {
+	private static class TabWidthSpan extends ReplacementSpan implements LineHeightSpan.WithDensity {
+
 		private final int width;
 
 		private TabWidthSpan(int width) {
@@ -614,6 +616,16 @@ public class ShaderEditor extends LineNumberEditText {
 				int y,
 				int bottom,
 				@NonNull Paint paint) {
+		}
+
+		@Override
+		public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int lineHeight, Paint.FontMetricsInt fm, TextPaint paint) {
+			paint.getFontMetricsInt(fm);
+		}
+
+		@Override
+		public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int lineHeight, Paint.FontMetricsInt fm) {
+
 		}
 	}
 }
