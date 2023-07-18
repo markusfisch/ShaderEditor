@@ -374,7 +374,7 @@ public class ShaderEditor extends LineNumberEditText {
 			if (errorLine > 0) {
 				Layout layout = getLayout();
 				// because lines are 0 indexed and there is the hidden SHADER_EDITOR define
-				int line = errorLine - 2;
+				int line = errorLine - 1;
 				int start = layout.getLineStart(line);
 				int end = layout.getLineEnd(line);
 				e.setSpan(

@@ -1393,8 +1393,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 	private static String addPreprocessorDirective(String source,
 			String directive) {
+		boolean hasVersion = source.trim().startsWith("#version");
+		directive += "#line " + (hasVersion ? 1 : 0) + "\n";
 		// #version must always be the very first directive.
-		if (source.trim().startsWith("#version")) {
+		if (hasVersion) {
 			int lf = source.indexOf("\n");
 			if (lf < 0) {
 				// No line break?
