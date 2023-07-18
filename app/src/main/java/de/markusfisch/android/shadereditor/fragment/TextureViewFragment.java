@@ -135,9 +135,8 @@ public class TextureViewFragment extends Fragment {
 	}
 
 	private void removeTextureAsync(final long id) {
-		ExecutorService executor = Executors.newSingleThreadExecutor();
 		Handler handler = new Handler(Looper.getMainLooper());
-		executor.execute(() -> {
+		Executors.newSingleThreadExecutor().execute(() -> {
 			ShaderEditorApp.db.removeTexture(id);
 			handler.post(() -> {
 				Activity activity = getActivity();

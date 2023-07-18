@@ -86,9 +86,8 @@ public class CameraListener {
 			return;
 		}
 		opening = true;
-		ExecutorService executor = Executors.newSingleThreadExecutor();
 		Handler handler = new Handler(Looper.getMainLooper());
-		executor.execute(() -> {
+		Executors.newSingleThreadExecutor().execute(() -> {
 			if (pausing) {
 				return;
 			}

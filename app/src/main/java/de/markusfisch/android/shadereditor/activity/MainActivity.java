@@ -527,9 +527,8 @@ public class MainActivity
 			listView.postDelayed(this::getShadersAsync, 500);
 			return;
 		}
-		ExecutorService executor = Executors.newSingleThreadExecutor();
 		Handler handler = new Handler(Looper.getMainLooper());
-		executor.execute(() -> {
+		Executors.newSingleThreadExecutor().execute(() -> {
 			Cursor cursor = ShaderEditorApp.db.getShaders();
 			handler.post(() -> updateShaderAdapter(cursor));
 		});

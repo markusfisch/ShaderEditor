@@ -173,9 +173,8 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 		inProgress = true;
 		progressView.setVisibility(View.VISIBLE);
 
-		ExecutorService executor = Executors.newSingleThreadExecutor();
 		Handler handler = new Handler(Looper.getMainLooper());
-		executor.execute(() -> {
+		Executors.newSingleThreadExecutor().execute(() -> {
 			int messageId = saveSampler(context, name, size);
 			handler.post(() -> {
 				inProgress = false;

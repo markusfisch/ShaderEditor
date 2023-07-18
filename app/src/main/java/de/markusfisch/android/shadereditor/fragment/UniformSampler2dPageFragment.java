@@ -144,9 +144,8 @@ public class UniformSampler2dPageFragment extends Fragment {
 		if (context == null) {
 			return;
 		}
-		ExecutorService executor = Executors.newSingleThreadExecutor();
 		Handler handler = new Handler(Looper.getMainLooper());
-		executor.execute(() -> {
+		Executors.newSingleThreadExecutor().execute(() -> {
 			//noinspection resource
 			Cursor cursor = loadTextures();
 			handler.post(() -> {

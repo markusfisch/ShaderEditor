@@ -108,9 +108,8 @@ public class CropImageFragment extends Fragment {
 
 		inProgress = true;
 		progressView.setVisibility(View.VISIBLE);
-		ExecutorService executor = Executors.newSingleThreadExecutor();
 		Handler handler = new Handler(Looper.getMainLooper());
-		executor.execute(() -> {
+		Executors.newSingleThreadExecutor().execute(() -> {
 			Bitmap b = BitmapEditor.getBitmapFromUri(
 					activity,
 					imageUri,
