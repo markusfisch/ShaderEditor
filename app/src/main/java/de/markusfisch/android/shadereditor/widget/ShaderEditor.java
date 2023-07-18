@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Handler;
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Layout;
@@ -46,6 +48,7 @@ public class ShaderEditor extends AppCompatEditText {
 			".*void\\s+main\\s*\\(.*");
 	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
 			"[\\xA0]");
+
 	private final Handler updateHandler = new Handler();
 	private OnTextChangedListener onTextChangedListener;
 	private int updateDelay = 1000;

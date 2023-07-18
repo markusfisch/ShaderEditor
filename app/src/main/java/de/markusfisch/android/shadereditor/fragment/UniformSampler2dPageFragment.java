@@ -1,13 +1,10 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -15,13 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ListView;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import java.util.Locale;
+import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
@@ -61,9 +57,6 @@ public class UniformSampler2dPageFragment extends Fragment {
 
 		listView = view.findViewById(R.id.textures);
 		initListView(view);
-
-		//searchBar = getActivity().findViewById(R.id.search_bar);
-		//initSearchBar();
 
 		progressBar = view.findViewById(R.id.progress_bar);
 		noTexturesMessage = view.findViewById(R.id.no_textures_message);
@@ -141,24 +134,17 @@ public class UniformSampler2dPageFragment extends Fragment {
 				AddUniformActivity.PICK_TEXTURE);
 	}
 
-	// This AsyncTask is running for a short and finite time only
-	// and it's perfectly okay to delay garbage collection of the
-	// parent instance until this task has ended.
-	@SuppressLint("StaticFieldLeak")
 	private void loadTexturesAsync(final Context context) {
 		if (context == null) {
 			return;
 		}
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		Handler handler = new Handler(Looper.getMainLooper());
-		executor.execute(() -> {
+		Executors.newSingleThreadExecutor().execute(() -> {
 			//noinspection resource
 			Cursor cursor = loadTextures();
-			handler.post(() -> {
+			listView.post(() -> {
 				if (!isAdded() || cursor == null) {
 					return;
 				}
-
 				updateAdapter(context, cursor);
 			});
 		});

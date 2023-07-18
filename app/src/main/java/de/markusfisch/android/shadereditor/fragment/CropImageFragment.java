@@ -1,12 +1,9 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,9 +11,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import androidx.fragment.app.Fragment;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
@@ -100,10 +97,6 @@ public class CropImageFragment extends Fragment {
 		return super.onOptionsItemSelected(item);
 	}
 
-	// This AsyncTask is running for a short and finite time only
-	// and it's perfectly okay to delay garbage collection of the
-	// parent instance until this task has ended.
-	@SuppressLint("StaticFieldLeak")
 	private void loadBitmapAsync() {
 		final Activity activity = getActivity();
 		if (activity == null || inProgress) {
@@ -112,14 +105,12 @@ public class CropImageFragment extends Fragment {
 
 		inProgress = true;
 		progressView.setVisibility(View.VISIBLE);
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		Handler handler = new Handler(Looper.getMainLooper());
-		executor.execute(() -> {
+		Executors.newSingleThreadExecutor().execute(() -> {
 			Bitmap b = BitmapEditor.getBitmapFromUri(
 					activity,
 					imageUri,
 					1024);
-			handler.post(() -> {
+			progressView.post(() -> {
 				inProgress = false;
 				progressView.setVisibility(View.GONE);
 

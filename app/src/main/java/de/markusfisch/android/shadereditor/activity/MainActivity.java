@@ -12,8 +12,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,6 +23,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,7 +31,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
@@ -58,6 +56,15 @@ public class MainActivity
 	private static final int LOAD_SAMPLE = 3;
 	private static final int FIRST_SHADER = -1;
 	private static final int NO_SHADER = 0;
+
+	private final Runnable updateFpsRunnable = new Runnable() {
+		@Override
+		public void run() {
+			// "fps" should be the same in all languages.
+			toolbar.setSubtitle(fps + " fps");
+		}
+	};
+
 	private EditorFragment editorFragment;
 	private Toolbar toolbar;
 	private Spinner qualitySpinner;
@@ -70,13 +77,6 @@ public class MainActivity
 	private ShaderView shaderView;
 	private long selectedShaderId = FIRST_SHADER;
 	private volatile int fps;
-	private final Runnable updateFpsRunnable = new Runnable() {
-		@Override
-		public void run() {
-			// "fps" should be the same in all languages.
-			toolbar.setSubtitle(fps + " fps");
-		}
-	};
 	private float[] qualityValues;
 	private float quality = 1f;
 
@@ -519,20 +519,14 @@ public class MainActivity
 		}
 	}
 
-	// This AsyncTask is running for a short and finite time only
-	// and it's perfectly okay to delay garbage collection of the
-	// parent instance until this task has ended.
-	@SuppressLint("StaticFieldLeak")
 	private void getShadersAsync() {
 		if (!ShaderEditorApp.db.isOpen()) {
 			listView.postDelayed(this::getShadersAsync, 500);
 			return;
 		}
-		ExecutorService executor = Executors.newSingleThreadExecutor();
-		Handler handler = new Handler(Looper.getMainLooper());
-		executor.execute(() -> {
+		Executors.newSingleThreadExecutor().execute(() -> {
 			Cursor cursor = ShaderEditorApp.db.getShaders();
-			handler.post(() -> updateShaderAdapter(cursor));
+			shaderView.post(() -> updateShaderAdapter(cursor));
 		});
 	}
 
@@ -625,6 +619,25 @@ public class MainActivity
 		editorFragment.setText(text);
 		setQualitySpinner(.5f);
 		setDefaultToolbarTitle();
+	}
+
+	private static String getTextFromUri(ContentResolver resolver, Uri uri) {
+		try {
+			InputStream in = resolver.openInputStream(uri);
+			if (in == null) {
+				return null;
+			}
+			StringBuilder sb = new StringBuilder();
+			byte[] buffer = new byte[2048];
+			for (int len; (len = in.read(buffer)) > 0; ) {
+				// StandardCharsets.UTF_8 would require API level 19.
+				sb.append(new String(buffer, 0, len, "UTF-8"));
+			}
+			in.close();
+			return sb.toString();
+		} catch (IOException e) {
+			return null;
+		}
 	}
 
 	private void insertTab() {
@@ -976,25 +989,6 @@ public class MainActivity
 			startActivity(intent);
 		} else {
 			startActivityForResult(intent, PREVIEW_SHADER);
-		}
-	}
-
-	private static String getTextFromUri(ContentResolver resolver, Uri uri) {
-		try {
-			InputStream in = resolver.openInputStream(uri);
-			if (in == null) {
-				return null;
-			}
-			StringBuilder sb = new StringBuilder();
-			byte[] buffer = new byte[2048];
-			for (int len; (len = in.read(buffer)) > 0; ) {
-				// StandardCharsets.UTF_8 would require API level 19.
-				sb.append(new String(buffer, 0, len, "UTF-8"));
-			}
-			in.close();
-			return sb.toString();
-		} catch (IOException e) {
-			return null;
 		}
 	}
 
