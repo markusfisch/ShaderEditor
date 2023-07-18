@@ -372,16 +372,16 @@ public class ShaderEditor extends LineNumberEditText {
 			}
 
 			if (errorLine > 0) {
-				post(() -> {
-					Layout layout = getLayout();
-					int start = layout.getLineStart(errorLine);
-					int end = layout.getLineEnd(errorLine);
-					e.setSpan(
-							new BackgroundColorSpan(colorError),
-							start,
-							end,
-							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-				});
+				Layout layout = getLayout();
+				// because lines are 0 indexed and there is the hidden SHADER_EDITOR define
+				int line = errorLine - 2;
+				int start = layout.getLineStart(line);
+				int end = layout.getLineEnd(line);
+				e.setSpan(
+						new BackgroundColorSpan(colorError),
+						start,
+						end,
+						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 
 			if (ShaderEditorApp.preferences.disableHighlighting() &&
