@@ -587,8 +587,9 @@ public class ShaderEditor extends LineNumberEditText {
 				"}\n";
 	}
 
-	private static class TabWidthSpan extends ReplacementSpan implements LineHeightSpan.WithDensity {
-
+	private static class TabWidthSpan
+			extends ReplacementSpan
+			implements LineHeightSpan.WithDensity {
 		private final int width;
 
 		private TabWidthSpan(int width) {
@@ -619,13 +620,15 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 
 		@Override
-		public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int lineHeight, Paint.FontMetricsInt fm, TextPaint paint) {
+		public void chooseHeight(CharSequence text, int start, int end,
+				int spanstartv, int lineHeight,
+				Paint.FontMetricsInt fm, TextPaint paint) {
 			paint.getFontMetricsInt(fm);
 		}
 
 		@Override
-		public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int lineHeight, Paint.FontMetricsInt fm) {
-
+		public void chooseHeight(CharSequence text, int start, int end,
+				int spanstartv, int lineHeight, Paint.FontMetricsInt fm) {
 		}
 	}
 }
