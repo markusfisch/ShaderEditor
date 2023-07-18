@@ -5,10 +5,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,6 +15,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ListView;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import java.util.Locale;
 
@@ -145,22 +149,19 @@ public class UniformSampler2dPageFragment extends Fragment {
 		if (context == null) {
 			return;
 		}
-
-		new AsyncTask<Void, Void, Cursor>() {
-			@Override
-			protected Cursor doInBackground(Void... nothings) {
-				return loadTextures();
-			}
-
-			@Override
-			protected void onPostExecute(Cursor cursor) {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		Handler handler = new Handler(Looper.getMainLooper());
+		executor.execute(() -> {
+			//noinspection resource
+			Cursor cursor = loadTextures();
+			handler.post(() -> {
 				if (!isAdded() || cursor == null) {
 					return;
 				}
 
 				updateAdapter(context, cursor);
-			}
-		}.execute();
+			});
+		});
 	}
 
 	private void updateAdapter(Context context, Cursor cursor) {

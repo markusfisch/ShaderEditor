@@ -10,9 +10,10 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +32,8 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
@@ -527,18 +530,12 @@ public class MainActivity
 			listView.postDelayed(this::getShadersAsync, 500);
 			return;
 		}
-
-		new AsyncTask<Void, Void, Cursor>() {
-			@Override
-			protected Cursor doInBackground(Void... nothings) {
-				return ShaderEditorApp.db.getShaders();
-			}
-
-			@Override
-			protected void onPostExecute(Cursor cursor) {
-				updateShaderAdapter(cursor);
-			}
-		}.execute();
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		Handler handler = new Handler(Looper.getMainLooper());
+		executor.execute(() -> {
+			Cursor cursor = ShaderEditorApp.db.getShaders();
+			handler.post(() -> updateShaderAdapter(cursor));
+		});
 	}
 
 	private void updateShaderAdapter(Cursor cursor) {

@@ -4,9 +4,9 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.database.Cursor;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,6 +14,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import androidx.fragment.app.Fragment;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
@@ -22,13 +26,12 @@ import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.widget.ScalingImageView;
 
 public class TextureViewFragment extends Fragment {
-	public static final String TEXTURE_ID = "texture_id";
-	public static final String SAMPLER_TYPE = "sampler_type";
-
 	public interface ScalingImageViewProvider {
 		ScalingImageView getScalingImageView();
 	}
 
+	public static final String TEXTURE_ID = "texture_id";
+	public static final String SAMPLER_TYPE = "sampler_type";
 	private ScalingImageView imageView;
 	private long textureId;
 	private String textureName;
@@ -136,23 +139,19 @@ public class TextureViewFragment extends Fragment {
 	// parent instance until this task has ended.
 	@SuppressLint("StaticFieldLeak")
 	private void removeTextureAsync(final long id) {
-		new AsyncTask<Void, Void, Void>() {
-			@Override
-			protected Void doInBackground(Void... nothings) {
-				ShaderEditorApp.db.removeTexture(id);
-				return null;
-			}
-
-			@Override
-			protected void onPostExecute(Void nothing) {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		Handler handler = new Handler(Looper.getMainLooper());
+		executor.execute(() -> {
+			ShaderEditorApp.db.removeTexture(id);
+			handler.post(() -> {
 				Activity activity = getActivity();
 				if (activity == null) {
 					return;
 				}
 
 				activity.finish();
-			}
-		}.execute();
+			});
+		});
 	}
 
 	private void insertUniformSamplerStatement() {
