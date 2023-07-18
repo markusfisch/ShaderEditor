@@ -343,7 +343,7 @@ public class ShaderEditor extends AppCompatEditText {
 	}
 
 	private void setSyntaxColors(Context context) {
-		SyntaxEditor.initColors(context);
+		SyntaxView.initColors(context);
 		colorError = ContextCompat.getColor(
 				context,
 				R.color.syntax_error);

@@ -9,7 +9,7 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -22,18 +22,18 @@ import de.markusfisch.android.shadereditor.highlighter.Lexer;
 import de.markusfisch.android.shadereditor.highlighter.TokenType;
 import de.markusfisch.android.shadereditor.util.IntList;
 
-public class SyntaxEditor extends View implements TextWatcher {
+public class SyntaxView extends View implements TextWatcher {
 	private static final int[] colors = new int[Highlight.values().length];
 	private final List<IntList> tokensByLine = new ArrayList<>();
 	private final Rect visibleRect = new Rect();
 	private final Paint paint = new Paint();
 	private boolean textDirty = true;
-	private @Nullable EditText source;
+	private @Nullable TextView source;
 	private @NonNull TabSupplier tabSupplier = () -> 2;
 	private @NonNull int[] tokens = new int[256];
 	private String currentText = "";
 
-	public SyntaxEditor(Context context, @Nullable AttributeSet attrs) {
+	public SyntaxView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
 		getViewTreeObserver().addOnScrollChangedListener(() -> {
 			postInvalidate();
@@ -54,7 +54,7 @@ public class SyntaxEditor extends View implements TextWatcher {
 		setMeasuredDimension(layoutParams.width, layoutParams.height);
 	}
 
-	public void setSource(@NonNull EditText source) {
+	public void setSource(@NonNull TextView source) {
 		if (this.source != null) {
 			this.source.setLayoutParams(new ViewGroup.LayoutParams(getLayoutParams()));
 			this.source.removeTextChangedListener(this);

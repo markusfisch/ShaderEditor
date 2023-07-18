@@ -20,7 +20,7 @@ import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.view.UndoRedo;
 import de.markusfisch.android.shadereditor.widget.LineNumbers;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
-import de.markusfisch.android.shadereditor.widget.SyntaxEditor;
+import de.markusfisch.android.shadereditor.widget.SyntaxView;
 
 public class EditorFragment extends Fragment {
 	public static final String TAG = "EditorFragment";
@@ -29,7 +29,7 @@ public class EditorFragment extends Fragment {
 	private ShaderEditor shaderEditor;
 	private LineNumbers lineNumbers;
 	private ViewGroup lineNumbersContainer;
-	private SyntaxEditor syntaxEditor;
+	private SyntaxView syntaxView;
 	private UndoRedo undoRedo;
 	private int yOffset;
 
@@ -46,13 +46,13 @@ public class EditorFragment extends Fragment {
 		scrollView = view.findViewById(R.id.scroll_view);
 		lineNumbers = view.findViewById(R.id.line_numbers);
 		shaderEditor = view.findViewById(R.id.editor);
-		syntaxEditor = view.findViewById(R.id.syntax);
+		syntaxView = view.findViewById(R.id.syntax);
 		// lineNumbersContainer = view.findViewById(R.id.line_numbers_container);
 		setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
 		shaderEditor.setTabSupplier(ShaderEditorApp.preferences::getTabWidth);
-		syntaxEditor.setTabSupplier(ShaderEditorApp.preferences::getTabWidth);
+		syntaxView.setTabSupplier(ShaderEditorApp.preferences::getTabWidth);
 		lineNumbers.setSource(shaderEditor);
-		syntaxEditor.setSource(shaderEditor);
+		syntaxView.setSource(shaderEditor);
 		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
 
 		Activity activity = requireActivity();

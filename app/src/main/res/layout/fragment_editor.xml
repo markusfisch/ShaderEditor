@@ -59,7 +59,7 @@
 					app:fontFamily="@font/jetbrains_mono"
 					tools:ignore="RtlHardcoded" />
 
-				<de.markusfisch.android.shadereditor.widget.SyntaxEditor
+				<de.markusfisch.android.shadereditor.widget.SyntaxView
 					android:id="@+id/syntax"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content" />
