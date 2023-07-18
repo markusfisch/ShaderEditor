@@ -30,7 +30,9 @@ static jintArray run_lexer(JNIEnv *env, jclass clazz, jstring source,
   tokens.reserve(env->GetArrayLength(old_tokens));
 
   int i = 0;
-  for (Token current; (current = next_token(&lexer)).type != TOKEN_EOF;) {
+  Token current;
+  do {
+    current = next_token(&lexer);
     const char *end_offset = &string[current.start_offset];
     uint32_t end_marker = current.end;
     jint start;
@@ -57,7 +59,7 @@ static jintArray run_lexer(JNIEnv *env, jclass clazz, jstring source,
         column = 0;
       }
     } while (unfinished);
-  }
+  } while (current.type != TOKEN_EOF);
   constexpr size_t element_size_in_jint =
       sizeof(decltype(tokens)::value_type) / sizeof(jint);
   jint array_size = tokens.size() * element_size_in_jint;
