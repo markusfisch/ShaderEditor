@@ -1,6 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.database.Cursor;
@@ -14,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import androidx.fragment.app.Fragment;
 
 import java.util.concurrent.ExecutorService;
@@ -134,10 +134,6 @@ public class TextureViewFragment extends Fragment {
 				.show();
 	}
 
-	// This AsyncTask is running for a short and finite time only
-	// and it's perfectly okay to delay garbage collection of the
-	// parent instance until this task has ended.
-	@SuppressLint("StaticFieldLeak")
 	private void removeTextureAsync(final long id) {
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 		Handler handler = new Handler(Looper.getMainLooper());
@@ -148,7 +144,6 @@ public class TextureViewFragment extends Fragment {
 				if (activity == null) {
 					return;
 				}
-
 				activity.finish();
 			});
 		});

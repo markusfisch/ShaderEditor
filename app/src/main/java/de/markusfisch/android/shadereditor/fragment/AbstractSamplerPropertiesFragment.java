@@ -1,6 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
@@ -14,6 +13,7 @@ import android.widget.EditText;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.fragment.app.Fragment;
 
 import java.util.Locale;
@@ -137,10 +137,6 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 						.find() ? null : ""});
 	}
 
-	// This AsyncTask is running for a short and finite time only
-	// and it's perfectly okay to delay garbage collection of the
-	// parent instance until this task has ended.
-	@SuppressLint("StaticFieldLeak")
 	private void saveSamplerAsync() {
 		final Context context = getActivity();
 

@@ -1,6 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -14,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+
 import androidx.fragment.app.Fragment;
 
 import java.util.concurrent.ExecutorService;
@@ -100,10 +100,6 @@ public class CropImageFragment extends Fragment {
 		return super.onOptionsItemSelected(item);
 	}
 
-	// This AsyncTask is running for a short and finite time only
-	// and it's perfectly okay to delay garbage collection of the
-	// parent instance until this task has ended.
-	@SuppressLint("StaticFieldLeak")
 	private void loadBitmapAsync() {
 		final Activity activity = getActivity();
 		if (activity == null || inProgress) {

@@ -14,10 +14,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,6 +25,11 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -521,10 +522,6 @@ public class MainActivity
 		}
 	}
 
-	// This AsyncTask is running for a short and finite time only
-	// and it's perfectly okay to delay garbage collection of the
-	// parent instance until this task has ended.
-	@SuppressLint("StaticFieldLeak")
 	private void getShadersAsync() {
 		if (!ShaderEditorApp.db.isOpen()) {
 			listView.postDelayed(this::getShadersAsync, 500);
