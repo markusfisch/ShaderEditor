@@ -4,10 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Handler;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -21,6 +20,9 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,8 +34,6 @@ public class ShaderEditor extends LineNumberEditText {
 		void onTextChanged(String text);
 	}
 
-	private static final Pattern PATTERN_LINE = Pattern.compile(
-			".*\\n");
 	private static final Pattern PATTERN_NUMBERS = Pattern.compile(
 			"\\b(\\d*[.]?\\d+)\\b");
 	private static final Pattern PATTERN_PREPROCESSOR = Pattern.compile(
@@ -372,17 +372,16 @@ public class ShaderEditor extends LineNumberEditText {
 			}
 
 			if (errorLine > 0) {
-				Matcher m = PATTERN_LINE.matcher(e);
-
-				for (int i = errorLine; i-- > 0 && m.find(); ) {
-					// Because analyzers don't like `for ();` statements.
-				}
-
-				e.setSpan(
-						new BackgroundColorSpan(colorError),
-						m.start(),
-						m.end(),
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				post(() -> {
+					Layout layout = getLayout();
+					int start = layout.getLineStart(errorLine);
+					int end = layout.getLineEnd(errorLine);
+					e.setSpan(
+							new BackgroundColorSpan(colorError),
+							start,
+							end,
+							Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				});
 			}
 
 			if (ShaderEditorApp.preferences.disableHighlighting() &&
