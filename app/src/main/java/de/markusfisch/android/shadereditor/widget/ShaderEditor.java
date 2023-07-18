@@ -382,16 +382,15 @@ public class ShaderEditor extends AppCompatEditText {
 			}
 
 			if (errorLine > 0) {
-				Matcher m = PATTERN_LINE.matcher(e);
-
-				for (int i = errorLine; i-- > 0 && m.find(); ) {
-					// Because analyzers don't like `for ();` statements.
-				}
-
+				Layout layout = getLayout();
+				// because lines are 0 indexed and there is the hidden SHADER_EDITOR define
+				int line = errorLine - 1;
+				int start = layout.getLineStart(line);
+				int end = layout.getLineEnd(line);
 				e.setSpan(
 						new BackgroundColorSpan(colorError),
-						m.start(),
-						m.end(),
+						start,
+						end,
 						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 
