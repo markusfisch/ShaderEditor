@@ -2,8 +2,6 @@ package de.markusfisch.android.shadereditor.fragment;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,7 +15,6 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
@@ -173,10 +170,9 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 		inProgress = true;
 		progressView.setVisibility(View.VISIBLE);
 
-		Handler handler = new Handler(Looper.getMainLooper());
 		Executors.newSingleThreadExecutor().execute(() -> {
 			int messageId = saveSampler(context, name, size);
-			handler.post(() -> {
+			progressView.post(() -> {
 				inProgress = false;
 				progressView.setVisibility(View.GONE);
 

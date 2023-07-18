@@ -33,7 +33,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
@@ -527,10 +526,9 @@ public class MainActivity
 			listView.postDelayed(this::getShadersAsync, 500);
 			return;
 		}
-		Handler handler = new Handler(Looper.getMainLooper());
 		Executors.newSingleThreadExecutor().execute(() -> {
 			Cursor cursor = ShaderEditorApp.db.getShaders();
-			handler.post(() -> updateShaderAdapter(cursor));
+			shaderView.post(() -> updateShaderAdapter(cursor));
 		});
 	}
 

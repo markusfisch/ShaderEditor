@@ -5,8 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
@@ -141,11 +138,10 @@ public class UniformSampler2dPageFragment extends Fragment {
 		if (context == null) {
 			return;
 		}
-		Handler handler = new Handler(Looper.getMainLooper());
 		Executors.newSingleThreadExecutor().execute(() -> {
 			//noinspection resource
 			Cursor cursor = loadTextures();
-			handler.post(() -> {
+			listView.post(() -> {
 				if (!isAdded() || cursor == null) {
 					return;
 				}

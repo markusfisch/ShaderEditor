@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,7 +14,6 @@ import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
@@ -108,13 +105,12 @@ public class CropImageFragment extends Fragment {
 
 		inProgress = true;
 		progressView.setVisibility(View.VISIBLE);
-		Handler handler = new Handler(Looper.getMainLooper());
 		Executors.newSingleThreadExecutor().execute(() -> {
 			Bitmap b = BitmapEditor.getBitmapFromUri(
 					activity,
 					imageUri,
 					1024);
-			handler.post(() -> {
+			progressView.post(() -> {
 				inProgress = false;
 				progressView.setVisibility(View.GONE);
 
