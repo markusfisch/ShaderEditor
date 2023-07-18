@@ -61,9 +61,6 @@ public class UniformSampler2dPageFragment extends Fragment {
 		listView = view.findViewById(R.id.textures);
 		initListView(view);
 
-		//searchBar = getActivity().findViewById(R.id.search_bar);
-		//initSearchBar();
-
 		progressBar = view.findViewById(R.id.progress_bar);
 		noTexturesMessage = view.findViewById(R.id.no_textures_message);
 
