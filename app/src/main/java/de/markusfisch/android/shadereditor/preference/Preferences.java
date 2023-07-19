@@ -65,6 +65,7 @@ public class Preferences {
 	private boolean autoSave = true;
 	private boolean showLineNumbers = true;
 	private final Map<String, Typeface> fonts = new HashMap<>();
+	private String defaultFont;
 
 	public void init(Context context) {
 		systemBarColor = ContextCompat.getColor(
@@ -79,6 +80,7 @@ public class Preferences {
 		preferences = PreferenceManager.getDefaultSharedPreferences(
 				context);
 		loadFonts(context);
+		defaultFont = context.getString(R.string.default_font_value);
 		update();
 	}
 
@@ -113,7 +115,7 @@ public class Preferences {
 		textSize = parseInt(
 				preferences.getString(TEXT_SIZE, null),
 				textSize);
-		font = getLoadedFont(preferences.getString(FONT, null));
+		font = getLoadedFont(preferences.getString(FONT, defaultFont));
 		useLigatures = preferences.getBoolean(USE_LIGATURES, true);
 		tabWidth = parseInt(
 				preferences.getString(TAB_WIDTH, null),
@@ -142,7 +144,7 @@ public class Preferences {
 		showLineNumbers = preferences.getBoolean(SHOW_LINE_NUMBERS, showLineNumbers);
 	}
 
-	private @NonNull Typeface getLoadedFont(String fontName) {
+	private @NonNull Typeface getLoadedFont(@NonNull String fontName) {
 		Typeface tf = fonts.get(fontName);
 		if (tf == null)
 			throw new IllegalArgumentException("font \"" + fontName + "\" not found!");
