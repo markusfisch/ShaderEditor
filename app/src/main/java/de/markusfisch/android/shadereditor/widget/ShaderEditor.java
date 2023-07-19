@@ -4,8 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Handler;
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Layout;
@@ -20,8 +18,8 @@ import android.text.style.LineHeightSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.ViewGroup;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.content.ContextCompat;
 
@@ -32,8 +30,13 @@ import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public class ShaderEditor extends AppCompatEditText {
-	private static final Pattern PATTERN_LINE = Pattern.compile(
-			".*\\n");
+
+	public interface SizeProvider {
+		int getWidth();
+
+		int getHeight();
+	}
+
 	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
 			"[\\t ]+$",
 			Pattern.MULTILINE);
@@ -69,6 +72,7 @@ public class ShaderEditor extends AppCompatEditText {
 		}
 	};
 	private @NonNull TabSupplier tabSupplier = () -> 2;
+	private SizeProvider sizeProvider;
 
 	public ShaderEditor(Context context) {
 		this(context, null);
@@ -191,10 +195,27 @@ public class ShaderEditor extends AppCompatEditText {
 		this.tabSupplier = tabSupplier;
 	}
 
+	public void setSizeProvider(@Nullable SizeProvider sizeProvider) {
+		this.sizeProvider = sizeProvider;
+	}
+
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		ViewGroup.LayoutParams layoutParams = getLayoutParams();
-		setMeasuredDimension(layoutParams.width, layoutParams.height);
+		if (sizeProvider == null) {
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+			return;
+		}
+		int width = sizeProvider.getWidth();
+		int height = sizeProvider.getHeight();
+		if (length() != 0) {
+			// Very simple fix for wrong scroll position of the editor text when opening
+			// the app for the first time. This manual way feels like a hack.
+			// TODO: Find root cause for wrong scroll position
+			setScrollX(0);
+			setMeasuredDimension(width, height);
+		} else {
+			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		}
 	}
 
 	public void highlightError() {

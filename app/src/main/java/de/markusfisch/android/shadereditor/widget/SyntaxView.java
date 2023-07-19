@@ -8,7 +8,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,15 +22,22 @@ import de.markusfisch.android.shadereditor.highlighter.TokenType;
 import de.markusfisch.android.shadereditor.util.IntList;
 
 public class SyntaxView extends View implements TextWatcher {
+	@FunctionalInterface
+	public interface TabSupplier {
+		int getWidth();
+	}
+
 	private static final int[] colors = new int[Highlight.values().length];
 	private final List<IntList> tokensByLine = new ArrayList<>();
 	private final Rect visibleRect = new Rect();
 	private final Paint paint = new Paint();
-	private boolean textDirty = true;
+	private volatile boolean textDirty = true;
 	private @Nullable TextView source;
 	private @NonNull TabSupplier tabSupplier = () -> 2;
 	private @NonNull int[] tokens = new int[256];
 	private String currentText = "";
+	private int maxX;
+	private int maxY;
 
 	public SyntaxView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
@@ -48,25 +54,52 @@ public class SyntaxView extends View implements TextWatcher {
 		}
 	}
 
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		ViewGroup.LayoutParams layoutParams = getLayoutParams();
-		setMeasuredDimension(layoutParams.width, layoutParams.height);
+	public int getMaxY() {
+		return maxY;
+	}
+
+	public int getMaxX() {
+		return maxX;
 	}
 
 	public void setSource(@NonNull TextView source) {
 		if (this.source != null) {
-			this.source.setLayoutParams(new ViewGroup.LayoutParams(getLayoutParams()));
 			this.source.removeTextChangedListener(this);
 		}
 		this.source = source;
-		source.setLayoutParams(getLayoutParams());
 		setPadding(source.getPaddingLeft(), source.getPaddingTop(), source.getPaddingRight(), source.getPaddingBottom());
 		source.addTextChangedListener(this);
+		textDirty = true;
+		postInvalidate();
 	}
 
 	public void setTabSupplier(@NonNull TabSupplier tabSupplier) {
 		this.tabSupplier = tabSupplier;
+	}
+
+	@Override
+	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+	}
+
+	@Override
+	public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+	}
+
+	@Override
+	public void afterTextChanged(Editable s) {
+		currentText = s.toString();
+		textDirty = true;
+		post(() -> {
+			highlight();
+			invalidate();
+		});
+	}
+
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		setMeasuredDimension(maxX, maxY);
 	}
 
 	@Override
@@ -132,38 +165,12 @@ public class SyntaxView extends View implements TextWatcher {
 			list.trimToSize();
 		int maxX = (int) ((maxColumn + 1) * charWidth) + getPaddingLeft() + getPaddingRight();
 		int maxY = (int) ((maxLine + 1) * lineHeight + getPaddingTop() + getPaddingBottom());
-		ViewGroup.LayoutParams layoutParams = getLayoutParams();
-		if (maxX != layoutParams.width || maxY != layoutParams.height) {
-			layoutParams.width = maxX;
-			layoutParams.height = maxY;
+		if (maxX != this.maxX || maxY != this.maxY) {
+			this.maxX = maxX;
+			this.maxY = maxY;
 			requestLayout();
 			source.requestLayout();
 		}
 		textDirty = false;
-	}
-
-	@Override
-	public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-	}
-
-	@Override
-	public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-	}
-
-	@Override
-	public void afterTextChanged(Editable s) {
-		currentText = s.toString();
-		textDirty = true;
-		post(() -> {
-			highlight();
-			invalidate();
-		});
-	}
-
-	@FunctionalInterface
-	public interface TabSupplier {
-		int getWidth();
 	}
 }

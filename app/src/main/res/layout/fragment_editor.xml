@@ -22,24 +22,31 @@
 			android:layout_height="match_parent"
 			android:orientation="horizontal">
 
-			<de.markusfisch.android.shadereditor.widget.LineNumbers
-				android:id="@+id/line_numbers"
+			<LinearLayout
+				android:id="@+id/line_numbers_container"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:padding="@dimen/editor_padding"
-				android:textColor="@color/editor_text"
-				android:textSize="12sp"
-				android:typeface="monospace"
-				app:fontFamily="@font/jetbrains_mono" />
+				android:layout_height="match_parent">
 
-			<View
-				android:layout_width="1dp"
-				android:layout_height="match_parent"
-				android:background="@color/editor_text" />
+				<de.markusfisch.android.shadereditor.widget.LineNumbers
+					android:id="@+id/line_numbers"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:padding="@dimen/editor_padding"
+					android:textColor="@color/editor_text"
+					android:textSize="12sp"
+					android:typeface="monospace"
+					app:fontFamily="@font/jetbrains_mono" />
+
+				<View
+					android:layout_width="1dp"
+					android:layout_height="match_parent"
+					android:background="@color/editor_text" />
+			</LinearLayout>
 
 			<FrameLayout
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content">
+				android:id="@+id/editor_container"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent">
 
 				<!-- Behind the syntax editor, because it lags otherwise -->
 				<de.markusfisch.android.shadereditor.widget.ShaderEditor

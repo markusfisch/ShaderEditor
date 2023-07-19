@@ -1,11 +1,13 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ScrollView;
 import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
@@ -27,7 +29,6 @@ public class EditorFragment extends Fragment {
 
 	private ScrollView scrollView;
 	private ShaderEditor shaderEditor;
-	private LineNumbers lineNumbers;
 	private ViewGroup lineNumbersContainer;
 	private SyntaxView syntaxView;
 	private UndoRedo undoRedo;
@@ -44,12 +45,30 @@ public class EditorFragment extends Fragment {
 				false);
 
 		scrollView = view.findViewById(R.id.scroll_view);
-		lineNumbers = view.findViewById(R.id.line_numbers);
+		LineNumbers lineNumbers = view.findViewById(R.id.line_numbers);
+		lineNumbersContainer = view.findViewById(R.id.line_numbers_container);
 		shaderEditor = view.findViewById(R.id.editor);
 		syntaxView = view.findViewById(R.id.syntax);
+		ViewGroup editorContainer = view.findViewById(R.id.editor_container);
+		editorContainer.setOnClickListener((v) -> {
+			shaderEditor.requestFocus();
+			InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.showSoftInput(shaderEditor, InputMethodManager.SHOW_FORCED);
+		});
 		// lineNumbersContainer = view.findViewById(R.id.line_numbers_container);
 		setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
 		shaderEditor.setTabSupplier(ShaderEditorApp.preferences::getTabWidth);
+		shaderEditor.setSizeProvider(new ShaderEditor.SizeProvider() {
+			@Override
+			public int getWidth() {
+				return syntaxView.getMaxX();
+			}
+
+			@Override
+			public int getHeight() {
+				return syntaxView.getMaxY();
+			}
+		});
 		syntaxView.setTabSupplier(ShaderEditorApp.preferences::getTabWidth);
 		lineNumbers.setSource(shaderEditor);
 		syntaxView.setSource(shaderEditor);
@@ -161,6 +180,14 @@ public class EditorFragment extends Fragment {
 		return visible;
 	}
 
+	public void highlightError() {
+		shaderEditor.highlightError();
+	}
+
+	public void setShowLineNumbers(boolean showLineNumbers) {
+		lineNumbersContainer.setVisibility(showLineNumbers ? View.VISIBLE : View.GONE);
+	}
+
 	private void updateToPreferences() {
 		Preferences preferences = ShaderEditorApp.preferences;
 		shaderEditor.setUpdateDelay(preferences.getUpdateDelay());
@@ -184,13 +211,5 @@ public class EditorFragment extends Fragment {
 		}
 
 		return yOffset;
-	}
-
-	public void highlightError() {
-		shaderEditor.highlightError();
-	}
-
-	public void setShowLineNumbers(boolean showLineNumbers) {
-		lineNumbers.setVisibility(showLineNumbers ? View.VISIBLE : View.GONE);
 	}
 }
