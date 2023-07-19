@@ -136,24 +136,33 @@ public class ShaderEditor extends AppCompatEditText {
 	public void updateHighlighting() {
 		highlightWithoutChange(getText());
 	}
-
-	public void highlightError() {
+	private void clearError() {
 		Editable e = getText();
 		if (e == null) return;
 		clearSpans(e, length(), BackgroundColorSpan.class);
+	}
+	private void highlightError(int errorLine) {
 		if (errorLine > 0) {
-			post(() -> {
-				if (e.length() == 0) return;
-				Layout layout = getLayout();
-				if (errorLine > layout.getLineCount()) return;
-				int start = layout.getLineStart(errorLine);
-				int end = layout.getLineEnd(errorLine);
-				e.setSpan(
-						new BackgroundColorSpan(colorError),
-						start,
-						end,
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			});
+			Editable e = getText();
+			if (e == null || e.length() == 0) return;
+			Layout layout = getLayout();
+			if (errorLine > layout.getLineCount()) return;
+			int line = errorLine - 1;
+			int start = layout.getLineStart(line);
+			int end = layout.getLineEnd(line);
+			e.setSpan(
+					new BackgroundColorSpan(colorError),
+					start,
+					end,
+					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		}
+	}
+
+	public void updateErrorHighlighting() {
+		clearError();
+		int line = errorLine;
+		if (line > 0) {
+			post(()->highlightError(line));
 		}
 	}
 
@@ -378,21 +387,7 @@ public class ShaderEditor extends AppCompatEditText {
 			}
 
 			if (errorLine > 0) {
-				Layout layout = getLayout();
-				// because lines are 0 indexed and there is the hidden SHADER_EDITOR define
-				int line = errorLine - 1;
-				int start = layout.getLineStart(line);
-				int end = layout.getLineEnd(line);
-				e.setSpan(
-						new BackgroundColorSpan(colorError),
-						start,
-						end,
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			}
-
-			if (ShaderEditorApp.preferences.disableHighlighting() &&
-					length > 4096) {
-				return e;
+				highlightError(errorLine);
 			}
 			// syntax.highlight();
 		} catch (IllegalStateException ex) {

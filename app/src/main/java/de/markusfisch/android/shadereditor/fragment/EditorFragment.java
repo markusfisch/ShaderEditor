@@ -183,7 +183,7 @@ public class EditorFragment extends Fragment {
 	}
 
 	public void highlightError() {
-		shaderEditor.highlightError();
+		shaderEditor.updateErrorHighlighting();
 	}
 
 	public void setShowLineNumbers(boolean showLineNumbers) {
