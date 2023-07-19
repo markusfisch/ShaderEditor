@@ -10,15 +10,17 @@
 		android:fitsSystemWindows="true"
 		android:orientation="vertical">
 		<include layout="@layout/toolbar_main"/>
-		<de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout
+		<androidx.drawerlayout.widget.DrawerLayout
 			android:id="@+id/drawer_layout"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent">
+			android:layout_height="match_parent"
+			android:clickable="true"
+			android:focusable="true">
 			<androidx.coordinatorlayout.widget.CoordinatorLayout
 				android:id="@+id/content_frame"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"/>
 			<include layout="@layout/drawer"/>
-		</de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout>
+		</androidx.drawerlayout.widget.DrawerLayout>
 	</LinearLayout>
 </merge>

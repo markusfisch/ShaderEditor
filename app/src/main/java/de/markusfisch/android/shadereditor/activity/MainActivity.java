@@ -12,8 +12,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -46,7 +45,6 @@ import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
-import de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout;
 
 public class MainActivity
 		extends AppCompatActivity
@@ -71,7 +69,7 @@ public class MainActivity
 	private Toolbar toolbar;
 	private Spinner qualitySpinner;
 	private MenuItem insertTabMenuItem;
-	private TouchThruDrawerLayout drawerLayout;
+	private DrawerLayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
 	private View menuFrame;
 	private ListView listView;
@@ -411,7 +409,7 @@ public class MainActivity
 	}
 
 	private void initDrawer() {
-		drawerLayout = (TouchThruDrawerLayout) findViewById(
+		drawerLayout = findViewById(
 				R.id.drawer_layout);
 
 		menuFrame = findViewById(R.id.menu_frame);
@@ -696,7 +694,6 @@ public class MainActivity
 	private void toggleCode() {
 		if (editorFragment != null) {
 			boolean isVisible = editorFragment.toggleCode();
-			drawerLayout.setTouchThru(isVisible);
 			insertTabMenuItem.setEnabled(!isVisible);
 		}
 	}
