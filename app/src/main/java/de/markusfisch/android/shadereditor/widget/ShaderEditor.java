@@ -30,10 +30,16 @@ import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public class ShaderEditor extends AppCompatEditText {
-
+	@FunctionalInterface
+	public interface OnTextChangedListener {
+		void onTextChanged(String text);
+	}
+	@FunctionalInterface
+	public interface TabSupplier {
+		int getWidth();
+	}
 	public interface SizeProvider {
 		int getWidth();
-
 		int getHeight();
 	}
 
@@ -53,12 +59,6 @@ public class ShaderEditor extends AppCompatEditText {
 			"[\\xA0]");
 
 	private final Handler updateHandler = new Handler();
-	private OnTextChangedListener onTextChangedListener;
-	private int updateDelay = 1000;
-	private int errorLine = 0;
-	private boolean dirty = false;
-	private boolean modified = true;
-	private int colorError;
 	private final Runnable updateRunnable = new Runnable() {
 		@Override
 		public void run() {
@@ -71,6 +71,13 @@ public class ShaderEditor extends AppCompatEditText {
 			highlightWithoutChange(e);
 		}
 	};
+
+	private OnTextChangedListener onTextChangedListener;
+	private int updateDelay = 1000;
+	private int errorLine = 0;
+	private boolean dirty = false;
+	private boolean modified = true;
+	private int colorError;
 	private @NonNull TabSupplier tabSupplier = () -> 2;
 	private SizeProvider sizeProvider;
 
@@ -80,115 +87,7 @@ public class ShaderEditor extends AppCompatEditText {
 
 	public ShaderEditor(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		setHorizontallyScrolling(true); // setting in XML does not work
-		setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
-			if (modified &&
-					end - start == 1 &&
-					start < source.length() &&
-					dstart < dest.length()) {
-				char c = source.charAt(start);
-
-				if (c == '\n') {
-					return autoIndent(source, dest, dstart, dend);
-				}
-			}
-
-			return source;
-		}});
-
-		addTextChangedListener(new TextWatcher() {
-			private int start = 0;
-			private int count = 0;
-
-			@Override
-			public void onTextChanged(
-					CharSequence s,
-					int start,
-					int before,
-					int count) {
-				this.start = start;
-				this.count = count;
-			}
-
-			@Override
-			public void beforeTextChanged(
-					CharSequence s,
-					int start,
-					int count,
-					int after) {
-			}
-
-			@Override
-			public void afterTextChanged(Editable e) {
-				cancelUpdate();
-				convertTabs(e, start, count);
-
-				String converted = convertShaderToySource(e.toString());
-				if (converted != null) {
-					setTextHighlighted(converted);
-				}
-
-				if (!modified) {
-					return;
-				}
-
-				dirty = true;
-				updateHandler.postDelayed(updateRunnable, updateDelay);
-			}
-		});
-
-		setSyntaxColors(getContext());
-		setUpdateDelay(ShaderEditorApp.preferences.getUpdateDelay());
-
-		setOnKeyListener((v, keyCode, event) -> {
-			if (ShaderEditorApp.preferences.useTabForIndent() &&
-					event.getAction() == KeyEvent.ACTION_DOWN &&
-					keyCode == KeyEvent.KEYCODE_TAB) {
-				// Insert a tab character instead of doing focus
-				// navigation.
-				insertTab();
-				return true;
-			}
-			return false;
-		});
-	}
-
-	private static <T> void clearSpans(Spannable e, int length, Class<T> clazz) {
-		// Remove foreground color spans.
-		T[] spans = e.getSpans(
-				0,
-				length,
-				clazz);
-
-		for (int i = spans.length; i-- > 0; ) {
-			e.removeSpan(spans[i]);
-		}
-	}
-
-	private static String convertShaderToySource(String src) {
-		if (!PATTERN_SHADER_TOY.matcher(src).find() ||
-				PATTERN_MAIN.matcher(src).find()) {
-			return null;
-		}
-		// Only include and translate uniforms that have an equivalent.
-		return "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
-				"precision highp float;\n" +
-				"#else\n" +
-				"precision mediump float;\n" +
-				"#endif\n\n" +
-				"uniform vec2 resolution;\n" +
-				"uniform float time;\n" +
-				"uniform vec4 mouse;\n" +
-				"uniform vec4 date;\n\n" +
-				src.replaceAll("iResolution", "resolution")
-						.replaceAll("iGlobalTime", "time")
-						.replaceAll("iMouse", "mouse")
-						.replaceAll("iDate", "date") +
-				"\n\nvoid main() {\n" +
-				"\tvec4 fragment_color;\n" +
-				"\tmainImage(fragment_color, gl_FragCoord.xy);\n" +
-				"\tgl_FragColor = fragment_color;\n" +
-				"}\n";
+		init(context);
 	}
 
 	public void setTabSupplier(@NonNull TabSupplier tabSupplier) {
@@ -218,26 +117,6 @@ public class ShaderEditor extends AppCompatEditText {
 		}
 	}
 
-	public void highlightError() {
-		Editable e = getText();
-		if (e == null) return;
-		clearSpans(e, length(), BackgroundColorSpan.class);
-		if (errorLine > 0) {
-			post(() -> {
-				if (e.length() == 0) return;
-				Layout layout = getLayout();
-				if (errorLine > layout.getLineCount()) return;
-				int start = layout.getLineStart(errorLine);
-				int end = layout.getLineEnd(errorLine);
-				e.setSpan(
-						new BackgroundColorSpan(colorError),
-						start,
-						end,
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			});
-		}
-	}
-
 	public void setOnTextChangedListener(OnTextChangedListener listener) {
 		onTextChangedListener = listener;
 	}
@@ -256,6 +135,26 @@ public class ShaderEditor extends AppCompatEditText {
 
 	public void updateHighlighting() {
 		highlightWithoutChange(getText());
+	}
+
+	public void highlightError() {
+		Editable e = getText();
+		if (e == null) return;
+		clearSpans(e, length(), BackgroundColorSpan.class);
+		if (errorLine > 0) {
+			post(() -> {
+				if (e.length() == 0) return;
+				Layout layout = getLayout();
+				if (errorLine > layout.getLineCount()) return;
+				int start = layout.getLineStart(errorLine);
+				int end = layout.getLineEnd(errorLine);
+				e.setSpan(
+						new BackgroundColorSpan(colorError),
+						start,
+						end,
+						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+			});
+		}
 	}
 
 	public boolean isModified() {
@@ -366,6 +265,82 @@ public class ShaderEditor extends AppCompatEditText {
 		return idx;
 	}
 
+	private void init(Context context) {
+		// setting in XML does not work
+		setHorizontallyScrolling(true);
+
+		setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
+			if (modified &&
+					end - start == 1 &&
+					start < source.length() &&
+					dstart < dest.length()) {
+				char c = source.charAt(start);
+
+				if (c == '\n') {
+					return autoIndent(source, dest, dstart, dend);
+				}
+			}
+
+			return source;
+		}});
+
+		addTextChangedListener(new TextWatcher() {
+			private int start = 0;
+			private int count = 0;
+
+			@Override
+			public void onTextChanged(
+					CharSequence s,
+					int start,
+					int before,
+					int count) {
+				this.start = start;
+				this.count = count;
+			}
+
+			@Override
+			public void beforeTextChanged(
+					CharSequence s,
+					int start,
+					int count,
+					int after) {
+			}
+
+			@Override
+			public void afterTextChanged(Editable e) {
+				cancelUpdate();
+				convertTabs(e, start, count);
+
+				String converted = convertShaderToySource(e.toString());
+				if (converted != null) {
+					setTextHighlighted(converted);
+				}
+
+				if (!modified) {
+					return;
+				}
+
+				dirty = true;
+				updateHandler.postDelayed(updateRunnable, updateDelay);
+			}
+		});
+
+		setSyntaxColors(context);
+		setUpdateDelay(ShaderEditorApp.preferences.getUpdateDelay());
+
+		setOnKeyListener((v, keyCode, event) -> {
+			if (ShaderEditorApp.preferences.useTabForIndent() &&
+					event.getAction() == KeyEvent.ACTION_DOWN &&
+					keyCode == KeyEvent.KEYCODE_TAB) {
+				// Insert a tab character instead of doing focus
+				// navigation.
+				insertTab();
+				return true;
+			}
+			return false;
+		});
+	}
+
 	private void setSyntaxColors(Context context) {
 		SyntaxView.initColors(context);
 		colorError = ContextCompat.getColor(
@@ -427,6 +402,18 @@ public class ShaderEditor extends AppCompatEditText {
 		}
 
 		return e;
+	}
+
+	private static <T> void clearSpans(Spannable e, int length, Class<T> clazz) {
+		// Remove foreground color spans.
+		T[] spans = e.getSpans(
+				0,
+				length,
+				clazz);
+
+		for (int i = spans.length; i-- > 0; ) {
+			e.removeSpan(spans[i]);
+		}
 	}
 
 	private CharSequence autoIndent(
@@ -515,36 +502,50 @@ public class ShaderEditor extends AppCompatEditText {
 		}
 
 		String s = e.toString();
-		int lineHeight = getLineHeight();
 		for (int stop = start + count;
 				(start = s.indexOf('\t', start)) > -1 && start < stop;
 				++start) {
-			int lineStart = s.lastIndexOf('\n', start);
 			e.setSpan(
-					new TabWidthSpan(() -> tabSupplier.getWidth(), lineHeight),
+					new TabWidthSpan(() -> tabSupplier.getWidth()),
 					start,
 					start + 1,
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
 	}
 
-	@FunctionalInterface
-	public interface TabSupplier {
-		int getWidth();
+	private static String convertShaderToySource(String src) {
+		if (!PATTERN_SHADER_TOY.matcher(src).find() ||
+				PATTERN_MAIN.matcher(src).find()) {
+			return null;
+		}
+		// Only include and translate uniforms that have an equivalent.
+		return "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
+				"precision highp float;\n" +
+				"#else\n" +
+				"precision mediump float;\n" +
+				"#endif\n\n" +
+				"uniform vec2 resolution;\n" +
+				"uniform float time;\n" +
+				"uniform vec4 mouse;\n" +
+				"uniform vec4 date;\n\n" +
+				src.replaceAll("iResolution", "resolution")
+						.replaceAll("iGlobalTime", "time")
+						.replaceAll("iMouse", "mouse")
+						.replaceAll("iDate", "date") +
+				"\n\nvoid main() {\n" +
+				"\tvec4 fragment_color;\n" +
+				"\tmainImage(fragment_color, gl_FragCoord.xy);\n" +
+				"\tgl_FragColor = fragment_color;\n" +
+				"}\n";
 	}
 
-	public interface OnTextChangedListener {
-		void onTextChanged(String text);
-	}
-
-	private static class TabWidthSpan extends ReplacementSpan implements LineHeightSpan.WithDensity {
-
+	private static class TabWidthSpan
+			extends ReplacementSpan
+			implements LineHeightSpan.WithDensity {
 		private final @NonNull TabSupplier tabSupplier;
-		private final int lineHeight;
 
-		private TabWidthSpan(@NonNull TabSupplier tabWidthSupplier, int lineHeight) {
+		private TabWidthSpan(@NonNull TabSupplier tabWidthSupplier) {
 			this.tabSupplier = tabWidthSupplier;
-			this.lineHeight = lineHeight;
 		}
 
 		@Override
@@ -571,13 +572,15 @@ public class ShaderEditor extends AppCompatEditText {
 		}
 
 		@Override
-		public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int lineHeight, Paint.FontMetricsInt fm, TextPaint paint) {
+		public void chooseHeight(CharSequence text, int start, int end,
+				int spanstartv, int lineHeight,
+				Paint.FontMetricsInt fm, TextPaint paint) {
 			paint.getFontMetricsInt(fm);
 		}
 
 		@Override
-		public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int lineHeight, Paint.FontMetricsInt fm) {
-
+		public void chooseHeight(CharSequence text, int start, int end,
+				int spanstartv, int lineHeight, Paint.FontMetricsInt fm) {
 		}
 	}
 }
