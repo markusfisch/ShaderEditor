@@ -42,6 +42,9 @@
 	<string name="run_mode">Run mode</string>
 	<string name="update_delay">Update delay</string>
 	<string name="text_size">Text size</string>
+	<string name="font">Font</string>
+	<string name="use_ligatures">Use Ligatures</string>
+	<string name="use_ligatures_summary">Join some characters like &lt;= into ≤</string>
 	<string name="tab_width">Tab width</string>
 	<string name="use_tab_for_indent">Use tab key</string>
 	<string name="use_tab_for_indent_summary">Use tab key for indenting instead of focus navigation.</string>
@@ -71,6 +74,11 @@
 	<string name="run_manually">Run manually</string>
 	<string name="run_manually_extra">Run in extra activity</string>
 	<string name="run_manually_new">Run as a new task</string>
+	<string name="fira_code">Fira Code</string>
+	<string name="ibm_plex_mono">IBM Plex Mono</string>
+	<string name="jetbrains_mono">JetBrains Mono</string>
+	<string name="roboto_mono">Roboto Mono</string>
+	<string name="source_code_pro">Source Code Pro</string>
 	<string name="fastest">Fastest</string>
 	<string name="game">Game</string>
 	<string name="normal">Normal</string>
