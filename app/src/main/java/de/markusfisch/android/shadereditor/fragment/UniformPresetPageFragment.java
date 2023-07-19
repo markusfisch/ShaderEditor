@@ -47,7 +47,7 @@ public class UniformPresetPageFragment extends Fragment {
 	}
 
 	@Override
-	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
 		SearchMenu.addSearchMenu(menu, inflater, this::filterUniforms);
 	}
 
@@ -70,7 +70,7 @@ public class UniformPresetPageFragment extends Fragment {
 	private void addUniform(PresetUniformAdapter.Uniform uniform) {
 		if (uniform.isSampler()) {
 			AbstractSubsequentActivity.addFragment(
-					getParentFragmentManager(),
+					getParentFragment().getFragmentManager(),
 					TextureParametersFragment.newInstance(
 							uniform.type,
 							uniform.name));
