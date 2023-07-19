@@ -4,7 +4,11 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
+
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 
 import de.markusfisch.android.shadereditor.R;
@@ -53,6 +57,15 @@ public class LineNumberEditText extends AppCompatEditText {
 		lineNumberPaint = new Paint(getPaint());
 		lineNumberPaint.setColor(color);
 		bigChar = lineNumberPaint.measureText("m");
+	}
+
+	@Override
+	public void setTypeface(@Nullable Typeface tf) {
+		super.setTypeface(tf);
+		if (lineNumberPaint != null) {
+			lineNumberPaint.setTypeface(tf);
+			bigChar = lineNumberPaint.measureText("m");
+		}
 	}
 
 	@Override

@@ -1,16 +1,19 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ScrollView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
@@ -152,8 +155,12 @@ public class EditorFragment extends Fragment {
 		Preferences preferences = ShaderEditorApp.preferences;
 		shaderEditor.setUpdateDelay(preferences.getUpdateDelay());
 		shaderEditor.setTextSize(
-				android.util.TypedValue.COMPLEX_UNIT_SP,
+				TypedValue.COMPLEX_UNIT_SP,
 				preferences.getTextSize());
+		shaderEditor.setTypeface(preferences.getFont());
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			shaderEditor.setFontFeatureSettings(preferences.useLigatures() ? "normal" : "calt off");
+		}
 		shaderEditor.setTabWidth(preferences.getTabWidth());
 	}
 
