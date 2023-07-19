@@ -39,7 +39,7 @@ public class SyntaxView extends View implements TextWatcher {
 	private final List<IntList> tokensByLine = new ArrayList<>();
 	private final Rect visibleRect = new Rect();
 	private final Paint paint = new Paint();
-	private Paint.FontMetricsInt fm = new Paint.FontMetricsInt();
+	private final Paint.FontMetricsInt fm = new Paint.FontMetricsInt();
 	private volatile boolean textDirty = true;
 	private @Nullable TextView source;
 	private @NonNull TabSupplier tabSupplier = () -> 2;
