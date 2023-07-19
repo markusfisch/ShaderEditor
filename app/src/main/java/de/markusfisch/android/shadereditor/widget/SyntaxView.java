@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -31,6 +32,7 @@ public class SyntaxView extends View implements TextWatcher {
 	private final List<IntList> tokensByLine = new ArrayList<>();
 	private final Rect visibleRect = new Rect();
 	private final Paint paint = new Paint();
+	private Paint.FontMetricsInt fm = new Paint.FontMetricsInt();
 	private volatile boolean textDirty = true;
 	private @Nullable TextView source;
 	private @NonNull TabSupplier tabSupplier = () -> 2;
@@ -110,10 +112,10 @@ public class SyntaxView extends View implements TextWatcher {
 
 		if (currentText == null) return;
 
-		Paint.FontMetricsInt fm = paint.getFontMetricsInt();
+		paint.getFontMetricsInt(fm);
 		float charWidth = paint.measureText("m");
 
-		int lineHeight = fm.bottom - fm.top + fm.leading;
+		int lineHeight = fm.descent - fm.ascent + fm.leading;
 		float paddingLeft = getPaddingLeft();
 		float lineOffsetY = source.getExtendedPaddingTop() - fm.descent;
 
