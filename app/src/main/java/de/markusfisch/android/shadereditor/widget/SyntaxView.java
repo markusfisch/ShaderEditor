@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.highlighter.Highlight;
 import de.markusfisch.android.shadereditor.highlighter.Lexer;
 import de.markusfisch.android.shadereditor.highlighter.TokenType;
@@ -28,6 +29,7 @@ public class SyntaxView extends View implements TextWatcher {
 		int getWidth();
 	}
 
+	public static final int MAX_HIGHLIGHT_LENGTH = 8192;
 	private static final int[] colors = new int[Highlight.values().length];
 	private final List<IntList> tokensByLine = new ArrayList<>();
 	private final Rect visibleRect = new Rect();
@@ -93,6 +95,8 @@ public class SyntaxView extends View implements TextWatcher {
 	public void afterTextChanged(Editable s) {
 		currentText = s.toString();
 		textDirty = true;
+		if (ShaderEditorApp.preferences.disableHighlighting() && s.length() > MAX_HIGHLIGHT_LENGTH)
+			return;
 		post(() -> {
 			highlight();
 			invalidate();
