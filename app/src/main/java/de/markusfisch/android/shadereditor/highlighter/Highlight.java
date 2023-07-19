@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import de.markusfisch.android.shadereditor.R;
 
 
-// order has to match the one defined in `highlighter.c`
 public enum Highlight {
 	HIGHLIGHT_INVALID(() -> R.color.syntax_invalid),
 	HIGHLIGHT_KEYWORD(() -> R.color.syntax_keyword),
