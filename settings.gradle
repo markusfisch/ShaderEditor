@@ -13,5 +13,4 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ShaderEditor"
 include ':app'

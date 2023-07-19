@@ -10,14 +10,12 @@ plugins {
 
 allprojects {
 	gradle.projectsEvaluated {
-		tasks.withType(JavaCompile).tap {
-			configureEach {
-				options.compilerArgs << "-Xlint:unchecked"
-			}
+		tasks.withType(JavaCompile) {
+			options.compilerArgs << "-Xlint:unchecked"
 		}
 	}
 }
 
-tasks.register('clean', Delete) {
+task clean(type: Delete) {
 	delete rootProject.buildDir
 }
