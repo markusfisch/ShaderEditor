@@ -2,6 +2,11 @@ package de.markusfisch.android.shadereditor.util;
 
 import java.util.Arrays;
 
+/**
+ * Specialized List implementation for primitive {@code int} values.
+ * This reduces the number of allocations by removing the implicit
+ * autoboxing step.
+ */
 public class IntList {
 	public static final int SOFT_MAX_ARRAY_LENGTH = Integer.MAX_VALUE - 8;
 

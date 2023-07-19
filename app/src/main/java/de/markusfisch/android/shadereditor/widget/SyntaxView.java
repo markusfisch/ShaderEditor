@@ -24,6 +24,11 @@ import de.markusfisch.android.shadereditor.highlighter.TokenType;
 import de.markusfisch.android.shadereditor.util.IntList;
 
 public class SyntaxView extends View implements TextWatcher {
+	/**
+	 * Not using {@link java.util.function.IntSupplier IntSupplier},
+	 * because that would require API >= 24. Also {@code getWidth()}
+	 * has a semantic meaning, which {@code getAsInt()} lacks.
+	 */
 	@FunctionalInterface
 	public interface TabSupplier {
 		int getWidth();
@@ -149,11 +154,14 @@ public class SyntaxView extends View implements TextWatcher {
 	private void highlight() {
 		int maxColumn = 0;
 		int maxLine = 0;
+
 		if (source != null) paint.set(source.getPaint());
 		Paint.FontMetricsInt fm = paint.getFontMetricsInt();
 		float lineHeight = fm.bottom - fm.top + fm.leading;
 		float charWidth = paint.measureText("m");
+
 		tokens = Lexer.runLexer(currentText, tokens, tabSupplier.getWidth());
+
 		tokensByLine.clear();
 		int sourceMax = source.length();
 		for (int i = 1, length = tokens[0]; i <= length; i += 5) {
@@ -161,14 +169,18 @@ public class SyntaxView extends View implements TextWatcher {
 			int end = Math.min(sourceMax, tokens[i + 2]);
 			int line = tokens[i + 3];
 			int column = tokens[i + 4];
+
 			maxLine = Math.max(maxLine, line);
 			maxColumn = Math.max(maxColumn, column + (end - start));
+
 			while (tokensByLine.size() <= line) tokensByLine.add(new IntList());
 			IntList tokensForLine = tokensByLine.get(line);
+
 			tokensForLine.add(i);
 		}
 		for (IntList list : tokensByLine)
 			list.trimToSize();
+
 		int maxX = (int) ((maxColumn + 1) * charWidth) + getPaddingLeft() + getPaddingRight();
 		int maxY = (int) ((maxLine + 1) * lineHeight + getPaddingTop() + getPaddingBottom());
 		if (maxX != this.maxX || maxY != this.maxY) {
@@ -177,6 +189,7 @@ public class SyntaxView extends View implements TextWatcher {
 			requestLayout();
 			source.requestLayout();
 		}
+
 		textDirty = false;
 	}
 }
