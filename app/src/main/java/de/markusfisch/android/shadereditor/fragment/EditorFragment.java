@@ -75,10 +75,10 @@ public class EditorFragment extends Fragment {
 		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
 
 		Activity activity = requireActivity();
-		try {
+		if (activity instanceof ShaderEditor.OnTextChangedListener) {
 			shaderEditor.setOnTextChangedListener(
 					(ShaderEditor.OnTextChangedListener) activity);
-		} catch (ClassCastException e) {
+		} else {
 			throw new ClassCastException(activity +
 					" must implement " +
 					"ShaderEditor.OnTextChangedListener");
