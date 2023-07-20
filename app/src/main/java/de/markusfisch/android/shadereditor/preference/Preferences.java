@@ -79,17 +79,11 @@ public class Preferences {
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(
 				context);
+
 		loadFonts(context);
 		defaultFont = context.getString(R.string.default_font_value);
-		update();
-	}
 
-	private void loadFonts(Context context) {
-		fonts.put("fira_code", ResourcesCompat.getFont(context, R.font.fira_code));
-		fonts.put("ibm_plex_mono", ResourcesCompat.getFont(context, R.font.ibm_plex_mono));
-		fonts.put("jetbrains_mono", ResourcesCompat.getFont(context, R.font.jetbrains_mono));
-		fonts.put("roboto_mono", ResourcesCompat.getFont(context, R.font.roboto_mono));
-		fonts.put("source_code_pro", ResourcesCompat.getFont(context, R.font.source_code_pro));
+		update();
 	}
 
 	public SharedPreferences getSharedPreferences() {
@@ -142,6 +136,14 @@ public class Preferences {
 				preferences.getString(DEFAULT_NEW_SHADER, null),
 				defaultNewShaderId);
 		showLineNumbers = preferences.getBoolean(SHOW_LINE_NUMBERS, showLineNumbers);
+	}
+
+	private void loadFonts(Context context) {
+		fonts.put("fira_code", ResourcesCompat.getFont(context, R.font.fira_code));
+		fonts.put("ibm_plex_mono", ResourcesCompat.getFont(context, R.font.ibm_plex_mono));
+		fonts.put("jetbrains_mono", ResourcesCompat.getFont(context, R.font.jetbrains_mono));
+		fonts.put("roboto_mono", ResourcesCompat.getFont(context, R.font.roboto_mono));
+		fonts.put("source_code_pro", ResourcesCompat.getFont(context, R.font.source_code_pro));
 	}
 
 	private @NonNull Typeface getLoadedFont(@NonNull String fontName) {
