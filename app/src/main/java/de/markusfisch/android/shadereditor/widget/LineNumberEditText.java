@@ -16,6 +16,7 @@ import de.markusfisch.android.shadereditor.R;
 public class LineNumberEditText extends AppCompatEditText {
 	private final float lineNumberSpacing;
 	private final float lineNumberPadding;
+
 	private boolean showLineNumbers;
 	private Paint lineNumberPaint;
 	private float bigChar;

@@ -183,9 +183,11 @@ public class Preferences {
 	public int getTextSize() {
 		return textSize;
 	}
+
 	public Typeface getFont() {
 		return font;
 	}
+
 	public boolean useLigatures() {
 		return useLigatures;
 	}
