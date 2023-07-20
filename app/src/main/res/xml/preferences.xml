@@ -1,6 +1,7 @@
 <PreferenceScreen
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:title="@string/preferences"
+		xmlns:app="http://schemas.android.com/apk/res-auto"
+		android:title="@string/preferences"
 	android:key="preferences">
 	<PreferenceCategory android:title="@string/wallpaper">
 		<de.markusfisch.android.shadereditor.preference.ShaderListPreference
@@ -32,6 +33,17 @@
 			android:entries="@array/text_size_names"
 			android:entryValues="@array/text_size_values"
 			android:defaultValue="12"/>
+		<ListPreference
+				android:defaultValue="@string/default_font_value"
+				android:entries="@array/font_names"
+				android:entryValues="@array/font_values"
+				android:key="font"
+				android:title="@string/font" />
+		<SwitchPreference
+				android:defaultValue="true"
+				android:key="use_ligatures"
+				android:title="@string/use_ligatures"
+				app:summary="@string/use_ligatures_summary" />
 		<ListPreference
 			android:key="tab_width"
 			android:title="@string/tab_width"
