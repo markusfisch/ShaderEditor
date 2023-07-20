@@ -57,7 +57,7 @@ public class LineNumberEditText extends AppCompatEditText {
 		paddingLeft = getPaddingLeft();
 		lineNumberPaint = new Paint(getPaint());
 		lineNumberPaint.setColor(color);
-		bigChar = lineNumberPaint.measureText("m");
+		measureBigChar();
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class LineNumberEditText extends AppCompatEditText {
 		super.setTypeface(tf);
 		if (lineNumberPaint != null) {
 			lineNumberPaint.setTypeface(tf);
-			bigChar = lineNumberPaint.measureText("m");
+			measureBigChar();
 		}
 	}
 
@@ -112,6 +112,8 @@ public class LineNumberEditText extends AppCompatEditText {
 				lineNumberPaint);
 	}
 
+	private void measureBigChar() {
+		bigChar = lineNumberPaint.measureText("m");
 	}
 
 	/**
