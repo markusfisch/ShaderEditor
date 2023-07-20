@@ -3,6 +3,7 @@ package de.markusfisch.android.shadereditor.widget;
 import androidx.annotation.NonNull;
 import androidx.core.view.MenuItemCompat;
 import androidx.appcompat.widget.SearchView;
+
 import android.view.Menu;
 import android.view.MenuInflater;
 

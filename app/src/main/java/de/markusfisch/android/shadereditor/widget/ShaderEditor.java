@@ -4,8 +4,10 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Handler;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spannable;

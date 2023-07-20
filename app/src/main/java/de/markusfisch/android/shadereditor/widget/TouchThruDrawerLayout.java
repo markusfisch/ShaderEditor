@@ -2,7 +2,9 @@ package de.markusfisch.android.shadereditor.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+
 import androidx.drawerlayout.widget.DrawerLayout;
+
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 

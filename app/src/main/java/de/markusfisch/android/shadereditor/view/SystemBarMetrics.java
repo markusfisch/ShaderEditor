@@ -4,8 +4,10 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
+
 import androidx.core.view.ViewCompat;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;

@@ -12,7 +12,9 @@ import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+
 import androidx.core.content.ContextCompat;
+
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;

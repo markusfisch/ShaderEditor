@@ -17,8 +17,10 @@ import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.os.BatteryManager;
 import android.os.Build;
+
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.WindowManager;
