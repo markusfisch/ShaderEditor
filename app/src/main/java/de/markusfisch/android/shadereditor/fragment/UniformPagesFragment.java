@@ -1,13 +1,12 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.ViewPager;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.adapter.UniformPageAdapter;

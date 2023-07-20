@@ -4,12 +4,11 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.util.AttributeSet;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
-
-import android.graphics.Typeface;
-import android.util.AttributeSet;
 
 import de.markusfisch.android.shadereditor.R;
 

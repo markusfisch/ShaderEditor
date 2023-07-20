@@ -4,10 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Handler;
-
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spannable;
@@ -22,6 +18,9 @@ import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
