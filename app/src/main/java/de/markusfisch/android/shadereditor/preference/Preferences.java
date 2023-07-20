@@ -146,8 +146,10 @@ public class Preferences {
 
 	private @NonNull Typeface getLoadedFont(@NonNull String fontName) {
 		Typeface tf = fonts.get(fontName);
-		if (tf == null)
-			throw new IllegalArgumentException("font \"" + fontName + "\" not found!");
+		if (tf == null) {
+			throw new IllegalArgumentException(
+					"font \"" + fontName + "\" not found!");
+		}
 		return tf;
 	}
 

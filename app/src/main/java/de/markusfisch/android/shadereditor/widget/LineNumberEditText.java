@@ -77,23 +77,39 @@ public class LineNumberEditText extends AppCompatEditText {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		if (!showLineNumbers) {
-			super.setPadding(paddingLeft, getPaddingTop(), getPaddingRight(), getPaddingBottom());
+			super.setPadding(
+					paddingLeft,
+					getPaddingTop(),
+					getPaddingRight(),
+					getPaddingBottom());
 			super.onDraw(canvas);
 			return;
 		}
 		int lineCount = getLineCount();
 		final int lineCountNumDigits = numDigits(lineCount);
 		int editTextPaddingLeft = (int) (bigChar * lineCountNumDigits + lineNumberPadding);
-		super.setPadding((int) (editTextPaddingLeft + lineNumberSpacing), getPaddingTop(), getPaddingRight(), getPaddingBottom());
+		super.setPadding(
+				(int) (editTextPaddingLeft + lineNumberSpacing),
+				getPaddingTop(),
+				getPaddingRight(),
+				getPaddingBottom());
 		super.onDraw(canvas);
 		for (int i = 0, lineNumber = 1; i < lineCount; ++i) {
 			int baseline = getLineBounds(i, null);
-			canvas.drawText(Integer.toString(lineNumber),
-					bigChar * (lineCountNumDigits - numDigits(lineNumber)) + lineNumberPadding, baseline,
+			canvas.drawText(
+					Integer.toString(lineNumber),
+					bigChar * (lineCountNumDigits - numDigits(lineNumber)) + lineNumberPadding,
+					baseline,
 					lineNumberPaint);
 			++lineNumber;
 		}
-		canvas.drawLine(editTextPaddingLeft + lineNumberSpacing * .5f, 0, editTextPaddingLeft + lineNumberSpacing * .5f, getHeight(), lineNumberPaint);
+		canvas.drawLine(
+				editTextPaddingLeft + lineNumberSpacing * .5f,
+				0,
+				editTextPaddingLeft + lineNumberSpacing * .5f,
+				getHeight(),
+				lineNumberPaint);
+	}
 
 	}
 

@@ -159,7 +159,8 @@ public class EditorFragment extends Fragment {
 				preferences.getTextSize());
 		shaderEditor.setTypeface(preferences.getFont());
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			shaderEditor.setFontFeatureSettings(preferences.useLigatures() ? "normal" : "calt off");
+			shaderEditor.setFontFeatureSettings(
+					preferences.useLigatures() ? "normal" : "calt off");
 		}
 		shaderEditor.setTabWidth(preferences.getTabWidth());
 	}
