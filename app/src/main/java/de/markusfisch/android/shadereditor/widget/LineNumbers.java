@@ -16,6 +16,7 @@ import de.markusfisch.android.shadereditor.R;
 public class LineNumbers extends AppCompatTextView implements TextWatcher {
 	private final int sourceId;
 	private TextView source;
+	private final Paint.FontMetricsInt fm = new Paint.FontMetricsInt();
 
 	public LineNumbers(Context context) {
 		this(context, null);
@@ -48,8 +49,8 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 			return;
 		}
-		Paint.FontMetricsInt fm = getPaint().getFontMetricsInt();
-		int lineHeight = fm.bottom - fm.top + fm.leading;
+		getPaint().getFontMetricsInt(fm);
+		int lineHeight = fm.descent - fm.ascent + fm.leading;
 		int lineCount = source.getLineCount();
 		setMeasuredDimension((int) (getPaint().measureText("m") * numDigits(lineCount)) + getPaddingLeft() + getPaddingRight(), lineCount * lineHeight + getPaddingTop() + getPaddingBottom());
 	}
@@ -57,6 +58,7 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 	public void setSource(@NonNull TextView source) {
 		if (this.source != null) source.removeTextChangedListener(this);
 		this.source = source;
+		setTypeface(source.getTypeface());
 		source.addTextChangedListener(this);
 		post(() -> {
 			updateLineNumbers();

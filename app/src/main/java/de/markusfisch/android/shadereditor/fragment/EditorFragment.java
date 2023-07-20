@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -31,6 +32,7 @@ public class EditorFragment extends Fragment {
 
 	private ScrollView scrollView;
 	private ShaderEditor shaderEditor;
+	private LineNumbers lineNumbers;
 	private ViewGroup lineNumbersContainer;
 	private SyntaxView syntaxView;
 	private UndoRedo undoRedo;
@@ -47,7 +49,7 @@ public class EditorFragment extends Fragment {
 				false);
 
 		scrollView = view.findViewById(R.id.scroll_view);
-		LineNumbers lineNumbers = view.findViewById(R.id.line_numbers);
+		lineNumbers = view.findViewById(R.id.line_numbers);
 		lineNumbersContainer = view.findViewById(R.id.line_numbers_container);
 		shaderEditor = view.findViewById(R.id.editor);
 		syntaxView = view.findViewById(R.id.syntax);
@@ -196,7 +198,10 @@ public class EditorFragment extends Fragment {
 		shaderEditor.setTextSize(
 				TypedValue.COMPLEX_UNIT_SP,
 				preferences.getTextSize());
+		lineNumbers.setTextSize(TypedValue.COMPLEX_UNIT_SP,
+				preferences.getTextSize());
 		shaderEditor.setTypeface(preferences.getFont());
+		lineNumbers.setTypeface(preferences.getFont());
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			shaderEditor.setFontFeatureSettings(preferences.useLigatures() ? "normal" : "calt off");
 		}
