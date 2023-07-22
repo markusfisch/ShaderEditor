@@ -7,18 +7,16 @@ import android.graphics.Rect;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.highlighter.Highlight;
@@ -105,10 +103,8 @@ public class SyntaxView extends View implements TextWatcher {
 		textDirty = true;
 		if (ShaderEditorApp.preferences.disableHighlighting() && s.length() > MAX_HIGHLIGHT_LENGTH)
 			return;
-		post(() -> {
-			highlight();
-			invalidate();
-		});
+		highlight();
+		postInvalidate();
 	}
 
 	@Override
