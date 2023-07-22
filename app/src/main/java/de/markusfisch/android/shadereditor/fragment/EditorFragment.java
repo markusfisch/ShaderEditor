@@ -13,6 +13,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -188,10 +189,6 @@ public class EditorFragment extends Fragment {
 		shaderEditor.updateErrorHighlighting();
 	}
 
-	public void setShowLineNumbers(boolean showLineNumbers) {
-		lineNumbersContainer.setVisibility(showLineNumbers ? View.VISIBLE : View.GONE);
-	}
-
 	private void updateToPreferences() {
 		Preferences preferences = ShaderEditorApp.preferences;
 		shaderEditor.setUpdateDelay(preferences.getUpdateDelay());
@@ -222,5 +219,9 @@ public class EditorFragment extends Fragment {
 		}
 
 		return yOffset;
+	}
+
+	public void setShowLineNumbers(boolean showLineNumbers) {
+		lineNumbersContainer.setVisibility(showLineNumbers ? View.VISIBLE : View.GONE);
 	}
 }

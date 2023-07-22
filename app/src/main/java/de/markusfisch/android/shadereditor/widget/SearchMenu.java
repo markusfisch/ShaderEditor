@@ -1,10 +1,11 @@
 package de.markusfisch.android.shadereditor.widget;
 
-import androidx.annotation.NonNull;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.widget.SearchView;
 import android.view.Menu;
 import android.view.MenuInflater;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
 
 import de.markusfisch.android.shadereditor.R;
 
