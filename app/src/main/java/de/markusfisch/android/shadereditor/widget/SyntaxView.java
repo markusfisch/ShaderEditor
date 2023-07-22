@@ -41,7 +41,7 @@ public class SyntaxView extends View implements TextWatcher {
 	private final Rect visibleRect = new Rect();
 	private final Paint paint = new Paint();
 	private final Paint.FontMetricsInt fm = new Paint.FontMetricsInt();
-	private volatile boolean textDirty = true;
+	private volatile boolean noDraw = false;
 	private @Nullable TextView source;
 	private @NonNull TabSupplier tabSupplier = () -> 2;
 	private @NonNull int[] tokens = new int[256];
@@ -79,7 +79,7 @@ public class SyntaxView extends View implements TextWatcher {
 		this.source = source;
 		setPadding(source.getPaddingLeft(), source.getPaddingTop(), source.getPaddingRight(), source.getPaddingBottom());
 		source.addTextChangedListener(this);
-		textDirty = true;
+		updateHighlight(source.getText());
 		postInvalidate();
 	}
 
@@ -99,11 +99,7 @@ public class SyntaxView extends View implements TextWatcher {
 
 	@Override
 	public void afterTextChanged(Editable s) {
-		currentText = s.toString();
-		textDirty = true;
-		if (ShaderEditorApp.preferences.disableHighlighting() && s.length() > MAX_HIGHLIGHT_LENGTH)
-			return;
-		highlight();
+		updateHighlight(s);
 		postInvalidate();
 	}
 
@@ -114,11 +110,9 @@ public class SyntaxView extends View implements TextWatcher {
 
 	@Override
 	protected void onDraw(Canvas canvas) {
-		if (source == null || textDirty) return;
-
+		if (source == null || currentText == null) return;
 		paint.set(source.getPaint());
 
-		if (currentText == null) return;
 
 		paint.getFontMetricsInt(fm);
 		float charWidth = paint.measureText("m");
@@ -134,20 +128,35 @@ public class SyntaxView extends View implements TextWatcher {
 
 		int sourceMax = source.length();
 		float currentY = firstLine * lineHeight + lineOffsetY;
-		for (int line = firstLine; line <= lastLine; ++line, currentY += lineHeight) {
-			if (line >= tokensByLine.size()) break;
-			for (int i : tokensByLine.get(line).getRaw()) {
-				TokenType type = TokenType.values()[tokens[i]];
-				Highlight highlight = Highlight.from(type);
-				int start = Math.min(sourceMax, tokens[i + 1]);
-				int end = Math.min(sourceMax, tokens[i + 2]);
-				int column = tokens[i + 4];
-				paint.setColor(colors[highlight.ordinal()]);
-				canvas.drawText(currentText, start, end, charWidth * column + paddingLeft, currentY, paint);
+
+		synchronized (tokensByLine) {
+			for (int line = firstLine; line <= lastLine; ++line, currentY += lineHeight) {
+				if (line >= tokensByLine.size()) break;
+				for (int i : tokensByLine.get(line).getRaw()) {
+					TokenType type = TokenType.values()[tokens[i]];
+					Highlight highlight = Highlight.from(type);
+					int start = Math.min(sourceMax, tokens[i + 1]);
+					int end = Math.min(sourceMax, tokens[i + 2]);
+					int column = tokens[i + 4];
+					paint.setColor(colors[highlight.ordinal()]);
+					canvas.drawText(currentText, start, end, charWidth * column + paddingLeft, currentY, paint);
+				}
 			}
 		}
-
 		super.onDraw(canvas); // draw normal text
+	}
+
+	private void updateHighlight(CharSequence s) {
+		if (ShaderEditorApp.preferences.disableHighlighting()) {
+			noDraw = s.length() > MAX_HIGHLIGHT_LENGTH;
+		} else {
+			noDraw = false;
+		}
+		if (noDraw) return;
+		synchronized (tokensByLine) {
+			currentText = s.toString();
+			highlight();
+		}
 	}
 
 	private void highlight() {
@@ -185,10 +194,10 @@ public class SyntaxView extends View implements TextWatcher {
 		if (maxX != this.maxX || maxY != this.maxY) {
 			this.maxX = maxX;
 			this.maxY = maxY;
-			requestLayout();
-			source.requestLayout();
+			post(() -> {
+				requestLayout();
+				source.requestLayout();
+			});
 		}
-
-		textDirty = false;
 	}
 }
