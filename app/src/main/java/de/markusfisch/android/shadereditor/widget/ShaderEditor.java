@@ -18,6 +18,8 @@ import android.text.style.LineHeightSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
+import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
@@ -107,10 +109,6 @@ public class ShaderEditor extends AppCompatEditText {
 		int width = sizeProvider.getWidth();
 		int height = sizeProvider.getHeight();
 		if (length() != 0) {
-			// Very simple fix for wrong scroll position of the editor text when opening
-			// the app for the first time. This manual way feels like a hack.
-			// TODO: Find root cause for wrong scroll position
-			setScrollX(0);
 			setMeasuredDimension(width, height);
 		} else {
 			super.onMeasure(widthMeasureSpec, heightMeasureSpec);

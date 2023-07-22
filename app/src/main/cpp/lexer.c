@@ -31,18 +31,21 @@ static const size_t DIRECTIVES_LENGTH =
 
 static TrieNode keywords_trie = {};
 static TrieNode directives_trie = {};
+
 // Forward declarations
 static void read_next(Lexer *lexer);
 static uint32_t skip_whitespace(Lexer *lexer);
 static const char *read_identifier(Lexer *lexer);
 static TokenType read_number(Lexer *lexer);
 static uint8_t utf8_codepoint_length(uint8_t utf8);
+static void lexer_handle_line_column(Lexer *lexer);
 
 Lexer create_lexer(const char *input, uint32_t tab_width) {
   Lexer lexer = {.source = input,
                  .iter = input,
                  .read_position = 1,
-                 .tab_width = tab_width};
+                 .tab_width = tab_width,
+                 .line_count = 1};
   next_token(&lexer);
   return lexer;
 }
@@ -54,7 +57,8 @@ inline static TokenType advance(Lexer *lexer, TokenType type) {
 
 // TODO: implement preprocessor tokenization
 Token next_token(Lexer *lexer) {
-  bool is_new_logic_line = skip_whitespace(lexer) != 0;
+  bool is_first_line = lexer->position == 0;
+  bool is_new_logic_line = skip_whitespace(lexer) || is_first_line;
   uint32_t start = lexer->position;
   uint32_t start_offset = lexer->iter - lexer->source;
   Token tok = {.type = INVALID,
@@ -174,6 +178,7 @@ Token next_token(Lexer *lexer) {
           tok.category = TRIVIA;
           do {
             read_next(lexer);
+            lexer_handle_line_column(lexer);
           } while (*lexer->iter &&
                    !(*lexer->iter == '*' && iter_peek_c(lexer->iter) == '/'));
           if (*lexer->iter) {
@@ -348,40 +353,37 @@ Token next_token(Lexer *lexer) {
   lexer->previous = tok;
   return previous;
 }
+static void lexer_handle_line_column(Lexer *lexer) {
+  if (*lexer->iter == '\n') {
+    ++lexer->line_count;
+    lexer->line_start = lexer->position + 1;
+    lexer->line_offset = lexer->iter - lexer->source + 1;
+    lexer->line_tab_count = 0;
+  } else if (*lexer->iter == '\t') {
+    ++lexer->line_tab_count;
+  }
+}
 
 static void read_next(Lexer *lexer) {
-  uint32_t newline_count = 0;
   while (true) {
     ++lexer->iter;
     lexer->position = lexer->read_position++;
     // if ch == \, then check if line continuation
     if (*lexer->iter == '\\' && iter_move_newline(&lexer->iter)) {
-      ++newline_count;
-      lexer->position = lexer->read_position++;
-      lexer->line_start = lexer->position + 1;
-      lexer->line_offset = lexer->iter - lexer->source;
+      lexer_handle_line_column(lexer);
       continue;
     }
-    lexer->line_count += newline_count;
     return;
   }
 }
 
 static uint32_t skip_whitespace(Lexer *lexer) {
-  uint32_t newline_count = lexer->position == 0;
+  uint32_t line_count_before = lexer->line_count;
   while (isspace(*lexer->iter)) {
-    if (*lexer->iter == '\n') {
-      ++newline_count;
-      lexer->line_start = lexer->position + 1;
-      lexer->line_offset = lexer->iter - lexer->source + 1;
-      lexer->line_tab_count = 0;
-    } else if (*lexer->iter == '\t') {
-      ++lexer->line_tab_count;
-    }
+    lexer_handle_line_column(lexer);
     read_next(lexer);
   }
-  lexer->line_count += newline_count;
-  return newline_count;
+  return lexer->line_count - line_count_before;
 }
 
 // Read an identifier

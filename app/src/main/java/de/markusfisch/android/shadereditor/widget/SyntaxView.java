@@ -9,13 +9,16 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.highlighter.Highlight;
@@ -45,8 +48,8 @@ public class SyntaxView extends View implements TextWatcher {
 	private @NonNull TabSupplier tabSupplier = () -> 2;
 	private @NonNull int[] tokens = new int[256];
 	private String currentText = "";
-	private int maxX;
-	private int maxY;
+	private int maxX = ViewGroup.LayoutParams.WRAP_CONTENT;
+	private int maxY = ViewGroup.LayoutParams.WRAP_CONTENT;
 
 	public SyntaxView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
@@ -156,8 +159,8 @@ public class SyntaxView extends View implements TextWatcher {
 		int maxLine = 0;
 
 		if (source != null) paint.set(source.getPaint());
-		Paint.FontMetricsInt fm = paint.getFontMetricsInt();
-		float lineHeight = fm.bottom - fm.top + fm.leading;
+		paint.getFontMetricsInt(fm);
+		float lineHeight = fm.descent - fm.ascent + fm.leading;
 		float charWidth = paint.measureText("m");
 
 		tokens = Lexer.runLexer(currentText, tokens, tabSupplier.getWidth());
