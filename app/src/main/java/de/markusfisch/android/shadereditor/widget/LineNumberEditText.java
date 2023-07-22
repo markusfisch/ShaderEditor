@@ -4,14 +4,18 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import androidx.appcompat.widget.AppCompatEditText;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatEditText;
 
 import de.markusfisch.android.shadereditor.R;
 
 public class LineNumberEditText extends AppCompatEditText {
 	private final float lineNumberSpacing;
 	private final float lineNumberPadding;
+
 	private boolean showLineNumbers;
 	private Paint lineNumberPaint;
 	private float bigChar;
@@ -52,7 +56,16 @@ public class LineNumberEditText extends AppCompatEditText {
 		paddingLeft = getPaddingLeft();
 		lineNumberPaint = new Paint(getPaint());
 		lineNumberPaint.setColor(color);
-		bigChar = lineNumberPaint.measureText("m");
+		measureBigChar();
+	}
+
+	@Override
+	public void setTypeface(@Nullable Typeface tf) {
+		super.setTypeface(tf);
+		if (lineNumberPaint != null) {
+			lineNumberPaint.setTypeface(tf);
+			measureBigChar();
+		}
 	}
 
 	@Override
@@ -64,24 +77,42 @@ public class LineNumberEditText extends AppCompatEditText {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		if (!showLineNumbers) {
-			super.setPadding(paddingLeft, getPaddingTop(), getPaddingRight(), getPaddingBottom());
+			super.setPadding(
+					paddingLeft,
+					getPaddingTop(),
+					getPaddingRight(),
+					getPaddingBottom());
 			super.onDraw(canvas);
 			return;
 		}
 		int lineCount = getLineCount();
 		final int lineCountNumDigits = numDigits(lineCount);
 		int editTextPaddingLeft = (int) (bigChar * lineCountNumDigits + lineNumberPadding);
-		super.setPadding((int) (editTextPaddingLeft + lineNumberSpacing), getPaddingTop(), getPaddingRight(), getPaddingBottom());
+		super.setPadding(
+				(int) (editTextPaddingLeft + lineNumberSpacing),
+				getPaddingTop(),
+				getPaddingRight(),
+				getPaddingBottom());
 		super.onDraw(canvas);
 		for (int i = 0, lineNumber = 1; i < lineCount; ++i) {
 			int baseline = getLineBounds(i, null);
-			canvas.drawText(Integer.toString(lineNumber),
-					bigChar * (lineCountNumDigits - numDigits(lineNumber)) + lineNumberPadding, baseline,
+			canvas.drawText(
+					Integer.toString(lineNumber),
+					bigChar * (lineCountNumDigits - numDigits(lineNumber)) + lineNumberPadding,
+					baseline,
 					lineNumberPaint);
 			++lineNumber;
 		}
-		canvas.drawLine(editTextPaddingLeft + lineNumberSpacing * .5f, 0, editTextPaddingLeft + lineNumberSpacing * .5f, getHeight(), lineNumberPaint);
+		canvas.drawLine(
+				editTextPaddingLeft + lineNumberSpacing * .5f,
+				0,
+				editTextPaddingLeft + lineNumberSpacing * .5f,
+				getHeight(),
+				lineNumberPaint);
+	}
 
+	private void measureBigChar() {
+		bigChar = lineNumberPaint.measureText("m");
 	}
 
 	/**
@@ -90,24 +121,29 @@ public class LineNumberEditText extends AppCompatEditText {
 	 * @param number the number of which you want to get the number of digits.
 	 * @return the number of decimal digits of the given {@code number}
 	 */
-	private int numDigits(int number) {
+	private static int numDigits(int number) {
 		if (number < 100000) {
 			if (number < 100) {
-				if (number < 10) return 1;
-				else return 2;
+				if (number < 10) {
+					return 1;
+				} else {
+					return 2;
+				}
 			} else if (number < 1000) {
 				return 3;
 			} else if (number < 10000) {
 				return 4;
-			} else return 5;
+			} else {
+				return 5;
+			}
 		} else if (number < 10000000) {
-			if (number < 1000000) return 6;
-			else return 7;
+			return number < 1000000 ? 6 : 7;
 		} else if (number < 100000000) {
 			return 8;
 		} else if (number < 1000000000) {
 			return 9;
-		} else return 10;
+		} else {
+			return 10;
+		}
 	}
-
 }

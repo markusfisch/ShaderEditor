@@ -4,8 +4,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import androidx.core.content.ContextCompat;
 import android.util.AttributeSet;
+
+import androidx.core.content.ContextCompat;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.view.SystemBarMetrics;

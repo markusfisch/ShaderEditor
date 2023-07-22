@@ -10,7 +10,6 @@ import android.os.Looper;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)

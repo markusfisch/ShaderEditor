@@ -2,9 +2,16 @@ package de.markusfisch.android.shadereditor.preference;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.hardware.SensorManager;
+
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.preference.PreferenceManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import de.markusfisch.android.shadereditor.R;
 
@@ -15,6 +22,8 @@ public class Preferences {
 	public static final String UPDATE_DELAY = "update_delay";
 	public static final String SENSOR_DELAY = "sensor_delay";
 	public static final String TEXT_SIZE = "text_size";
+	public static final String FONT = "font";
+	public static final String USE_LIGATURES = "use_ligatures";
 	public static final String TAB_WIDTH = "tab_width";
 	public static final String SHOW_INSERT_TAB = "show_insert_tab";
 	public static final String USE_TAB_FOR_INDENT = "use_tab_for_indent";
@@ -41,6 +50,8 @@ public class Preferences {
 	private int updateDelay = 1000;
 	private int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
 	private int textSize = 12;
+	private @NonNull Typeface font = Typeface.MONOSPACE;
+	private boolean useLigatures = true;
 	private int tabWidth = 4;
 	private boolean exportTabs = false;
 	private boolean showInsertTab = true;
@@ -53,6 +64,8 @@ public class Preferences {
 	private boolean disableHighlighting = false;
 	private boolean autoSave = true;
 	private boolean showLineNumbers = true;
+	private final Map<String, Typeface> fonts = new HashMap<>();
+	private String defaultFont;
 
 	public void init(Context context) {
 		systemBarColor = ContextCompat.getColor(
@@ -66,6 +79,9 @@ public class Preferences {
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(
 				context);
+
+		loadFonts(context);
+		defaultFont = context.getString(R.string.default_font_value);
 
 		update();
 	}
@@ -93,6 +109,8 @@ public class Preferences {
 		textSize = parseInt(
 				preferences.getString(TEXT_SIZE, null),
 				textSize);
+		font = getLoadedFont(preferences.getString(FONT, defaultFont));
+		useLigatures = preferences.getBoolean(USE_LIGATURES, true);
 		tabWidth = parseInt(
 				preferences.getString(TAB_WIDTH, null),
 				tabWidth);
@@ -118,6 +136,23 @@ public class Preferences {
 				preferences.getString(DEFAULT_NEW_SHADER, null),
 				defaultNewShaderId);
 		showLineNumbers = preferences.getBoolean(SHOW_LINE_NUMBERS, showLineNumbers);
+	}
+
+	private void loadFonts(Context context) {
+		fonts.put("fira_code", ResourcesCompat.getFont(context, R.font.fira_code));
+		fonts.put("ibm_plex_mono", ResourcesCompat.getFont(context, R.font.ibm_plex_mono));
+		fonts.put("jetbrains_mono", ResourcesCompat.getFont(context, R.font.jetbrains_mono));
+		fonts.put("roboto_mono", ResourcesCompat.getFont(context, R.font.roboto_mono));
+		fonts.put("source_code_pro", ResourcesCompat.getFont(context, R.font.source_code_pro));
+	}
+
+	private @NonNull Typeface getLoadedFont(@NonNull String fontName) {
+		Typeface tf = fonts.get(fontName);
+		if (tf == null) {
+			throw new IllegalArgumentException(
+					"font \"" + fontName + "\" not found!");
+		}
+		return tf;
 	}
 
 	public boolean saveBattery() {
@@ -147,6 +182,14 @@ public class Preferences {
 
 	public int getTextSize() {
 		return textSize;
+	}
+
+	public Typeface getFont() {
+		return font;
+	}
+
+	public boolean useLigatures() {
+		return useLigatures;
 	}
 
 	public int getTabWidth() {

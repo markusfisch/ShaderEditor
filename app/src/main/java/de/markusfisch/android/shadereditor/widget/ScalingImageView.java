@@ -7,12 +7,13 @@ import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
-import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.ImageView;
+
+import androidx.appcompat.widget.AppCompatImageView;
 
 public class ScalingImageView extends AppCompatImageView {
 	private final SparseArray<PointF> initialPoint = new SparseArray<>();
