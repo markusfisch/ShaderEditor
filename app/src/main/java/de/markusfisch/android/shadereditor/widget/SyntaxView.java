@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -36,6 +37,7 @@ public class SyntaxView extends View implements TextWatcher {
 	}
 
 	public static final int MAX_HIGHLIGHT_LENGTH = 8192;
+	private static final int WINDOW_SIZE = 2; // Could be tuned for performance
 	private static final int[] colors = new int[Highlight.values().length];
 	private final List<IntList> tokensByLine = new ArrayList<>();
 	private final Rect visibleRect = new Rect();
@@ -48,14 +50,12 @@ public class SyntaxView extends View implements TextWatcher {
 	private String currentText = "";
 	private int maxX = ViewGroup.LayoutParams.WRAP_CONTENT;
 	private int maxY = ViewGroup.LayoutParams.WRAP_CONTENT;
+	private int visibleFirstLine = 0;
+	private int visibleLastLine = 0;
 
 	public SyntaxView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
-		getViewTreeObserver().addOnScrollChangedListener(() -> {
-			postInvalidate();
-			if (source != null)
-				setScrollY(source.getScrollY());
-		});
+		getViewTreeObserver().addOnScrollChangedListener(this::updateVisibleLines);
 	}
 
 	public static void initColors(@NonNull Context context) {
@@ -121,10 +121,8 @@ public class SyntaxView extends View implements TextWatcher {
 		float paddingLeft = getPaddingLeft();
 		float lineOffsetY = source.getExtendedPaddingTop() - fm.descent;
 
-		getLocalVisibleRect(visibleRect);
-
-		int firstLine = visibleRect.top / lineHeight;
-		int lastLine = visibleRect.bottom / lineHeight;
+		int firstLine = visibleFirstLine;
+		int lastLine = visibleLastLine;
 
 		int sourceMax = source.length();
 		float currentY = firstLine * lineHeight + lineOffsetY;
@@ -199,5 +197,25 @@ public class SyntaxView extends View implements TextWatcher {
 				source.requestLayout();
 			});
 		}
+	}
+	private void updateVisibleLines() {
+		getLocalVisibleRect(visibleRect);
+		if (source != null) paint.set(source.getPaint());
+		paint.getFontMetricsInt(fm);
+		int lineHeight = fm.descent - fm.ascent + fm.leading;
+		int firstLine = floorStep(visibleRect.top/ lineHeight, WINDOW_SIZE) ;
+		int lastLine = ceilStep(visibleRect.bottom/ lineHeight, WINDOW_SIZE) ;
+		if (firstLine != visibleFirstLine || lastLine != visibleLastLine) {
+			visibleFirstLine = firstLine;
+			visibleLastLine = lastLine;
+			invalidate();
+		}
+	}
+
+	private static int floorStep(int value, int stepSize) {
+		return (value / stepSize) * stepSize;
+	}
+	private static int ceilStep(int value, int stepSize) {
+		return ((value + stepSize - 1) / stepSize) * stepSize;
 	}
 }
