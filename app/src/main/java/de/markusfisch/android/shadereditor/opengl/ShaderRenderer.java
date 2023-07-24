@@ -1328,6 +1328,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private String indexTextureNames(String source) {
+		InfoLog.resetSilentlyAddedExtraLines();
 		if (source == null) {
 			return null;
 		}
@@ -1394,6 +1395,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 	private static String addPreprocessorDirective(String source,
 			String directive) {
+		InfoLog.addSilentlyAddedExtraLine();
 		// #version must always be the very first directive.
 		if (source.trim().startsWith("#version")) {
 			int lf = source.indexOf("\n");

@@ -3,13 +3,22 @@ package de.markusfisch.android.shadereditor.opengl;
 public class InfoLog {
 	private static String message;
 	private static int errorLine;
+	private static int silentlyAddedExtraLines;
 
 	public static String getMessage() {
 		return message;
 	}
 
 	public static int getErrorLine() {
-		return errorLine;
+		return errorLine - silentlyAddedExtraLines;
+	}
+
+	public static void resetSilentlyAddedExtraLines() {
+		silentlyAddedExtraLines = 0;
+	}
+
+	public static void addSilentlyAddedExtraLine() {
+		++silentlyAddedExtraLines;
 	}
 
 	public static void parse(String infoLog) {
