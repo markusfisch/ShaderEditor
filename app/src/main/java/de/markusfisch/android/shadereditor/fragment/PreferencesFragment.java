@@ -45,8 +45,11 @@ public class PreferencesFragment
 		if (requestCode == PICK_FILE_RESULT_CODE &&
 				resultCode == Activity.RESULT_OK && resultData != null) {
 			Context context = getContext();
-			String message = DatabaseImporter.importDatabase(context,
-					resultData.getData());
+			if (context == null) {
+				return;
+			}
+			String message = DatabaseImporter.importDatabase(
+					context, resultData.getData());
 			Toast.makeText(context, message,
 					Toast.LENGTH_LONG).show();
 		}
@@ -87,7 +90,7 @@ public class PreferencesFragment
 			return;
 		}
 
-		ShaderEditorApp.preferences.update();
+		ShaderEditorApp.preferences.update(getContext());
 		setSummary(preference);
 
 		if (Preferences.SAVE_BATTERY.equals(key) &&
