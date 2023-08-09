@@ -4,6 +4,12 @@ import androidx.annotation.NonNull;
 
 
 public final class CharIterator {
+	/**
+	 * Marks that the returned character of a {@link CharIterator} is invalid.
+	 * {@link Character#MAX_VALUE} is used, because it is invalid unicode.
+	 */
+	public static final char INVALID = Character.MAX_VALUE;
+
 	private final @NonNull String source;
 	private int position = 0;
 
@@ -12,8 +18,17 @@ public final class CharIterator {
 	}
 
 	/**
-	 * Get the current character. If the current index out of bounds, {@code Character.MAX_VALUE}
-	 * is returned. This character is used, because it is invalid unicode.
+	 * Check whether this character is beyond an iterators bounds.
+	 * @param ch The character to check
+	 * @return whether {@code ch} marks is beyond an iterators bounds.
+	 */
+	public static boolean isValid(char ch) {
+		return ch != INVALID;
+	}
+
+	/**
+	 * Get the current character. If the current index out of bounds, {@link #INVALID} is returned.
+	 * This character is used, because it is invalid unicode.
 	 *
 	 * @return The current character.
 	 */
@@ -22,8 +37,8 @@ public final class CharIterator {
 	}
 
 	/**
-	 * Peek the next character. If the peeked index out of bounds, {@code Character.MAX_VALUE} is
-	 * returned. This character is used, because it is invalid unicode.
+	 * Peek the next character. If the peeked index out of bounds, {@link #INVALID} is returned. This
+	 * character is used, because it is invalid unicode.
 	 *
 	 * @return The peeked character.
 	 */
@@ -41,13 +56,13 @@ public final class CharIterator {
 
 	/**
 	 * Peek next char, skipping C-style line continuations. If the peeked index out of bounds,
-	 * {@code Character.MAX_VALUE} is returned. This character is used, because it is invalid
+	 * {@link #INVALID} is returned. This character is used, because it is invalid
 	 * unicode.
 	 *
 	 * @return the peeked char.
 	 */
 	public char peekC() {
-		char ch = Character.MAX_VALUE;
+		char ch = CharIterator.INVALID;
 		int position = this.position;
 		int length = source.length();
 		do {
@@ -71,7 +86,7 @@ public final class CharIterator {
 
 	/**
 	 * Get at a character at an absolute position {@code position}. If the current index out of
-	 * bounds, {@code Character.MAX_VALUE} is returned. This character is used, because it is
+	 * bounds, {@link #INVALID} is returned. This character is used, because it is
 	 * invalid unicode.
 	 *
 	 * @param position The absolute char position.
@@ -81,7 +96,7 @@ public final class CharIterator {
 		if (position < source.length()) {
 			return source.charAt(position);
 		}
-		return Character.MAX_VALUE;
+		return CharIterator.INVALID;
 	}
 
 	/**
