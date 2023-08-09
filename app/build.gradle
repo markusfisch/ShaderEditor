@@ -12,11 +12,6 @@ android {
 
 		versionCode 76
 		versionName '2.31.0'
-		externalNativeBuild {
-			cmake {
-				cppFlags ''
-			}
-		}
 	}
 
 	signingConfigs {
@@ -44,55 +39,8 @@ android {
 			signingConfig signingConfigs.release
 		}
 	}
-	externalNativeBuild {
-		cmake {
-			path file('src/main/cpp/CMakeLists.txt')
-			version '3.22.1'
-		}
-	}
 }
 
-tasks.register('generateTokenTypes') {
-	doLast {
-		def javaFile = file('src/main/java/de/markusfisch/android/shadereditor/highlighter/TokenType.java')
-		def cFile = file('src/main/cpp/token_type.h')
-		def javaEnum = (javaFile.getText() =~ (/(?s)enum TokenType \{(.*?)\}/))[0][1]
-		def tokenTypes = (javaEnum =~ (/(?m)^\s*([a-zA-Z_][a-zA-Z_0-9]*),?/)).collect { it[1] }
-		def cEnum = """
-#ifndef SHADEREDITOR_APP_SRC_MAIN_CPP_LEXER_C_TOKEN_TYPE_H_
-#define SHADEREDITOR_APP_SRC_MAIN_CPP_LEXER_C_TOKEN_TYPE_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-  
-typedef enum __attribute__((__packed__)) TokenType {
-""".stripLeading()
-		cEnum += tokenTypes.collect { "  $it,\n" }.join()
-		cEnum += "} TokenType;\n"
-		cEnum += "#define TOKEN_TYPE_COUNT ${tokenTypes.size()}\n"
-		cEnum += "#ifdef DEBUG\n"
-		cEnum += "const char *TOKEN_DEBUG[TOKEN_TYPE_COUNT] = {\n"
-		cEnum += tokenTypes.collect { "  \"$it\",\n"}.join()
-		cEnum += """
-};
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif  // SHADEREDITOR_APP_SRC_MAIN_CPP_LEXER_C_TOKEN_TYPE_H_
-""".stripLeading()
-		cFile.write(cEnum)
-	}
-}
-
-tasks.configureEach {
-	if (it.name.contains("CMake")) {
-		it.dependsOn("generateTokenTypes")
-	}
-}
 dependencies {
 	implementation libs.androidx.appcompat
 	implementation libs.material
