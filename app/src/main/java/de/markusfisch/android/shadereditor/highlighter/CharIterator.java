@@ -25,6 +25,10 @@ public final class CharIterator {
 		++position;
 	}
 
+	/**
+	 * Peek next char, skipping C-style line continuations.
+	 * @return the peeked char.
+	 */
 	public char peekC() {
 		char ch = 0;
 		int position = this.position;
@@ -44,6 +48,9 @@ public final class CharIterator {
 		return position != start;
 	}
 
+	/**
+	 * Go to next char, skipping C-style line continuations
+	 */
 	public void nextC() {
 		char ch;
 		do {
