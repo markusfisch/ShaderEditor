@@ -31,20 +31,6 @@ public final class CharIterator {
 		return ch(position + 1);
 	}
 
-	/**
-	 * Get at a character at an absolute position {@code position}. If the current index out of
-	 * bounds, {@code Character.MAX_VALUE} is returned. This character is used, because it is
-	 * invalid unicode.
-	 *
-	 * @param position The absolute char position.
-	 * @return The char at the position.
-	 */
-	private char ch(int position) {
-		if (position < source.length()) {
-			return source.charAt(position);
-		}
-		return Character.MAX_VALUE;
-	}
 
 	/**
 	 * Increment the iterators position.
@@ -73,6 +59,32 @@ public final class CharIterator {
 	}
 
 	/**
+	 * Go to next char, skipping C-style line continuations.
+	 */
+	public void nextC() {
+		char ch;
+		do {
+			++position;
+			ch = source.charAt(position);
+		} while (ch == '\\' && moveNewline());
+	}
+
+	/**
+	 * Get at a character at an absolute position {@code position}. If the current index out of
+	 * bounds, {@code Character.MAX_VALUE} is returned. This character is used, because it is
+	 * invalid unicode.
+	 *
+	 * @param position The absolute char position.
+	 * @return The char at the position.
+	 */
+	private char ch(int position) {
+		if (position < source.length()) {
+			return source.charAt(position);
+		}
+		return Character.MAX_VALUE;
+	}
+
+	/**
 	 * Skip to the end of a newline, if there is any.
 	 *
 	 * @return whether there was a newline.
@@ -82,17 +94,6 @@ public final class CharIterator {
 		position = nextNewline(start);
 		// is line continuation -> iter moved
 		return position != start;
-	}
-
-	/**
-	 * Go to next char, skipping C-style line continuations.
-	 */
-	public void nextC() {
-		char ch;
-		do {
-			++position;
-			ch = source.charAt(position);
-		} while (ch == '\\' && moveNewline());
 	}
 
 	/**
