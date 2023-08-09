@@ -1,51 +1,68 @@
-//
-// Created by Anton Pieper on 10.07.23.
-//
-#include "iter.h"
+package de.markusfisch.android.shadereditor.highlighter;
 
-#include <stdbool.h>
+import androidx.annotation.NonNull;
 
-char iter_peek(const char *iter) {
-  if (*iter)
-    return iter[1];
-  else
-    return 0;
-}
 
-char iter_peek_c(const char *iter) {
-  char ch = 0;
-  do {
-  if (*iter)
-    ch =  iter[1];
-  if (ch != '\\') break;
-  ++iter;
-  } while (iter_move_newline(&iter));
-  return ch;
-}
+public final class Iter {
+	private final @NonNull String source;
+	private int position = 0;
+	public Iter(@NonNull String source) {
+		this.source = source;
+	}
+	public char ch() {
+		return source.charAt(position);
+	}
+	public char peek() {
+		return peek(position + 1);
+	}
+	private char peek(int position) {
+		if (position >= source.length()) {
+			return 0;
+		}
+		return source.charAt(position);
+	}
+	public void next() {
+		++position;
+	}
 
-bool iter_move_newline(const char **const iter) {
-  const char *start = *iter;
-  // is line continuation -> iter moved
-  return (*iter = iter_next_newline(start)) != start;
-}
+	public char peekC() {
+		char ch = 0;
+		int position = this.position;
+		int length = source.length();
+		do {
+			if (++position < length)
+				ch = source.charAt(position);
+			if (ch != '\\') break;
+		} while (iter_move_newline());
+		return ch;
+	}
 
-const char *iter_next_c(const char *iter) {
-  do {
-    ++iter;
-  } while (*iter == '\\' && iter_move_newline(&iter));
-  return iter;
-}
+	private boolean iter_move_newline() {
+		final int start = position;
+		position = iter_next_newline(start);
+		// is line continuation -> iter moved
+		return position != start;
+	}
 
-const char *iter_next_newline(const char *iter) {
-  char peek = iter_peek(iter);
-  // is next \r or \n? -> iterate
-  if (peek == '\r' || peek == '\n') {
-    ++iter;
-    char second_peek = iter_peek(iter);
-    // is next \r\n or \n\r? -> iterate
-    if (second_peek != peek && (second_peek == '\r' || second_peek == '\n'))
-      ++iter;
-  }
-  // is line continuation -> iter moved
-  return iter;
+	public void nextC() {
+		char ch;
+		do {
+			++position;
+			ch = source.charAt(position);
+		} while (ch == '\\' && iter_move_newline());
+	}
+
+	private int iter_next_newline(int iter) {
+		char peek = peek(iter);
+		// is next \r or \n? -> iterate
+		if (peek == '\r' || peek == '\n') {
+			++iter;
+			char second_peek = peek(iter);
+			// is next \r\n or \n\r? -> iterate
+			if (second_peek != peek && (second_peek == '\r' || second_peek == '\n'))
+				++iter;
+		}
+		// is line continuation -> iter moved
+		return iter;
+	}
 }
