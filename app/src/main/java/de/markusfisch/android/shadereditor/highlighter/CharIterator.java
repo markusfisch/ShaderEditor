@@ -33,13 +33,13 @@ public final class CharIterator {
 			if (++position < length)
 				ch = source.charAt(position);
 			if (ch != '\\') break;
-		} while (iter_move_newline());
+		} while (moveNewline());
 		return ch;
 	}
 
-	private boolean iter_move_newline() {
+	private boolean moveNewline() {
 		final int start = position;
-		position = iter_next_newline(start);
+		position = nextNewline(start);
 		// is line continuation -> iter moved
 		return position != start;
 	}
@@ -49,10 +49,10 @@ public final class CharIterator {
 		do {
 			++position;
 			ch = source.charAt(position);
-		} while (ch == '\\' && iter_move_newline());
+		} while (ch == '\\' && moveNewline());
 	}
 
-	private int iter_next_newline(int iter) {
+	private int nextNewline(int iter) {
 		char peek = peek(iter);
 		// is next \r or \n? -> iterate
 		if (peek == '\r' || peek == '\n') {
