@@ -6,19 +6,17 @@ import androidx.annotation.NonNull;
 public final class CharIterator {
 	/**
 	 * Marks that the returned character of a {@link CharIterator} is invalid.
-	 * {@link Character#MAX_VALUE} is used, because it is invalid unicode.
+	 * <a href="https://softwareengineering.stackexchange.com/a/190417">0xDCDC</a> is used,
+	 * because it is invalid unicode.
 	 */
-	public static final char INVALID = Character.MAX_VALUE;
+	public static final char INVALID = 0xDCDC;
 
-	private final @NonNull String source;
-	private int position = 0;
-
-	public CharIterator(@NonNull String source) {
-		this.source = source;
+	private CharIterator() {
 	}
 
 	/**
 	 * Check whether this character is beyond an iterators bounds.
+	 *
 	 * @param ch The character to check
 	 * @return whether {@code ch} marks is beyond an iterators bounds.
 	 */
@@ -27,72 +25,15 @@ public final class CharIterator {
 	}
 
 	/**
-	 * Get the current character. If the current index out of bounds, {@link #INVALID} is returned.
-	 * This character is used, because it is invalid unicode.
-	 *
-	 * @return The current character.
-	 */
-	public char ch() {
-		return ch(position);
-	}
-
-	/**
-	 * Peek the next character. If the peeked index out of bounds, {@link #INVALID} is returned. This
-	 * character is used, because it is invalid unicode.
-	 *
-	 * @return The peeked character.
-	 */
-	public char peek() {
-		return ch(position + 1);
-	}
-
-
-	/**
-	 * Increment the iterators position.
-	 */
-	public void next() {
-		++position;
-	}
-
-	/**
-	 * Peek next char, skipping C-style line continuations. If the peeked index out of bounds,
-	 * {@link #INVALID} is returned. This character is used, because it is invalid
-	 * unicode.
-	 *
-	 * @return the peeked char.
-	 */
-	public char peekC() {
-		char ch = CharIterator.INVALID;
-		int position = this.position;
-		int length = source.length();
-		do {
-			if (++position < length)
-				ch = source.charAt(position);
-			if (ch != '\\') break;
-		} while (moveNewline());
-		return ch;
-	}
-
-	/**
-	 * Go to next char, skipping C-style line continuations.
-	 */
-	public void nextC() {
-		char ch;
-		do {
-			++position;
-			ch = source.charAt(position);
-		} while (ch == '\\' && moveNewline());
-	}
-
-	/**
 	 * Get at a character at an absolute position {@code position}. If the current index out of
 	 * bounds, {@link #INVALID} is returned. This character is used, because it is
 	 * invalid unicode.
 	 *
 	 * @param position The absolute char position.
+	 * @param source   The source string.
 	 * @return The char at the position.
 	 */
-	private char ch(int position) {
+	public static char ch(int position, @NonNull String source) {
 		if (position < source.length()) {
 			return source.charAt(position);
 		}
@@ -100,34 +41,102 @@ public final class CharIterator {
 	}
 
 	/**
-	 * Skip to the end of a newline, if there is any.
+	 * Peek the next character. If the peeked index out of bounds, {@link #INVALID} is returned. This
+	 * character is used, because it is invalid unicode.
 	 *
-	 * @return whether there was a newline.
+	 * @param position The absolute current char position.
+	 * @param source   The source string.
+	 * @return The peeked character.
 	 */
-	private boolean moveNewline() {
-		final int start = position;
-		position = nextNewline(start);
-		// is line continuation -> iter moved
-		return position != start;
+	public static char peek(int position, @NonNull String source) {
+		return ch(position + 1, source);
+	}
+
+
+	/**
+	 * Increment the iterators position.
+	 *
+	 * @param position The absolute current char position.
+	 * @return The next position.
+	 */
+	public static int next(int position) {
+		return position + 1;
 	}
 
 	/**
 	 * Get the position of the end of a newline at this position.
 	 *
-	 * @param iter the current position.
+	 * @param position The current position.
+	 * @param source   The source string.
 	 * @return The position of the end of the newline. If there was none, `iter` is returned.
 	 */
-	private int nextNewline(int iter) {
-		char peek = ch(iter);
+	public static int nextNewline(int position, @NonNull String source) {
+		char peek = ch(position, source);
 		// is next \r or \n? -> iterate
 		if (peek == '\r' || peek == '\n') {
-			++iter;
-			char second_peek = ch(iter);
+			position = next(position);
+			char second_peek = ch(position, source);
 			// is next \r\n or \n\r? -> iterate
-			if (second_peek != peek && (second_peek == '\r' || second_peek == '\n'))
-				++iter;
+			if (second_peek != peek && (second_peek == '\r' || second_peek == '\n')) {
+				position = next(position);
+			}
 		}
 		// is line continuation -> iter moved
-		return iter;
+		return position;
+	}
+
+	/**
+	 * Peek next char, skipping C-style line continuations. If the peeked index out of bounds,
+	 * {@link #INVALID} is returned. This character is used, because it is invalid
+	 * unicode.
+	 *
+	 * @param position The absolute current char position.
+	 * @param source   The source string.
+	 * @return the peeked char.
+	 */
+	public static char peekC(int position, @NonNull String source) {
+		int length = source.length();
+		int positionBeforeNewline;
+		char ch = CharIterator.INVALID;
+		do {
+			position = next(position);
+			if (position < length)
+				ch = source.charAt(position);
+			if (ch != '\\') break;
+			positionBeforeNewline = position;
+			position = nextNewline(position, source);
+		} while (hasMoved(positionBeforeNewline, position));
+		return ch;
+	}
+
+	/**
+	 * Go to next char, skipping C-style line continuations.
+	 *
+	 * @param position The absolute current char position.
+	 * @param source   The source string.
+	 */
+	public static int nextC(int position, @NonNull String source) {
+		int positionBeforeNewline;
+		char ch;
+		do {
+			position = next(position);
+			positionBeforeNewline = position;
+			ch = source.charAt(position);
+		} while (ch == '\\' && hasMoved(
+				positionBeforeNewline,
+				position = nextNewline(position, source))
+		);
+		return position;
+	}
+
+	/**
+	 * Returns whether the two iterators are equal.
+	 *
+	 * @param oldPosition Old position.
+	 * @param newPosition New position.
+	 * @return Whether the two iterators are equal.
+	 */
+	public static boolean hasMoved(int oldPosition, int newPosition) {
+		return oldPosition != newPosition;
 	}
 }
