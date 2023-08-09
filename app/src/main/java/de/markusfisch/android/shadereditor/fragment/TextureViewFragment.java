@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -132,9 +134,10 @@ public class TextureViewFragment extends Fragment {
 	}
 
 	private void removeTextureAsync(final long id) {
+		Handler handler = new Handler(Looper.getMainLooper());
 		Executors.newSingleThreadExecutor().execute(() -> {
 			ShaderEditorApp.db.removeTexture(id);
-			imageView.post(() -> {
+			handler.post(() -> {
 				Activity activity = getActivity();
 				if (activity == null) {
 					return;

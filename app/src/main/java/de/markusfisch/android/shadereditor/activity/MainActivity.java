@@ -12,6 +12,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -524,9 +526,10 @@ public class MainActivity
 			listView.postDelayed(this::getShadersAsync, 500);
 			return;
 		}
+		Handler handler = new Handler(Looper.getMainLooper());
 		Executors.newSingleThreadExecutor().execute(() -> {
 			Cursor cursor = ShaderEditorApp.db.getShaders();
-			shaderView.post(() -> updateShaderAdapter(cursor));
+			handler.post(() -> updateShaderAdapter(cursor));
 		});
 	}
 

@@ -42,6 +42,15 @@ public class Preferences {
 	private static final int RUN_MANUALLY = 2;
 	private static final int RUN_MANUALLY_EXTRA = 3;
 	private static final int RUN_MANUALLY_EXTRA_NEW = 4;
+	private static final Map<String, Integer> fontNameToResId = new HashMap<>();
+
+	static {
+		fontNameToResId.put("fira_code", R.font.fira_code);
+		fontNameToResId.put("ibm_plex_mono", R.font.ibm_plex_mono);
+		fontNameToResId.put("jetbrains_mono", R.font.jetbrains_mono);
+		fontNameToResId.put("roboto_mono", R.font.roboto_mono);
+		fontNameToResId.put("source_code_pro", R.font.source_code_pro);
+	}
 
 	private SharedPreferences preferences;
 	private long wallpaperShaderId = 1;
@@ -64,7 +73,6 @@ public class Preferences {
 	private boolean disableHighlighting = false;
 	private boolean autoSave = true;
 	private boolean showLineNumbers = true;
-	private final Map<String, Typeface> fonts = new HashMap<>();
 	private String defaultFont;
 
 	public void init(Context context) {
@@ -80,17 +88,16 @@ public class Preferences {
 		preferences = PreferenceManager.getDefaultSharedPreferences(
 				context);
 
-		loadFonts(context);
 		defaultFont = context.getString(R.string.default_font_value);
 
-		update();
+		update(context);
 	}
 
 	public SharedPreferences getSharedPreferences() {
 		return preferences;
 	}
 
-	public void update() {
+	public void update(Context context) {
 		wallpaperShaderId = parseLong(
 				preferences.getString(WALLPAPER_SHADER, null),
 				wallpaperShaderId);
@@ -109,8 +116,10 @@ public class Preferences {
 		textSize = parseInt(
 				preferences.getString(TEXT_SIZE, null),
 				textSize);
-		font = getLoadedFont(preferences.getString(FONT, defaultFont));
-		useLigatures = preferences.getBoolean(USE_LIGATURES, true);
+		font = loadFont(context,
+				preferences.getString(FONT, defaultFont));
+		useLigatures = preferences.getBoolean(
+				USE_LIGATURES, true);
 		tabWidth = parseInt(
 				preferences.getString(TAB_WIDTH, null),
 				tabWidth);
@@ -135,22 +144,23 @@ public class Preferences {
 		defaultNewShaderId = parseLong(
 				preferences.getString(DEFAULT_NEW_SHADER, null),
 				defaultNewShaderId);
-		showLineNumbers = preferences.getBoolean(SHOW_LINE_NUMBERS, showLineNumbers);
+		showLineNumbers = preferences.getBoolean(
+				SHOW_LINE_NUMBERS,
+				showLineNumbers);
 	}
 
-	private void loadFonts(Context context) {
-		fonts.put("fira_code", ResourcesCompat.getFont(context, R.font.fira_code));
-		fonts.put("ibm_plex_mono", ResourcesCompat.getFont(context, R.font.ibm_plex_mono));
-		fonts.put("jetbrains_mono", ResourcesCompat.getFont(context, R.font.jetbrains_mono));
-		fonts.put("roboto_mono", ResourcesCompat.getFont(context, R.font.roboto_mono));
-		fonts.put("source_code_pro", ResourcesCompat.getFont(context, R.font.source_code_pro));
-	}
-
-	private @NonNull Typeface getLoadedFont(@NonNull String fontName) {
-		Typeface tf = fonts.get(fontName);
-		if (tf == null) {
+	private @NonNull Typeface loadFont(
+			@NonNull Context context,
+			@NonNull String fontName) {
+		Integer resId = fontNameToResId.get(fontName);
+		if (resId == null) {
 			throw new IllegalArgumentException(
 					"font \"" + fontName + "\" not found!");
+		}
+		Typeface tf = ResourcesCompat.getFont(context, resId);
+		if (tf == null) {
+			throw new IllegalArgumentException(
+					"font \"" + fontName + "\" could not be loaded!");
 		}
 		return tf;
 	}

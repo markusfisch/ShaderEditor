@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.31.0
+* Add popular fonts and ligatures
+* Fix highlighting error line
+
 ## 2.30.0
 * Add show line numbers option
 * Add horizontal scrolling

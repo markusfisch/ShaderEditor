@@ -498,6 +498,7 @@ public class ShaderEditor extends AppCompatEditText {
 		}
 
 		String s = e.toString();
+
 		for (int stop = start + count;
 				(start = s.indexOf('\t', start)) > -1 && start < stop;
 				++start) {

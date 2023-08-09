@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -105,12 +107,13 @@ public class CropImageFragment extends Fragment {
 
 		inProgress = true;
 		progressView.setVisibility(View.VISIBLE);
+		Handler handler = new Handler(Looper.getMainLooper());
 		Executors.newSingleThreadExecutor().execute(() -> {
 			Bitmap b = BitmapEditor.getBitmapFromUri(
 					activity,
 					imageUri,
 					1024);
-			progressView.post(() -> {
+			handler.post(() -> {
 				inProgress = false;
 				progressView.setVisibility(View.GONE);
 
