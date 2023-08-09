@@ -3,10 +3,10 @@ package de.markusfisch.android.shadereditor.highlighter;
 import androidx.annotation.NonNull;
 
 
-public final class Iter {
+public final class CharIterator {
 	private final @NonNull String source;
 	private int position = 0;
-	public Iter(@NonNull String source) {
+	public CharIterator(@NonNull String source) {
 		this.source = source;
 	}
 	public char ch() {
