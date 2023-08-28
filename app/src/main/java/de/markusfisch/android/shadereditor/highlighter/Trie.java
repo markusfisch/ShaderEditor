@@ -1,59 +1,86 @@
-//
-// Created by Anton Pieper on 09.07.23.
-//
+package de.markusfisch.android.shadereditor.highlighter;
 
-#include "trie.h"
+import androidx.annotation.NonNull;
 
-#include <stddef.h>
-#include <stdlib.h>
+/**
+ * A specialized trie for characters that can represent Identifiers in C-like code.
+ */
+public final class Trie {
+	final static class Node {
+		public short value() {
+			return value;
+		}
 
-#include "iter.h"
+		public void insert(final @NonNull String key, short value) {
+			Node currentNode = this;
 
-// Converts key current character into index
-inline static int char_to_index(char c) {
-  static const int lookup[] = {
-      ['a'] = 0,  ['b'] = 1,  ['c'] = 2,  ['d'] = 3,  ['e'] = 4,  ['f'] = 5,
-      ['g'] = 6,  ['h'] = 7,  ['i'] = 8,  ['j'] = 9,  ['k'] = 10, ['l'] = 11,
-      ['m'] = 12, ['n'] = 13, ['o'] = 14, ['p'] = 15, ['q'] = 16, ['r'] = 17,
-      ['s'] = 18, ['t'] = 19, ['u'] = 20, ['v'] = 21, ['w'] = 22, ['x'] = 23,
-      ['y'] = 24, ['z'] = 25, ['A'] = 26, ['B'] = 27, ['C'] = 28, ['D'] = 29,
-      ['E'] = 30, ['F'] = 31, ['G'] = 32, ['H'] = 33, ['I'] = 34, ['J'] = 35,
-      ['K'] = 36, ['L'] = 37, ['M'] = 38, ['N'] = 39, ['O'] = 40, ['P'] = 41,
-      ['Q'] = 42, ['R'] = 43, ['S'] = 44, ['T'] = 45, ['U'] = 46, ['V'] = 47,
-      ['W'] = 48, ['X'] = 49, ['Y'] = 50, ['Z'] = 51, ['0'] = 52, ['1'] = 53,
-      ['2'] = 54, ['3'] = 55, ['4'] = 56, ['5'] = 57, ['6'] = 58, ['7'] = 59,
-      ['8'] = 60, ['9'] = 61, ['_'] = 62};
-  return lookup[c];
-}
+			for (int i = 0, length = key.length(); i < length; ++i) {
+				int childIndex = Node.charToIndex(key.charAt(i));
 
-TrieNode *create_node(void) {
-  TrieNode *pNode = NULL;
-  pNode = (TrieNode *)calloc(1, sizeof(*pNode));
-  return pNode;
-}
+				if (currentNode.children[childIndex] == null)
+					currentNode.children[childIndex] = new Node();
+				currentNode = currentNode.children[childIndex];
+			}
+			currentNode.value = value;
+		}
 
-void trie_insert(TrieNode *root, const char *key, uint16_t value) {
-  TrieNode *current_node = root;
+		public short find(@NonNull String keySource, int keyStart, int keyLength) {
+			Node currentNode = this;
+			int i = 0;
+			int keyPosition = keyStart;
+			for (
+					char ch = CharIterator.ch(keyPosition, keySource);
+					CharIterator.isValid(ch) && i < keyLength;
+					i = keyPosition - keyStart
+			) {
+				int index = charToIndex(ch);
 
-  for (const char *ch = key; *ch; ++ch) {
-    int index = char_to_index(*ch);
-    if (!current_node->children[index])
-      current_node->children[index] = create_node();
-    current_node = current_node->children[index];
-  }
-  current_node->value = value;
-}
+				if (currentNode.children[index] == null) return 0;
+				currentNode = currentNode.children[index];
+				keyPosition = CharIterator.nextC(keyPosition, keySource);
+			}
 
-uint16_t trie_find(TrieNode *root, const char *key, size_t key_length) {
-  TrieNode *current_node = root;
-  ptrdiff_t i = 0;
-  for (const char *iter = key; *iter && i < key_length; i = iter - key) {
-    int index = char_to_index(*iter);
+			return currentNode.value();
+		}
 
-    if (!current_node->children[index]) return 0;
-    current_node = current_node->children[index];
-    iter = iter_next_c(iter);
-  }
+		private short value;
+		private final Node[] children = new Node[COUNT_OF_CHILDREN];
 
-  return current_node->value;
+		private static final int[] CHAR_INDEX_LOOKUP;
+		private static final int COUNT_OF_CHILDREN;
+
+		/*
+		 * Generate a lookup for fast child index retrieval.
+		 */
+		static {
+			// Java char is 16 Bit, however only ASCII-Values make sense anyways.
+			// (2^8 - 1) * 4 bytes = 1020 Bytes
+			int[] result = new int[Byte.MAX_VALUE];
+			int index = 1;
+			for (int i = 'a'; i <= 'z'; ++i) {
+				result[i] = index++;
+			}
+			for (int i = 'A'; i <= 'Z'; ++i) {
+				result[i] = index++;
+			}
+			for (int i = '0'; i <= '9'; ++i) {
+				result[i] = index++;
+			}
+			result['_'] = index++;
+
+			COUNT_OF_CHILDREN = index;
+			CHAR_INDEX_LOOKUP = result;
+		}
+
+		/**
+		 * Converts a character of a key into an index.
+		 *
+		 * @return the index into the lookup-table
+		 */
+		private static int charToIndex(char c) {
+			if (c < CHAR_INDEX_LOOKUP.length)
+				return CHAR_INDEX_LOOKUP[c];
+			return 0;
+		}
+	}
 }
