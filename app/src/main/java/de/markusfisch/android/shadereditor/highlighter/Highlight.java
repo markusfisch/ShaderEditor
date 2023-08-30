@@ -37,7 +37,7 @@ public enum Highlight {
 	public static Highlight from(@NonNull TokenType type) {
 		switch (type) {
 			case INVALID:
-			case TOKEN_EOF:
+			case EOF:
 				return Highlight.HIGHLIGHT_INVALID;
 			case CONST:
 			case BOOL:

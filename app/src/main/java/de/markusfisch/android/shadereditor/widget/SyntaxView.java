@@ -17,13 +17,16 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.highlighter.Highlight;
 import de.markusfisch.android.shadereditor.highlighter.Lexer;
+import de.markusfisch.android.shadereditor.highlighter.Token;
+import de.markusfisch.android.shadereditor.highlighter.TokenByLineIterator;
 import de.markusfisch.android.shadereditor.highlighter.TokenType;
-import de.markusfisch.android.shadereditor.util.IntList;
+import de.markusfisch.android.shadereditor.util.OneTimeIterable;
 
 public class SyntaxView extends View implements TextWatcher {
 	/**
@@ -39,14 +42,13 @@ public class SyntaxView extends View implements TextWatcher {
 	public static final int MAX_HIGHLIGHT_LENGTH = 8192;
 	private static final int WINDOW_SIZE = 2; // Could be tuned for performance
 	private static final int[] colors = new int[Highlight.values().length];
-	private final List<IntList> tokensByLine = new ArrayList<>();
+	private final List<List<Token>> tokensByLine = new ArrayList<>();
 	private final Rect visibleRect = new Rect();
 	private final Paint paint = new Paint();
 	private final Paint.FontMetricsInt fm = new Paint.FontMetricsInt();
 	private volatile boolean noDraw = false;
 	private @Nullable TextView source;
 	private @NonNull TabSupplier tabSupplier = () -> 2;
-	private @NonNull int[] tokens = new int[256];
 	private String currentText = "";
 	private int maxX = ViewGroup.LayoutParams.WRAP_CONTENT;
 	private int maxY = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -130,12 +132,12 @@ public class SyntaxView extends View implements TextWatcher {
 		synchronized (tokensByLine) {
 			for (int line = firstLine; line <= lastLine; ++line, currentY += lineHeight) {
 				if (line >= tokensByLine.size()) break;
-				for (int i : tokensByLine.get(line).getRaw()) {
-					TokenType type = TokenType.values()[tokens[i]];
+				for (Token token : tokensByLine.get(line)) {
+					TokenType type = token.getType();
 					Highlight highlight = Highlight.from(type);
-					int start = Math.min(sourceMax, tokens[i + 1]);
-					int end = Math.min(sourceMax, tokens[i + 2]);
-					int column = tokens[i + 4];
+					int start = Math.min(sourceMax, token.getStart());
+					int end = Math.min(sourceMax, token.getEnd());
+					int column = token.getColumn();
 					paint.setColor(colors[highlight.ordinal()]);
 					canvas.drawText(currentText, start, end, charWidth * column + paddingLeft, currentY, paint);
 				}
@@ -166,26 +168,23 @@ public class SyntaxView extends View implements TextWatcher {
 		float lineHeight = fm.descent - fm.ascent + fm.leading;
 		float charWidth = paint.measureText("m");
 
-		tokens = Lexer.runLexer(currentText, tokens, tabSupplier.getWidth());
-
+		Iterator<Token> tokenIterator = new Lexer(currentText, tabSupplier.getWidth()).iterator();
 		tokensByLine.clear();
 		int sourceMax = source.length();
-		for (int i = 1, length = tokens[0]; i <= length; i += 5) {
-			int start = Math.min(sourceMax, tokens[i + 1]);
-			int end = Math.min(sourceMax, tokens[i + 2]);
-			int line = tokens[i + 3];
-			int column = tokens[i + 4];
+		for (Token token : new OneTimeIterable<>(new TokenByLineIterator(currentText, tokenIterator))) {
+			int start = Math.min(sourceMax, token.getStart());
+			int end = Math.min(sourceMax, token.getEnd());
+			int line = token.getLine();
+			int column = token.getColumn();
 
 			maxLine = Math.max(maxLine, line);
 			maxColumn = Math.max(maxColumn, column + (end - start));
 
-			while (tokensByLine.size() <= line) tokensByLine.add(new IntList());
-			IntList tokensForLine = tokensByLine.get(line);
+			while (tokensByLine.size() <= line) tokensByLine.add(new ArrayList<>());
+			List<Token> tokensForLine = tokensByLine.get(line);
 
-			tokensForLine.add(i);
+			tokensForLine.add(token);
 		}
-		for (IntList list : tokensByLine)
-			list.trimToSize();
 
 		int maxX = (int) ((maxColumn + 1) * charWidth) + getPaddingLeft() + getPaddingRight();
 		int maxY = (int) ((maxLine + 1) * lineHeight + getPaddingTop() + getPaddingBottom());

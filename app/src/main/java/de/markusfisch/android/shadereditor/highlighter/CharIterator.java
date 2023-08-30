@@ -25,6 +25,17 @@ public final class CharIterator {
 	}
 
 	/**
+	 * Check whether this character is beyond an iterators bounds.
+	 *
+	 * @param position The absolute char position to check.
+	 * @param source   The source string.
+	 * @return whether {@code ch} marks is beyond an iterators bounds.
+	 */
+	public static boolean isValid(int position, @NonNull String source) {
+		return isValid(ch(position, source));
+	}
+
+	/**
 	 * Get at a character at an absolute position {@code position}. If the current index out of
 	 * bounds, {@link #INVALID} is returned. This character is used, because it is
 	 * invalid unicode.
@@ -49,7 +60,7 @@ public final class CharIterator {
 	 * @return The peeked character.
 	 */
 	public static char peek(int position, @NonNull String source) {
-		return ch(position + 1, source);
+		return ch(next(position), source);
 	}
 
 
@@ -71,11 +82,11 @@ public final class CharIterator {
 	 * @return The position of the end of the newline. If there was none, `iter` is returned.
 	 */
 	public static int nextNewline(int position, @NonNull String source) {
-		char peek = ch(position, source);
+		char peek = peek(position, source);
 		// is next \r or \n? -> iterate
 		if (peek == '\r' || peek == '\n') {
 			position = next(position);
-			char second_peek = ch(position, source);
+			char second_peek = peek(position, source);
 			// is next \r\n or \n\r? -> iterate
 			if (second_peek != peek && (second_peek == '\r' || second_peek == '\n')) {
 				position = next(position);
@@ -121,7 +132,7 @@ public final class CharIterator {
 		do {
 			position = next(position);
 			positionBeforeNewline = position;
-			ch = source.charAt(position);
+			ch = CharIterator.ch(position, source);
 		} while (ch == '\\' && hasMoved(
 				positionBeforeNewline,
 				position = nextNewline(position, source))
@@ -138,5 +149,19 @@ public final class CharIterator {
 	 */
 	public static boolean hasMoved(int oldPosition, int newPosition) {
 		return oldPosition != newPosition;
+	}
+
+	/**
+	 * Copied from {@link Character#isSurrogate(char)}, because it would require API level ≥ 19.
+	 *
+	 * @param ch the {@code char} value to be tested.
+	 * @return {@code true} if the {@code char} value is between
+	 * {@link Character#MIN_SURROGATE} and
+	 * {@link Character#MAX_SURROGATE} inclusive;
+	 * {@code false} otherwise.
+	 * @see Character#isSurrogate(char)
+	 */
+	public static boolean isSurrogate(char ch) {
+		return ch >= Character.MIN_SURROGATE && ch < (Character.MAX_SURROGATE + 1);
 	}
 }

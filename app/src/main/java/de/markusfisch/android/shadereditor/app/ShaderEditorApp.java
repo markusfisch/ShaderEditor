@@ -13,10 +13,6 @@ import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
 import de.markusfisch.android.shadereditor.view.UndoRedo;
 
 public class ShaderEditorApp extends Application {
-	static {
-		System.loadLibrary("app");
-	}
-
 	public static final Preferences preferences = new Preferences();
 	public static final Database db = new Database();
 	public static final UndoRedo.EditHistory editHistory =
