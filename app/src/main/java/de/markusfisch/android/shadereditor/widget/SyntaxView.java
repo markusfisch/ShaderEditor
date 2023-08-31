@@ -7,7 +7,6 @@ import android.graphics.Rect;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -128,16 +127,15 @@ public class SyntaxView extends View implements TextWatcher {
 
 		int sourceMax = source.length();
 		float currentY = firstLine * lineHeight + lineOffsetY;
-
 		synchronized (tokensByLine) {
 			for (int line = firstLine; line <= lastLine; ++line, currentY += lineHeight) {
 				if (line >= tokensByLine.size()) break;
 				for (Token token : tokensByLine.get(line)) {
-					TokenType type = token.getType();
+					TokenType type = token.type();
 					Highlight highlight = Highlight.from(type);
-					int start = Math.min(sourceMax, token.getStart());
-					int end = Math.min(sourceMax, token.getEnd());
-					int column = token.getColumn();
+					int start = Math.min(sourceMax, token.startOffset());
+					int end = Math.min(sourceMax, token.endOffset());
+					int column = token.column();
 					paint.setColor(colors[highlight.ordinal()]);
 					canvas.drawText(currentText, start, end, charWidth * column + paddingLeft, currentY, paint);
 				}
@@ -172,10 +170,10 @@ public class SyntaxView extends View implements TextWatcher {
 		tokensByLine.clear();
 		int sourceMax = source.length();
 		for (Token token : new OneTimeIterable<>(new TokenByLineIterator(currentText, tokenIterator))) {
-			int start = Math.min(sourceMax, token.getStart());
-			int end = Math.min(sourceMax, token.getEnd());
-			int line = token.getLine();
-			int column = token.getColumn();
+			int start = Math.min(sourceMax, token.start());
+			int end = Math.min(sourceMax, token.end());
+			int line = token.line();
+			int column = token.column();
 
 			maxLine = Math.max(maxLine, line);
 			maxColumn = Math.max(maxColumn, column + (end - start));

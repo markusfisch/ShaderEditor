@@ -26,16 +26,17 @@ public class Token {
 	}
 
 	public Token(@NonNull Token from) {
-		this.setStart(from.getStart());
-		this.setEnd(from.getEnd());
-		this.setStartOffset(from.getStartOffset());
-		this.setLine(from.getLine());
-		this.setColumn(from.getColumn());
-		this.setType(from.getType());
-		this.setCategory(from.getCategory());
+		this.setStart(from.start());
+		this.setEnd(from.end());
+		this.setStartOffset(from.startOffset());
+		this.setEndOffset(from.endOffset());
+		this.setLine(from.line());
+		this.setColumn(from.column());
+		this.setType(from.type());
+		this.setCategory(from.category());
 	}
 
-	public int getStart() {
+	public int start() {
 		return start;
 	}
 
@@ -44,7 +45,7 @@ public class Token {
 		return this;
 	}
 
-	public int getEnd() {
+	public int end() {
 		return end;
 	}
 
@@ -53,7 +54,7 @@ public class Token {
 		return this;
 	}
 
-	public int getStartOffset() {
+	public int startOffset() {
 		return startOffset;
 	}
 
@@ -62,7 +63,16 @@ public class Token {
 		return this;
 	}
 
-	public short getLine() {
+	public int endOffset() {
+		return endOffset;
+	}
+
+	public Token setEndOffset(int endOffset) {
+		this.endOffset = endOffset;
+		return this;
+	}
+
+	public short line() {
 		return line;
 	}
 
@@ -71,7 +81,7 @@ public class Token {
 		return this;
 	}
 
-	public short getColumn() {
+	public short column() {
 		return column;
 	}
 
@@ -80,7 +90,7 @@ public class Token {
 		return this;
 	}
 
-	public @NonNull TokenType getType() {
+	public @NonNull TokenType type() {
 		return type;
 	}
 
@@ -89,7 +99,7 @@ public class Token {
 		return this;
 	}
 
-	public @NonNull Category getCategory() {
+	public @NonNull Category category() {
 		return category;
 	}
 
@@ -101,6 +111,7 @@ public class Token {
 	private int start;
 	private int end;
 	private int startOffset;
+	private int endOffset;
 	private short line;
 	private short column;
 	private @NonNull TokenType type = TokenType.INVALID;

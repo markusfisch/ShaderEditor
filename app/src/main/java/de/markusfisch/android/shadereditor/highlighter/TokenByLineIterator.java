@@ -20,7 +20,7 @@ public class TokenByLineIterator implements Iterator<Token> {
 
 	@Override
 	public boolean hasNext() {
-		return current.getType() != TokenType.EOF;
+		return current.type() != TokenType.EOF;
 	}
 
 	@Override
@@ -30,30 +30,34 @@ public class TokenByLineIterator implements Iterator<Token> {
 		// if end == original end, then original = next
 		// return current with end set
 		int endMarker;
-		if (source.length() == 0) return current.setType(TokenType.EOF);
-		if (original == null || end >= (endMarker = original.getEnd())) {
+		if (source.isEmpty()) return current.setType(TokenType.EOF);
+		if (original == null || end >= (endMarker = original.end())) {
 			original = tokenIterator.hasNext() ? tokenIterator.next() : null;
 			if (original == null) return current.setType(TokenType.EOF);
 			current = new Token(original);
-			end = original.getStart();
-			endOffset = original.getStartOffset();
-			endMarker = original.getEnd();
-			if (current.getType() == TokenType.EOF) return current;
+			end = original.start();
+			endOffset = original.startOffset();
+			endMarker = original.end();
+			if (current.type() == TokenType.EOF) return current;
 		}
+		boolean isNewLine = false;
 		while (end < endMarker) {
-			boolean isNewLine = (source.charAt(endOffset) == '\n');
+			isNewLine = (source.charAt(endOffset) == '\n');
 			++end;
-			endOffset += CharIterator.isSurrogate(source.charAt(endOffset)) ? 2 : 1;
+			endOffset += CharIterator.isSurrogate(source.charAt(endOffset)) ? 1 : 1;
 			if (isNewLine) {
-				current.setLine((short) (current.getLine()+1));
-				current.setColumn((short) 0);
 				break;
 			}
 		}
-		current.setEnd(end);
+		current.setEnd(end)
+			.setEndOffset(endOffset);
 		Token result = new Token(current);
-		current.setStartOffset(endOffset);
-		current.setStart(end);
+		if (isNewLine) {
+			current.setLine((short) (current.line() + 1))
+				.setColumn((short) 0);
+		}
+		current.setStartOffset(endOffset)
+			.setStart(end);
 		return result;
 	}
 }
