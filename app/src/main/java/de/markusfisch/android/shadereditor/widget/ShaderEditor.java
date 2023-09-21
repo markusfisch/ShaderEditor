@@ -168,7 +168,7 @@ public class ShaderEditor extends AppCompatEditText {
 		dirty = false;
 
 		modified = false;
-		setText(highlight(new SpannableStringBuilder(text)));
+		setText(highlight(new SpannableStringBuilder(text), true));
 		modified = true;
 
 		if (onTextChangedListener != null) {
@@ -317,7 +317,7 @@ public class ShaderEditor extends AppCompatEditText {
 				}
 
 				dirty = true;
-				highlightWithoutChange(e);
+				post(() -> highlightWithoutChange(e));
 				updateHandler.postDelayed(updateRunnable, updateDelay);
 			}
 		});
@@ -357,11 +357,11 @@ public class ShaderEditor extends AppCompatEditText {
 
 	private void highlightWithoutChange(Editable e) {
 		modified = false;
-		highlight(e);
+		highlight(e, false);
 		modified = true;
 	}
 
-	private Editable highlight(Editable e) {
+	private Editable highlight(Editable e, boolean complete) {
 		int length = e.length();
 		clearSpans(e, 0, length, BackgroundColorSpan.class);
 		if (length == 0) {
@@ -390,17 +390,26 @@ public class ShaderEditor extends AppCompatEditText {
 		for (Token token : lexer) {
 			tokens.add(token);
 		}
-		Lexer.Diff diff = Lexer.diff(oldTokens, tokens);
-		if (diff.start < diff.deleteEnd) {
-			int startOffset = oldTokens.get(diff.start).startOffset();
-			int endOffset = oldTokens.get(diff.deleteEnd).endOffset();
-			clearSpans(e, startOffset, endOffset - startOffset, ForegroundColorSpan.class);
+		if (complete) {
+			clearSpans(e, 0, length, ForegroundColorSpan.class);
+			for (Token token : tokens) {
+				e.setSpan(new ForegroundColorSpan(COLORS[Highlight.from(token.type()).ordinal()]),
+					token.startOffset(), token.endOffset(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+		} else {
+			Lexer.Diff diff = Lexer.diff(oldTokens, tokens);
+			if (diff.start < diff.deleteEnd) {
+				int startOffset = oldTokens.get(diff.start).startOffset();
+				int endOffset = oldTokens.get(diff.deleteEnd).endOffset();
+				clearSpans(e, startOffset, endOffset - startOffset, ForegroundColorSpan.class);
+			}
+			for (int i = diff.start; i <= diff.insertEnd; ++i) {
+				Token token = tokens.get(i);
+				e.setSpan(new ForegroundColorSpan(COLORS[Highlight.from(token.type()).ordinal()]),
+					token.startOffset(), token.endOffset(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
 		}
-		for (int i = diff.start; i <= diff.insertEnd; ++i) {
-			Token token = tokens.get(i);
-			e.setSpan(new ForegroundColorSpan(COLORS[Highlight.from(token.type()).ordinal()]),
-				token.startOffset(), token.endOffset(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-		}
+
 
 		return e;
 	}
