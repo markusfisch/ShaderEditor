@@ -44,7 +44,7 @@ public class TokenByLineIterator implements Iterator<Token> {
 		while (end < endMarker) {
 			isNewLine = (source.charAt(endOffset) == '\n');
 			++end;
-			endOffset += CharIterator.isSurrogate(source.charAt(endOffset)) ? 1 : 1;
+			endOffset += CharIterator.isSurrogate(source.charAt(endOffset)) ? 2 : 1;
 			if (isNewLine) {
 				break;
 			}

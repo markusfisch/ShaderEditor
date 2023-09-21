@@ -10,7 +10,14 @@ public final class TrieNode {
 		return value;
 	}
 
-	public void insert(final @NonNull String key, short value) {
+	/**
+	 * Add to trie and return self.
+	 *
+	 * @param key   Where to insert the value.
+	 * @param value Value to insert.
+	 * @return this
+	 */
+	public TrieNode insert(final @NonNull String key, short value) {
 		TrieNode currentNode = this;
 
 		for (int i = 0, length = key.length(); i < length; ++i) {
@@ -21,6 +28,19 @@ public final class TrieNode {
 			currentNode = currentNode.children[childIndex];
 		}
 		currentNode.value = value;
+		return this;
+	}
+
+	/**
+	 * Add to trie and return self.
+	 *
+	 * @param key   Where to insert the value.
+	 * @param value Value to insert.
+	 * @return this
+	 * @see #insert(String, short)
+	 */
+	public TrieNode insert(final @NonNull String key, @NonNull Enum<?> value) {
+		return insert(key, (short) value.ordinal());
 	}
 
 	public short find(@NonNull String keySource, int keyStart, int keyLength) {

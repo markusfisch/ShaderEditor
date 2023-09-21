@@ -12,19 +12,6 @@ public class Token {
 	public Token() {
 	}
 
-	@Override
-	public @NonNull String toString() {
-		return "Token{" +
-				"start=" + start +
-				", end=" + end +
-				", startOffset=" + startOffset +
-				", line=" + line +
-				", column=" + column +
-				", type=" + type +
-				", category=" + category +
-				'}';
-	}
-
 	public Token(@NonNull Token from) {
 		this.setStart(from.start());
 		this.setEnd(from.end());
@@ -107,6 +94,46 @@ public class Token {
 		this.category = category;
 		return this;
 	}
+
+	@Override
+	public @NonNull String toString() {
+		return "Token{" +
+				"start=" + start +
+				", end=" + end +
+				", startOffset=" + startOffset +
+				", line=" + line +
+				", column=" + column +
+				", type=" + type +
+				", category=" + category +
+				'}';
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		Token token = (Token) o;
+
+		if (end - start != token.end - token.start) return false;
+		if (endOffset - startOffset != token.endOffset - token.startOffset) return false;
+		if (line != token.line) return false;
+		if (column != token.column) return false;
+		if (type != token.type) return false;
+		return category == token.category;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = end - start;
+		result = 31 * result + (endOffset - startOffset);
+		result = 31 * result + (int) line;
+		result = 31 * result + (int) column;
+		result = 31 * result + type.hashCode();
+		result = 31 * result + category.hashCode();
+		return result;
+	}
+
 
 	private int start;
 	private int end;
