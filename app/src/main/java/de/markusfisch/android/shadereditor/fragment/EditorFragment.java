@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ScrollView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -26,7 +25,6 @@ import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.view.UndoRedo;
 import de.markusfisch.android.shadereditor.widget.LineNumbers;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
-import de.markusfisch.android.shadereditor.widget.SyntaxView;
 
 public class EditorFragment extends Fragment {
 	public static final String TAG = "EditorFragment";
@@ -35,7 +33,6 @@ public class EditorFragment extends Fragment {
 	private ShaderEditor shaderEditor;
 	private LineNumbers lineNumbers;
 	private ViewGroup lineNumbersContainer;
-	private SyntaxView syntaxView;
 	private UndoRedo undoRedo;
 	private int yOffset;
 
@@ -53,30 +50,10 @@ public class EditorFragment extends Fragment {
 		lineNumbers = view.findViewById(R.id.line_numbers);
 		lineNumbersContainer = view.findViewById(R.id.line_numbers_container);
 		shaderEditor = view.findViewById(R.id.editor);
-		syntaxView = view.findViewById(R.id.syntax);
-		ViewGroup editorContainer = view.findViewById(R.id.editor_container);
-		editorContainer.setOnClickListener((v) -> {
-			shaderEditor.requestFocus();
-			InputMethodManager imm = (InputMethodManager) requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.showSoftInput(shaderEditor, InputMethodManager.SHOW_FORCED);
-		});
 		// lineNumbersContainer = view.findViewById(R.id.line_numbers_container);
 		setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
 		shaderEditor.setTabSupplier(ShaderEditorApp.preferences::getTabWidth);
-		shaderEditor.setSizeProvider(new ShaderEditor.SizeProvider() {
-			@Override
-			public int getWidth() {
-				return syntaxView.getMaxX();
-			}
-
-			@Override
-			public int getHeight() {
-				return syntaxView.getMaxY();
-			}
-		});
-		syntaxView.setTabSupplier(ShaderEditorApp.preferences::getTabWidth);
 		lineNumbers.setSource(shaderEditor);
-		syntaxView.setSource(shaderEditor);
 		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
 
 		Activity activity = requireActivity();
@@ -135,7 +112,7 @@ public class EditorFragment extends Fragment {
 
 		InfoLog.parse(infoLog);
 		shaderEditor.setErrorLine(InfoLog.getErrorLine());
-		updateHighlighting();
+		highlightError();
 
 		Toast errorToast = Toast.makeText(
 				activity,

@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.highlighter;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 
 import de.markusfisch.android.shadereditor.R;
@@ -290,6 +291,7 @@ public enum Highlight {
 		return Highlight.HIGHLIGHT_INVALID;
 	}
 
+	@ColorRes
 	public int id() {
 		return id.getId();
 	}

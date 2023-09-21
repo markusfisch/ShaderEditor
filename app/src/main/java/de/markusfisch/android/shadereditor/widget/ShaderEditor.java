@@ -18,50 +18,55 @@ import android.text.style.LineHeightSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.content.ContextCompat;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.highlighter.Highlight;
+import de.markusfisch.android.shadereditor.highlighter.Lexer;
+import de.markusfisch.android.shadereditor.highlighter.Token;
 
 public class ShaderEditor extends AppCompatEditText {
 	@FunctionalInterface
 	public interface OnTextChangedListener {
 		void onTextChanged(String text);
 	}
+
 	@FunctionalInterface
 	public interface TabSupplier {
 		int getWidth();
 	}
+
 	public interface SizeProvider {
 		int getWidth();
+
 		int getHeight();
 	}
 
 	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
-			"[\\t ]+$",
-			Pattern.MULTILINE);
+		"[\\t ]+$",
+		Pattern.MULTILINE);
 	private static final Pattern PATTERN_INSERT_UNIFORM = Pattern.compile(
-			"^([ \t]*uniform.+)$",
-			Pattern.MULTILINE);
+		"^([ \t]*uniform.+)$",
+		Pattern.MULTILINE);
 	private static final Pattern PATTERN_ENDIF = Pattern.compile(
-			"(#endif)\\b");
+		"(#endif)\\b");
 	private static final Pattern PATTERN_SHADER_TOY = Pattern.compile(
-			".*void\\s+mainImage\\s*\\(.*");
+		".*void\\s+mainImage\\s*\\(.*");
 	private static final Pattern PATTERN_MAIN = Pattern.compile(
-			".*void\\s+main\\s*\\(.*");
+		".*void\\s+main\\s*\\(.*");
 	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
-			"[\\xA0]");
+		"[\\xA0]");
+
+	private static final int[] COLORS = new int[Highlight.values().length];
 
 	private final Handler updateHandler = new Handler();
 	private final Runnable updateRunnable = new Runnable() {
@@ -72,8 +77,6 @@ public class ShaderEditor extends AppCompatEditText {
 			if (onTextChangedListener != null) {
 				onTextChangedListener.onTextChanged(e.toString());
 			}
-
-			highlightWithoutChange(e);
 		}
 	};
 
@@ -84,7 +87,7 @@ public class ShaderEditor extends AppCompatEditText {
 	private boolean modified = true;
 	private int colorError;
 	private @NonNull TabSupplier tabSupplier = () -> 2;
-	private SizeProvider sizeProvider;
+	private List<Token> tokens = new ArrayList<>();
 
 	public ShaderEditor(Context context) {
 		this(context, null);
@@ -97,25 +100,6 @@ public class ShaderEditor extends AppCompatEditText {
 
 	public void setTabSupplier(@NonNull TabSupplier tabSupplier) {
 		this.tabSupplier = tabSupplier;
-	}
-
-	public void setSizeProvider(@Nullable SizeProvider sizeProvider) {
-		this.sizeProvider = sizeProvider;
-	}
-
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		if (sizeProvider == null) {
-			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-			return;
-		}
-		int width = sizeProvider.getWidth();
-		int height = sizeProvider.getHeight();
-		if (length() != 0) {
-			setMeasuredDimension(width, height);
-		} else {
-			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-		}
 	}
 
 	public void setOnTextChangedListener(OnTextChangedListener listener) {
@@ -137,11 +121,13 @@ public class ShaderEditor extends AppCompatEditText {
 	public void updateHighlighting() {
 		highlightWithoutChange(getText());
 	}
+
 	private void clearError() {
 		Editable e = getText();
 		if (e == null) return;
-		clearSpans(e, length(), BackgroundColorSpan.class);
+		clearSpans(e, 0, length(), BackgroundColorSpan.class);
 	}
+
 	private void highlightError(int errorLine) {
 		if (errorLine > 0) {
 			Editable e = getText();
@@ -152,10 +138,10 @@ public class ShaderEditor extends AppCompatEditText {
 			int start = layout.getLineStart(line);
 			int end = layout.getLineEnd(line);
 			e.setSpan(
-					new BackgroundColorSpan(colorError),
-					start,
-					end,
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				new BackgroundColorSpan(colorError),
+				start,
+				end,
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
 	}
 
@@ -163,7 +149,7 @@ public class ShaderEditor extends AppCompatEditText {
 		clearError();
 		int line = errorLine;
 		if (line > 0) {
-			post(()->highlightError(line));
+			post(() -> highlightError(line));
 		}
 	}
 
@@ -192,8 +178,8 @@ public class ShaderEditor extends AppCompatEditText {
 
 	public String getCleanText() {
 		return PATTERN_TRAILING_WHITE_SPACE
-				.matcher(getText())
-				.replaceAll("");
+			.matcher(getText())
+			.replaceAll("");
 	}
 
 	public void insertTab() {
@@ -201,11 +187,11 @@ public class ShaderEditor extends AppCompatEditText {
 		int end = getSelectionEnd();
 
 		getText().replace(
-				Math.min(start, end),
-				Math.max(start, end),
-				"\t",
-				0,
-				1);
+			Math.min(start, end),
+			Math.max(start, end),
+			"\t",
+			0,
+			1);
 	}
 
 	public void addUniform(String statement) {
@@ -281,9 +267,9 @@ public class ShaderEditor extends AppCompatEditText {
 
 		setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
 			if (modified &&
-					end - start == 1 &&
-					start < source.length() &&
-					dstart < dest.length()) {
+				end - start == 1 &&
+				start < source.length() &&
+				dstart < dest.length()) {
 				char c = source.charAt(start);
 
 				if (c == '\n') {
@@ -300,20 +286,20 @@ public class ShaderEditor extends AppCompatEditText {
 
 			@Override
 			public void onTextChanged(
-					CharSequence s,
-					int start,
-					int before,
-					int count) {
+				CharSequence s,
+				int start,
+				int before,
+				int count) {
 				this.start = start;
 				this.count = count;
 			}
 
 			@Override
 			public void beforeTextChanged(
-					CharSequence s,
-					int start,
-					int count,
-					int after) {
+				CharSequence s,
+				int start,
+				int count,
+				int after) {
 			}
 
 			@Override
@@ -331,6 +317,7 @@ public class ShaderEditor extends AppCompatEditText {
 				}
 
 				dirty = true;
+				highlightWithoutChange(e);
 				updateHandler.postDelayed(updateRunnable, updateDelay);
 			}
 		});
@@ -340,8 +327,8 @@ public class ShaderEditor extends AppCompatEditText {
 
 		setOnKeyListener((v, keyCode, event) -> {
 			if (ShaderEditorApp.preferences.useTabForIndent() &&
-					event.getAction() == KeyEvent.ACTION_DOWN &&
-					keyCode == KeyEvent.KEYCODE_TAB) {
+				event.getAction() == KeyEvent.ACTION_DOWN &&
+				keyCode == KeyEvent.KEYCODE_TAB) {
 				// Insert a tab character instead of doing focus
 				// navigation.
 				insertTab();
@@ -351,11 +338,17 @@ public class ShaderEditor extends AppCompatEditText {
 		});
 	}
 
+	public static void initColors(@NonNull Context context) {
+		for (Highlight highlight : Highlight.values()) {
+			COLORS[highlight.ordinal()] = ContextCompat.getColor(context, highlight.id());
+		}
+	}
+
 	private void setSyntaxColors(Context context) {
-		SyntaxView.initColors(context);
+		ShaderEditor.initColors(context);
 		colorError = ContextCompat.getColor(
-				context,
-				R.color.syntax_error);
+			context,
+			R.color.syntax_error);
 	}
 
 	private void cancelUpdate() {
@@ -369,17 +362,12 @@ public class ShaderEditor extends AppCompatEditText {
 	}
 
 	private Editable highlight(Editable e) {
+		int length = e.length();
+		clearSpans(e, 0, length, BackgroundColorSpan.class);
+		if (length == 0) {
+			return e;
+		}
 		try {
-			int length = e.length();
-
-			// Don't use e.clearSpans() because it will
-			// remove too much.
-			clearSpans(e, length, ForegroundColorSpan.class);
-			clearSpans(e, length, BackgroundColorSpan.class);
-			if (length == 0) {
-				return e;
-			}
-
 			// When pasting text from other apps, e.g. Github Mobile code
 			// viewer, the text can be tainted with No-Break Space (U+00A0)
 			// characters.
@@ -396,16 +384,33 @@ public class ShaderEditor extends AppCompatEditText {
 			// no successful match has been made what
 			// shouldn't ever happen because of find().
 		}
+		Lexer lexer = new Lexer(e.toString(), tabSupplier.getWidth());
+		List<Token> oldTokens = tokens;
+		tokens = new ArrayList<>();
+		for (Token token : lexer) {
+			tokens.add(token);
+		}
+		Lexer.Diff diff = Lexer.diff(oldTokens, tokens);
+		if (diff.start < diff.deleteEnd) {
+			int startOffset = oldTokens.get(diff.start).startOffset();
+			int endOffset = oldTokens.get(diff.deleteEnd).endOffset();
+			clearSpans(e, startOffset, endOffset - startOffset, ForegroundColorSpan.class);
+		}
+		for (int i = diff.start; i <= diff.insertEnd; ++i) {
+			Token token = tokens.get(i);
+			e.setSpan(new ForegroundColorSpan(COLORS[Highlight.from(token.type()).ordinal()]),
+				token.startOffset(), token.endOffset(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+		}
 
 		return e;
 	}
 
-	private static <T> void clearSpans(Spannable e, int length, Class<T> clazz) {
+	private static <T> void clearSpans(Spannable e, int start, int length, Class<T> clazz) {
 		// Remove foreground color spans.
 		T[] spans = e.getSpans(
-				0,
-				length,
-				clazz);
+			start,
+			length,
+			clazz);
 
 		for (int i = spans.length; i-- > 0; ) {
 			e.removeSpan(spans[i]);
@@ -413,10 +418,10 @@ public class ShaderEditor extends AppCompatEditText {
 	}
 
 	private CharSequence autoIndent(
-			CharSequence source,
-			Spanned dest,
-			int dstart,
-			int dend) {
+		CharSequence source,
+		Spanned dest,
+		int dstart,
+		int dend) {
 		String indent = "";
 		int istart = dstart - 1;
 
@@ -435,13 +440,13 @@ public class ShaderEditor extends AppCompatEditText {
 				if (!dataBefore) {
 					// Indent always after those characters.
 					if (c == '{' ||
-							c == '+' ||
-							c == '-' ||
-							c == '*' ||
-							c == '/' ||
-							c == '%' ||
-							c == '^' ||
-							c == '=') {
+						c == '+' ||
+						c == '-' ||
+						c == '*' ||
+						c == '/' ||
+						c == '%' ||
+						c == '^' ||
+						c == '=') {
 						--pt;
 					}
 
@@ -467,9 +472,9 @@ public class ShaderEditor extends AppCompatEditText {
 
 				// Auto expand comments.
 				if (charAtCursor != '\n' &&
-						c == '/' &&
-						iend + 1 < dend &&
-						dest.charAt(iend) == c) {
+					c == '/' &&
+					iend + 1 < dend &&
+					dest.charAt(iend) == c) {
 					iend += 2;
 					break;
 				}
@@ -500,45 +505,45 @@ public class ShaderEditor extends AppCompatEditText {
 		String s = e.toString();
 
 		for (int stop = start + count;
-				(start = s.indexOf('\t', start)) > -1 && start < stop;
-				++start) {
+			(start = s.indexOf('\t', start)) > -1 && start < stop;
+			++start) {
 			e.setSpan(
-					new TabWidthSpan(() -> tabSupplier.getWidth()),
-					start,
-					start + 1,
-					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				new TabWidthSpan(() -> tabSupplier.getWidth()),
+				start,
+				start + 1,
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 		}
 	}
 
 	private static String convertShaderToySource(String src) {
 		if (!PATTERN_SHADER_TOY.matcher(src).find() ||
-				PATTERN_MAIN.matcher(src).find()) {
+			PATTERN_MAIN.matcher(src).find()) {
 			return null;
 		}
 		// Only include and translate uniforms that have an equivalent.
 		return "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
-				"precision highp float;\n" +
-				"#else\n" +
-				"precision mediump float;\n" +
-				"#endif\n\n" +
-				"uniform vec2 resolution;\n" +
-				"uniform float time;\n" +
-				"uniform vec4 mouse;\n" +
-				"uniform vec4 date;\n\n" +
-				src.replaceAll("iResolution", "resolution")
-						.replaceAll("iGlobalTime", "time")
-						.replaceAll("iMouse", "mouse")
-						.replaceAll("iDate", "date") +
-				"\n\nvoid main() {\n" +
-				"\tvec4 fragment_color;\n" +
-				"\tmainImage(fragment_color, gl_FragCoord.xy);\n" +
-				"\tgl_FragColor = fragment_color;\n" +
-				"}\n";
+			"precision highp float;\n" +
+			"#else\n" +
+			"precision mediump float;\n" +
+			"#endif\n\n" +
+			"uniform vec2 resolution;\n" +
+			"uniform float time;\n" +
+			"uniform vec4 mouse;\n" +
+			"uniform vec4 date;\n\n" +
+			src.replaceAll("iResolution", "resolution")
+				.replaceAll("iGlobalTime", "time")
+				.replaceAll("iMouse", "mouse")
+				.replaceAll("iDate", "date") +
+			"\n\nvoid main() {\n" +
+			"\tvec4 fragment_color;\n" +
+			"\tmainImage(fragment_color, gl_FragCoord.xy);\n" +
+			"\tgl_FragColor = fragment_color;\n" +
+			"}\n";
 	}
 
 	private static class TabWidthSpan
-			extends ReplacementSpan
-			implements LineHeightSpan.WithDensity {
+		extends ReplacementSpan
+		implements LineHeightSpan.WithDensity {
 		private final @NonNull TabSupplier tabSupplier;
 
 		private TabWidthSpan(@NonNull TabSupplier tabWidthSupplier) {
@@ -547,37 +552,37 @@ public class ShaderEditor extends AppCompatEditText {
 
 		@Override
 		public int getSize(
-				@NonNull Paint paint,
-				CharSequence text,
-				int start,
-				int end,
-				Paint.FontMetricsInt fm) {
+			@NonNull Paint paint,
+			CharSequence text,
+			int start,
+			int end,
+			Paint.FontMetricsInt fm) {
 			return (int) (tabSupplier.getWidth() * paint.measureText("m"));
 		}
 
 		@Override
 		public void draw(
-				@NonNull Canvas canvas,
-				CharSequence text,
-				int start,
-				int end,
-				float x,
-				int top,
-				int y,
-				int bottom,
-				@NonNull Paint paint) {
+			@NonNull Canvas canvas,
+			CharSequence text,
+			int start,
+			int end,
+			float x,
+			int top,
+			int y,
+			int bottom,
+			@NonNull Paint paint) {
 		}
 
 		@Override
 		public void chooseHeight(CharSequence text, int start, int end,
-				int spanstartv, int lineHeight,
-				Paint.FontMetricsInt fm, TextPaint paint) {
+			int spanstartv, int lineHeight,
+			Paint.FontMetricsInt fm, TextPaint paint) {
 			paint.getFontMetricsInt(fm);
 		}
 
 		@Override
 		public void chooseHeight(CharSequence text, int start, int end,
-				int spanstartv, int lineHeight, Paint.FontMetricsInt fm) {
+			int spanstartv, int lineHeight, Paint.FontMetricsInt fm) {
 		}
 	}
 }

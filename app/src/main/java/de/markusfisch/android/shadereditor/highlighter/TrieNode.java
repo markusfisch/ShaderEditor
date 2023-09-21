@@ -6,6 +6,9 @@ import androidx.annotation.NonNull;
  * A specialized trie for characters that can represent Identifiers in C-like code.
  */
 public final class TrieNode {
+	private short value;
+	private final TrieNode[] children = new TrieNode[Byte.MAX_VALUE];
+
 	public short value() {
 		return value;
 	}
@@ -20,8 +23,8 @@ public final class TrieNode {
 	public TrieNode insert(final @NonNull String key, short value) {
 		TrieNode currentNode = this;
 
-		for (int i = 0, length = key.length(); i < length; ++i) {
-			int childIndex = TrieNode.charToIndex(key.charAt(i));
+		for (int i = 0, length = key.length(); i < length; i = CharIterator.nextC(i, key)) {
+			int childIndex = charToIndex(key.charAt(i));
 
 			if (currentNode.children[childIndex] == null)
 				currentNode.children[childIndex] = new TrieNode();
@@ -48,9 +51,9 @@ public final class TrieNode {
 		int i = 0;
 		int keyPosition = keyStart;
 		for (
-				char ch = CharIterator.ch(keyPosition, keySource);
-				CharIterator.isValid(ch) && i < keyLength;
-				i = keyPosition - keyStart, ch = CharIterator.ch(keyPosition, keySource)
+			char ch = CharIterator.ch(keyPosition, keySource);
+			CharIterator.isValid(ch) && i < keyLength;
+			i = keyPosition - keyStart, ch = CharIterator.ch(keyPosition, keySource)
 		) {
 			int index = charToIndex(ch);
 
@@ -62,43 +65,15 @@ public final class TrieNode {
 		return currentNode.value();
 	}
 
-	private short value;
-	private final TrieNode[] children = new TrieNode[COUNT_OF_CHILDREN];
-
-	private static final int[] CHAR_INDEX_LOOKUP;
-	private static final int COUNT_OF_CHILDREN;
-
-	/*
-	 * Generate a lookup for fast child index retrieval.
-	 */
-	static {
-		// Java char is 16 Bit, however only ASCII-Values make sense anyways.
-		// (2^8 - 1) * 4 bytes = 1020 Bytes
-		int[] result = new int[Byte.MAX_VALUE];
-		int index = 1;
-		for (int i = 'a'; i <= 'z'; ++i) {
-			result[i] = index++;
-		}
-		for (int i = 'A'; i <= 'Z'; ++i) {
-			result[i] = index++;
-		}
-		for (int i = '0'; i <= '9'; ++i) {
-			result[i] = index++;
-		}
-		result['_'] = index++;
-
-		COUNT_OF_CHILDREN = index;
-		CHAR_INDEX_LOOKUP = result;
-	}
-
 	/**
 	 * Converts a character of a key into an index.
 	 *
 	 * @return the index into the lookup-table
 	 */
 	private static int charToIndex(char c) {
-		if (c < CHAR_INDEX_LOOKUP.length)
-			return CHAR_INDEX_LOOKUP[c];
+		if (c < Byte.MAX_VALUE) {
+			return c;
+		}
 		return 0;
 	}
 }
