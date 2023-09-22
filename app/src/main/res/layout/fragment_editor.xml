@@ -29,14 +29,14 @@
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:padding="@dimen/editor_padding"
-					android:textColor="@color/editor_text"
+					android:textColor="@color/editor_line_numbers"
 					android:textSize="12sp"
 					android:typeface="monospace"
 					app:fontFamily="@font/jetbrains_mono" />
 				<View
 					android:layout_width="1dp"
 					android:layout_height="match_parent"
-					android:background="@color/editor_text" />
+					android:background="@color/editor_line_numbers" />
 			</LinearLayout>
 			<de.markusfisch.android.shadereditor.widget.ShaderEditor
 				android:id="@+id/editor"
