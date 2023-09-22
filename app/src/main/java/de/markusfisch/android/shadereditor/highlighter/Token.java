@@ -9,20 +9,6 @@ public class Token {
 		TRIVIA
 	}
 
-	public Token() {
-	}
-
-	public Token(@NonNull Token from) {
-		this.setStart(from.start());
-		this.setEnd(from.end());
-		this.setStartOffset(from.startOffset());
-		this.setEndOffset(from.endOffset());
-		this.setLine(from.line());
-		this.setColumn(from.column());
-		this.setType(from.type());
-		this.setCategory(from.category());
-	}
-
 	public int start() {
 		return start;
 	}

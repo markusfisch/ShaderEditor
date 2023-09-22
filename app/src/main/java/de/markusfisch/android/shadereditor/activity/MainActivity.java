@@ -634,6 +634,7 @@ public class MainActivity
 			byte[] buffer = new byte[2048];
 			for (int len; (len = in.read(buffer)) > 0; ) {
 				// StandardCharsets.UTF_8 would require API level 19.
+				// noinspection CharsetObjectCanBeUsed
 				sb.append(new String(buffer, 0, len, "UTF-8"));
 			}
 			in.close();

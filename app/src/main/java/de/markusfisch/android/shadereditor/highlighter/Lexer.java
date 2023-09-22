@@ -84,17 +84,13 @@ public class Lexer implements Iterable<Token> {
 	private final @NonNull String source;
 	private int iter;  // codepoint index
 	private int lineStart;
-	private int lineOffset;
 	private int position;       // current position byte offset
 	private int readPosition;  // read position byte offset
 	private int lineCount;
-	private int tabWidth;
-	private int lineTabCount;
 
-	public Lexer(@NonNull String input, int tabWidth) {
+	public Lexer(@NonNull String input) {
 		this.source = input;
 		this.readPosition = 1;
-		this.tabWidth = tabWidth;
 		this.lineCount = 1;
 		nextToken();
 	}
@@ -121,7 +117,7 @@ public class Lexer implements Iterable<Token> {
 			.setLine((short) this.lineCount)
 			.setCategory(Token.Category.NORMAL)
 			.setStartOffset(startOffset)
-			.setColumn((short) (this.position - this.lineStart - this.lineTabCount + this.lineTabCount * this.tabWidth));
+			.setColumn((short) (this.position - this.lineStart));
 		Token previous = this.previous;
 
 		if (!isNewLogicLine && previous.category() == Token.Category.PREPROC) {
@@ -445,13 +441,10 @@ public class Lexer implements Iterable<Token> {
 	}
 
 	private void handleLineColumn() {
-		if (getCurrentChar() == '\n') {
+		char ch = getCurrentChar();
+		if (ch == '\n' || ch == '\r') {
 			++this.lineCount;
 			this.lineStart = this.position + 1;
-			this.lineOffset = this.iter + 1;
-			this.lineTabCount = 0;
-		} else if (getCurrentChar() == '\t') {
-			++this.lineTabCount;
 		}
 	}
 

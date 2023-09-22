@@ -2,8 +2,8 @@
 	contents. If we make EditText scrollable, contents will be cut off
 	at the specified padding but before the visible border. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:id="@+id/scroll_view"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
@@ -16,17 +16,14 @@
 		android:layout_height="wrap_content"
 		android:fillViewport="true"
 		android:scrollbars="none">
-
 		<LinearLayout
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
 			android:orientation="horizontal">
-
 			<LinearLayout
 				android:id="@+id/line_numbers_container"
 				android:layout_width="wrap_content"
 				android:layout_height="match_parent">
-
 				<de.markusfisch.android.shadereditor.widget.LineNumbers
 					android:id="@+id/line_numbers"
 					android:layout_width="wrap_content"
@@ -36,14 +33,11 @@
 					android:textSize="12sp"
 					android:typeface="monospace"
 					app:fontFamily="@font/jetbrains_mono" />
-
 				<View
 					android:layout_width="1dp"
 					android:layout_height="match_parent"
 					android:background="@color/editor_text" />
 			</LinearLayout>
-
-			<!-- Behind the syntax editor, because it lags otherwise -->
 			<de.markusfisch.android.shadereditor.widget.ShaderEditor
 				android:id="@+id/editor"
 				android:layout_width="match_parent"

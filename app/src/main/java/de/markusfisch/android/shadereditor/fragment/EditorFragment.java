@@ -1,7 +1,6 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -9,7 +8,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
@@ -104,6 +102,10 @@ public class EditorFragment extends Fragment {
 		shaderEditor.updateHighlighting();
 	}
 
+	public void highlightError() {
+		shaderEditor.updateErrorHighlighting();
+	}
+
 	public void showError(String infoLog) {
 		Activity activity = getActivity();
 		if (activity == null) {
@@ -162,9 +164,6 @@ public class EditorFragment extends Fragment {
 		return visible;
 	}
 
-	public void highlightError() {
-		shaderEditor.updateErrorHighlighting();
-	}
 
 	private void updateToPreferences() {
 		Preferences preferences = ShaderEditorApp.preferences;
@@ -177,21 +176,26 @@ public class EditorFragment extends Fragment {
 		shaderEditor.setTypeface(preferences.getFont());
 		lineNumbers.setTypeface(preferences.getFont());
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			shaderEditor.setFontFeatureSettings(preferences.useLigatures() ? "normal" : "calt off");
+			shaderEditor.setFontFeatureSettings(
+					preferences.useLigatures() ? "normal" : "calt off");
 		}
 	}
 
 	private int getYOffset(Activity activity) {
 		if (yOffset == 0) {
 			float dp = getResources().getDisplayMetrics().density;
+
 			if (activity instanceof AppCompatActivity) {
-				ActionBar actionBar = ((AppCompatActivity) activity).getSupportActionBar();
+				ActionBar actionBar = ((AppCompatActivity) activity)
+						.getSupportActionBar();
+
 				if (actionBar != null) {
-					yOffset = Math.round(48f * dp);
+					yOffset = actionBar.getHeight();
 				}
 			} else {
 				yOffset = Math.round(48f * dp);
 			}
+
 			yOffset += Math.round(16f * dp);
 		}
 

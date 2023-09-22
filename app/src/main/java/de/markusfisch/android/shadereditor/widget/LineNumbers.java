@@ -2,7 +2,6 @@ package de.markusfisch.android.shadereditor.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Paint;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -15,7 +14,6 @@ import de.markusfisch.android.shadereditor.R;
 public class LineNumbers extends AppCompatTextView implements TextWatcher {
 	private final int sourceId;
 	private TextView source;
-	private final Paint.FontMetricsInt fm = new Paint.FontMetricsInt();
 
 	public LineNumbers(Context context) {
 		this(context, null);
@@ -40,20 +38,6 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 		setText("0");
 	}
 
-	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-		int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-		int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-		if (widthMode != MeasureSpec.UNSPECIFIED || heightMode != MeasureSpec.UNSPECIFIED) {
-			super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-			return;
-		}
-		getPaint().getFontMetricsInt(fm);
-		int lineHeight = fm.descent - fm.ascent + fm.leading;
-		int lineCount = source.getLineCount();
-		setMeasuredDimension((int) (getPaint().measureText("m") * numDigits(lineCount)) + getPaddingLeft() + getPaddingRight(), lineCount * lineHeight + getPaddingTop() + getPaddingBottom());
-	}
-
 	public void setSource(@NonNull TextView source) {
 		if (this.source != null) source.removeTextChangedListener(this);
 		this.source = source;
@@ -69,9 +53,9 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 	protected void onAttachedToWindow() {
 		super.onAttachedToWindow();
 		TextView source = getRootView().findViewById(sourceId);
-		if (source != null)
+		if (source != null) {
 			setSource(source);
-
+		}
 	}
 
 	/**
@@ -83,21 +67,19 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 	private int numDigits(int number) {
 		if (number < 100000) {
 			if (number < 100) {
-				if (number < 10) return 1;
-				else return 2;
+				return number < 10 ? 1 : 2;
 			} else if (number < 1000) {
 				return 3;
-			} else if (number < 10000) {
-				return 4;
-			} else return 5;
+			} else {
+				return number < 10000 ? 4 : 5;
+			}
 		} else if (number < 10000000) {
-			if (number < 1000000) return 6;
-			else return 7;
+			return (number < 1000000) ? 6 : 7;
 		} else if (number < 100000000) {
 			return 8;
-		} else if (number < 1000000000) {
-			return 9;
-		} else return 10;
+		} else {
+			return number < 1000000000 ? 9 : 10;
+		}
 	}
 
 	@Override
@@ -114,8 +96,8 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 		final String lineFormat = "%" + numDigits(lineCount) + "d\n";
 
 		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < lineCount; ++i) {
-			builder.append(String.format(lineFormat, i + 1));
+		for (int i = 1; i <= lineCount; ++i) {
+			builder.append(String.format(lineFormat, i));
 		}
 		setText(builder);
 	}

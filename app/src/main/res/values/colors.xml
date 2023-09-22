@@ -12,7 +12,7 @@
     <color name="background_editor">#8000</color>
     <color name="background_item_pressed">#8222</color>
     <color name="background_progress">#8000</color>
-    <color name="editor_text">#80808080</color>
+    <color name="editor_text">#fff</color>
     <color name="syntax_error">#8800</color>
     <color name="crop_bound">#8fff</color>
     <color name="cube_face_selected">#ffff</color>
