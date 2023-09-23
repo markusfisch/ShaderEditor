@@ -81,6 +81,7 @@ public class Lexer implements Iterable<Token> {
 	private static final TrieNode KEYWORDS_TRIE = new TrieNode();
 	private static final TrieNode DIRECTIVES_TRIE = new TrieNode();
 	private @NonNull Token previous = new Token();
+	private @NonNull Token lastNormal = new Token();
 	private final @NonNull String source;
 	private int iter;  // codepoint index
 	private int lineStart;
@@ -377,14 +378,13 @@ public class Lexer implements Iterable<Token> {
 					if (tok.type() == TokenType.INVALID) {
 						tok.setType(TokenType.IDENTIFIER);
 					}
-					// is not a keyword? -> check if in same category as previous token
-					if (tok.type() == TokenType.IDENTIFIER && previous.category() == tok.category()) {
-						if (previous.type() == TokenType.DOT)
-							tok.setType(TokenType.FIELD_SELECTION);
-						else if (previous.type() == TokenType.STRUCT)
-							tok.setType(TokenType.TYPE_NAME);
-						else if (previous.type() == TokenType.IDENTIFIER)
-							previous.setType(TokenType.TYPE_NAME);
+
+					if (lastNormal.type() == TokenType.DOT) {
+						tok.setType(TokenType.FIELD_SELECTION);
+					} else if (lastNormal.type() == TokenType.STRUCT) {
+						tok.setType(TokenType.TYPE_NAME);
+					} else if (lastNormal.type() == TokenType.IDENTIFIER) {
+						previous.setType(TokenType.TYPE_NAME);
 					}
 				} else {
 					tok.setType(TokenType.INVALID);
@@ -399,6 +399,9 @@ public class Lexer implements Iterable<Token> {
 			.setEnd(this.position);
 
 		this.previous = tok;
+		if (tok.category() == Token.Category.NORMAL) {
+			lastNormal = tok;
+		}
 		return previous;
 	}
 
