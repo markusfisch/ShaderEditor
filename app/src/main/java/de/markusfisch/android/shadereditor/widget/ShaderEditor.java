@@ -17,6 +17,7 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.LineHeightSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
@@ -396,7 +397,7 @@ public class ShaderEditor extends AppCompatEditText {
 			if (diff.start <= diff.deleteEnd) {
 				int startOffset = oldTokens.get(diff.start).startOffset();
 				int endOffset = oldTokens.get(diff.deleteEnd).endOffset();
-				clearSpans(e, startOffset, endOffset - startOffset, ForegroundColorSpan.class);
+				clearSpans(e, startOffset, endOffset, ForegroundColorSpan.class);
 			}
 			for (int i = diff.start; i <= diff.insertEnd; ++i) {
 				Token token = tokens.get(i);
@@ -410,15 +411,16 @@ public class ShaderEditor extends AppCompatEditText {
 		return e;
 	}
 
-	private static <T> void clearSpans(Spannable e, int start, int length, Class<T> clazz) {
+	private static <T> void clearSpans(Spannable e, int start, int end, Class<T> clazz) {
 		// Remove foreground color spans.
 		T[] spans = e.getSpans(
 				start,
-				length,
+				end,
 				clazz);
-
-		for (int i = spans.length; i-- > 0; ) {
-			e.removeSpan(spans[i]);
+		for (T span : spans) {
+			if (e.getSpanEnd(span) != start) {
+				e.removeSpan(span);
+			}
 		}
 	}
 
