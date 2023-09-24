@@ -17,7 +17,6 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.LineHeightSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
@@ -395,8 +394,8 @@ public class ShaderEditor extends AppCompatEditText {
 		} else {
 			Lexer.Diff diff = Lexer.diff(oldTokens, tokens);
 			if (diff.start <= diff.deleteEnd) {
-				int startOffset = oldTokens.get(diff.start).startOffset();
-				int endOffset = oldTokens.get(diff.deleteEnd).endOffset();
+				int startOffset = tokens.get(diff.start).startOffset();
+				int endOffset = tokens.get(diff.insertEnd).endOffset();
 				clearSpans(e, startOffset, endOffset, ForegroundColorSpan.class);
 			}
 			for (int i = diff.start; i <= diff.insertEnd; ++i) {
@@ -418,9 +417,7 @@ public class ShaderEditor extends AppCompatEditText {
 				end,
 				clazz);
 		for (T span : spans) {
-			if (e.getSpanEnd(span) != start) {
-				e.removeSpan(span);
-			}
+			e.removeSpan(span);
 		}
 	}
 

@@ -127,16 +127,17 @@ public final class CharIterator {
 	 * @param source   The source string.
 	 */
 	public static int nextC(int position, @NonNull String source) {
+		int length = source.length();
 		int positionBeforeNewline;
-		char ch;
+		char ch = CharIterator.INVALID;
 		do {
 			position = next(position);
+			if (position < length)
+				ch = source.charAt(position);
+			if (ch != '\\') break;
 			positionBeforeNewline = position;
-			ch = CharIterator.ch(position, source);
-		} while (ch == '\\' && hasMoved(
-				positionBeforeNewline,
-				position = nextNewline(position, source))
-		);
+			position = nextNewline(position, source);
+		} while (hasMoved(positionBeforeNewline, position));
 		return position;
 	}
 

@@ -83,14 +83,14 @@ public class Token {
 
 	@Override
 	public @NonNull String toString() {
-		return "Token{" +
-				"start=" + start +
-				", end=" + end +
-				", startOffset=" + startOffset +
-				", line=" + line +
-				", column=" + column +
-				", type=" + type +
-				", category=" + category +
+		return "Token{" + type +
+				"[" + category +
+				"], range=" + start +
+				"-" + end +
+				", offset=" + startOffset +
+				"-" + endOffset +
+				", pos=" + line +
+				":" + column +
 				'}';
 	}
 

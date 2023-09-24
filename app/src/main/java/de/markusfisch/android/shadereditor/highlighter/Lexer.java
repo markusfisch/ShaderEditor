@@ -17,11 +17,11 @@ public class Lexer implements Iterable<Token> {
 		@Override
 		public @NonNull String toString() {
 			return "Change{" +
-				"original='" + original + '\'' +
-				", edited='" + edited + '\'' +
-				", start=" + start +
+				"start=" + start +
 				", deleteEnd=" + deleteEnd +
 				", insertEnd=" + insertEnd +
+				", original='" + original + '\'' +
+				", edited='" + edited + '\'' +
 				'}';
 		}
 
@@ -83,7 +83,7 @@ public class Lexer implements Iterable<Token> {
 	private @NonNull Token previous = new Token();
 	private @NonNull Token lastNormal = new Token();
 	private final @NonNull String source;
-	private int iter;  // codepoint index
+	private int unicodePosition;  // codepoint index
 	private int lineStart;
 	private int position;       // current position byte offset
 	private int readPosition;  // read position byte offset
@@ -109,8 +109,8 @@ public class Lexer implements Iterable<Token> {
 	public @NonNull Token nextToken() {
 		boolean isFirstLine = this.position == 0;
 		boolean isNewLogicLine = skipWhitespace() != 0 || isFirstLine;
-		int start = this.position;
-		int startOffset = this.iter;
+		int start = this.unicodePosition;
+		int startOffset = this.position;
 		Token tok = new Token()
 			.setType(TokenType.INVALID)
 			.setStart(start)
@@ -118,7 +118,7 @@ public class Lexer implements Iterable<Token> {
 			.setLine((short) this.lineCount)
 			.setCategory(Token.Category.NORMAL)
 			.setStartOffset(startOffset)
-			.setColumn((short) (this.position - this.lineStart));
+			.setColumn((short) (this.unicodePosition - this.lineStart));
 		Token previous = this.previous;
 
 		if (!isNewLogicLine && previous.category() == Token.Category.PREPROC) {
@@ -228,8 +228,8 @@ public class Lexer implements Iterable<Token> {
 						do {
 							readNext();
 							handleLineColumn();
-						} while (CharIterator.isValid(this.iter, this.source) && !(getCurrentChar() == '*' && peekNextChar() == '/'));
-						if (CharIterator.isValid(this.iter, this.source)) {
+						} while (CharIterator.isValid(this.position, this.source) && !(getCurrentChar() == '*' && peekNextChar() == '/'));
+						if (CharIterator.isValid(this.position, this.source)) {
 							readNext();
 							readNext();
 						}
@@ -239,7 +239,7 @@ public class Lexer implements Iterable<Token> {
 						tok.setCategory(Token.Category.TRIVIA);
 						do {
 							readNext();
-						} while (CharIterator.isValid(this.iter, this.source) && getCurrentChar() != '\n');
+						} while (CharIterator.isValid(this.position, this.source) && getCurrentChar() != '\n');
 						break;
 					default:
 						tok.setType(advance(TokenType.SLASH));
@@ -378,25 +378,27 @@ public class Lexer implements Iterable<Token> {
 					if (tok.type() == TokenType.INVALID) {
 						tok.setType(TokenType.IDENTIFIER);
 					}
-
-					if (lastNormal.type() == TokenType.DOT) {
-						tok.setType(TokenType.FIELD_SELECTION);
-					} else if (lastNormal.type() == TokenType.STRUCT) {
-						tok.setType(TokenType.TYPE_NAME);
-					} else if (lastNormal.type() == TokenType.IDENTIFIER) {
-						previous.setType(TokenType.TYPE_NAME);
+					if (tok.type() == TokenType.IDENTIFIER && tok.category() == Token.Category.NORMAL) {
+						if (lastNormal.type() == TokenType.DOT) {
+							tok.setType(TokenType.FIELD_SELECTION);
+						} else if (lastNormal.type() == TokenType.STRUCT) {
+							tok.setType(TokenType.TYPE_NAME);
+						} else if (lastNormal.type() == TokenType.IDENTIFIER) {
+							previous.setType(TokenType.TYPE_NAME);
+						}
 					}
 				} else {
 					tok.setType(TokenType.INVALID);
-					this.position = this.readPosition;
-					++this.readPosition;
-
-					this.iter += CharIterator.isSurrogate(this.getCurrentChar()) ? 2 : 1;
+					if (CharIterator.isSurrogate(this.getCurrentChar())) {
+						++this.readPosition;
+					}
+					this.position = this.readPosition++;
+					++this.unicodePosition;
 				}
 				break;
 		}
-		tok.setEndOffset(this.iter)
-			.setEnd(this.position);
+		tok.setEndOffset(this.position)
+			.setEnd(this.unicodePosition);
 
 		this.previous = tok;
 		if (tok.category() == Token.Category.NORMAL) {
@@ -435,30 +437,31 @@ public class Lexer implements Iterable<Token> {
 
 	@Contract(pure = true)
 	private char peekNextChar() {
-		return CharIterator.peekC(this.iter, this.source);
+		return CharIterator.peekC(this.position, this.source);
 	}
 
 	@Contract(pure = true)
 	private char getCurrentChar() {
-		return CharIterator.ch(this.iter, this.source);
+		return CharIterator.ch(this.position, this.source);
 	}
 
 	private void handleLineColumn() {
 		char ch = getCurrentChar();
 		if (ch == '\n' || ch == '\r') {
 			++this.lineCount;
-			this.lineStart = this.position + 1;
+			this.lineStart = this.unicodePosition + 1;
 		}
 	}
 
 	private void readNext() {
 		while (true) {
-			++this.iter;
+			++this.unicodePosition;
 			this.position = this.readPosition++;
 			int oldPosition = this.position;
 			// if ch == \, then check if line continuation
 			if (getCurrentChar() == '\\' && CharIterator.hasMoved(oldPosition, this.position =
 				CharIterator.nextNewline(this.position, this.source))) {
+				this.readPosition = this.position + 1;
 				handleLineColumn();
 				continue;
 			}
@@ -477,11 +480,11 @@ public class Lexer implements Iterable<Token> {
 
 	// Read an identifier
 	private @NonNull Identifier readIdentifier() {
-		int start = this.iter;
+		int start = this.position;
 		while (getCurrentChar() == '_' || Character.isLetterOrDigit(getCurrentChar())) {
 			readNext();
 		}
-		return new Identifier(this.source, start, this.iter - start);
+		return new Identifier(this.source, start, this.position - start);
 	}
 
 	// Read a number token
