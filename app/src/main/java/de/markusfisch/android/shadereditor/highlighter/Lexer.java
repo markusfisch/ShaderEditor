@@ -384,7 +384,7 @@ public class Lexer implements Iterable<Token> {
 						} else if (lastNormal.type() == TokenType.STRUCT) {
 							tok.setType(TokenType.TYPE_NAME);
 						} else if (lastNormal.type() == TokenType.IDENTIFIER) {
-							previous.setType(TokenType.TYPE_NAME);
+							lastNormal.setType(TokenType.TYPE_NAME);
 						}
 					}
 				} else {
