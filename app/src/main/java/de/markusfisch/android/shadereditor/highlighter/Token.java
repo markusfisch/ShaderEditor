@@ -103,8 +103,6 @@ public class Token {
 
 		if (end - start != token.end - token.start) return false;
 		if (endOffset - startOffset != token.endOffset - token.startOffset) return false;
-		if (line != token.line) return false;
-		if (column != token.column) return false;
 		if (type != token.type) return false;
 		return category == token.category;
 	}
@@ -113,8 +111,6 @@ public class Token {
 	public int hashCode() {
 		int result = end - start;
 		result = 31 * result + (endOffset - startOffset);
-		result = 31 * result + (int) line;
-		result = 31 * result + (int) column;
 		result = 31 * result + type.hashCode();
 		result = 31 * result + category.hashCode();
 		return result;
