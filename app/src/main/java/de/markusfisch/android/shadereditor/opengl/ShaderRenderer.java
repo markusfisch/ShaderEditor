@@ -326,6 +326,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public void setFragmentShader(String source, float quality) {
 		setQuality(quality);
 		setFragmentShader(source);
+		loadPrograms();
 	}
 
 	private void setFragmentShader(String source) {

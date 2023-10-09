@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -671,6 +672,7 @@ public class MainActivity
 		if (editorFragment == null) {
 			return;
 		}
+		Log.d("@@@", "ID is " + String.valueOf(id));
 
 		String fragmentShader = editorFragment.getText();
 		byte[] thumbnail = ShaderEditorApp.preferences.doesRunInBackground()
