@@ -116,8 +116,7 @@ public class Preferences {
 		textSize = parseInt(
 				preferences.getString(TEXT_SIZE, null),
 				textSize);
-		font = loadFont(context,
-				preferences.getString(FONT, defaultFont));
+		font = loadFont(context, preferences.getString(FONT, defaultFont));
 		useLigatures = preferences.getBoolean(
 				USE_LIGATURES, true);
 		tabWidth = parseInt(
@@ -152,6 +151,9 @@ public class Preferences {
 	private @NonNull Typeface loadFont(
 			@NonNull Context context,
 			@NonNull String fontName) {
+		if (fontName.equals("monospace")) {
+			return Typeface.MONOSPACE;
+		}
 		Integer resId = fontNameToResId.get(fontName);
 		if (resId == null) {
 			throw new IllegalArgumentException(

@@ -74,6 +74,7 @@
 	<string name="run_manually">Run manually</string>
 	<string name="run_manually_extra">Run in extra activity</string>
 	<string name="run_manually_new">Run as a new task</string>
+	<string name="monospace">Monospace</string>
 	<string name="fira_code">Fira Code</string>
 	<string name="ibm_plex_mono">IBM Plex Mono</string>
 	<string name="jetbrains_mono">JetBrains Mono</string>
