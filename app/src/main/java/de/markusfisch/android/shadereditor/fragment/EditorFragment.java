@@ -1,6 +1,7 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -157,10 +158,18 @@ public class EditorFragment extends Fragment {
 		shaderEditor.setTextSize(
 				TypedValue.COMPLEX_UNIT_SP,
 				preferences.getTextSize());
-		shaderEditor.setTypeface(preferences.getFont());
+		Typeface font = preferences.getFont();
+		shaderEditor.setTypeface(font);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			shaderEditor.setFontFeatureSettings(
-					preferences.useLigatures() ? "normal" : "calt off");
+			String features = shaderEditor.getFontFeatureSettings();
+			boolean isMono = font == Typeface.MONOSPACE;
+			// Don't touch font features for the default MONOSPACE font as
+			// this can impact performance.
+			if (!isMono || features != null) {
+				shaderEditor.setFontFeatureSettings(isMono
+						? null
+						: preferences.useLigatures() ? "normal" : "calt off");
+			}
 		}
 		shaderEditor.setTabWidth(preferences.getTabWidth());
 	}
