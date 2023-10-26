@@ -40,7 +40,7 @@
 				android:key="font"
 				android:title="@string/font" />
 		<SwitchPreference
-				android:defaultValue="true"
+				android:defaultValue="false"
 				android:key="use_ligatures"
 				android:title="@string/use_ligatures"
 				app:summary="@string/use_ligatures_summary" />

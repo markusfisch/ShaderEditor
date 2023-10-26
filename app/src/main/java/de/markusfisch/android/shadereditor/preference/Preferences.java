@@ -60,7 +60,7 @@ public class Preferences {
 	private int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
 	private int textSize = 12;
 	private @NonNull Typeface font = Typeface.MONOSPACE;
-	private boolean useLigatures = true;
+	private boolean useLigatures = false;
 	private int tabWidth = 4;
 	private boolean exportTabs = false;
 	private boolean showInsertTab = true;
@@ -118,7 +118,8 @@ public class Preferences {
 				textSize);
 		font = loadFont(context, preferences.getString(FONT, defaultFont));
 		useLigatures = preferences.getBoolean(
-				USE_LIGATURES, true);
+				USE_LIGATURES,
+				useLigatures);
 		tabWidth = parseInt(
 				preferences.getString(TAB_WIDTH, null),
 				tabWidth);
