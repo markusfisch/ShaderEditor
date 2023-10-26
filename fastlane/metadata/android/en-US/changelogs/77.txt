@@ -1,0 +1,3 @@
+* Use system monospace font by default
+* Disable ligatures by default
+
