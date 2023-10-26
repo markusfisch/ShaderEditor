@@ -1,6 +1,6 @@
 buildscript {
 	ext {
-		sdk_version = 33
+		sdk_version = 34
 	}
 }
 
