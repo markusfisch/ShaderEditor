@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.31.1
+* Use system monospace font by default
+* Disable ligatures by default
+
 ## 2.31.0
 * Add popular fonts and ligatures
 * Fix highlighting error line

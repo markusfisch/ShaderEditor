@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string-array name="font_names">
+		<item>@string/monospace</item>
 		<item>@string/fira_code</item>
 		<item>@string/ibm_plex_mono</item>
 		<item>@string/jetbrains_mono</item>
@@ -8,11 +8,12 @@
 		<item>@string/source_code_pro</item>
 	</string-array>
 	<array name="font_values">
+		<item>monospace</item>
 		<item>fira_code</item>
 		<item>ibm_plex_mono</item>
 		<item>jetbrains_mono</item>
 		<item>roboto_mono</item>
 		<item>source_code_pro</item>
 	</array>
-	<string name="default_font_value">jetbrains_mono</string>
+	<string name="default_font_value">monospace</string>
 </resources>

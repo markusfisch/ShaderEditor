@@ -60,7 +60,7 @@ public class Preferences {
 	private int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
 	private int textSize = 12;
 	private @NonNull Typeface font = Typeface.MONOSPACE;
-	private boolean useLigatures = true;
+	private boolean useLigatures = false;
 	private int tabWidth = 4;
 	private boolean exportTabs = false;
 	private boolean showInsertTab = true;
@@ -116,10 +116,10 @@ public class Preferences {
 		textSize = parseInt(
 				preferences.getString(TEXT_SIZE, null),
 				textSize);
-		font = loadFont(context,
-				preferences.getString(FONT, defaultFont));
+		font = loadFont(context, preferences.getString(FONT, defaultFont));
 		useLigatures = preferences.getBoolean(
-				USE_LIGATURES, true);
+				USE_LIGATURES,
+				useLigatures);
 		tabWidth = parseInt(
 				preferences.getString(TAB_WIDTH, null),
 				tabWidth);
@@ -152,6 +152,9 @@ public class Preferences {
 	private @NonNull Typeface loadFont(
 			@NonNull Context context,
 			@NonNull String fontName) {
+		if (fontName.equals("monospace")) {
+			return Typeface.MONOSPACE;
+		}
 		Integer resId = fontNameToResId.get(fontName);
 		if (resId == null) {
 			throw new IllegalArgumentException(
