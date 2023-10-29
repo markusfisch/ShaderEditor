@@ -20,6 +20,7 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -56,8 +57,6 @@ public class ShaderEditor extends LineNumberEditText {
 	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
 			"[\\xA0]");
 
-	private static final int[] COLORS = new int[Highlight.values().length];
-
 	private final Handler updateHandler = new Handler();
 	private final Runnable updateRunnable = new Runnable() {
 		@Override
@@ -78,6 +77,8 @@ public class ShaderEditor extends LineNumberEditText {
 	private boolean dirty = false;
 	private boolean modified = true;
 	private int colorError;
+	private final int[] colors = new int[Highlight.values().length];
+	private int textColor;
 	private int tabWidthInCharacters = 0;
 	private int tabWidth = 0;
 	private List<Token> tokens = new ArrayList<>();
@@ -339,8 +340,9 @@ public class ShaderEditor extends LineNumberEditText {
 
 	private void setSyntaxColors(Context context) {
 		for (Highlight highlight : Highlight.values()) {
-			COLORS[highlight.ordinal()] = ContextCompat.getColor(context, highlight.id());
+			colors[highlight.ordinal()] = ContextCompat.getColor(context, highlight.id());
 		}
+		textColor = ContextCompat.getColor(context, R.color.editor_text);
 		colorError = ContextCompat.getColor(
 				context,
 				R.color.syntax_error);
@@ -389,9 +391,12 @@ public class ShaderEditor extends LineNumberEditText {
 		if (complete) {
 			clearSpans(e, 0, length, ForegroundColorSpan.class);
 			for (Token token : tokens) {
-				e.setSpan(
-						new ForegroundColorSpan(COLORS[Highlight.from(token.type()).ordinal()]),
-						token.startOffset(), token.endOffset(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				@ColorInt int color = colors[Highlight.from(token.type()).ordinal()];
+				if (color != textColor) {
+					e.setSpan(
+							new ForegroundColorSpan(color),
+							token.startOffset(), token.endOffset(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				}
 			}
 		} else {
 			Lexer.Diff diff = Lexer.diff(oldTokens, tokens);
@@ -403,7 +408,7 @@ public class ShaderEditor extends LineNumberEditText {
 			for (int i = diff.start; i <= diff.insertEnd; ++i) {
 				Token token = tokens.get(i);
 				e.setSpan(
-						new ForegroundColorSpan(COLORS[Highlight.from(token.type()).ordinal()]),
+						new ForegroundColorSpan(colors[Highlight.from(token.type()).ordinal()]),
 						token.startOffset(), token.endOffset(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 		}
