@@ -4,6 +4,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
+	tools:ignore="Overdraw"
 	android:id="@+id/scroll_view"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
@@ -16,47 +17,22 @@
 		android:layout_height="wrap_content"
 		android:fillViewport="true"
 		android:scrollbars="none">
-		<LinearLayout
+		<de.markusfisch.android.shadereditor.widget.ShaderEditor
+			android:id="@+id/editor"
 			android:layout_width="wrap_content"
 			android:layout_height="match_parent"
-			android:orientation="horizontal">
-			<LinearLayout
-				android:id="@+id/line_numbers_container"
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:orientation="horizontal"
-				android:layout_weight="0">
-				<de.markusfisch.android.shadereditor.widget.LineNumbers
-					android:id="@+id/line_numbers"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:padding="@dimen/editor_padding"
-					android:textColor="@color/editor_line_numbers"
-					android:textSize="12sp"
-					android:typeface="monospace"
-					app:fontFamily="@font/jetbrains_mono" />
-				<View
-					android:layout_width="1dp"
-					android:layout_height="match_parent"
-					android:background="@color/editor_line_numbers" />
-			</LinearLayout>
-			<de.markusfisch.android.shadereditor.widget.ShaderEditor
-				android:id="@+id/editor"
-				android:layout_weight="1"
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:autofillHints=""
-				android:background="@android:color/transparent"
-				android:gravity="left|top"
-				android:hint="@string/editor_hint"
-				android:imeOptions="flagNoExtractUi"
-				android:inputType="textMultiLine|textNoSuggestions"
-				android:padding="@dimen/editor_padding"
-				android:textColor="@color/editor_text"
-				android:textSize="12sp"
-				android:typeface="monospace"
-				app:fontFamily="@font/jetbrains_mono"
-				tools:ignore="RtlHardcoded" />
-		</LinearLayout>
+			android:background="@android:color/transparent"
+			android:ellipsize="end"
+			android:gravity="left|top"
+			android:imeOptions="flagNoExtractUi"
+			android:inputType="textMultiLine|textNoSuggestions"
+			android:padding="@dimen/editor_padding"
+			android:textColor="@color/editor_text"
+			android:textSize="12sp"
+			android:typeface="monospace"
+			tools:ignore="RtlHardcoded"
+			app:lineNumberColor="@color/editor_line_numbers"
+			app:lineNumberSpacing="@dimen/editor_padding"
+			app:showLineNumbers="true"/>
 	</HorizontalScrollView>
 </ScrollView>

@@ -22,7 +22,6 @@ import de.markusfisch.android.shadereditor.opengl.InfoLog;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.view.UndoRedo;
-import de.markusfisch.android.shadereditor.widget.LineNumbers;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 
 public class EditorFragment extends Fragment {
@@ -30,8 +29,6 @@ public class EditorFragment extends Fragment {
 
 	private ScrollView scrollView;
 	private ShaderEditor shaderEditor;
-	private LineNumbers lineNumbers;
-	private ViewGroup lineNumbersContainer;
 	private UndoRedo undoRedo;
 	private int yOffset;
 
@@ -46,13 +43,9 @@ public class EditorFragment extends Fragment {
 				false);
 
 		scrollView = view.findViewById(R.id.scroll_view);
-		lineNumbers = view.findViewById(R.id.line_numbers);
-		lineNumbersContainer = view.findViewById(R.id.line_numbers_container);
 		shaderEditor = view.findViewById(R.id.editor);
 		// lineNumbersContainer = view.findViewById(R.id.line_numbers_container);
 		setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
-		shaderEditor.setTabSupplier(ShaderEditorApp.preferences::getTabWidth);
-		lineNumbers.setSource(shaderEditor);
 		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
 
 		Activity activity = requireActivity();
@@ -172,11 +165,7 @@ public class EditorFragment extends Fragment {
 				TypedValue.COMPLEX_UNIT_SP,
 				preferences.getTextSize());
 		Typeface font = preferences.getFont();
-		lineNumbers.setTextSize(
-				TypedValue.COMPLEX_UNIT_SP,
-				preferences.getTextSize());
 		shaderEditor.setTypeface(font);
-		lineNumbers.setTypeface(font);
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 			String features = shaderEditor.getFontFeatureSettings();
 			boolean isMono = font == Typeface.MONOSPACE;
@@ -212,6 +201,6 @@ public class EditorFragment extends Fragment {
 	}
 
 	public void setShowLineNumbers(boolean showLineNumbers) {
-		lineNumbersContainer.setVisibility(showLineNumbers ? View.VISIBLE : View.GONE);
+		shaderEditor.setShowLineNumbers(showLineNumbers);
 	}
 }

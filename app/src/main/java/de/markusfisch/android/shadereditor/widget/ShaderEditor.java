@@ -22,7 +22,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
@@ -36,15 +35,10 @@ import de.markusfisch.android.shadereditor.highlighter.Highlight;
 import de.markusfisch.android.shadereditor.highlighter.Lexer;
 import de.markusfisch.android.shadereditor.highlighter.Token;
 
-public class ShaderEditor extends AppCompatEditText {
+public class ShaderEditor extends LineNumberEditText {
 	@FunctionalInterface
 	public interface OnTextChangedListener {
 		void onTextChanged(String text);
-	}
-
-	@FunctionalInterface
-	public interface TabSupplier {
-		int getWidth();
 	}
 
 	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
@@ -73,6 +67,8 @@ public class ShaderEditor extends AppCompatEditText {
 			if (onTextChangedListener != null) {
 				onTextChangedListener.onTextChanged(e.toString());
 			}
+
+			highlightWithoutChange(e);
 		}
 	};
 
@@ -82,21 +78,18 @@ public class ShaderEditor extends AppCompatEditText {
 	private boolean dirty = false;
 	private boolean modified = true;
 	private int colorError;
-	private @NonNull TabSupplier tabSupplier = () -> 2;
+	private int tabWidthInCharacters = 0;
+	private int tabWidth = 0;
 	private List<Token> tokens = new ArrayList<>();
 
-	public ShaderEditor(@NonNull Context context) {
-		this(context, null);
+	public ShaderEditor(Context context) {
+		super(context);
+		init(context);
 	}
 
 	public ShaderEditor(@NonNull Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
-	}
-
-	public void setTabSupplier(@NonNull TabSupplier tabSupplier) {
-		this.tabSupplier = tabSupplier;
-		convertTabs(getText(), 0, length());
 	}
 
 	public void setOnTextChangedListener(OnTextChangedListener listener) {
@@ -105,6 +98,15 @@ public class ShaderEditor extends AppCompatEditText {
 
 	public void setUpdateDelay(int ms) {
 		updateDelay = ms;
+	}
+
+	public void setTabWidth(int characters) {
+		if (tabWidthInCharacters == characters) {
+			return;
+		}
+
+		tabWidthInCharacters = characters;
+		tabWidth = Math.round(getPaint().measureText("m") * characters);
 	}
 
 	public boolean hasErrorLine() {
@@ -311,13 +313,13 @@ public class ShaderEditor extends AppCompatEditText {
 				}
 
 				dirty = true;
-				highlightWithoutChange(e);
 				updateHandler.postDelayed(updateRunnable, updateDelay);
 			}
 		});
 
 		setSyntaxColors(context);
 		setUpdateDelay(ShaderEditorApp.preferences.getUpdateDelay());
+		setTabWidth(ShaderEditorApp.preferences.getTabWidth());
 
 		setOnKeyListener(new OnKeyListener() {
 			@Override
@@ -502,7 +504,6 @@ public class ShaderEditor extends AppCompatEditText {
 
 	private void convertTabs(Editable e, int start, int count) {
 		clearSpans(e, start, count, TabWidthSpan.class);
-		int tabWidth = tabSupplier.getWidth();
 		if (tabWidth < 1) {
 			return;
 		}
@@ -513,7 +514,7 @@ public class ShaderEditor extends AppCompatEditText {
 				(start = s.indexOf("\t", start)) > -1 && start < stop;
 				++start) {
 			e.setSpan(
-					new TabWidthSpan(tabSupplier),
+					new TabWidthSpan(tabWidth),
 					start,
 					start + 1,
 					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -549,10 +550,10 @@ public class ShaderEditor extends AppCompatEditText {
 	private static class TabWidthSpan
 			extends ReplacementSpan
 			implements LineHeightSpan.WithDensity {
-		private final @NonNull TabSupplier tabSupplier;
+		private final int width;
 
-		private TabWidthSpan(@NonNull TabSupplier tabWidthSupplier) {
-			this.tabSupplier = tabWidthSupplier;
+		private TabWidthSpan(int width) {
+			this.width = width;
 		}
 
 		@Override
@@ -562,7 +563,7 @@ public class ShaderEditor extends AppCompatEditText {
 				int start,
 				int end,
 				Paint.FontMetricsInt fm) {
-			return (int) (tabSupplier.getWidth() * paint.measureText("m"));
+			return width;
 		}
 
 		@Override
