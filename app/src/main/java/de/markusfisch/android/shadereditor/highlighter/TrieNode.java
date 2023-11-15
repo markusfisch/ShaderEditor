@@ -51,9 +51,9 @@ public final class TrieNode {
 		int i = 0;
 		int keyPosition = keyStart;
 		for (
-			char ch = CharIterator.ch(keyPosition, keySource);
-			CharIterator.isValid(ch) && i < keyLength;
-			i = keyPosition - keyStart, ch = CharIterator.ch(keyPosition, keySource)
+				char ch = CharIterator.ch(keyPosition, keySource);
+				CharIterator.isValid(ch) && i < keyLength;
+				i = keyPosition - keyStart, ch = CharIterator.ch(keyPosition, keySource)
 		) {
 			int index = charToIndex(ch);
 

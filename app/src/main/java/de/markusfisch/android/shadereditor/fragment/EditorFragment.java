@@ -44,7 +44,6 @@ public class EditorFragment extends Fragment {
 
 		scrollView = view.findViewById(R.id.scroll_view);
 		shaderEditor = view.findViewById(R.id.editor);
-		// lineNumbersContainer = view.findViewById(R.id.line_numbers_container);
 		setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
 		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
 

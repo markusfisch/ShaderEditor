@@ -2,7 +2,6 @@ package de.markusfisch.android.shadereditor.highlighter;
 
 import androidx.annotation.NonNull;
 
-
 public final class CharIterator {
 	/**
 	 * Marks that the returned character of a {@link CharIterator} is invalid.

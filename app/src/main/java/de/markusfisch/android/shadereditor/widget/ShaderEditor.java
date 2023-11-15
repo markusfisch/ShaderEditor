@@ -70,6 +70,7 @@ public class ShaderEditor extends LineNumberEditText {
 			highlightWithoutChange(e);
 		}
 	};
+	private final int[] colors = new int[Highlight.values().length];
 
 	private OnTextChangedListener onTextChangedListener;
 	private int updateDelay = 1000;
@@ -77,7 +78,6 @@ public class ShaderEditor extends LineNumberEditText {
 	private boolean dirty = false;
 	private boolean modified = true;
 	private int colorError;
-	private final int[] colors = new int[Highlight.values().length];
 	private int textColor;
 	private int tabWidthInCharacters = 0;
 	private int tabWidth = 0;
@@ -136,10 +136,10 @@ public class ShaderEditor extends LineNumberEditText {
 		int line = errorLine - 1;
 		Layout layout = getLayout();
 		e.setSpan(
-			new BackgroundColorSpan(colorError),
-			layout.getLineStart(line),
-			layout.getLineEnd(line),
-			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+				new BackgroundColorSpan(colorError),
+				layout.getLineStart(line),
+				layout.getLineEnd(line),
+				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 	}
 
 	public void updateErrorHighlighting() {
@@ -412,7 +412,6 @@ public class ShaderEditor extends LineNumberEditText {
 						token.startOffset(), token.endOffset(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 		}
-
 
 		return e;
 	}

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<color name="syntax_comment">#808080</color>
 	<color name="syntax_invalid">#FF1744</color>
@@ -17,7 +16,6 @@
 	<color name="syntax_field_selection">#BBDEFB</color>
 	<color name="syntax_number_literal">#8BC34A</color>
 	<color name="syntax_bool_literal">#FF9800</color>
-	<!--<color name="syntax_operator">#EEEEEE</color>-->
 	<color name="syntax_operator">@color/editor_text</color>
 	<color name="syntax_precision">#00BCD4</color>
 	<color name="syntax_control_flow">#FF9800</color>

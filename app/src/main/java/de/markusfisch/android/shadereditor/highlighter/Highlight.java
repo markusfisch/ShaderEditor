@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 
 import de.markusfisch.android.shadereditor.R;
 
-
 public enum Highlight {
 	HIGHLIGHT_INVALID(() -> R.color.syntax_invalid),
 	HIGHLIGHT_KEYWORD(() -> R.color.syntax_keyword),

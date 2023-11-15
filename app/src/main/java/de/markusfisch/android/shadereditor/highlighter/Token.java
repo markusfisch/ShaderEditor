@@ -3,6 +3,15 @@ package de.markusfisch.android.shadereditor.highlighter;
 import androidx.annotation.NonNull;
 
 public class Token {
+	private int start;
+	private int end;
+	private int startOffset;
+	private int endOffset;
+	private short line;
+	private short column;
+	private @NonNull TokenType type = TokenType.INVALID;
+	private @NonNull Category category = Category.NORMAL;
+
 	public enum Category {
 		NORMAL,
 		PREPROC,
@@ -115,14 +124,4 @@ public class Token {
 		result = 31 * result + category.hashCode();
 		return result;
 	}
-
-
-	private int start;
-	private int end;
-	private int startOffset;
-	private int endOffset;
-	private short line;
-	private short column;
-	private @NonNull TokenType type = TokenType.INVALID;
-	private @NonNull Category category = Category.NORMAL;
 }
