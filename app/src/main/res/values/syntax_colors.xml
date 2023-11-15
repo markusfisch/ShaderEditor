@@ -1,7 +1,7 @@
 <resources>
 	<color name="syntax_comment">#808080</color>
 	<color name="syntax_invalid">#FF1744</color>
-	<color name="syntax_directive">#F44336</color>
+	<color name="syntax_directive">#BBB</color>
 	<color name="syntax_builtin_function">#00B0FF</color>
 	<color name="syntax_keyword">#2196F3</color>
 	<color name="syntax_type_primitive">#2196F3</color>
