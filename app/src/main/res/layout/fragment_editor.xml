@@ -26,11 +26,13 @@
 			android:gravity="left|top"
 			android:imeOptions="flagNoExtractUi"
 			android:inputType="textMultiLine|textNoSuggestions"
-			android:padding="8dp"
+			android:padding="@dimen/editor_padding"
 			android:textColor="@color/editor_text"
 			android:textSize="12sp"
 			android:typeface="monospace"
 			tools:ignore="RtlHardcoded"
+			app:lineNumberColor="@color/editor_line_numbers"
+			app:lineNumberSpacing="@dimen/editor_padding"
 			app:showLineNumbers="true"/>
 	</HorizontalScrollView>
 </ScrollView>

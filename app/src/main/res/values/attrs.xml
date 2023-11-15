@@ -1,8 +1,13 @@
 <resources>
 	<declare-styleable name="LineNumberEditText">
 		<attr name="showLineNumbers" format="boolean" />
-		<attr name="lineNumberColor" format="color"/>
-		<attr name="lineNumberSpacing" format="dimension"/>
-		<attr name="lineNumberPadding" format="dimension"/>
+		<attr name="lineNumberColor" format="color" />
+		<attr name="lineNumberSpacing" format="dimension" />
+		<attr name="lineNumberPadding" format="dimension" />
+	</declare-styleable>
+
+	<declare-styleable name="LineNumbers">
+		<attr name="spacing" format="dimension" />
+		<attr name="source" format="reference" />
 	</declare-styleable>
 </resources>

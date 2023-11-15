@@ -255,4 +255,5 @@
 	<string name="successfully_imported">Database imported</string>
 	<string name="show_line_numbers">Show Line Numbers</string>
 	<string name="show_line_numbers_summary">Show Line Numbers at the start of each line.</string>
+    <string name="editor_hint">Type Code here</string>
 </resources>

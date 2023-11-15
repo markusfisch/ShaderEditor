@@ -44,14 +44,16 @@ public class EditorFragment extends Fragment {
 
 		scrollView = view.findViewById(R.id.scroll_view);
 		shaderEditor = view.findViewById(R.id.editor);
+		// lineNumbersContainer = view.findViewById(R.id.line_numbers_container);
+		setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
 		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
 
-		Activity activity = getActivity();
-		try {
+		Activity activity = requireActivity();
+		if (activity instanceof ShaderEditor.OnTextChangedListener) {
 			shaderEditor.setOnTextChangedListener(
 					(ShaderEditor.OnTextChangedListener) activity);
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString() +
+		} else {
+			throw new ClassCastException(activity +
 					" must implement " +
 					"ShaderEditor.OnTextChangedListener");
 		}
@@ -94,6 +96,10 @@ public class EditorFragment extends Fragment {
 		shaderEditor.updateHighlighting();
 	}
 
+	public void highlightError() {
+		shaderEditor.updateErrorHighlighting();
+	}
+
 	public void showError(String infoLog) {
 		Activity activity = getActivity();
 		if (activity == null) {
@@ -102,7 +108,7 @@ public class EditorFragment extends Fragment {
 
 		InfoLog.parse(infoLog);
 		shaderEditor.setErrorLine(InfoLog.getErrorLine());
-		updateHighlighting();
+		highlightError();
 
 		Toast errorToast = Toast.makeText(
 				activity,
@@ -171,21 +177,20 @@ public class EditorFragment extends Fragment {
 						: preferences.useLigatures() ? "normal" : "calt off");
 			}
 		}
-		shaderEditor.setTabWidth(preferences.getTabWidth());
 	}
 
 	private int getYOffset(Activity activity) {
 		if (yOffset == 0) {
 			float dp = getResources().getDisplayMetrics().density;
 
-			try {
+			if (activity instanceof AppCompatActivity) {
 				ActionBar actionBar = ((AppCompatActivity) activity)
 						.getSupportActionBar();
 
 				if (actionBar != null) {
 					yOffset = actionBar.getHeight();
 				}
-			} catch (ClassCastException e) {
+			} else {
 				yOffset = Math.round(48f * dp);
 			}
 

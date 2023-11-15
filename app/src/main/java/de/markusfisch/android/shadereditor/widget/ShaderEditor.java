@@ -20,42 +20,28 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.highlighter.Highlight;
+import de.markusfisch.android.shadereditor.highlighter.Lexer;
+import de.markusfisch.android.shadereditor.highlighter.Token;
 
 public class ShaderEditor extends LineNumberEditText {
+	@FunctionalInterface
 	public interface OnTextChangedListener {
 		void onTextChanged(String text);
 	}
 
-	private static final Pattern PATTERN_NUMBERS = Pattern.compile(
-			"\\b(\\d*[.]?\\d+)\\b");
-	private static final Pattern PATTERN_PREPROCESSOR = Pattern.compile(
-			"^[\t ]*(#define|#undef|#if|#ifdef|#ifndef|#else|#elif|#endif|" +
-					"#error|#pragma|#extension|#version|#line)\\b",
-			Pattern.MULTILINE);
-	private static final Pattern PATTERN_KEYWORDS = Pattern.compile(
-			"\\b(attribute|const|uniform|varying|break|continue|" +
-					"do|for|while|if|else|in|out|inout|float|int|void|bool|true|false|" +
-					"lowp|mediump|highp|precision|invariant|discard|return|mat2|mat3|" +
-					"mat4|vec2|vec3|vec4|ivec2|ivec3|ivec4|bvec2|bvec3|bvec4|sampler2D|" +
-					"samplerCube|struct|gl_Vertex|gl_FragCoord|gl_FragColor)\\b");
-	private static final Pattern PATTERN_BUILTINS = Pattern.compile(
-			"\\b(radians|degrees|sin|cos|tan|asin|acos|atan|pow|" +
-					"exp|log|exp2|log2|sqrt|inversesqrt|abs|sign|floor|ceil|fract|mod|" +
-					"min|max|clamp|mix|step|smoothstep|length|distance|dot|cross|" +
-					"normalize|faceforward|reflect|refract|matrixCompMult|lessThan|" +
-					"lessThanEqual|greaterThan|greaterThanEqual|equal|notEqual|any|all|" +
-					"not|dFdx|dFdy|fwidth|texture2D|texture2DProj|texture2DLod|" +
-					"texture2DProjLod|textureCube|textureCubeLod)\\b");
-	private static final Pattern PATTERN_COMMENTS = Pattern.compile(
-			"/\\*(?:.|[\\n\\r])*?\\*/|//.*");
 	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
 			"[\\t ]+$",
 			Pattern.MULTILINE);
@@ -91,19 +77,18 @@ public class ShaderEditor extends LineNumberEditText {
 	private boolean dirty = false;
 	private boolean modified = true;
 	private int colorError;
-	private int colorNumber;
-	private int colorKeyword;
-	private int colorBuiltin;
-	private int colorComment;
+	private final int[] colors = new int[Highlight.values().length];
+	private int textColor;
 	private int tabWidthInCharacters = 0;
 	private int tabWidth = 0;
+	private List<Token> tokens = new ArrayList<>();
 
 	public ShaderEditor(Context context) {
 		super(context);
 		init(context);
 	}
 
-	public ShaderEditor(Context context, AttributeSet attrs) {
+	public ShaderEditor(@NonNull Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
 	}
@@ -137,6 +122,34 @@ public class ShaderEditor extends LineNumberEditText {
 		highlightWithoutChange(getText());
 	}
 
+	private void clearError(@Nullable Spannable e) {
+		if (e == null) return;
+		clearSpans(e, 0, e.length(), BackgroundColorSpan.class);
+	}
+
+	private void highlightError(int errorLine) {
+		Spannable e = getText();
+		clearError(e);
+		if (e == null || e.length() == 0 || errorLine <= 0) {
+			return;
+		}
+		int line = errorLine - 1;
+		Layout layout = getLayout();
+		e.setSpan(
+			new BackgroundColorSpan(colorError),
+			layout.getLineStart(line),
+			layout.getLineEnd(line),
+			Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+	}
+
+	public void updateErrorHighlighting() {
+		Spannable e = getText();
+		clearError(e);
+		if (errorLine > 0) {
+			highlightError(errorLine);
+		}
+	}
+
 	public boolean isModified() {
 		return dirty;
 	}
@@ -152,7 +165,7 @@ public class ShaderEditor extends LineNumberEditText {
 		dirty = false;
 
 		modified = false;
-		setText(highlight(new SpannableStringBuilder(text)));
+		setText(highlight(new SpannableStringBuilder(text), true));
 		modified = true;
 
 		if (onTextChangedListener != null) {
@@ -245,7 +258,8 @@ public class ShaderEditor extends LineNumberEditText {
 		return idx;
 	}
 
-	private void init(Context context) {
+	private void init(@NonNull Context context) {
+		// Setting this through XML does not work
 		setHorizontallyScrolling(true);
 
 		setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
@@ -325,21 +339,13 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	private void setSyntaxColors(Context context) {
+		for (Highlight highlight : Highlight.values()) {
+			colors[highlight.ordinal()] = ContextCompat.getColor(context, highlight.id());
+		}
+		textColor = ContextCompat.getColor(context, R.color.editor_text);
 		colorError = ContextCompat.getColor(
 				context,
 				R.color.syntax_error);
-		colorNumber = ContextCompat.getColor(
-				context,
-				R.color.syntax_number);
-		colorKeyword = ContextCompat.getColor(
-				context,
-				R.color.syntax_keyword);
-		colorBuiltin = ContextCompat.getColor(
-				context,
-				R.color.syntax_builtin);
-		colorComment = ContextCompat.getColor(
-				context,
-				R.color.syntax_comment);
 	}
 
 	private void cancelUpdate() {
@@ -348,115 +354,77 @@ public class ShaderEditor extends LineNumberEditText {
 
 	private void highlightWithoutChange(Editable e) {
 		modified = false;
-		highlight(e);
+		highlight(e, false);
 		modified = true;
 	}
 
-	private Editable highlight(Editable e) {
-		try {
-			int length = e.length();
+	private Editable highlight(Editable e, boolean complete) {
+		int length = e.length();
 
-			// Don't use e.clearSpans() because it will
-			// remove too much.
-			clearSpans(e, length);
+		clearError(e);
 
-			if (length == 0) {
-				return e;
-			}
-
-			// When pasting text from other apps, e.g. Github Mobile code
-			// viewer, the text can be tainted with No-Break Space (U+00A0)
-			// characters.
-			for (Matcher m = PATTERN_NO_BREAK_SPACE.matcher(e); m.find(); ) {
-				e.replace(m.start(), m.end(), " ");
-			}
-
-			if (errorLine > 0) {
-				int line = errorLine - 1;
-				Layout layout = getLayout();
-				e.setSpan(
-						new BackgroundColorSpan(colorError),
-						layout.getLineStart(line),
-						layout.getLineEnd(line),
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			}
-
-			if (ShaderEditorApp.preferences.disableHighlighting() &&
-					length > 4096) {
-				return e;
-			}
-
-			for (Matcher m = PATTERN_NUMBERS.matcher(e); m.find(); ) {
-				e.setSpan(
-						new ForegroundColorSpan(colorNumber),
-						m.start(),
-						m.end(),
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			}
-
-			for (Matcher m = PATTERN_PREPROCESSOR.matcher(e); m.find(); ) {
-				e.setSpan(
-						new ForegroundColorSpan(colorKeyword),
-						m.start(),
-						m.end(),
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			}
-
-			for (Matcher m = PATTERN_KEYWORDS.matcher(e); m.find(); ) {
-				e.setSpan(
-						new ForegroundColorSpan(colorKeyword),
-						m.start(),
-						m.end(),
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			}
-
-			for (Matcher m = PATTERN_BUILTINS.matcher(e); m.find(); ) {
-				e.setSpan(
-						new ForegroundColorSpan(colorBuiltin),
-						m.start(),
-						m.end(),
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			}
-
-			for (Matcher m = PATTERN_COMMENTS.matcher(e); m.find(); ) {
-				e.setSpan(
-						new ForegroundColorSpan(colorComment),
-						m.start(),
-						m.end(),
-						Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-			}
-		} catch (IllegalStateException ex) {
-			// Raised by Matcher.start()/.end() when
-			// no successful match has been made what
-			// shouldn't ever happen because of find().
+		if (length == 0) {
+			tokens = new ArrayList<>();
+			return e;
 		}
+
+		// When pasting text from other apps, e.g. Github Mobile code
+		// viewer, the text can be tainted with No-Break Space (U+00A0)
+		// characters.
+		for (Matcher m = PATTERN_NO_BREAK_SPACE.matcher(e); m.find(); ) {
+			e.replace(m.start(), m.end(), " ");
+		}
+
+		if (ShaderEditorApp.preferences.disableHighlighting() &&
+				length > 4096) {
+			clearSpans(e, 0, length, ForegroundColorSpan.class);
+			return e;
+		}
+
+		Lexer lexer = new Lexer(e.toString());
+		List<Token> oldTokens = tokens;
+		tokens = new ArrayList<>();
+		for (Token token : lexer) {
+			tokens.add(token);
+		}
+
+		if (complete) {
+			clearSpans(e, 0, length, ForegroundColorSpan.class);
+			for (Token token : tokens) {
+				@ColorInt int color = colors[Highlight.from(token.type()).ordinal()];
+				if (color != textColor) {
+					e.setSpan(
+							new ForegroundColorSpan(color),
+							token.startOffset(), token.endOffset(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+				}
+			}
+		} else {
+			Lexer.Diff diff = Lexer.diff(oldTokens, tokens);
+			if (diff.start <= diff.deleteEnd) {
+				int startOffset = tokens.get(diff.start).startOffset();
+				int endOffset = tokens.get(diff.insertEnd).endOffset();
+				clearSpans(e, startOffset, endOffset, ForegroundColorSpan.class);
+			}
+			for (int i = diff.start; i <= diff.insertEnd; ++i) {
+				Token token = tokens.get(i);
+				e.setSpan(
+						new ForegroundColorSpan(colors[Highlight.from(token.type()).ordinal()]),
+						token.startOffset(), token.endOffset(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+		}
+
 
 		return e;
 	}
 
-	private static void clearSpans(Editable e, int length) {
+	private static <T> void clearSpans(Spannable e, int start, int end, Class<T> clazz) {
 		// Remove foreground color spans.
-		{
-			ForegroundColorSpan[] spans = e.getSpans(
-					0,
-					length,
-					ForegroundColorSpan.class);
-
-			for (int i = spans.length; i-- > 0; ) {
-				e.removeSpan(spans[i]);
-			}
-		}
-
-		// Remove background color spans.
-		{
-			BackgroundColorSpan[] spans = e.getSpans(
-					0,
-					length,
-					BackgroundColorSpan.class);
-
-			for (int i = spans.length; i-- > 0; ) {
-				e.removeSpan(spans[i]);
-			}
+		T[] spans = e.getSpans(
+				start,
+				end,
+				clazz);
+		for (T span : spans) {
+			e.removeSpan(span);
 		}
 	}
 
@@ -540,6 +508,7 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	private void convertTabs(Editable e, int start, int count) {
+		clearSpans(e, start, count, TabWidthSpan.class);
 		if (tabWidth < 1) {
 			return;
 		}
