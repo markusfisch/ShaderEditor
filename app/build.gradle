@@ -10,8 +10,8 @@ android {
 		minSdkVersion 14
 		targetSdkVersion sdk_version
 
-		versionCode 77
-		versionName '2.31.1'
+		versionCode 78
+		versionName '2.32.0'
 	}
 
 	signingConfigs {

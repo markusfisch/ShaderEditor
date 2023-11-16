@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.32.0
+* Use lexer based syntax highlighting
+* Improve monochrome icon
+
 ## 2.31.1
 * Use system monospace font by default
 * Disable ligatures by default
