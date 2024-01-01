@@ -3,7 +3,7 @@
 	xmlns:material="http://schemas.android.com/apk/res-auto">
 	<item
 		android:id="@+id/rotate_clockwise"
-		android:icon="@drawable/ic_action_rotate_clockwise"
+		android:icon="@drawable/ic_rotate_right"
 		android:title="@string/rotate_clockwise"
 		material:showAsAction="ifRoom"/>
 </menu>

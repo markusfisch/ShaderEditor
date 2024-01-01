@@ -3,7 +3,7 @@
 	xmlns:material="http://schemas.android.com/apk/res-auto">
 	<item
 		android:id="@+id/remove_texture"
-		android:icon="@drawable/ic_action_delete"
+		android:icon="@drawable/ic_delete_forever"
 		android:title="@string/remove_texture"
-		material:showAsAction="ifRoom"/>
+		material:showAsAction="ifRoom" />
 </menu>

@@ -1,14 +1,15 @@
 <androidx.appcompat.widget.Toolbar
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools"
-	tools:ignore="Overdraw,PrivateResource"
 	android:id="@+id/toolbar"
 	android:layout_width="match_parent"
 	android:layout_height="?attr/actionBarSize"
 	android:background="@color/primary_translucent"
 	app:titleTextAppearance="@style/Title"
-	app:subtitleTextAppearance="@style/Subtitle">
+	app:subtitleTextAppearance="@style/Subtitle"
+	android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar"
+	app:popupTheme="@style/ThemeOverlay.MaterialComponents"
+	>
 	<Spinner
 		android:id="@+id/quality"
 		android:layout_width="wrap_content"

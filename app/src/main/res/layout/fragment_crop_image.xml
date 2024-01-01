@@ -7,5 +7,5 @@
 		style="@style/FABRight"
 		android:id="@+id/crop"
 		android:contentDescription="@string/crop_image"
-		android:src="@drawable/ic_fab_crop"/>
+		android:src="@drawable/ic_crop"/>
 </RelativeLayout>

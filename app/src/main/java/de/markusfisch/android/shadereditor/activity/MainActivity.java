@@ -29,6 +29,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.Toolbar;
 
 import java.io.IOException;
@@ -101,8 +102,12 @@ public class MainActivity
 		return super.onKeyDown(keyCode, e);
 	}
 
+	@SuppressLint("RestrictedApi")
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
+		if (menu instanceof MenuBuilder) {
+			((MenuBuilder)menu).setOptionalIconsVisible(true);
+		}
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main, menu);
 		return true;
@@ -699,7 +704,6 @@ public class MainActivity
 		if (editorFragment != null) {
 			boolean isVisible = editorFragment.toggleCode();
 			drawerLayout.setTouchThru(isVisible);
-			insertTabMenuItem.setEnabled(!isVisible);
 		}
 	}
 

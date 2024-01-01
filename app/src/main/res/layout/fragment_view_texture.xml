@@ -6,5 +6,5 @@
 		style="@style/FABRight"
 		android:id="@+id/insert_code"
 		android:contentDescription="@string/insert_uniform_sampler"
-		android:src="@drawable/ic_fab_insert_code"/>
+		android:src="@drawable/ic_arrow_insert"/>
 </RelativeLayout>
