@@ -4,6 +4,7 @@
 		<item name="colorPrimary">@color/primary</item>
 		<item name="colorPrimaryDark">@color/primary_dark</item>
 		<item name="colorAccent">@color/accent</item>
+		<item name="colorSecondary">@color/accent</item>
 		<item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
 		<item name="alertDialogTheme">@style/AlertDialogTheme</item>
 	</style>
@@ -52,12 +53,11 @@
 	</style>
 	<style
 		name="FAB"
-		parent="Widget.Design.FloatingActionButton">
+		parent="Widget.MaterialComponents.FloatingActionButton">
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:layout_margin">20dp</item>
 		<item name="android:layout_alignParentBottom">true</item>
-		<item name="elevation">4dp</item>
 	</style>
 	<style name="FABLeft" parent="FAB">
 		<item name="android:layout_alignParentStart">true</item>
