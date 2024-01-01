@@ -22,7 +22,7 @@
 	</style>
 	<style
 		name="PreviewTheme"
-		parent="Theme.AppCompat.NoActionBar">
+		parent="Theme.MaterialComponents.NoActionBar">
 		<item name="android:windowNoTitle">true</item>
 		<item name="android:windowFullscreen">true</item>
 		<item name="android:windowContentOverlay">@null</item>
