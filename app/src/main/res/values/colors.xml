@@ -1,6 +1,5 @@
 <resources>
 	<color name="primary">#222</color>
-	<color name="onPrimary">#FFFFFF</color>
 	<color name="primary_translucent">#8222</color>
 	<color name="primary_dark">#111</color>
 	<color name="primary_dark_translucent">#8111</color>

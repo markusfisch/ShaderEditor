@@ -2,10 +2,18 @@
 	<style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
 		<item name="background">@android:color/transparent</item>
 		<item name="colorPrimary">@color/primary</item>
-		<item name="colorOnPrimary">@color/onPrimary</item>
 		<item name="colorPrimaryDark">@color/primary_dark</item>
 		<item name="colorAccent">@color/accent</item>
 		<item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+		<item name="alertDialogTheme">@style/AlertDialogTheme</item>
+	</style>
+	<style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+		<item name="buttonBarPositiveButtonStyle">@style/AlertDialogButtonStyle</item>
+		<item name="buttonBarNegativeButtonStyle">@style/AlertDialogButtonStyle</item>
+	</style>
+	<style name="AlertDialogButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+		<item name="android:textColor">@color/accent</item>
+		<!-- You can also set other button properties here if needed -->
 	</style>
 	<style
 		name="SplashTheme"
