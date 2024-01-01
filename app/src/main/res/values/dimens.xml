@@ -3,4 +3,7 @@
 	<dimen name="menu_item_height">48dp</dimen>
 	<!-- menu_width = 5 * menu_item_height -->
 	<dimen name="menu_width">240dp</dimen>
+	<dimen name="extra_key_height">52dp</dimen>
+	<dimen name="extra_key_width">36dp</dimen>
+	<dimen name="extra_key_spacing">3dp</dimen>
 </resources>

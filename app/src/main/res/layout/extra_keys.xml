@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="match_parent"
+	android:layout_height="@dimen/extra_key_height"
+	android:layout_gravity="bottom"
+	android:layout_weight="0"
+	android:orientation="horizontal">
+
+	<Button
+		android:id="@+id/insert_tab"
+		android:layout_width="@dimen/extra_key_width"
+		android:layout_height="match_parent"
+		android:layout_marginHorizontal="@dimen/extra_key_spacing"
+		android:layout_weight="0"
+		android:contentDescription="@string/insert_tab"
+		android:gravity="center"
+		app:icon="@drawable/ic_keyboard_tab"
+		app:iconGravity="textStart"
+		app:iconPadding="0dp"
+		app:cornerRadius="8dp"/>
+
+	<LinearLayout
+		android:id="@+id/extra_keys"
+		android:layout_width="0dp"
+		android:layout_height="match_parent"
+		android:layout_weight="1"
+		android:orientation="horizontal" />
+
+</LinearLayout>

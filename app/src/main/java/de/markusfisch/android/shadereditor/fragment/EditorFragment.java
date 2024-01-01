@@ -43,6 +43,8 @@ public class EditorFragment extends Fragment {
 
 		editorContainer = view.findViewById(R.id.editor_container);
 		shaderEditor = view.findViewById(R.id.editor);
+		Button tabKey = view.findViewById(R.id.insert_tab);
+		tabKey.setOnClickListener((btn) -> insertTab());
 		setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
 		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
 
