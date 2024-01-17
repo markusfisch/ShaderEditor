@@ -806,7 +806,9 @@ public class MainActivity
 		ShaderEditorApp.preferences.setWallpaperShader(id);
 
 		int message;
-		if (ShaderWallpaperService.isRunning()) {
+		if (!canSetWallpaper()) {
+			message = R.string.cannot_set_wallpaper;
+		} else if (ShaderWallpaperService.isRunning()) {
 			message = R.string.wallpaper_set;
 		} else if (startChangeLiveWallpaper()) {
 			return;
@@ -816,6 +818,16 @@ public class MainActivity
 			message = R.string.pick_live_wallpaper_manually;
 		}
 		Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+	}
+
+	private boolean canSetWallpaper() {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+			return true;
+		}
+		WallpaperManager wm = WallpaperManager.getInstance(this);
+		return wm.isWallpaperSupported() &&
+				(Build.VERSION.SDK_INT < Build.VERSION_CODES.N ||
+						wm.isSetWallpaperAllowed());
 	}
 
 	private boolean startChangeLiveWallpaper() {

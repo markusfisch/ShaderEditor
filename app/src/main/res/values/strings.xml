@@ -26,6 +26,7 @@
 	<string name="rename_shader">Rename shader</string>
 	<string name="enter_name">Enter a name</string>
 	<string name="wallpaper_set">Wallpaper set</string>
+	<string name="cannot_set_wallpaper">Cannot set a wallpaper</string>
 	<string name="pick_live_wallpaper">Please pick this app as Live Wallpaper to set this wallpaper</string>
 	<string name="pick_live_wallpaper_manually">You need to pick this app as Live Wallpaper first</string>
 
