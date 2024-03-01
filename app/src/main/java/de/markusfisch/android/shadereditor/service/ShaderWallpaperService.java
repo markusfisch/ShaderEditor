@@ -1,20 +1,81 @@
 package de.markusfisch.android.shadereditor.service;
 
+import android.app.KeyguardManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleRegistry;
+import androidx.lifecycle.MutableLiveData;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
+
+class LockScreenObserver extends BroadcastReceiver implements DefaultLifecycleObserver {
+	private final Context context;
+
+	private final MutableLiveData<Boolean> isScreenLockedObserver;
+
+	LockScreenObserver(Context context, MutableLiveData<Boolean> isScreenLockedObserver) {
+		this.context = context;
+		this.isScreenLockedObserver = isScreenLockedObserver;
+	}
+
+	@Override
+	public void onCreate(@NonNull LifecycleOwner owner) {
+		IntentFilter intentFilter = new IntentFilter();
+		intentFilter.addAction(Intent.ACTION_USER_PRESENT);
+		intentFilter.addAction(Intent.ACTION_SCREEN_ON);
+		intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
+
+		context.registerReceiver(this, intentFilter);
+	}
+
+	@Override
+	public void onDestroy(@NonNull LifecycleOwner owner) {
+		context.unregisterReceiver(this);
+	}
+
+	@Override
+	public void onReceive(Context context, Intent intent) {
+		if (intent == null) {
+			return;
+		}
+		switch (intent.getAction()) {
+			case Intent.ACTION_SCREEN_ON:
+				KeyguardManager keyguardManager = (KeyguardManager)context.getSystemService(Context.KEYGUARD_SERVICE);
+				if (!keyguardManager.isKeyguardLocked()) {
+					isScreenLockedObserver.setValue(false);
+				}
+				break;
+			case Intent.ACTION_SCREEN_OFF:
+				isScreenLockedObserver.setValue(true);
+				break;
+			case Intent.ACTION_USER_PRESENT:
+				isScreenLockedObserver.setValue(false);
+				break;
+		}
+	}
+}
 
 public class ShaderWallpaperService extends WallpaperService {
 	private static ShaderWallpaperEngine engine;
@@ -54,10 +115,14 @@ public class ShaderWallpaperService extends WallpaperService {
 
 	private class ShaderWallpaperEngine
 			extends Engine
-			implements SharedPreferences.OnSharedPreferenceChangeListener {
+			implements SharedPreferences.OnSharedPreferenceChangeListener, LifecycleOwner {
 		private final Handler handler = new Handler();
 
 		private ShaderWallpaperView view;
+
+		private final MutableLiveData<Boolean> isScreenLockedObserver = new MutableLiveData<Boolean>(false);
+
+		private final LifecycleRegistry lifecycleRegistry = new LifecycleRegistry(this);
 
 		@Override
 		public void onSharedPreferenceChanged(
@@ -71,12 +136,20 @@ public class ShaderWallpaperService extends WallpaperService {
 		@Override
 		public void onCreate(SurfaceHolder holder) {
 			super.onCreate(holder);
+
 			view = new ShaderWallpaperView();
-			setShader();
+
+			isScreenLockedObserver.observe(this, (isScreenLocked) -> {
+				setShader();
+			});
+
+			lifecycleRegistry.addObserver(new LockScreenObserver(view.getContext(), isScreenLockedObserver));
+			lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
 		}
 
 		@Override
 		public void onDestroy() {
+			lifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
 			super.onDestroy();
 			view.destroy();
 			view = null;
@@ -110,6 +183,12 @@ public class ShaderWallpaperService extends WallpaperService {
 			view.getRenderer().setOffset(xOffset, yOffset);
 		}
 
+		@NonNull
+		@Override
+		public Lifecycle getLifecycle() {
+			return lifecycleRegistry;
+		}
+
 		private ShaderWallpaperEngine() {
 			super();
 
@@ -134,8 +213,14 @@ public class ShaderWallpaperService extends WallpaperService {
 				return;
 			}
 
-			Cursor cursor = ShaderEditorApp.db.getShader(
-					ShaderEditorApp.preferences.getWallpaperShader());
+			Cursor cursor;
+			if (Boolean.TRUE.equals(isScreenLockedObserver.getValue())) {
+				cursor = ShaderEditorApp.db.getShader(2);
+//						ShaderEditorApp.preferences.getLockScreenWallpaperShader());
+			} else {
+				cursor = ShaderEditorApp.db.getShader(1);
+//						ShaderEditorApp.preferences.getWallpaperShader());
+			}
 
 			boolean randomShader = false;
 
@@ -158,6 +243,7 @@ public class ShaderWallpaperService extends WallpaperService {
 			}
 
 			if (view != null) {
+				Log.d("@@@", "name" + Database.getString(cursor, Database.SHADERS_NAME));
 				view.getRenderer().setFragmentShader(
 						Database.getString(cursor, Database.SHADERS_FRAGMENT_SHADER),
 						Database.getFloat(cursor, Database.SHADERS_QUALITY));

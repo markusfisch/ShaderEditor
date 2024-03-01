@@ -17,6 +17,7 @@ import de.markusfisch.android.shadereditor.R;
 
 public class Preferences {
 	public static final String WALLPAPER_SHADER = "shader";
+	public static final String LOCK_SCREEN_WALLPAPER_SHADER = "lock_screen_shader";
 	public static final String SAVE_BATTERY = "save_battery";
 	public static final String RUN_MODE = "run_mode";
 	public static final String UPDATE_DELAY = "update_delay";
@@ -54,6 +55,7 @@ public class Preferences {
 
 	private SharedPreferences preferences;
 	private long wallpaperShaderId = 1;
+	private long lockScreenWallpaperShaderId = 1;
 	private boolean saveBattery = true;
 	private int runMode = RUN_AUTO;
 	private int updateDelay = 1000;
@@ -229,9 +231,18 @@ public class Preferences {
 		return wallpaperShaderId;
 	}
 
+	public long getLockScreenWallpaperShader() {
+		return wallpaperShaderId;
+	}
+
 	public void setWallpaperShader(long id) {
 		wallpaperShaderId = id;
 		putString(WALLPAPER_SHADER, String.valueOf(wallpaperShaderId));
+	}
+
+	public void setLockScreenWallpaperShader(long id) {
+		lockScreenWallpaperShaderId = id;
+		putString(LOCK_SCREEN_WALLPAPER_SHADER, String.valueOf(lockScreenWallpaperShaderId));
 	}
 
 	public long getDefaultNewShader() {
