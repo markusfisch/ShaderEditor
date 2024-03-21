@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:layout_gravity="end"
+	android:background="@drawable/menu">
+
+	<LinearLayout
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:orientation="vertical">
+
+		<LinearLayout
+			android:layout_width="@dimen/menu_width"
+			android:layout_height="wrap_content"
+			android:background="@drawable/menu_header"
+			android:orientation="horizontal">
+
+			<Button
+				android:id="@+id/undo"
+				style="@style/MenuItem"
+				android:layout_width="0dp"
+				android:layout_height="@dimen/menu_item_height"
+				android:layout_weight="1"
+				android:contentDescription="@string/undo"
+				android:gravity="center"
+				app:icon="@drawable/ic_undo"
+				app:iconGravity="textStart"
+				app:iconPadding="0dp"
+				app:iconTint="?attr/colorOnSurface" />
+
+			<Button
+				android:id="@+id/redo"
+				style="@style/MenuItem"
+				android:layout_width="0dp"
+				android:layout_height="@dimen/menu_item_height"
+				android:layout_weight="1"
+				android:contentDescription="@string/redo"
+				android:gravity="center"
+				app:icon="@drawable/ic_redo"
+				app:iconGravity="textStart"
+				app:iconPadding="0dp"
+				app:iconTint="?attr/colorOnSurface" />
+		</LinearLayout>
+
+		<Button
+			android:id="@+id/add_shader"
+			style="@style/MenuItem"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/menu_item_height"
+			android:text="@string/add_shader"
+			app:icon="@drawable/ic_add" />
+
+		<Button
+			android:id="@+id/save_shader"
+			style="@style/MenuItem"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/menu_item_height"
+			android:text="@string/save_shader"
+			app:icon="@drawable/ic_save" />
+
+		<Button
+			android:id="@+id/duplicate_shader"
+			style="@style/MenuItem"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/menu_item_height"
+			android:text="@string/duplicate_shader"
+			app:icon="@drawable/ic_file_copy" />
+
+		<Button
+			android:id="@+id/delete_shader"
+			style="@style/MenuItem"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/menu_item_height"
+			android:gravity="center|start"
+			android:text="@string/delete_shader"
+			app:icon="@drawable/ic_delete_forever" />
+
+		<com.google.android.material.divider.MaterialDivider
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginVertical="4dp"
+			app:dividerInsetEnd="8dp"
+			app:dividerInsetStart="8dp" />
+
+		<Button
+			android:id="@+id/share_shader"
+			style="@style/MenuItem"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/menu_item_height"
+			android:gravity="center|start"
+			android:text="@string/share_shader"
+			app:icon="@drawable/ic_share" />
+
+		<Button
+			android:id="@+id/update_wallpaper"
+			style="@style/MenuItem"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/menu_item_height"
+			android:text="@string/update_wallpaper"
+			app:icon="@drawable/ic_wallpaper" />
+
+		<Button
+			android:id="@+id/add_uniform"
+			style="@style/MenuItem"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/menu_item_height"
+			android:text="@string/add_uniform"
+			app:icon="@drawable/ic_arrow_insert" />
+
+		<Button
+			android:id="@+id/load_sample"
+			style="@style/MenuItem"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/menu_item_height"
+			android:text="@string/load_sample"
+			app:icon="@drawable/ic_quick_reference_all" />
+
+		<com.google.android.material.divider.MaterialDivider
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginVertical="4dp"
+			app:dividerInsetEnd="8dp"
+			app:dividerInsetStart="8dp" />
+
+		<Button
+			android:id="@+id/settings"
+			style="@style/MenuItem"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/menu_item_height"
+			android:text="@string/settings"
+			app:icon="@drawable/ic_settings" />
+
+		<Button
+			android:id="@+id/faq"
+			style="@style/MenuItem"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/menu_item_height"
+			android:text="@string/faq"
+			app:icon="@drawable/ic_forum" />
+
+	</LinearLayout>
+</ScrollView>

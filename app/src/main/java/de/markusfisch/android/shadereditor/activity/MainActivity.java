@@ -8,29 +8,35 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.view.ViewGroup.LayoutParams;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.ViewCompat;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -71,9 +77,9 @@ public class MainActivity
 	private EditorFragment editorFragment;
 	private Toolbar toolbar;
 	private Spinner qualitySpinner;
-	private MenuItem insertTabMenuItem;
 	private TouchThruDrawerLayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
+	private PopupWindow menuPopup;
 	private View menuFrame;
 	private ListView listView;
 	private ShaderAdapter shaderAdapter;
@@ -84,7 +90,7 @@ public class MainActivity
 	private float quality = 1f;
 
 	@Override
-	public void onConfigurationChanged(Configuration newConfig) {
+	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		drawerToggle.onConfigurationChanged(newConfig);
 	}
@@ -100,86 +106,6 @@ public class MainActivity
 			return true;
 		}
 		return super.onKeyDown(keyCode, e);
-	}
-
-	@SuppressLint("RestrictedApi")
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		if (menu instanceof MenuBuilder) {
-			((MenuBuilder)menu).setOptionalIconsVisible(true);
-		}
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.main, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		insertTabMenuItem = menu.findItem(R.id.insert_tab);
-		insertTabMenuItem.setVisible(
-				ShaderEditorApp.preferences.doesShowInsertTab());
-		menu.findItem(R.id.run_code).setVisible(
-				!ShaderEditorApp.preferences.doesRunOnChange());
-		menu.findItem(R.id.toggle_code).setVisible(
-				ShaderEditorApp.preferences.doesRunInBackground());
-		menu.findItem(R.id.update_wallpaper).setTitle(
-				ShaderEditorApp.preferences.getWallpaperShader() ==
-						selectedShaderId
-						? R.string.update_wallpaper
-						: R.string.set_as_wallpaper);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int itemId = item.getItemId();
-		if (itemId == R.id.insert_tab) {
-			insertTab();
-			return true;
-		} else if (itemId == R.id.run_code) {
-			runShader();
-			return true;
-		} else if (itemId == R.id.undo) {
-			editorFragment.undo();
-			return true;
-		} else if (itemId == R.id.redo) {
-			editorFragment.redo();
-			return true;
-		} else if (itemId == R.id.save_shader) {
-			saveShader(selectedShaderId);
-			return true;
-		} else if (itemId == R.id.toggle_code) {
-			toggleCode();
-			return true;
-		} else if (itemId == R.id.add_shader) {
-			addShader();
-			return true;
-		} else if (itemId == R.id.duplicate_shader) {
-			duplicateSelectedShader();
-			return true;
-		} else if (itemId == R.id.delete_shader) {
-			deleteShader(selectedShaderId);
-			return true;
-		} else if (itemId == R.id.share_shader) {
-			shareShader();
-			return true;
-		} else if (itemId == R.id.update_wallpaper) {
-			updateWallpaper(selectedShaderId);
-			return true;
-		} else if (itemId == R.id.add_uniform) {
-			addUniform();
-			return true;
-		} else if (itemId == R.id.load_sample) {
-			loadSample();
-			return true;
-		} else if (itemId == R.id.faq) {
-			showFaq();
-			return true;
-		} else if (itemId == R.id.settings) {
-			showSettings();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -289,11 +215,9 @@ public class MainActivity
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle state) {
-		if (state != null) {
-			state.putLong(SELECTED_SHADER, selectedShaderId);
-			state.putBoolean(CODE_VISIBLE, editorFragment.isCodeVisible());
-		}
+	protected void onSaveInstanceState(@NonNull Bundle state) {
+		state.putLong(SELECTED_SHADER, selectedShaderId);
+		state.putBoolean(CODE_VISIBLE, editorFragment.isCodeVisible());
 		super.onSaveInstanceState(state);
 	}
 
@@ -348,8 +272,86 @@ public class MainActivity
 	}
 
 	private void initToolbar() {
-		toolbar = (Toolbar) findViewById(R.id.toolbar);
+		toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
+
+		Button menuButton = toolbar.findViewById(R.id.menu_btn);
+		setTooltipText(menuButton, R.string.menu_btn);
+		toolbar.findViewById(R.id.toggle_code).setOnClickListener((v) -> toggleCode());
+		toolbar.findViewById(R.id.insert_tab).setOnClickListener((v) -> insertTab());
+		menuButton.setOnClickListener(this::showMenu);
+		menuPopup = new PopupBuilder(R.layout.main_menu)
+			.setClickListener(R.id.undo, (v, popup) -> {
+				editorFragment.undo();
+				updateUndoRedoMenu(popup);
+			}, false)
+			.setTooltipText(R.id.undo, R.string.undo)
+			.setClickListener(R.id.redo, (v, popup) -> {
+				editorFragment.redo();
+				updateUndoRedoMenu(popup);
+			}, false)
+			.setTooltipText(R.id.redo, R.string.redo)
+			.setClickListener(R.id.add_shader, this::addShader)
+			.setClickListener(R.id.save_shader, () -> saveShader(selectedShaderId))
+			.setClickListener(R.id.duplicate_shader, () -> duplicateShader(selectedShaderId))
+			.setClickListener(R.id.delete_shader, () -> deleteShader(selectedShaderId))
+			.setClickListener(R.id.share_shader, this::shareShader)
+			.setClickListener(R.id.update_wallpaper, () -> updateWallpaper(selectedShaderId))
+			.setClickListener(R.id.add_uniform, this::addUniform)
+			.setClickListener(R.id.load_sample, this::loadSample)
+			.setClickListener(R.id.settings, this::showSettings)
+			.setClickListener(R.id.faq, this::showFaq)
+			.build();
+	}
+	private void updateUndoRedoMenu(@NonNull PopupWindow menuPopup) {
+		View menuView = menuPopup.getContentView();
+		View undo = menuView.findViewById(R.id.undo);
+		undo.setEnabled(editorFragment.canUndo());
+		View redo = menuView.findViewById(R.id.redo);
+		redo.setEnabled(editorFragment.canRedo());
+	}
+	private void prepareMenu(@NonNull PopupWindow menuPopup) {
+		View menuView = menuPopup.getContentView();
+		menuView.setScrollY(0);
+		updateUndoRedoMenu(menuPopup);
+		((Button)menuView.findViewById(R.id.update_wallpaper)).setText(
+			ShaderEditorApp.preferences.getWallpaperShader() ==
+				selectedShaderId
+				? R.string.update_wallpaper
+				: R.string.set_as_wallpaper);
+	}
+
+	private void showMenu(View anchor) {
+		if (!menuPopup.isShowing()) {
+			int[] location = new int[2];
+			anchor.getLocationOnScreen(location);
+
+			// Get the screen height
+			Rect screenRect = new Rect();
+			anchor.getWindowVisibleDisplayFrame(screenRect);
+			int screenHeight = screenRect.height();
+
+			// Calculate the maximum allowed height (screen height - padding)
+			DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+			int padding = (int) (100 * displayMetrics.density); // You can adjust this padding value
+			int maxHeight = screenHeight - padding;
+			int minHeight = (int)(48 * 3 * displayMetrics.density);
+
+			// Measure the popup to get its height
+			menuPopup.getContentView().measure(View.MeasureSpec.UNSPECIFIED,
+				View.MeasureSpec.UNSPECIFIED);
+			int popupHeight = menuPopup.getContentView().getMeasuredHeight();
+			int popupWidth = menuPopup.getContentView().getMeasuredWidth();
+			// Set the height of the popup window
+			menuPopup.setHeight(Math.max(Math.min(maxHeight, popupHeight), minHeight));
+			prepareMenu(menuPopup);
+			// Show the popup window
+			menuPopup.showAsDropDown(anchor,
+				anchor.getWidth() - popupWidth,
+				-anchor.getHeight());
+		} else {
+			menuPopup.dismiss();
+		}
 	}
 
 	private void initQualitySpinner() {
@@ -498,17 +500,30 @@ public class MainActivity
 	}
 
 	private void updateUiToPreferences() {
+		View toggleCode = toolbar.findViewById(R.id.toggle_code);
 		if (ShaderEditorApp.preferences.doesRunInBackground()) {
 			shaderView.setVisibility(View.VISIBLE);
+			toggleCode.setVisibility(View.VISIBLE);
 			shaderView.onResume();
 		} else {
 			shaderView.setVisibility(View.GONE);
+			toggleCode.setVisibility(View.GONE);
 
 			if (editorFragment != null &&
-					!editorFragment.isCodeVisible()) {
+				!editorFragment.isCodeVisible()) {
 				toggleCode();
 			}
 		}
+
+		setTooltipText(toggleCode, R.string.toggle_code);
+		View runCode = toolbar.findViewById(R.id.run_code);
+		runCode.setVisibility(
+			!ShaderEditorApp.preferences.doesRunOnChange() ? View.VISIBLE : View.GONE);
+		setTooltipText(runCode, R.string.run_code);
+		View insertTab = toolbar.findViewById(R.id.insert_tab);
+		insertTab.setVisibility(
+			ShaderEditorApp.preferences.doesShowInsertTab() ? View.VISIBLE : View.GONE);
+		setTooltipText(insertTab, R.string.insert_tab);
 
 		if (editorFragment != null) {
 			editorFragment.setShowLineNumbers(
@@ -517,6 +532,10 @@ public class MainActivity
 		}
 
 		invalidateOptionsMenu();
+	}
+
+	private void setTooltipText(@NonNull View view, @StringRes int text) {
+		ViewCompat.setTooltipText(view, getText(text));
 	}
 
 	private void autoSave() {
@@ -1014,6 +1033,70 @@ public class MainActivity
 			return true;
 		} catch (ActivityNotFoundException e) {
 			return false;
+		}
+	}
+
+	@FunctionalInterface
+	interface PopupClickListener {
+		void onClick(@NonNull View view, @NonNull PopupWindow popupWindow);
+	}
+	private class PopupBuilder {
+		@NonNull
+		private final View view;
+		@Nullable
+		private PopupWindow popupWindow;
+
+		public PopupBuilder(@LayoutRes int layout) {
+			view = getLayoutInflater().inflate(layout, null);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				view.setClipToOutline(true);
+			}
+		}
+
+		@NonNull
+		PopupBuilder setClickListener(@IdRes int id, @NonNull Runnable listener) {
+			return setClickListener(id, (v, p) -> listener.run(), true);
+		}
+
+		@NonNull
+		PopupBuilder setClickListener(@IdRes int id, @NonNull PopupClickListener listener,
+			boolean hideOnClick) {
+			if (hideOnClick) {
+				view.findViewById(id).setOnClickListener((v) -> {
+					assert popupWindow != null;
+					listener.onClick(v, popupWindow);
+					if (popupWindow != null) {
+						popupWindow.dismiss();
+					}
+				});
+			} else {
+				view.findViewById(id).setOnClickListener((v) -> {
+					assert popupWindow != null;
+					listener.onClick(v, popupWindow);
+				});
+			}
+			return this;
+		}
+
+		@NonNull
+		PopupBuilder setTooltipText(@IdRes int id, @StringRes int text) {
+			MainActivity.this.setTooltipText(view.findViewById(id), text);
+			return this;
+		}
+
+		@NonNull
+		PopupWindow build() {
+			popupWindow = new PopupWindow(
+				view,
+				LayoutParams.WRAP_CONTENT,
+				LayoutParams.MATCH_PARENT
+			);
+			popupWindow.setOutsideTouchable(true);
+			popupWindow.setFocusable(true);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				popupWindow.setElevation(6 * getResources().getDisplayMetrics().density);
+			}
+			return popupWindow;
 		}
 	}
 }

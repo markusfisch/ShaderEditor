@@ -1,4 +1,5 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+	<color name="brightSurface">#181818</color>
 	<color name="primary">#222</color>
 	<color name="primary_translucent">#8222</color>
 	<color name="primary_dark">#111</color>

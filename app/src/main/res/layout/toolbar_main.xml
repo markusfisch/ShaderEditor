@@ -1,18 +1,55 @@
-<androidx.appcompat.widget.Toolbar
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:id="@+id/toolbar"
 	android:layout_width="match_parent"
 	android:layout_height="?attr/actionBarSize"
 	android:background="@color/primary_translucent"
-	app:titleTextAppearance="@style/Title"
-	app:subtitleTextAppearance="@style/Subtitle"
 	android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar"
 	app:popupTheme="@style/ThemeOverlay.MaterialComponents"
-	>
+	app:subtitleTextAppearance="@style/Subtitle"
+	app:titleTextAppearance="@style/Title">
+
+	<Button
+		android:id="@+id/menu_btn"
+		style="@style/IconButton"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:layout_gravity="end"
+		android:layout_marginEnd="4dp"
+		app:icon="@drawable/ic_more_vert" />
+
+	<Button
+		android:id="@+id/insert_tab"
+		style="@style/IconButton"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:layout_gravity="end"
+		android:layout_marginEnd="4dp"
+		app:icon="@drawable/ic_keyboard_tab" />
+
+	<Button
+		android:id="@+id/toggle_code"
+		style="@style/IconButton"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:layout_gravity="end"
+		android:layout_marginEnd="4dp"
+		app:icon="@drawable/ic_visibility" />
+
+	<Button
+		android:id="@+id/run_code"
+		style="@style/IconButton"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:layout_gravity="end"
+		android:layout_marginEnd="4dp"
+
+		app:icon="@drawable/ic_play_arrow" />
+
 	<Spinner
 		android:id="@+id/quality"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="end"/>
+		android:layout_gravity="end"
+		android:layout_marginEnd="4dp" />
 </androidx.appcompat.widget.Toolbar>

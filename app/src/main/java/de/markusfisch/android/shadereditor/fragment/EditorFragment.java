@@ -78,9 +78,16 @@ public class EditorFragment extends Fragment {
 	public void undo() {
 		undoRedo.undo();
 	}
+	public boolean canUndo() {
+		return undoRedo.canUndo();
+	}
 
 	public void redo() {
 		undoRedo.redo();
+	}
+
+	public boolean canRedo() {
+		return undoRedo.canRedo();
 	}
 
 	public boolean hasErrorLine() {
