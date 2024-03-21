@@ -98,6 +98,14 @@ public class UndoRedo {
 			++position;
 			return item;
 		}
+
+		private boolean hasNext() {
+			return position < history.size();
+		}
+
+		private boolean hasPrevious() {
+			return position > 0;
+		}
 	}
 
 	private final EditTextChangeListener changeListener =
@@ -148,7 +156,7 @@ public class UndoRedo {
 	}
 
 	public boolean canUndo() {
-		return editHistory.position > 0;
+		return editHistory.hasPrevious();
 	}
 
 	public void undo() {
@@ -172,7 +180,7 @@ public class UndoRedo {
 	}
 
 	public boolean canRedo() {
-		return editHistory.position < editHistory.history.size();
+		return editHistory.hasNext();
 	}
 
 	public void redo() {

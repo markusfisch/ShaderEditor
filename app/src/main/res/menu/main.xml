@@ -1,79 +1,81 @@
 <menu
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:material="http://schemas.android.com/apk/res-auto">
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 	<item
 		android:id="@+id/insert_tab"
-		android:icon="@drawable/ic_action_insert_tab"
+		android:icon="@drawable/ic_keyboard_tab"
 		android:title="@string/insert_tab"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom"/>
 	<item
 		android:id="@+id/run_code"
-		android:icon="@drawable/ic_action_run"
+		android:icon="@drawable/ic_play_arrow"
 		android:title="@string/run_code"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom"
+		/>
 	<item
 		android:id="@+id/toggle_code"
-		android:icon="@drawable/ic_action_preview"
+		android:icon="@drawable/ic_visibility"
 		android:title="@string/toggle_code"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/undo"
-		android:icon="@drawable/ic_action_undo"
+		android:icon="@drawable/ic_undo"
 		android:title="@string/undo"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom"
+		/>
 	<item
 		android:id="@+id/redo"
-		android:icon="@drawable/ic_action_redo"
+		android:icon="@drawable/ic_redo"
 		android:title="@string/redo"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/save_shader"
-		android:icon="@drawable/ic_action_save"
+		android:icon="@drawable/ic_save"
 		android:title="@string/save_shader"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/duplicate_shader"
-		android:icon="@drawable/ic_action_duplicate"
+		android:icon="@drawable/ic_file_copy"
 		android:title="@string/duplicate_shader"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/add_shader"
-		android:icon="@drawable/ic_action_add"
+		android:icon="@drawable/ic_add"
 		android:title="@string/add_shader"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/delete_shader"
-		android:icon="@drawable/ic_action_delete"
+		android:icon="@drawable/ic_delete_forever"
 		android:title="@string/delete_shader"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/share_shader"
-		android:icon="@drawable/ic_action_share"
+		android:icon="@drawable/ic_share"
 		android:title="@string/share_shader"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/update_wallpaper"
-		android:icon="@drawable/ic_action_update"
+		android:icon="@drawable/ic_wallpaper"
 		android:title="@string/update_wallpaper"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/add_uniform"
-		android:icon="@drawable/ic_action_insert_code"
+		android:icon="@drawable/ic_arrow_insert"
 		android:title="@string/add_uniform"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/load_sample"
-		android:icon="@drawable/ic_action_list"
+		android:icon="@drawable/ic_quick_reference_all"
 		android:title="@string/load_sample"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/faq"
-		android:icon="@drawable/ic_action_faq"
+		android:icon="@drawable/ic_forum"
 		android:title="@string/faq"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 	<item
 		android:id="@+id/settings"
-		android:icon="@drawable/ic_action_settings"
+		android:icon="@drawable/ic_settings"
 		android:title="@string/settings"
-		material:showAsAction="ifRoom"/>
+		app:showAsAction="ifRoom" />
 </menu>

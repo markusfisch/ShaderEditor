@@ -1,10 +1,20 @@
 <resources>
-	<style name="AppTheme" parent="Theme.AppCompat.NoActionBar">
+	<style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
 		<item name="background">@android:color/transparent</item>
 		<item name="colorPrimary">@color/primary</item>
 		<item name="colorPrimaryDark">@color/primary_dark</item>
 		<item name="colorAccent">@color/accent</item>
-		<item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+		<item name="colorSecondary">@color/accent</item>
+		<item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+		<item name="alertDialogTheme">@style/AlertDialogTheme</item>
+	</style>
+	<style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
+		<item name="buttonBarPositiveButtonStyle">@style/AlertDialogButtonStyle</item>
+		<item name="buttonBarNegativeButtonStyle">@style/AlertDialogButtonStyle</item>
+	</style>
+	<style name="AlertDialogButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
+		<item name="android:textColor">@color/accent</item>
+		<!-- You can also set other button properties here if needed -->
 	</style>
 	<style
 		name="SplashTheme"
@@ -13,7 +23,7 @@
 	</style>
 	<style
 		name="PreviewTheme"
-		parent="Theme.AppCompat.NoActionBar">
+		parent="Theme.MaterialComponents.NoActionBar">
 		<item name="android:windowNoTitle">true</item>
 		<item name="android:windowFullscreen">true</item>
 		<item name="android:windowContentOverlay">@null</item>
@@ -43,12 +53,11 @@
 	</style>
 	<style
 		name="FAB"
-		parent="Widget.Design.FloatingActionButton">
+		parent="Widget.MaterialComponents.FloatingActionButton">
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:layout_margin">20dp</item>
 		<item name="android:layout_alignParentBottom">true</item>
-		<item name="elevation">4dp</item>
 	</style>
 	<style name="FABLeft" parent="FAB">
 		<item name="android:layout_alignParentStart">true</item>
@@ -57,5 +66,32 @@
 	<style name="FABRight" parent="FAB">
 		<item name="android:layout_alignParentEnd">true</item>
 		<item name="android:layout_alignParentRight">true</item>
+	</style>
+	<style name="IconButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+		<item name="android:insetTop">0dp</item>
+		<item name="android:insetRight">0dp</item>
+		<item name="android:insetBottom">0dp</item>
+		<item name="android:insetLeft">0dp</item>
+		<item name="iconGravity">textStart</item>
+		<item name="iconPadding">0dp</item>
+		<item name="cornerRadius">999dp</item>
+		<item name="rippleColor">?attr/colorControlHighlight</item>
+		<item name="backgroundTint">@android:color/transparent</item>
+		<item name="iconTint">?attr/colorControlNormal</item>
+	</style>
+
+	<style name="MenuItem" parent="Widget.MaterialComponents.Button.TextButton">
+		<item name="android:gravity">center|start</item>
+		<item name="textAllCaps">false</item>
+		<item name="android:textColor">?attr/colorControlNormal</item>
+		<item name="iconTint">?attr/colorControlNormal</item>
+		<item name="iconPadding">8dp</item>
+		<item name="iconSize">24dp</item>
+		<item name="android:insetTop">0dp</item>
+		<item name="android:insetRight">0dp</item>
+		<item name="android:insetBottom">0dp</item>
+		<item name="android:insetLeft">0dp</item>
+		<item name="rippleColor">?attr/colorControlHighlight</item>
+		<item name="cornerRadius">0dp</item>
 	</style>
 </resources>

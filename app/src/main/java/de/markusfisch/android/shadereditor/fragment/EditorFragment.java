@@ -9,7 +9,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ScrollView;
+import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -27,7 +27,7 @@ import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 public class EditorFragment extends Fragment {
 	public static final String TAG = "EditorFragment";
 
-	private ScrollView scrollView;
+	private View editorContainer;
 	private ShaderEditor shaderEditor;
 	private UndoRedo undoRedo;
 	private int yOffset;
@@ -42,7 +42,7 @@ public class EditorFragment extends Fragment {
 				container,
 				false);
 
-		scrollView = view.findViewById(R.id.scroll_view);
+		editorContainer = view.findViewById(R.id.editor_container);
 		shaderEditor = view.findViewById(R.id.editor);
 		setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
 		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
@@ -78,9 +78,16 @@ public class EditorFragment extends Fragment {
 	public void undo() {
 		undoRedo.undo();
 	}
+	public boolean canUndo() {
+		return undoRedo.canUndo();
+	}
 
 	public void redo() {
 		undoRedo.redo();
+	}
+
+	public boolean canRedo() {
+		return undoRedo.canRedo();
 	}
 
 	public boolean hasErrorLine() {
@@ -145,12 +152,12 @@ public class EditorFragment extends Fragment {
 	}
 
 	public boolean isCodeVisible() {
-		return scrollView.getVisibility() == View.VISIBLE;
+		return editorContainer.getVisibility() == View.VISIBLE;
 	}
 
 	public boolean toggleCode() {
 		boolean visible = isCodeVisible();
-		scrollView.setVisibility(visible ? View.GONE : View.VISIBLE);
+		editorContainer.setVisibility(visible ? View.GONE : View.VISIBLE);
 		if (visible) {
 			SoftKeyboard.hide(getActivity(), shaderEditor);
 		}

@@ -40,5 +40,5 @@
 		style="@style/FABRight"
 		android:id="@+id/add_texture"
 		android:contentDescription="@string/add_texture"
-		android:src="@drawable/ic_fab_add_texture"/>
+		android:src="@drawable/ic_texture_add"/>
 </RelativeLayout>

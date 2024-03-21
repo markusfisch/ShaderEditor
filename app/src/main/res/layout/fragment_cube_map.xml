@@ -6,10 +6,10 @@
 		style="@style/FABLeft"
 		android:id="@+id/add_texture"
 		android:contentDescription="@string/add_texture"
-		android:src="@drawable/ic_fab_add_texture"/>
+		android:src="@drawable/ic_texture_add"/>
 	<com.google.android.material.floatingactionbutton.FloatingActionButton
 		style="@style/FABRight"
 		android:id="@+id/crop"
 		android:contentDescription="@string/crop_image"
-		android:src="@drawable/ic_fab_crop"/>
+		android:src="@drawable/ic_crop"/>
 </RelativeLayout>
