@@ -2,7 +2,9 @@ package de.markusfisch.android.shadereditor.activity;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.WallpaperManager;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -77,9 +79,9 @@ public class MainActivity
 	private EditorFragment editorFragment;
 	private Toolbar toolbar;
 	private Spinner qualitySpinner;
+	private PopupWindow menuPopup;
 	private TouchThruDrawerLayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
-	private PopupWindow menuPopup;
 	private View menuFrame;
 	private ListView listView;
 	private ShaderAdapter shaderAdapter;
@@ -827,8 +829,12 @@ public class MainActivity
 		ShaderEditorApp.preferences.setWallpaperShader(id);
 
 		int message;
-		if (ShaderWallpaperService.isRunning()) {
+		if (!canSetWallpaper()) {
+			message = R.string.cannot_set_wallpaper;
+		} else if (ShaderWallpaperService.isRunning()) {
 			message = R.string.wallpaper_set;
+		} else if (startChangeLiveWallpaper()) {
+			return;
 		} else if (startLiveWallpaperPicker()) {
 			message = R.string.pick_live_wallpaper;
 		} else {
@@ -837,12 +843,43 @@ public class MainActivity
 		Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
 	}
 
+	private boolean canSetWallpaper() {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+			return true;
+		}
+		WallpaperManager wm = WallpaperManager.getInstance(this);
+		return wm.isWallpaperSupported() &&
+				(Build.VERSION.SDK_INT < Build.VERSION_CODES.N ||
+						wm.isSetWallpaperAllowed());
+	}
+
+	private boolean startChangeLiveWallpaper() {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+			return false;
+		}
+		try {
+			Intent intent = new Intent(
+					WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
+			intent.putExtra(
+					WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+					new ComponentName(MainActivity.this,
+							ShaderWallpaperService.class));
+			return startActivity(this, intent);
+		} catch (ActivityNotFoundException e) {
+			return false;
+		}
+	}
+
 	private boolean startLiveWallpaperPicker() {
-		Intent intent = new Intent(Intent.ACTION_SET_WALLPAPER);
-		intent.setClassName(
-				"com.android.wallpaper.livepicker",
-				"com.android.wallpaper.livepicker.LiveWallpaperActivity");
-		return startActivity(this, intent);
+		try {
+			Intent intent = new Intent(Intent.ACTION_SET_WALLPAPER);
+			intent.setClassName(
+					"com.android.wallpaper.livepicker",
+					"com.android.wallpaper.livepicker.LiveWallpaperActivity");
+			return startActivity(this, intent);
+		} catch (ActivityNotFoundException e) {
+			return false;
+		}
 	}
 
 	private void addUniform() {
