@@ -61,7 +61,7 @@
 			style="@style/FABRight"
 			android:id="@+id/save"
 			android:contentDescription="@string/save_texture"
-			android:src="@drawable/ic_save"/>
+			app:srcCompat="@drawable/ic_save"/>
 	</RelativeLayout>
 	<include layout="@layout/progress_view"/>
 </FrameLayout>
