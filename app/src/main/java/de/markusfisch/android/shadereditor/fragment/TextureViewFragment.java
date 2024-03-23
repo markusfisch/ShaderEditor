@@ -1,7 +1,6 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import android.app.Activity;
-
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;

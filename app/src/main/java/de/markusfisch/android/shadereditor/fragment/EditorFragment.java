@@ -9,7 +9,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.appcompat.app.ActionBar;
@@ -78,6 +77,7 @@ public class EditorFragment extends Fragment {
 	public void undo() {
 		undoRedo.undo();
 	}
+
 	public boolean canUndo() {
 		return undoRedo.canUndo();
 	}

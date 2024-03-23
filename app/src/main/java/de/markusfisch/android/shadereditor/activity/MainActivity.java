@@ -19,6 +19,7 @@ import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -27,7 +28,6 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.view.ViewGroup.LayoutParams;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
@@ -283,28 +283,29 @@ public class MainActivity
 		toolbar.findViewById(R.id.insert_tab).setOnClickListener((v) -> insertTab());
 		menuButton.setOnClickListener(this::showMenu);
 		menuPopup = new PopupBuilder(R.layout.main_menu)
-			.setClickListener(R.id.undo, (v, popup) -> {
-				editorFragment.undo();
-				updateUndoRedoMenu(popup);
-			}, false)
-			.setTooltipText(R.id.undo, R.string.undo)
-			.setClickListener(R.id.redo, (v, popup) -> {
-				editorFragment.redo();
-				updateUndoRedoMenu(popup);
-			}, false)
-			.setTooltipText(R.id.redo, R.string.redo)
-			.setClickListener(R.id.add_shader, this::addShader)
-			.setClickListener(R.id.save_shader, () -> saveShader(selectedShaderId))
-			.setClickListener(R.id.duplicate_shader, () -> duplicateShader(selectedShaderId))
-			.setClickListener(R.id.delete_shader, () -> deleteShader(selectedShaderId))
-			.setClickListener(R.id.share_shader, this::shareShader)
-			.setClickListener(R.id.update_wallpaper, () -> updateWallpaper(selectedShaderId))
-			.setClickListener(R.id.add_uniform, this::addUniform)
-			.setClickListener(R.id.load_sample, this::loadSample)
-			.setClickListener(R.id.settings, this::showSettings)
-			.setClickListener(R.id.faq, this::showFaq)
-			.build();
+				.setClickListener(R.id.undo, (v, popup) -> {
+					editorFragment.undo();
+					updateUndoRedoMenu(popup);
+				}, false)
+				.setTooltipText(R.id.undo, R.string.undo)
+				.setClickListener(R.id.redo, (v, popup) -> {
+					editorFragment.redo();
+					updateUndoRedoMenu(popup);
+				}, false)
+				.setTooltipText(R.id.redo, R.string.redo)
+				.setClickListener(R.id.add_shader, this::addShader)
+				.setClickListener(R.id.save_shader, () -> saveShader(selectedShaderId))
+				.setClickListener(R.id.duplicate_shader, () -> duplicateShader(selectedShaderId))
+				.setClickListener(R.id.delete_shader, () -> deleteShader(selectedShaderId))
+				.setClickListener(R.id.share_shader, this::shareShader)
+				.setClickListener(R.id.update_wallpaper, () -> updateWallpaper(selectedShaderId))
+				.setClickListener(R.id.add_uniform, this::addUniform)
+				.setClickListener(R.id.load_sample, this::loadSample)
+				.setClickListener(R.id.settings, this::showSettings)
+				.setClickListener(R.id.faq, this::showFaq)
+				.build();
 	}
+
 	private void updateUndoRedoMenu(@NonNull PopupWindow menuPopup) {
 		View menuView = menuPopup.getContentView();
 		View undo = menuView.findViewById(R.id.undo);
@@ -312,15 +313,16 @@ public class MainActivity
 		View redo = menuView.findViewById(R.id.redo);
 		redo.setEnabled(editorFragment.canRedo());
 	}
+
 	private void prepareMenu(@NonNull PopupWindow menuPopup) {
 		View menuView = menuPopup.getContentView();
 		menuView.setScrollY(0);
 		updateUndoRedoMenu(menuPopup);
-		((Button)menuView.findViewById(R.id.update_wallpaper)).setText(
-			ShaderEditorApp.preferences.getWallpaperShader() ==
-				selectedShaderId
-				? R.string.update_wallpaper
-				: R.string.set_as_wallpaper);
+		((Button) menuView.findViewById(R.id.update_wallpaper)).setText(
+				ShaderEditorApp.preferences.getWallpaperShader() ==
+						selectedShaderId
+						? R.string.update_wallpaper
+						: R.string.set_as_wallpaper);
 	}
 
 	private void showMenu(View anchor) {
@@ -337,11 +339,11 @@ public class MainActivity
 			DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
 			int padding = (int) (100 * displayMetrics.density); // You can adjust this padding value
 			int maxHeight = screenHeight - padding;
-			int minHeight = (int)(48 * 3 * displayMetrics.density);
+			int minHeight = (int) (48 * 3 * displayMetrics.density);
 
 			// Measure the popup to get its height
 			menuPopup.getContentView().measure(View.MeasureSpec.UNSPECIFIED,
-				View.MeasureSpec.UNSPECIFIED);
+					View.MeasureSpec.UNSPECIFIED);
 			int popupHeight = menuPopup.getContentView().getMeasuredHeight();
 			int popupWidth = menuPopup.getContentView().getMeasuredWidth();
 			// Set the height of the popup window
@@ -349,8 +351,8 @@ public class MainActivity
 			prepareMenu(menuPopup);
 			// Show the popup window
 			menuPopup.showAsDropDown(anchor,
-				anchor.getWidth() - popupWidth,
-				-anchor.getHeight());
+					anchor.getWidth() - popupWidth,
+					-anchor.getHeight());
 		} else {
 			menuPopup.dismiss();
 		}
@@ -512,7 +514,7 @@ public class MainActivity
 			toggleCode.setVisibility(View.GONE);
 
 			if (editorFragment != null &&
-				!editorFragment.isCodeVisible()) {
+					!editorFragment.isCodeVisible()) {
 				toggleCode();
 			}
 		}
@@ -520,11 +522,11 @@ public class MainActivity
 		setTooltipText(toggleCode, R.string.toggle_code);
 		View runCode = toolbar.findViewById(R.id.run_code);
 		runCode.setVisibility(
-			!ShaderEditorApp.preferences.doesRunOnChange() ? View.VISIBLE : View.GONE);
+				!ShaderEditorApp.preferences.doesRunOnChange() ? View.VISIBLE : View.GONE);
 		setTooltipText(runCode, R.string.run_code);
 		View insertTab = toolbar.findViewById(R.id.insert_tab);
 		insertTab.setVisibility(
-			ShaderEditorApp.preferences.doesShowInsertTab() ? View.VISIBLE : View.GONE);
+				ShaderEditorApp.preferences.doesShowInsertTab() ? View.VISIBLE : View.GONE);
 		setTooltipText(insertTab, R.string.insert_tab);
 
 		if (editorFragment != null) {
@@ -1069,6 +1071,7 @@ public class MainActivity
 	interface PopupClickListener {
 		void onClick(@NonNull View view, @NonNull PopupWindow popupWindow);
 	}
+
 	private class PopupBuilder {
 		@NonNull
 		private final View view;
@@ -1089,7 +1092,7 @@ public class MainActivity
 
 		@NonNull
 		PopupBuilder setClickListener(@IdRes int id, @NonNull PopupClickListener listener,
-			boolean hideOnClick) {
+				boolean hideOnClick) {
 			if (hideOnClick) {
 				view.findViewById(id).setOnClickListener((v) -> {
 					assert popupWindow != null;
@@ -1116,9 +1119,9 @@ public class MainActivity
 		@NonNull
 		PopupWindow build() {
 			popupWindow = new PopupWindow(
-				view,
-				LayoutParams.WRAP_CONTENT,
-				LayoutParams.MATCH_PARENT
+					view,
+					LayoutParams.WRAP_CONTENT,
+					LayoutParams.MATCH_PARENT
 			);
 			popupWindow.setOutsideTouchable(true);
 			popupWindow.setFocusable(true);
