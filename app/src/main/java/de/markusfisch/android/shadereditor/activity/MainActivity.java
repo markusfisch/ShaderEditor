@@ -857,29 +857,21 @@ public class MainActivity
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
 			return false;
 		}
-		try {
-			Intent intent = new Intent(
-					WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
-			intent.putExtra(
-					WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-					new ComponentName(MainActivity.this,
-							ShaderWallpaperService.class));
-			return startActivity(this, intent);
-		} catch (ActivityNotFoundException e) {
-			return false;
-		}
+		Intent intent = new Intent(
+				WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
+		intent.putExtra(
+				WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+				new ComponentName(MainActivity.this,
+						ShaderWallpaperService.class));
+		return startActivity(this, intent);
 	}
 
 	private boolean startLiveWallpaperPicker() {
-		try {
-			Intent intent = new Intent(Intent.ACTION_SET_WALLPAPER);
-			intent.setClassName(
-					"com.android.wallpaper.livepicker",
-					"com.android.wallpaper.livepicker.LiveWallpaperActivity");
-			return startActivity(this, intent);
-		} catch (ActivityNotFoundException e) {
-			return false;
-		}
+		Intent intent = new Intent(Intent.ACTION_SET_WALLPAPER);
+		intent.setClassName(
+				"com.android.wallpaper.livepicker",
+				"com.android.wallpaper.livepicker.LiveWallpaperActivity");
+		return startActivity(this, intent);
 	}
 
 	private void addUniform() {
