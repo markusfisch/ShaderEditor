@@ -279,6 +279,7 @@ public class MainActivity
 
 		Button menuButton = toolbar.findViewById(R.id.menu_btn);
 		setTooltipText(menuButton, R.string.menu_btn);
+		toolbar.findViewById(R.id.run_code).setOnClickListener((v) -> runShader());
 		toolbar.findViewById(R.id.toggle_code).setOnClickListener((v) -> toggleCode());
 		toolbar.findViewById(R.id.insert_tab).setOnClickListener((v) -> insertTab());
 		menuButton.setOnClickListener(this::showMenu);
