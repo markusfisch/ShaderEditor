@@ -208,6 +208,8 @@
 	<string name="sample_circles_rationale">Draw some circles</string>
 	<string name="sample_cloudy_conway_name">Cloudy Conway</string>
 	<string name="sample_cloudy_conway_rationale">A variation on Conway\'s Game of Life.</string>
+	<string name="sample_electric_fade_name">Electric Fade</string>
+	<string name="sample_electric_fade_rationale">Like Cloudy Conway but with a preset backbuffer.</string>
 	<string name="sample_game_of_life_name">Game of Life</string>
 	<string name="sample_game_of_life_rationale">Conway\'s Game of Life. Touch to spark new life.</string>
 	<string name="sample_gles_300_name">GLES 300</string>
