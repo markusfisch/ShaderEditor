@@ -296,7 +296,7 @@ public class MainActivity
 				.setTooltipText(R.id.redo, R.string.redo)
 				.setClickListener(R.id.add_shader, this::addShader)
 				.setClickListener(R.id.save_shader, () -> saveShader(selectedShaderId))
-				.setClickListener(R.id.duplicate_shader, () -> duplicateShader(selectedShaderId))
+				.setClickListener(R.id.duplicate_shader, this::duplicateSelectedShader)
 				.setClickListener(R.id.delete_shader, () -> deleteShader(selectedShaderId))
 				.setClickListener(R.id.share_shader, this::shareShader)
 				.setClickListener(R.id.update_wallpaper, () -> updateWallpaper(selectedShaderId))
