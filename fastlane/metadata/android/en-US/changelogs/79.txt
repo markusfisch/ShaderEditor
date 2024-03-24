@@ -1,0 +1,5 @@
+* Update design of overflow menu
+* Improve setting/updating live wallpaper
+* Add Electric Fade sample shader
+* Fix showing wallpaper on Samsung's One UI
+

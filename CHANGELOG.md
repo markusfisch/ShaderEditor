@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.33.0
+* Update design of overflow menu
+* Improve setting/updating live wallpaper
+* Add Electric Fade sample shader
+* Fix showing wallpaper on Samsung's One UI
+
 ## 2.32.0
 * Use lexer based syntax highlighting
 * Improve monochrome icon
