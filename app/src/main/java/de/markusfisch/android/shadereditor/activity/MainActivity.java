@@ -1095,17 +1095,16 @@ public class MainActivity
 		@NonNull
 		PopupBuilder setClickListener(@IdRes int id, @NonNull PopupClickListener listener,
 				boolean hideOnClick) {
+			if (popupWindow == null) {
+				return this;
+			}
 			if (hideOnClick) {
 				view.findViewById(id).setOnClickListener((v) -> {
-					assert popupWindow != null;
 					listener.onClick(v, popupWindow);
-					if (popupWindow != null) {
-						popupWindow.dismiss();
-					}
+					popupWindow.dismiss();
 				});
 			} else {
 				view.findViewById(id).setOnClickListener((v) -> {
-					assert popupWindow != null;
 					listener.onClick(v, popupWindow);
 				});
 			}
