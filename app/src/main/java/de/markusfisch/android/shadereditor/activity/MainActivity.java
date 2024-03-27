@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
@@ -1126,7 +1127,10 @@ public class MainActivity
 			);
 			popupWindow.setOutsideTouchable(true);
 			popupWindow.setFocusable(true);
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+				// Required to make `setOutsideTouchable()` work.
+				popupWindow.setBackgroundDrawable(new ColorDrawable(0));
+			} else {
 				popupWindow.setElevation(6 * getResources().getDisplayMetrics().density);
 			}
 			return popupWindow;
