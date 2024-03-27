@@ -4,7 +4,7 @@
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
 	android:layout_gravity="end"
-	android:background="@drawable/menu">
+	android:background="@drawable/background_menu">
 
 	<LinearLayout
 		android:layout_width="wrap_content"
@@ -14,7 +14,7 @@
 		<LinearLayout
 			android:layout_width="@dimen/menu_width"
 			android:layout_height="wrap_content"
-			android:background="@drawable/menu_header"
+			android:background="@drawable/background_menu_header"
 			android:orientation="horizontal">
 
 			<Button
