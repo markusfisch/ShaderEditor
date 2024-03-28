@@ -1,0 +1,2 @@
+* Fix click detection in the overflow menu
+

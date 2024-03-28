@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.33.2
+* Fix click detection in the overflow menu
+
 ## 2.33.1
 * Fix overflow menu on pre Lollipop
 
