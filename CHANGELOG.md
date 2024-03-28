@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.33.1
+* Fix overflow menu on pre Lollipop
+
 ## 2.33.0
 * Update design of overflow menu
 * Improve setting/updating live wallpaper
