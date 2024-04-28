@@ -48,6 +48,7 @@ import de.markusfisch.android.shadereditor.hardware.MagneticFieldListener;
 import de.markusfisch.android.shadereditor.hardware.PressureListener;
 import de.markusfisch.android.shadereditor.hardware.ProximityListener;
 import de.markusfisch.android.shadereditor.hardware.RotationVectorListener;
+import de.markusfisch.android.shadereditor.service.NotificationService;
 
 public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public interface OnRendererListener {
@@ -68,11 +69,13 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_FTIME = "ftime";
 	public static final String UNIFORM_GRAVITY = "gravity";
 	public static final String UNIFORM_GYROSCOPE = "gyroscope";
+	public static final String UNIFORM_LAST_NOTIFICATION_TIME = "lastNotificationTime";
 	public static final String UNIFORM_LIGHT = "light";
 	public static final String UNIFORM_LINEAR = "linear";
 	public static final String UNIFORM_MAGNETIC = "magnetic";
 	public static final String UNIFORM_MOUSE = "mouse";
 	public static final String UNIFORM_NIGHT_MODE = "nightMode";
+	public static final String UNIFORM_NOTIFICATION_COUNT = "notificationCount";
 	public static final String UNIFORM_OFFSET = "offset";
 	public static final String UNIFORM_ORIENTATION = "orientation";
 	public static final String UNIFORM_INCLINATION = "inclination";
@@ -253,6 +256,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int touchStartLoc;
 	private int mouseLoc;
 	private int nightModeLoc;
+	private int notificationCountLoc;
 	private int pointerCountLoc;
 	private int pointersLoc;
 	private int powerConnectedLoc;
@@ -265,6 +269,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int orientationLoc;
 	private int inclinationMatrixLoc;
 	private int inclinationLoc;
+	private int lastNotificationTimeLoc;
 	private int lightLoc;
 	private int pressureLoc;
 	private int proximityLoc;
@@ -447,6 +452,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		if (nightModeLoc > -1) {
 			GLES20.glUniform1i(nightModeLoc, nightMode);
 		}
+		if (notificationCountLoc > -1) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+				GLES20.glUniform1i(notificationCountLoc, NotificationService.getCount());
+			}
+		}
 		if (pointerCountLoc > -1) {
 			GLES20.glUniform1i(pointerCountLoc, pointerCount);
 		}
@@ -469,6 +479,17 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				inclinationMatrixLoc > -1 || inclinationLoc > -1) &&
 				gravityValues != null) {
 			setRotationMatrix();
+		}
+		if (lastNotificationTimeLoc > -1) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+				Long lastTime = NotificationService.getLastNotificationTime();
+				if (lastTime == null) {
+					GLES20.glUniform1f(lastNotificationTimeLoc, Float.NaN);
+				} else {
+					float millisPerSecond = 1.f / 1000.f;
+					GLES20.glUniform1f(lastNotificationTimeLoc, (System.currentTimeMillis() - lastTime) * millisPerSecond);
+				}
+			}
 		}
 		if (lightLoc > -1 && lightListener != null) {
 			GLES20.glUniform1f(lightLoc, lightListener.getAmbient());
@@ -762,6 +783,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, UNIFORM_MOUSE);
 		nightModeLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_NIGHT_MODE);
+		notificationCountLoc = GLES20.glGetUniformLocation(
+				program, UNIFORM_NOTIFICATION_COUNT);
 		pointerCountLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_POINTER_COUNT);
 		pointersLoc = GLES20.glGetUniformLocation(
@@ -786,6 +809,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, UNIFORM_INCLINATION_MATRIX);
 		inclinationLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_INCLINATION);
+		lastNotificationTimeLoc = GLES20.glGetUniformLocation(
+				program, UNIFORM_LAST_NOTIFICATION_TIME);
 		lightLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_LIGHT);
 		pressureLoc = GLES20.glGetUniformLocation(
@@ -885,6 +910,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			}
 			if (!lightListener.register()) {
 				lightListener = null;
+			}
+		}
+
+		if (notificationCountLoc > -1 || lastNotificationTimeLoc > -1) {
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+				NotificationService.requirePermissions(context);
 			}
 		}
 

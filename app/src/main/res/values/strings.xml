@@ -117,6 +117,7 @@
 	<string name="linear_acceleration_vector">Linear acceleration in m/s^2</string>
 	<string name="gravity_vector">Gravity vector in m/s^2</string>
 	<string name="gyroscope">Rate of rotation in rad/s around the device\'s x, y, and z axis integrated over time</string>
+	<string name="last_notification_time">Time since the last notification. Is NaN if no notifications have happened yet.</string>
 	<string name="device_orientation">Azimuth (-π to π), pitch (-π to π) and roll (-π/2 to π/2) of the device</string>
 	<string name="device_inclination">Geomagnetic inclination angle of the device in radians</string>
 	<string name="device_rotation_matrix">Rotation matrix around the world\'s coordinate system, that is, when the device\'s X axis points toward East, the Y axis points to the North Pole and the device is facing the sky</string>
@@ -124,6 +125,7 @@
 	<string name="device_inclination_matrix">Rotation matrix transforming the geomagnetic vector into the same coordinate space as gravity</string>
 	<string name="magnetic_field">Geomagnetic field strength along the x, y and z axis in μT</string>
 	<string name="night_mode">Night mode, 1 if set, 0 if not</string>
+	<string name="notification_count">Count of active notifications</string>
 	<string name="light">Ambient light level in SI lux units</string>
 	<string name="pressure">Atmospheric pressure in hPa (millibar)</string>
 	<string name="proximity">Proximity sensor distance measured in centimeters</string>
@@ -259,4 +261,7 @@
 	<string name="show_line_numbers">Show Line Numbers</string>
 	<string name="show_line_numbers_summary">Show Line Numbers at the start of each line.</string>
 	<string name="menu_btn">More options</string>
+	<string name="enable_notification_listener">To use the notificationCount or lastNotificationTime uniform, please enable the Notification Listener in Settings.</string>
+	<string name="go_to_settings">Go to Settings</string>
+	<string name="enable_notification_listener_title">Enable Notification Listener</string>
 </resources>
