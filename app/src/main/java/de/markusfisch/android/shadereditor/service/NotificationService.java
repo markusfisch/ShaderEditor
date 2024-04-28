@@ -72,22 +72,22 @@ public class NotificationService extends NotificationListenerService {
 	public static boolean isPermissionRequired(@NonNull Context context) {
 		ComponentName cn = new ComponentName(context, NotificationService.class);
 		String flat = Settings.Secure.getString(context.getContentResolver(),
-			"enabled_notification_listeners");
+				"enabled_notification_listeners");
 		final boolean enabled = flat != null && flat.contains(cn.flattenToString());
 		return !enabled;
 	}
 
 	private static void requestNotificationPermission(@NonNull Context context) {
 		new Handler(Looper.getMainLooper()).post(() -> new AlertDialog.Builder(context)
-			.setTitle(R.string.enable_notification_listener_title)
-			.setMessage(R.string.enable_notification_listener)
-			.setPositiveButton(R.string.go_to_settings, (dialog, id) -> {
-				Intent intent = new Intent("android.settings" +
-					".ACTION_NOTIFICATION_LISTENER_SETTINGS");
-				context.startActivity(intent);
-			})
-			.setNegativeButton(android.R.string.cancel, (dialog, id) -> dialog.dismiss())
-			.show());
+				.setTitle(R.string.enable_notification_listener_title)
+				.setMessage(R.string.enable_notification_listener)
+				.setPositiveButton(R.string.go_to_settings, (dialog, id) -> {
+					Intent intent = new Intent("android.settings" +
+							".ACTION_NOTIFICATION_LISTENER_SETTINGS");
+					context.startActivity(intent);
+				})
+				.setNegativeButton(android.R.string.cancel, (dialog, id) -> dialog.dismiss())
+				.show());
 	}
 
 
