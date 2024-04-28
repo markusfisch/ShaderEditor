@@ -114,6 +114,11 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 						ShaderRenderer.UNIFORM_GYROSCOPE,
 						context.getString(R.string.gyroscope)),
 				new Uniform(
+					"float",
+					ShaderRenderer.UNIFORM_LAST_NOTIFICATION_TIME,
+					context.getString(R.string.last_notification_time)
+				),
+				new Uniform(
 						"float",
 						ShaderRenderer.UNIFORM_INCLINATION,
 						context.getString(R.string.device_inclination)),
@@ -137,6 +142,11 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 						"int",
 						ShaderRenderer.UNIFORM_NIGHT_MODE,
 						context.getString(R.string.night_mode)),
+				new Uniform(
+					"int",
+					ShaderRenderer.UNIFORM_NOTIFICATION_COUNT,
+					context.getString(R.string.notification_count)
+				),
 				new Uniform(
 						"vec2",
 						ShaderRenderer.UNIFORM_OFFSET,
