@@ -10,8 +10,8 @@ android {
 		minSdk 14
 		targetSdk sdk_version
 
-		versionCode 81
-		versionName '2.33.2'
+		versionCode 82
+		versionName '2.33.3'
 
 		vectorDrawables.useSupportLibrary true
 	}

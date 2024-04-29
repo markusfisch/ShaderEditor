@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.33.3
+* Add notification uniforms
+
 ## 2.33.2
 * Fix click detection in the overflow menu
 
