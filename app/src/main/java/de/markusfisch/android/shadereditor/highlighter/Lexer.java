@@ -1,13 +1,19 @@
 package de.markusfisch.android.shadereditor.highlighter;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import org.jetbrains.annotations.Contract;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class Lexer implements Iterable<Token> {
+	public String source(Token token) {
+		return source.substring(token.startOffset(), token.endOffset());
+	}
+
 	public static class Diff {
 		public final @NonNull List<Token> original;
 		public final @NonNull List<Token> edited;
@@ -591,6 +597,28 @@ public class Lexer implements Iterable<Token> {
 
 		// Integer without suffix
 		return possibleOctal && incorrectOctal ? TokenType.INVALID : type;
+	}
+
+	public static List<String> complete(@NonNull String text, @NonNull Token.Category type) {
+		List<String> result = new ArrayList<>();
+		TrieNode root = tokenRoot(type);
+		if (root != null) {
+			root.findAll(text, (short) TokenType.INVALID.ordinal(), result);
+		}
+		return result;
+	}
+
+	@Nullable
+	private static TrieNode tokenRoot(@NonNull Token.Category type) {
+		switch (type) {
+			case NORMAL:
+				return KEYWORDS_TRIE;
+			case TRIVIA:
+				return null;
+			case PREPROC:
+				return DIRECTIVES_TRIE;
+		}
+		return null;
 	}
 
 	// initialize lookup

@@ -1,47 +1,41 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- Use a ScrollView around EditText to have a padding around the text
+	contents. If we make EditText scrollable, contents will be cut off
+	at the specified padding but before the visible border. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:id="@+id/editor_container"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	>
-	<!-- Use a ScrollView around EditText to have a padding around the text
-		contents. If we make EditText scrollable, contents will be cut off
-		at the specified padding but before the visible border. -->
-	<ScrollView
+	android:background="@color/background_editor"
+	android:fillViewport="true"
+	tools:ignore="Overdraw">
+	<!-- Hardcode gravity to left because GLSL source code is always
+		aligned to the left. -->
+	<HorizontalScrollView
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:background="@color/background_editor"
+		android:layout_height="wrap_content"
 		android:fillViewport="true"
-		tools:ignore="Overdraw">
-		<!-- Hardcode gravity to left because GLSL source code is always
-			aligned to the left. -->
-		<HorizontalScrollView
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:fillViewport="true"
-			android:scrollbars="none">
+		android:scrollbars="none">
 
-			<de.markusfisch.android.shadereditor.widget.ShaderEditor
-				android:id="@+id/editor"
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:background="@android:color/transparent"
-				android:ellipsize="end"
-				android:gravity="left|top"
-				android:imeOptions="flagNoExtractUi"
-				android:inputType="textMultiLine|textNoSuggestions"
-				android:paddingHorizontal="@dimen/editor_padding"
-				android:paddingTop="@dimen/editor_padding"
-				android:textColor="@color/editor_text"
-				android:textSize="12sp"
-				android:typeface="monospace"
-				app:lineNumberColor="@color/editor_line_numbers"
-				app:lineNumberSpacing="@dimen/editor_padding"
-				app:showLineNumbers="true"
-				tools:ignore="RtlHardcoded" />
-		</HorizontalScrollView>
-	</ScrollView>
-
-	<include layout="@layout/extra_keys"/>
-</FrameLayout>
+		<de.markusfisch.android.shadereditor.widget.ShaderEditor
+			android:id="@+id/editor"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"
+			android:background="@android:color/transparent"
+			android:ellipsize="none"
+			android:gravity="left|top"
+			android:imeOptions="flagNoExtractUi"
+			android:importantForAutofill="no"
+			android:inputType="textMultiLine|textVisiblePassword|textNoSuggestions"
+			android:paddingHorizontal="@dimen/editor_padding"
+			android:paddingTop="@dimen/editor_padding"
+			android:textColor="@color/editor_text"
+			android:textSize="12sp"
+			android:typeface="monospace"
+			app:lineNumberColor="@color/editor_line_numbers"
+			app:lineNumberSpacing="@dimen/editor_padding"
+			app:showLineNumbers="true"
+			tools:ignore="RtlHardcoded" />
+	</HorizontalScrollView>
+</ScrollView>

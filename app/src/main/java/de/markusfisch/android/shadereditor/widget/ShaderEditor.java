@@ -3,6 +3,7 @@ package de.markusfisch.android.shadereditor.widget;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Build;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -17,12 +18,14 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.LineHeightSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
@@ -179,6 +182,16 @@ public class ShaderEditor extends LineNumberEditText {
 				.replaceAll("");
 	}
 
+	public void insert(@NonNull CharSequence text) {
+		int start = getSelectionStart();
+		int end = getSelectionEnd();
+		getText().replace(Math.min(start, end),
+				Math.max(start, end),
+				text,
+				0,
+				text.length());
+	}
+
 	public void insertTab() {
 		int start = getSelectionStart();
 		int end = getSelectionEnd();
@@ -227,6 +240,41 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 
 		e.insert(start, statement);
+	}
+
+	/**
+	 * Define functions required for AutoFill API
+	 */
+	@RequiresApi(api = Build.VERSION_CODES.O)
+	@Override
+	public int getAutofillType() {
+		return AUTOFILL_TYPE_NONE;
+	}
+
+	@Override
+	protected void onSelectionChanged(int selStart, int selEnd) {
+		super.onSelectionChanged(selStart, selEnd);
+//		// Selecting text
+//		if (selStart != selEnd) {
+//			return;
+//		}
+//		Editable text = getText();
+//		if (text == null || text.length() == 0) {
+//			return;
+//		}
+//		Lexer lexer = new Lexer(text.toString());
+//		// Cursor moved
+//		Token tok = null;
+//		for (Token token : lexer) {
+//			tok = token;
+//			if (token.startOffset() <= selStart && token.endOffset() >= selEnd) {
+//				Log.d(TAG, token.toString());
+//				break;
+//			}
+//		}
+//		if (tok != null) {
+//			Log.d("ShaderEditor", Lexer.complete(lexer.source(tok), tok.category()).toString());
+//		}
 	}
 
 	private void removeUniform(Editable e, String statement) {
@@ -395,7 +443,8 @@ public class ShaderEditor extends LineNumberEditText {
 				if (color != textColor) {
 					e.setSpan(
 							new ForegroundColorSpan(color),
-							token.startOffset(), token.endOffset(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+							token.startOffset(), token.endOffset(),
+							Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 				}
 			}
 		} else {

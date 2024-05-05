@@ -19,7 +19,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -40,9 +42,17 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Deque;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
@@ -83,6 +93,7 @@ public class MainActivity
 	private PopupWindow menuPopup;
 	private TouchThruDrawerLayout drawerLayout;
 	private ActionBarDrawerToggle drawerToggle;
+	private View extraKeys;
 	private View menuFrame;
 	private ListView listView;
 	private ShaderAdapter shaderAdapter;
@@ -187,6 +198,7 @@ public class MainActivity
 		setContentView(R.layout.activity_main);
 
 		SystemBarMetrics.initSystemBars(this);
+		initExtraKeys();
 		initToolbar();
 		initQualitySpinner();
 		initDrawer();
@@ -274,6 +286,65 @@ public class MainActivity
 		}
 	}
 
+	private void initExtraKeys() {
+		extraKeys = findViewById(R.id.extra_keys);
+		extraKeys.findViewById(R.id.insert_tab).setOnClickListener((v) -> insertTab());
+		RecyclerView completions = extraKeys.findViewById(R.id.completions);
+		completions.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL,
+				false));
+		completions.setAdapter(new Adapter(this,
+				Arrays.asList(
+						"if",
+						"else",
+						"for",
+						"while"
+				)
+		));
+	}
+
+	private class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
+		private final List<String> list;
+		private final LayoutInflater inflater;
+
+		public Adapter(Context context, List<String> list) {
+			this.inflater = LayoutInflater.from(context);
+			this.list = list;
+		}
+
+		@NonNull
+		@Override
+		public Adapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+			View view = inflater.inflate(R.layout.extra_key_btn, parent, false);
+			return new ViewHolder(view);
+		}
+
+		@Override
+		public void onBindViewHolder(@NonNull Adapter.ViewHolder holder, int position) {
+			holder.update(list.get(position));
+		}
+
+		@Override
+		public int getItemCount() {
+			return list.size();
+		}
+
+		private class ViewHolder extends RecyclerView.ViewHolder {
+			private final Button btn;
+
+			public ViewHolder(@NonNull View itemView) {
+				super(itemView);
+				btn = (Button) itemView;
+				btn.setOnClickListener((v) -> {
+					editorFragment.insert(btn.getText());
+				});
+			}
+
+			public void update(String item) {
+				btn.setText(item);
+			}
+		}
+	}
+
 	private void initToolbar() {
 		toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
@@ -282,7 +353,6 @@ public class MainActivity
 		setTooltipText(menuButton, R.string.menu_btn);
 		toolbar.findViewById(R.id.run_code).setOnClickListener((v) -> runShader());
 		toolbar.findViewById(R.id.toggle_code).setOnClickListener((v) -> toggleCode());
-		toolbar.findViewById(R.id.insert_tab).setOnClickListener((v) -> insertTab());
 		menuButton.setOnClickListener(this::showMenu);
 		menuPopup = new PopupBuilder(R.layout.main_menu)
 				.setClickListener(R.id.undo, (v, popup) -> {
@@ -339,7 +409,8 @@ public class MainActivity
 
 			// Calculate the maximum allowed height (screen height - padding)
 			DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-			int padding = (int) (100 * displayMetrics.density); // You can adjust this padding value
+			int padding = (int) (100 * displayMetrics.density); // You can adjust this padding
+			// value
 			int maxHeight = screenHeight - padding;
 			int minHeight = (int) (48 * 3 * displayMetrics.density);
 
@@ -526,7 +597,7 @@ public class MainActivity
 		runCode.setVisibility(
 				!ShaderEditorApp.preferences.doesRunOnChange() ? View.VISIBLE : View.GONE);
 		setTooltipText(runCode, R.string.run_code);
-		View insertTab = toolbar.findViewById(R.id.insert_tab);
+		View insertTab = findViewById(R.id.insert_tab);
 		insertTab.setVisibility(
 				ShaderEditorApp.preferences.doesShowInsertTab() ? View.VISIBLE : View.GONE);
 		setTooltipText(insertTab, R.string.insert_tab);
@@ -729,6 +800,7 @@ public class MainActivity
 		if (editorFragment != null) {
 			boolean isVisible = editorFragment.toggleCode();
 			drawerLayout.setTouchThru(isVisible);
+			extraKeys.setVisibility(isVisible ? View.GONE : View.VISIBLE);
 		}
 	}
 
