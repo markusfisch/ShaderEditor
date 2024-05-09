@@ -192,17 +192,6 @@ public class ShaderEditor extends LineNumberEditText {
 				text.length());
 	}
 
-	public void insertTab() {
-		int start = getSelectionStart();
-		int end = getSelectionEnd();
-
-		getText().replace(
-				Math.min(start, end),
-				Math.max(start, end),
-				"\t",
-				0,
-				1);
-	}
 
 	public void addUniform(String statement) {
 		if (statement == null) {
@@ -378,7 +367,7 @@ public class ShaderEditor extends LineNumberEditText {
 						keyCode == KeyEvent.KEYCODE_TAB) {
 					// Insert a tab character instead of doing focus
 					// navigation.
-					insertTab();
+					insert("\t");
 					return true;
 				}
 				return false;

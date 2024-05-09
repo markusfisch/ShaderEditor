@@ -148,9 +148,6 @@ public class EditorFragment extends Fragment {
 	public void insert(@NonNull CharSequence text) {
 		shaderEditor.insert(text);
 	}
-	public void insertTab() {
-		shaderEditor.insertTab();
-	}
 
 	public void addUniform(String name) {
 		shaderEditor.addUniform(name);

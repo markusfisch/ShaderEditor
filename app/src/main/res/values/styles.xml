@@ -70,8 +70,8 @@
 		<item name="iconTint">?attr/colorControlNormal</item>
 		<item name="rippleColor">?attr/colorControlHighlight</item>
 	</style>
-
-	<style name="BarButton" parent="ButtonTheme">
+	<!-- FilledBarButton == BarButton, because android styles do not support multiple inheritance -->
+	<style name="FilledBarButton" parent="Widget.MaterialComponents.Button">
 		<item name="android:insetTop">0dp</item>
 		<item name="android:insetRight">0dp</item>
 		<item name="android:insetBottom">0dp</item>
@@ -82,13 +82,32 @@
 		<item name="rippleColor">?attr/colorControlHighlight</item>
 		<item name="iconTint">?attr/colorControlNormal</item>
 		<item name="android:textColor">?attr/colorControlNormal</item>
-		<item name="minWidth">0dp</item>
+		<item name="android:minWidth">@dimen/extra_key_width</item>
+		<item name="android:minHeight">@dimen/extra_key_height</item>
 		<item name="android:textAppearance">?attr/textAppearanceBody1</item>
-		<item name="android:layout_marginLeft">@dimen/extra_key_spacing</item>
-		<item name="android:layout_marginRight">@dimen/extra_key_spacing</item>
 		<item name="android:layout_marginTop">4dp</item>
 		<item name="android:layout_marginBottom">4dp</item>
 		<item name="android:gravity">center</item>
+		<item name="android:layout_gravity">center</item>
+	</style>
+	<style name="BarButton" parent="Widget.MaterialComponents.Button.TextButton">
+		<item name="android:insetTop">0dp</item>
+		<item name="android:insetRight">0dp</item>
+		<item name="android:insetBottom">0dp</item>
+		<item name="android:insetLeft">0dp</item>
+		<item name="iconGravity">textStart</item>
+		<item name="iconPadding">0dp</item>
+		<item name="cornerRadius">8dp</item>
+		<item name="rippleColor">?attr/colorControlHighlight</item>
+		<item name="iconTint">?attr/colorControlNormal</item>
+		<item name="android:textColor">?attr/colorControlNormal</item>
+		<item name="android:minWidth">@dimen/extra_key_width</item>
+		<item name="android:minHeight">@dimen/extra_key_height</item>
+		<item name="android:textAppearance">?attr/textAppearanceBody1</item>
+		<item name="android:layout_marginTop">4dp</item>
+		<item name="android:layout_marginBottom">4dp</item>
+		<item name="android:gravity">center</item>
+		<item name="android:layout_gravity">center</item>
 	</style>
 
 	<style name="IconButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">

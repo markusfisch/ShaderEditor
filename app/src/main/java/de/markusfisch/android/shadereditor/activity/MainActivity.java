@@ -20,6 +20,7 @@ import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -41,7 +42,9 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -53,6 +56,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
@@ -288,7 +292,7 @@ public class MainActivity
 
 	private void initExtraKeys() {
 		extraKeys = findViewById(R.id.extra_keys);
-		extraKeys.findViewById(R.id.insert_tab).setOnClickListener((v) -> insertTab());
+		extraKeys.findViewById(R.id.insert_tab).setOnClickListener((v) -> editorFragment.insert("\t"));
 		RecyclerView completions = extraKeys.findViewById(R.id.completions);
 		completions.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL,
 				false));
@@ -297,9 +301,19 @@ public class MainActivity
 						"if",
 						"else",
 						"for",
-						"while"
+						"while",
+						"textue2D",
+						"distance",
+						"smoothstep",
+						"min",
+						"max"
 				)
 		));
+		DividerItemDecoration divider = new DividerItemDecoration(completions.getContext(),
+				DividerItemDecoration.HORIZONTAL);
+		divider.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(this,
+				R.drawable.divider_with_padding)));
+		completions.addItemDecoration(divider);
 	}
 
 	private class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
@@ -333,9 +347,14 @@ public class MainActivity
 
 			public ViewHolder(@NonNull View itemView) {
 				super(itemView);
-				btn = (Button) itemView;
-				btn.setOnClickListener((v) -> {
-					editorFragment.insert(btn.getText());
+				btn = itemView.findViewById(R.id.btn);
+				btn.setOnClickListener((v) -> editorFragment.insert(btn.getText()));
+				itemView.setOnTouchListener(new View.OnTouchListener() {
+					@SuppressLint("ClickableViewAccessibility")
+					@Override
+					public boolean onTouch(View v, MotionEvent event) {
+						return btn.onTouchEvent(event); // The FrameLayout always forwards
+					}
 				});
 			}
 
@@ -743,10 +762,6 @@ public class MainActivity
 		} catch (IOException e) {
 			return null;
 		}
-	}
-
-	private void insertTab() {
-		editorFragment.insertTab();
 	}
 
 	private void runShader() {
