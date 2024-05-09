@@ -10,7 +10,7 @@
 	android:clickable="true"
 	android:focusable="true"
 	android:orientation="horizontal"
-	android:paddingHorizontal="16dp">
+	android:paddingStart="16dp">
 
 	<Button
 		android:id="@+id/insert_tab"
