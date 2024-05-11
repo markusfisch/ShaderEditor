@@ -48,6 +48,9 @@ public class CropImageFragment extends Fragment {
 			ViewGroup container,
 			Bundle state) {
 		Activity activity = getActivity();
+		if (activity == null) {
+			return null;
+		}
 		activity.setTitle(R.string.crop_image);
 
 		try {

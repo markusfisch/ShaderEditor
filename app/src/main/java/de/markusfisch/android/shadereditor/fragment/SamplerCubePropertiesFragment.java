@@ -40,6 +40,9 @@ public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFrag
 			ViewGroup container,
 			Bundle state) {
 		Activity activity = getActivity();
+		if (activity == null) {
+			return null;
+		}
 		activity.setTitle(R.string.texture_properties);
 
 		Bundle args;

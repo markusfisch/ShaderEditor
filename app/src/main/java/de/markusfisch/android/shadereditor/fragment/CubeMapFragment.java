@@ -40,6 +40,9 @@ public class CubeMapFragment extends Fragment {
 			ViewGroup container,
 			Bundle state) {
 		Activity activity = getActivity();
+		if (activity == null) {
+			return null;
+		}
 		activity.setTitle(R.string.compose_sampler_cube);
 
 		try {

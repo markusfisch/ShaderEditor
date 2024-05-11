@@ -48,6 +48,9 @@ public class Sampler2dPropertiesFragment extends AbstractSamplerPropertiesFragme
 			ViewGroup container,
 			Bundle state) {
 		Activity activity = getActivity();
+		if (activity == null) {
+			return null;
+		}
 		activity.setTitle(R.string.texture_properties);
 
 		Bundle args;

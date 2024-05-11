@@ -49,6 +49,9 @@ public class TextureViewFragment extends Fragment {
 			ViewGroup container,
 			Bundle state) {
 		Activity activity = getActivity();
+		if (activity == null) {
+			return null;
+		}
 
 		try {
 			imageView = ((ScalingImageViewProvider) activity)

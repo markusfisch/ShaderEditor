@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.fragment;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +19,11 @@ public class UniformPagesFragment extends Fragment {
 			@NonNull LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		// Reset title if we're coming back from another fragment.
-		getActivity().setTitle(R.string.add_uniform);
+		Activity activity = getActivity();
+		if (activity != null) {
+			// Reset title if we're coming back from another fragment.
+			activity.setTitle(R.string.add_uniform);
+		}
 
 		View view = inflater.inflate(
 				R.layout.fragment_uniform_pages,

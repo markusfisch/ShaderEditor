@@ -159,8 +159,9 @@ public class PreferencesFragment
 			int request,
 			String permission) {
 		FragmentActivity activity = getActivity();
-		if (ContextCompat.checkSelfPermission(activity, permission)
-				!= PackageManager.PERMISSION_GRANTED) {
+		if (activity != null &&
+				ContextCompat.checkSelfPermission(activity, permission)
+						!= PackageManager.PERMISSION_GRANTED) {
 			if (ActivityCompat.shouldShowRequestPermissionRationale(
 					activity,
 					permission)) {
@@ -223,48 +224,57 @@ public class PreferencesFragment
 				Preferences.IMPORT_FROM_DIRECTORY);
 		Preference exportToDirectory = findPreference(
 				Preferences.EXPORT_TO_DIRECTORY);
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-			importFromDirectory.setOnPreferenceClickListener(preference -> {
-				if (checkExternalStoragePermission(
-						READ_EXTERNAL_STORAGE_REQUEST,
-						Manifest.permission.READ_EXTERNAL_STORAGE)) {
-					ImportExportAsFiles.importFromDirectory(getContext());
+		if (importFromDirectory != null && exportToDirectory != null) {
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+				importFromDirectory.setOnPreferenceClickListener(preference -> {
+					if (checkExternalStoragePermission(
+							READ_EXTERNAL_STORAGE_REQUEST,
+							Manifest.permission.READ_EXTERNAL_STORAGE)) {
+						ImportExportAsFiles.importFromDirectory(getContext());
+					}
+					return true;
+				});
+				exportToDirectory.setOnPreferenceClickListener(preference -> {
+					if (checkExternalStoragePermission(
+							WRITE_EXTERNAL_STORAGE_REQUEST,
+							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+						ImportExportAsFiles.exportToDirectory(getContext());
+					}
+					return true;
+				});
+			} else {
+				PreferenceCategory cat = findPreference("import_export");
+				if (cat != null) {
+					cat.removePreference(importFromDirectory);
+					cat.removePreference(exportToDirectory);
 				}
-				return true;
-			});
-			exportToDirectory.setOnPreferenceClickListener(preference -> {
-				if (checkExternalStoragePermission(
-						WRITE_EXTERNAL_STORAGE_REQUEST,
-						Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-					ImportExportAsFiles.exportToDirectory(getContext());
-				}
-				return true;
-			});
-		} else {
-			PreferenceCategory cat = (PreferenceCategory) findPreference(
-					"import_export");
-			cat.removePreference(importFromDirectory);
-			cat.removePreference(exportToDirectory);
+			}
 		}
-		findPreference(Preferences.IMPORT_DATABASE).setOnPreferenceClickListener(preference -> {
-			Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
-			// In theory, it should be "application/x-sqlite3"
-			// or the newer "application/vnd.sqlite3" but
-			// only "application/octet-stream" works.
-			chooseFile.setType("application/octet-stream");
-			startActivityForResult(
-					Intent.createChooser(
-							chooseFile,
-							getString(R.string.import_database)),
-					PICK_FILE_RESULT_CODE);
-			return true;
-		});
-		findPreference(Preferences.EXPORT_DATABASE).setOnPreferenceClickListener(preference -> {
-			Context context = getContext();
-			Toast.makeText(context,
-					DatabaseExporter.exportDatabase(context),
-					Toast.LENGTH_LONG).show();
-			return true;
-		});
+		Preference importDatabase = findPreference(Preferences.IMPORT_DATABASE);
+		Preference exportDatabase = findPreference(Preferences.EXPORT_DATABASE);
+		if (importDatabase != null && exportDatabase != null) {
+			importDatabase.setOnPreferenceClickListener(preference -> {
+				Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+				// In theory, it should be "application/x-sqlite3"
+				// or the newer "application/vnd.sqlite3" but
+				// only "application/octet-stream" works.
+				chooseFile.setType("application/octet-stream");
+				startActivityForResult(
+						Intent.createChooser(
+								chooseFile,
+								getString(R.string.import_database)),
+						PICK_FILE_RESULT_CODE);
+				return true;
+			});
+			exportDatabase.setOnPreferenceClickListener(preference -> {
+				Context context = getContext();
+				if (context != null) {
+					Toast.makeText(context,
+							DatabaseExporter.exportDatabase(context),
+							Toast.LENGTH_LONG).show();
+				}
+				return true;
+			});
+		}
 	}
 }
