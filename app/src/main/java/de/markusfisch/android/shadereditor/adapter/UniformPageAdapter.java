@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.adapter;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -24,6 +25,7 @@ public class UniformPageAdapter extends FragmentStatePagerAdapter {
 		return 3;
 	}
 
+	@NonNull
 	@Override
 	public Fragment getItem(int position) {
 		switch (position) {

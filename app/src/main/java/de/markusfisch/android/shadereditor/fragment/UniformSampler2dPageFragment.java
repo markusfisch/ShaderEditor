@@ -87,7 +87,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 	}
 
 	@Override
-	public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
+	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
 		SearchMenu.addSearchMenu(menu, inflater, this::filterTextures);
 	}
 

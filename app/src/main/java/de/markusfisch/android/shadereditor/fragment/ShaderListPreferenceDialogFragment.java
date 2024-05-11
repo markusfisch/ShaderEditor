@@ -6,6 +6,7 @@ import android.database.MatrixCursor;
 import android.database.MergeCursor;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.ListPreferenceDialogFragmentCompat;
 
@@ -19,6 +20,7 @@ public class ShaderListPreferenceDialogFragment
 		extends ListPreferenceDialogFragmentCompat {
 	private ShaderSpinnerAdapter adapter;
 
+	@NonNull
 	public static ShaderListPreferenceDialogFragment newInstance(
 			String key) {
 		Bundle bundle = new Bundle();
@@ -44,7 +46,7 @@ public class ShaderListPreferenceDialogFragment
 	}
 
 	@Override
-	protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
+	protected void onPrepareDialogBuilder(@NonNull AlertDialog.Builder builder) {
 		// Don't call super.onPrepareDialogBuilder() because it'll check
 		// for Entries and set up a setSingleChoiceItems() for them that
 		// will never be used.

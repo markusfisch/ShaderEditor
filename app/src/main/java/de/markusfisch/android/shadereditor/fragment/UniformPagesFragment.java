@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
@@ -14,7 +15,7 @@ import de.markusfisch.android.shadereditor.adapter.UniformPageAdapter;
 public class UniformPagesFragment extends Fragment {
 	@Override
 	public View onCreateView(
-			LayoutInflater inflater,
+			@NonNull LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
 		// Reset title if we're coming back from another fragment.

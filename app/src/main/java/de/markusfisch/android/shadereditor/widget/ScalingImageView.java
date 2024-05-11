@@ -13,6 +13,7 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 
 public class ScalingImageView extends AppCompatImageView {
@@ -258,7 +259,7 @@ public class ScalingImageView extends AppCompatImageView {
 				context,
 				new GestureDetector.SimpleOnGestureListener() {
 					@Override
-					public boolean onDoubleTap(MotionEvent event) {
+					public boolean onDoubleTap(@NonNull MotionEvent event) {
 						magnify(event.getX(), event.getY(), magnifyScale);
 						initTransform(event, -1);
 						return true;

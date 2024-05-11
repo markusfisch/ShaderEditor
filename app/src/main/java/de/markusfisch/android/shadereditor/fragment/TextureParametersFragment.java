@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import de.markusfisch.android.shadereditor.R;
@@ -41,7 +42,7 @@ public class TextureParametersFragment extends Fragment {
 
 	@Override
 	public View onCreateView(
-			LayoutInflater inflater,
+			@NonNull LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
 		Activity activity = getActivity();

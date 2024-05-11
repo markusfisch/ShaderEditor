@@ -101,7 +101,7 @@ public class PreferencesFragment
 	}
 
 	@Override
-	public void onDisplayPreferenceDialog(Preference preference) {
+	public void onDisplayPreferenceDialog(@NonNull Preference preference) {
 		if (preference instanceof ShaderListPreference) {
 			DialogFragment f = ShaderListPreferenceDialogFragment
 					.newInstance(preference.getKey());
