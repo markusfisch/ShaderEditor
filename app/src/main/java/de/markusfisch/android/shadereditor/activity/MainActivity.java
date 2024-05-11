@@ -25,10 +25,10 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -314,6 +314,42 @@ public class MainActivity
 		divider.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(this,
 				R.drawable.divider_with_padding)));
 		completions.addItemDecoration(divider);
+		completions.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+			boolean isKeyboardShowing = false;
+
+			@Override
+			public void onGlobalLayout() {
+				boolean enabled = ShaderEditorApp.preferences.autoHideExtraKeys();
+				Rect r = new Rect();
+				completions.getWindowVisibleDisplayFrame(r);
+				int screenHeight = completions.getRootView().getHeight();
+
+				// r.bottom is the position above soft keypad or device button.
+				// if keypad is shown, the r.bottom is smaller than that before.
+				int keypadHeight = screenHeight - r.bottom;
+
+				if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to
+					// determine keypad height.
+					// keyboard is opened
+					if (!isKeyboardShowing) {
+						isKeyboardShowing = true;
+						if (enabled && ShaderEditorApp.preferences.showExtraKeys()) {
+							extraKeys.setVisibility(View.VISIBLE);
+						}
+					}
+				} else {
+					// keyboard is closed
+					if (isKeyboardShowing) {
+						isKeyboardShowing = false;
+						if (enabled) {
+							extraKeys.setVisibility(View.GONE);
+						}
+					}
+				}
+			}
+		});
+		extraKeys.setVisibility(ShaderEditorApp.preferences.showExtraKeys() ? View.VISIBLE :
+				View.GONE);
 	}
 
 	private class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
@@ -400,10 +436,11 @@ public class MainActivity
 
 	private void toggleExtraKeys(@NonNull View view, @NonNull PopupWindow popupWindow) {
 		boolean visible = ShaderEditorApp.preferences.toggleShowExtraKeys();
-		updateExtraKeys((CompoundButton) view, visible);
+		updateExtraKeysToggle((CompoundButton) view, visible);
+		extraKeys.setVisibility(visible ? View.VISIBLE : View.GONE);
 	}
 
-	private void updateExtraKeys(@NonNull CompoundButton extraKeysToggle, boolean visible) {
+	private void updateExtraKeysToggle(@NonNull CompoundButton extraKeysToggle, boolean visible) {
 		extraKeysToggle.setChecked(visible);
 		Drawable drawable = ContextCompat.getDrawable(this, visible ?
 				R.drawable.ic_bottom_panel_close : R.drawable.ic_bottom_panel_open);
@@ -417,8 +454,6 @@ public class MainActivity
 			extraKeysToggle.setCompoundDrawablesWithIntrinsicBounds(drawable, drawables[1],
 					drawables[2], drawables[3]);
 		}
-		extraKeys.setVisibility(visible ? View.VISIBLE :
-				View.GONE);
 	}
 
 	private void updateUndoRedoMenu(@NonNull PopupWindow menuPopup) {
@@ -438,7 +473,7 @@ public class MainActivity
 						selectedShaderId
 						? R.string.update_wallpaper
 						: R.string.set_as_wallpaper);
-		updateExtraKeys(menuView.findViewById(R.id.show_extra_keys_box),
+		updateExtraKeysToggle(menuView.findViewById(R.id.show_extra_keys_box),
 				ShaderEditorApp.preferences.showExtraKeys());
 	}
 

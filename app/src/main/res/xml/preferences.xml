@@ -92,6 +92,12 @@
 			android:summary="@string/auto_save_summary"
 			android:checked="false"
 			android:defaultValue="true"/>
+		<androidx.preference.SwitchPreferenceCompat
+			android:key="auto_hide_extra_keys"
+			android:title="@string/auto_hide_extra_keys"
+			android:summary="@string/auto_hide_extra_keys_summary"
+			android:checked="true"
+			android:defaultValue="true"/>
 		<de.markusfisch.android.shadereditor.preference.ShaderListPreference
 			android:key="default_new_shader"
 			android:title="@string/default_new_shader"/>

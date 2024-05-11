@@ -38,6 +38,7 @@ public class Preferences {
 	public static final String EXPORT_DATABASE = "export_database";
 	public static final String SHOW_LINE_NUMBERS = "show_line_numbers";
 	public static final String SHOW_EXTRA_KEYS = "show_extra_keys";
+	public static final String AUTO_HIDE_EXTRA_KEYS = "auto_hide_extra_keys";
 
 	private static final int RUN_AUTO = 1;
 	private static final int RUN_MANUALLY = 2;
@@ -75,6 +76,7 @@ public class Preferences {
 	private boolean autoSave = true;
 	private boolean showLineNumbers = true;
 	private boolean showExtraKeys = true;
+	private boolean autoHideExtraKeys = true;
 	private String defaultFont;
 
 	public void init(Context context) {
@@ -152,6 +154,13 @@ public class Preferences {
 		showExtraKeys = preferences.getBoolean(
 				SHOW_EXTRA_KEYS,
 				showExtraKeys);
+		autoHideExtraKeys = preferences.getBoolean(
+				AUTO_HIDE_EXTRA_KEYS,
+				autoHideExtraKeys);
+	}
+
+	public boolean autoHideExtraKeys() {
+		return autoHideExtraKeys;
 	}
 
 	private @NonNull Typeface loadFont(
