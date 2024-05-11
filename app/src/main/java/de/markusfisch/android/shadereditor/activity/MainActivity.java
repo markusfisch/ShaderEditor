@@ -1220,6 +1220,8 @@ public class MainActivity
 			} else {
 				popupWindow.setElevation(6 * getResources().getDisplayMetrics().density);
 			}
+			// Do not effect the soft input - don't hide nor show
+			popupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NOT_NEEDED);
 			return popupWindow;
 		}
 	}
