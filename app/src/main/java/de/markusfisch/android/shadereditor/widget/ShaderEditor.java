@@ -57,7 +57,7 @@ public class ShaderEditor extends LineNumberEditText {
 	private static final Pattern PATTERN_MAIN = Pattern.compile(
 			".*void\\s+main\\s*\\(.*");
 	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
-			"[\\xA0]");
+			"\\xA0");
 
 	private final Handler updateHandler = new Handler();
 	private final Runnable updateRunnable = new Runnable() {
