@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+	android:drawable="@android:color/transparent"
+	android:insetTop="@dimen/extra_key_divider_padding"
+	android:insetBottom="@dimen/extra_key_divider_padding"
+	>
+	<shape android:shape="rectangle">
+		<size android:width="1dp" />
+		<solid android:color="?attr/colorPrimary" />
+	</shape>
+</inset>

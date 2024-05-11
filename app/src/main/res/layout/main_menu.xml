@@ -27,8 +27,7 @@
 				android:gravity="center"
 				app:icon="@drawable/ic_undo"
 				app:iconGravity="textStart"
-				app:iconPadding="0dp"
-				app:iconTint="?attr/colorOnSurface" />
+				app:iconPadding="0dp" />
 
 			<Button
 				android:id="@+id/redo"
@@ -40,8 +39,7 @@
 				android:gravity="center"
 				app:icon="@drawable/ic_redo"
 				app:iconGravity="textStart"
-				app:iconPadding="0dp"
-				app:iconTint="?attr/colorOnSurface" />
+				app:iconPadding="0dp" />
 		</LinearLayout>
 
 		<Button
@@ -139,6 +137,35 @@
 			android:layout_height="@dimen/menu_item_height"
 			android:text="@string/faq"
 			app:icon="@drawable/ic_forum" />
+
+		<com.google.android.material.divider.MaterialDivider
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginVertical="4dp"
+			app:dividerInsetEnd="8dp"
+			app:dividerInsetStart="8dp" />
+
+		<CheckBox
+			android:id="@+id/show_extra_keys_box"
+			style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/menu_item_height"
+			android:background="?attr/selectableItemBackground"
+			android:button="@null"
+			android:drawableStart="@drawable/ic_bottom_panel_open"
+			android:drawableEnd="?android:attr/listChoiceIndicatorMultiple"
+			android:drawablePadding="8dp"
+			app:drawableTint="@color/menu_item_selector"
+			android:gravity="center|start"
+			android:paddingHorizontal="8dp"
+			android:text="@string/show_extra_keys"
+			android:textColor="@color/menu_item_selector"
+			app:textAllCaps="false" />
+
+		<com.google.android.material.textfield.TextInputLayout
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			app:hintEnabled="false" />
 
 	</LinearLayout>
 </ScrollView>

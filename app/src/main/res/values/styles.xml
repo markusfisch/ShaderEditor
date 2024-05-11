@@ -1,4 +1,5 @@
 <resources>
+
 	<style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
 		<item name="background">@android:color/transparent</item>
 		<item name="colorPrimary">@color/primary</item>
@@ -7,66 +8,108 @@
 		<item name="colorSecondary">@color/accent</item>
 		<item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
 		<item name="alertDialogTheme">@style/AlertDialogTheme</item>
+		<item name="buttonStyle">@style/ButtonTheme</item>
 	</style>
+
 	<style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
 		<item name="buttonBarPositiveButtonStyle">@style/AlertDialogButtonStyle</item>
 		<item name="buttonBarNegativeButtonStyle">@style/AlertDialogButtonStyle</item>
 	</style>
+
 	<style name="AlertDialogButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
 		<item name="android:textColor">@color/accent</item>
 		<!-- You can also set other button properties here if needed -->
 	</style>
-	<style
-		name="SplashTheme"
-		parent="@style/AppTheme">
+
+	<style name="SplashTheme" parent="@style/AppTheme">
 		<item name="android:windowBackground">@drawable/background_splash</item>
 	</style>
-	<style
-		name="PreviewTheme"
-		parent="Theme.MaterialComponents.NoActionBar">
+
+	<style name="PreviewTheme" parent="Theme.MaterialComponents.NoActionBar">
 		<item name="android:windowNoTitle">true</item>
 		<item name="android:windowFullscreen">true</item>
 		<item name="android:windowContentOverlay">@null</item>
 	</style>
-	<style
-		name="Title"
-		parent="@android:style/TextAppearance.Medium">
-	</style>
-	<style
-		name="Subtitle"
-		parent="@android:style/TextAppearance.Small">
+
+	<style name="Title" parent="@android:style/TextAppearance.Medium"></style>
+
+	<style name="Subtitle" parent="@android:style/TextAppearance.Small">
 		<item name="android:textSize">12sp</item>
 	</style>
-	<style
-		name="ListItem"
-		parent="@android:style/TextAppearance.Medium">
+
+	<style name="ListItem" parent="@android:style/TextAppearance.Medium">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:textColor">@drawable/drawer_item_selector</item>
 	</style>
-	<style
-		name="ListItemSecondary"
-		parent="@android:style/TextAppearance.Small">
+
+	<style name="ListItemSecondary" parent="@android:style/TextAppearance.Small">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:textColor">@drawable/drawer_item_selector</item>
 	</style>
-	<style
-		name="FAB"
-		parent="Widget.MaterialComponents.FloatingActionButton">
+
+	<style name="FAB" parent="Widget.MaterialComponents.FloatingActionButton">
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:layout_margin">20dp</item>
 		<item name="android:layout_alignParentBottom">true</item>
 	</style>
+
 	<style name="FABLeft" parent="FAB">
 		<item name="android:layout_alignParentStart">true</item>
 		<item name="android:layout_alignParentLeft">true</item>
 	</style>
+
 	<style name="FABRight" parent="FAB">
 		<item name="android:layout_alignParentEnd">true</item>
 		<item name="android:layout_alignParentRight">true</item>
 	</style>
+
+	<style name="ButtonTheme" parent="Widget.MaterialComponents.Button">
+		<item name="iconTint">@color/menu_item_selector</item>
+		<item name="rippleColor">?attr/colorControlHighlight</item>
+	</style>
+	<!-- FilledBarButton == BarButton, because android styles do not support multiple inheritance -->
+	<style name="FilledBarButton" parent="Widget.MaterialComponents.Button">
+		<item name="android:insetTop">0dp</item>
+		<item name="android:insetRight">0dp</item>
+		<item name="android:insetBottom">0dp</item>
+		<item name="android:insetLeft">0dp</item>
+		<item name="iconGravity">textStart</item>
+		<item name="iconPadding">0dp</item>
+		<item name="cornerRadius">8dp</item>
+		<item name="rippleColor">?attr/colorControlHighlight</item>
+		<item name="iconTint">?attr/actionMenuTextColor</item>
+		<item name="android:textColor">@color/menu_item_selector</item>
+		<item name="android:minWidth">@dimen/extra_key_width</item>
+		<item name="android:minHeight">@dimen/extra_key_height</item>
+		<item name="android:textAppearance">?attr/textAppearanceBody1</item>
+		<item name="android:layout_marginTop">4dp</item>
+		<item name="android:layout_marginBottom">4dp</item>
+		<item name="android:gravity">center</item>
+		<item name="android:layout_gravity">center</item>
+	</style>
+	<style name="BarButton" parent="Widget.MaterialComponents.Button.TextButton">
+		<item name="android:insetTop">0dp</item>
+		<item name="android:insetRight">0dp</item>
+		<item name="android:insetBottom">0dp</item>
+		<item name="android:insetLeft">0dp</item>
+		<item name="iconGravity">textStart</item>
+		<item name="iconPadding">0dp</item>
+		<item name="cornerRadius">8dp</item>
+		<item name="rippleColor">?attr/colorControlHighlight</item>
+		<item name="iconTint">@color/menu_item_selector</item>
+		<item name="android:textColor">@color/menu_item_selector</item>
+		<item name="android:minWidth">@dimen/extra_key_width</item>
+		<item name="android:minHeight">@dimen/extra_key_height</item>
+		<item name="android:textAppearance">?attr/textAppearanceBody1</item>
+		<item name="android:layout_marginTop">4dp</item>
+		<item name="android:layout_marginBottom">4dp</item>
+		<item name="android:gravity">center</item>
+		<item name="android:layout_gravity">center</item>
+	</style>
+
 	<style name="IconButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
 		<item name="android:insetTop">0dp</item>
 		<item name="android:insetRight">0dp</item>
@@ -77,14 +120,14 @@
 		<item name="cornerRadius">999dp</item>
 		<item name="rippleColor">?attr/colorControlHighlight</item>
 		<item name="backgroundTint">@android:color/transparent</item>
-		<item name="iconTint">?attr/colorControlNormal</item>
+		<item name="iconTint">@color/menu_item_selector</item>
 	</style>
 
 	<style name="MenuItem" parent="Widget.MaterialComponents.Button.TextButton">
 		<item name="android:gravity">center|start</item>
 		<item name="textAllCaps">false</item>
-		<item name="android:textColor">?attr/colorControlNormal</item>
-		<item name="iconTint">?attr/colorControlNormal</item>
+		<item name="android:textColor">@color/menu_item_selector</item>
+		<item name="iconTint">@color/menu_item_selector</item>
 		<item name="iconPadding">8dp</item>
 		<item name="iconSize">24dp</item>
 		<item name="android:insetTop">0dp</item>

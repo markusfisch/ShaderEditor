@@ -19,15 +19,6 @@
 		app:icon="@drawable/ic_more_vert" />
 
 	<Button
-		android:id="@+id/insert_tab"
-		style="@style/IconButton"
-		android:layout_width="48dp"
-		android:layout_height="48dp"
-		android:layout_gravity="end"
-		android:layout_marginEnd="4dp"
-		app:icon="@drawable/ic_keyboard_tab" />
-
-	<Button
 		android:id="@+id/toggle_code"
 		style="@style/IconButton"
 		android:layout_width="48dp"

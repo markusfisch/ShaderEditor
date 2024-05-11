@@ -1,24 +1,33 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
+
 	<de.markusfisch.android.shadereditor.widget.ShaderView
 		android:id="@+id/preview"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"/>
+		android:layout_height="match_parent" />
+
 	<LinearLayout
 		android:id="@+id/main_layout"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:fitsSystemWindows="true"
 		android:orientation="vertical">
-		<include layout="@layout/toolbar_main"/>
+
+		<include layout="@layout/toolbar_main" />
+
 		<de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout
 			android:id="@+id/drawer_layout"
 			android:layout_width="match_parent"
-			android:layout_height="match_parent">
+			android:layout_height="0dp"
+			android:layout_weight="1">
+
 			<androidx.coordinatorlayout.widget.CoordinatorLayout
 				android:id="@+id/content_frame"
 				android:layout_width="match_parent"
-				android:layout_height="match_parent"/>
-			<include layout="@layout/drawer"/>
+				android:layout_height="match_parent" />
+
+			<include layout="@layout/drawer" />
 		</de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout>
+
+		<include layout="@layout/extra_keys" />
 	</LinearLayout>
 </merge>
