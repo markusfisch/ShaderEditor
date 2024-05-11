@@ -43,7 +43,7 @@ public class ShaderAdapter extends CursorAdapter {
 
 	public String getTitle(Cursor cursor) {
 		String title = cursor.getString(nameIndex);
-		return title != null && title.length() > 0
+		return title != null && !title.isEmpty()
 				? title
 				: cursor.getString(modifiedIndex);
 	}

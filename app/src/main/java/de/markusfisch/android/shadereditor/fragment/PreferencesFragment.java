@@ -145,7 +145,7 @@ public class PreferencesFragment
 		String summary = Database.getString(
 				cursor, Database.SHADERS_NAME);
 
-		if (summary == null || summary.length() < 1) {
+		if (summary == null || summary.isEmpty()) {
 			summary = Database.getString(
 					cursor, Database.SHADERS_MODIFIED);
 		}

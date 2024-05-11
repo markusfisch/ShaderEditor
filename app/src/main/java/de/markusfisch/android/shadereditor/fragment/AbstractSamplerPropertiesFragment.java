@@ -148,7 +148,7 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 		textureParameterView.setParameters(tp);
 		final String params = tp.toString();
 
-		if (name.trim().length() < 1) {
+		if (name.trim().isEmpty()) {
 			Toast.makeText(
 					context,
 					R.string.missing_name,

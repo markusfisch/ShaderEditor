@@ -32,7 +32,7 @@ public class BackBufferParameters extends TextureParameters {
 	public String toString() {
 		String params = super.toString();
 		if (preset != null) {
-			if (params.length() < 1) {
+			if (params.isEmpty()) {
 				params = HEADER;
 			}
 			params += PRESET + ASSIGN + preset + SEPARATOR;

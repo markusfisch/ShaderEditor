@@ -371,7 +371,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			deleteTargets();
 		}
 
-		if (fragmentShader != null && fragmentShader.length() > 0) {
+		if (fragmentShader != null && !fragmentShader.isEmpty()) {
 			resetFps();
 			createTextures();
 			loadPrograms();

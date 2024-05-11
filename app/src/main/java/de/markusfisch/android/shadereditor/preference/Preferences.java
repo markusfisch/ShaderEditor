@@ -307,7 +307,7 @@ public class Preferences {
 
 	private static int parseInt(String s, int preset) {
 		try {
-			if (s != null && s.length() > 0) {
+			if (s != null && !s.isEmpty()) {
 				return Integer.parseInt(s);
 			}
 		} catch (NumberFormatException e) {
@@ -319,7 +319,7 @@ public class Preferences {
 
 	private static long parseLong(String s, long preset) {
 		try {
-			if (s != null && s.length() > 0) {
+			if (s != null && !s.isEmpty()) {
 				return Long.parseLong(s);
 			}
 		} catch (NumberFormatException e) {
