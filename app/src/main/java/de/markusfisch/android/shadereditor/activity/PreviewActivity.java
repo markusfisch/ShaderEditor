@@ -10,7 +10,7 @@ import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 
 public class PreviewActivity extends AppCompatActivity {
-	static class RenderStatus {
+	public static class RenderStatus {
 		volatile int fps;
 		volatile String infoLog;
 		byte[] thumbnail;
