@@ -140,6 +140,6 @@ public final class TrieNode {
 	}
 
 	private static char indexToChar(int index) {
-		return (char)index;
+		return (char) index;
 	}
 }
