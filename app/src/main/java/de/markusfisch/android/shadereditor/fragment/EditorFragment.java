@@ -11,8 +11,6 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import de.markusfisch.android.shadereditor.R;
@@ -29,7 +27,6 @@ public class EditorFragment extends Fragment {
 	private View editorContainer;
 	private ShaderEditor shaderEditor;
 	private UndoRedo undoRedo;
-	private int yOffset;
 
 	@Override
 	public View onCreateView(
@@ -178,27 +175,6 @@ public class EditorFragment extends Fragment {
 						: preferences.useLigatures() ? "normal" : "calt off");
 			}
 		}
-	}
-
-	private int getYOffset(Activity activity) {
-		if (yOffset == 0) {
-			float dp = getResources().getDisplayMetrics().density;
-
-			if (activity instanceof AppCompatActivity) {
-				ActionBar actionBar = ((AppCompatActivity) activity)
-						.getSupportActionBar();
-
-				if (actionBar != null) {
-					yOffset = actionBar.getHeight();
-				}
-			} else {
-				yOffset = Math.round(48f * dp);
-			}
-
-			yOffset += Math.round(16f * dp);
-		}
-
-		return yOffset;
 	}
 
 	public void setShowLineNumbers(boolean showLineNumbers) {
