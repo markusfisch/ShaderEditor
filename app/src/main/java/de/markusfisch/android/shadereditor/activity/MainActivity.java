@@ -302,7 +302,7 @@ public class MainActivity
 						"else",
 						"for",
 						"while",
-						"textue2D",
+						"texture2D",
 						"distance",
 						"smoothstep",
 						"min",
