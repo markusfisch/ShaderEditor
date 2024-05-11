@@ -5,7 +5,6 @@ import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -117,15 +116,10 @@ public class EditorFragment extends Fragment {
 		shaderEditor.setErrorLine(InfoLog.getErrorLine());
 		highlightError();
 
-		Toast errorToast = Toast.makeText(
+		Toast.makeText(
 				activity,
 				InfoLog.getMessage(),
-				Toast.LENGTH_SHORT);
-		errorToast.setGravity(
-				Gravity.TOP | Gravity.CENTER_HORIZONTAL,
-				0,
-				getYOffset(activity));
-		errorToast.show();
+				Toast.LENGTH_SHORT).show();
 	}
 
 	public boolean isModified() {
