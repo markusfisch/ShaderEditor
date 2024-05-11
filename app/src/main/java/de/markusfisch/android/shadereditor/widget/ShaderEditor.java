@@ -65,7 +65,7 @@ public class ShaderEditor extends LineNumberEditText {
 		public void run() {
 			Editable e = getText();
 
-			if (onTextChangedListener != null) {
+			if (e != null && onTextChangedListener != null) {
 				onTextChangedListener.onTextChanged(e.toString());
 			}
 
@@ -170,8 +170,9 @@ public class ShaderEditor extends LineNumberEditText {
 		setText(highlight(new SpannableStringBuilder(text), true));
 		modified = true;
 
-		if (onTextChangedListener != null) {
-			onTextChangedListener.onTextChanged(getText().toString());
+		Editable e = getText();
+		if (e != null && onTextChangedListener != null) {
+			onTextChangedListener.onTextChanged(e.toString());
 		}
 	}
 
@@ -184,7 +185,11 @@ public class ShaderEditor extends LineNumberEditText {
 	public void insert(@NonNull CharSequence text) {
 		int start = getSelectionStart();
 		int end = getSelectionEnd();
-		getText().replace(Math.min(start, end),
+		Editable e = getText();
+		if (e == null) {
+			return;
+		}
+		e.replace(Math.min(start, end),
 				Math.max(start, end),
 				text,
 				0,
@@ -226,7 +231,9 @@ public class ShaderEditor extends LineNumberEditText {
 			++start;
 		}
 
-		e.insert(start, statement);
+		if (e != null) {
+			e.insert(start, statement);
+		}
 	}
 
 	/**
