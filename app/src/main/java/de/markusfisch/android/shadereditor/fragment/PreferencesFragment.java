@@ -186,8 +186,8 @@ public class PreferencesFragment
 			int requestCode,
 			@NonNull String[] permissions,
 			@NonNull int[] grantResults) {
-		for (int i = 0, l = grantResults.length; i < l; ++i) {
-			if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+		for (int grantResult : grantResults) {
+			if (grantResult == PackageManager.PERMISSION_GRANTED) {
 				switch (requestCode) {
 					default:
 						// Make FindBugs happy.

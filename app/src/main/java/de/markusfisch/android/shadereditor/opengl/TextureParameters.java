@@ -233,12 +233,7 @@ public class TextureParameters {
 	}
 
 	private static String magToShortcut(int mag) {
-		switch (mag) {
-			case GLES20.GL_NEAREST:
-				return "n";
-			default:
-				return "l";
-		}
+		return mag == GLES20.GL_NEAREST ? "n" : "l";
 	}
 
 	private static int shortcutToWrap(String shortcut) {
