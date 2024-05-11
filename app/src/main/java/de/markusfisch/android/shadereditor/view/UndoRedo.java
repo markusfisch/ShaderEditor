@@ -110,6 +110,8 @@ public class UndoRedo {
 
 	private final EditTextChangeListener changeListener =
 			new EditTextChangeListener();
+	private final EditHistory editHistory;
+	private final TextView textView;
 
 	/**
 	 * Is undo/redo being performed? This member signals if an undo/redo
@@ -118,8 +120,6 @@ public class UndoRedo {
 	 */
 	private boolean isUndoOrRedo = false;
 	private boolean isListening = false;
-	private EditHistory editHistory;
-	private TextView textView;
 
 	public UndoRedo(TextView textView, EditHistory editHistory) {
 		this.textView = textView;

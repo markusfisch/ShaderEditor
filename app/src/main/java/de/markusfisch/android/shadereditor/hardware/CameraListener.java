@@ -18,10 +18,10 @@ public class CameraListener {
 	public final float[] addent = new float[]{0, 0};
 
 	private final int cameraTextureId;
+	private final int frameOrientation;
 
 	private int frameWidth;
 	private int frameHeight;
-	private int frameOrientation;
 	private boolean pausing = true;
 	private boolean opening = false;
 	private boolean available = false;
