@@ -264,4 +264,5 @@
 	<string name="enable_notification_listener">To use the notificationCount or lastNotificationTime uniform, please enable the Notification Listener in Settings.</string>
 	<string name="go_to_settings">Go to Settings</string>
 	<string name="enable_notification_listener_title">Enable Notification Listener</string>
+	<string name="show_extra_keys">Show Extra Keys</string>
 </resources>

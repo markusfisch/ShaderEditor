@@ -12,6 +12,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,6 +28,8 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupWindow;
@@ -46,15 +49,11 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -292,7 +291,8 @@ public class MainActivity
 
 	private void initExtraKeys() {
 		extraKeys = findViewById(R.id.extra_keys);
-		extraKeys.findViewById(R.id.insert_tab).setOnClickListener((v) -> editorFragment.insert("\t"));
+		extraKeys.findViewById(R.id.insert_tab).setOnClickListener((v) -> editorFragment.insert(
+				"\t"));
 		RecyclerView completions = extraKeys.findViewById(R.id.completions);
 		completions.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL,
 				false));
@@ -394,7 +394,31 @@ public class MainActivity
 				.setClickListener(R.id.load_sample, this::loadSample)
 				.setClickListener(R.id.settings, this::showSettings)
 				.setClickListener(R.id.faq, this::showFaq)
+				.setClickListener(R.id.show_extra_keys_box, this::toggleExtraKeys, false)
 				.build();
+	}
+
+	private void toggleExtraKeys(@NonNull View view, @NonNull PopupWindow popupWindow) {
+		boolean visible = ShaderEditorApp.preferences.toggleShowExtraKeys();
+		updateExtraKeys((CompoundButton) view, visible);
+	}
+
+	private void updateExtraKeys(@NonNull CompoundButton extraKeysToggle, boolean visible) {
+		extraKeysToggle.setChecked(visible);
+		Drawable drawable = ContextCompat.getDrawable(this, visible ?
+				R.drawable.ic_bottom_panel_close : R.drawable.ic_bottom_panel_open);
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+			Drawable[] drawables = extraKeysToggle.getCompoundDrawablesRelative();
+			extraKeysToggle.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, drawables[1]
+					, drawables[2],
+					drawables[3]);
+		} else {
+			Drawable[] drawables = extraKeysToggle.getCompoundDrawables();
+			extraKeysToggle.setCompoundDrawablesWithIntrinsicBounds(drawable, drawables[1],
+					drawables[2], drawables[3]);
+		}
+		extraKeys.setVisibility(visible ? View.VISIBLE :
+				View.GONE);
 	}
 
 	private void updateUndoRedoMenu(@NonNull PopupWindow menuPopup) {
@@ -414,6 +438,8 @@ public class MainActivity
 						selectedShaderId
 						? R.string.update_wallpaper
 						: R.string.set_as_wallpaper);
+		updateExtraKeys(menuView.findViewById(R.id.show_extra_keys_box),
+				ShaderEditorApp.preferences.showExtraKeys());
 	}
 
 	private void showMenu(View anchor) {
@@ -626,6 +652,9 @@ public class MainActivity
 					ShaderEditorApp.preferences.showLineNumbers());
 			editorFragment.updateHighlighting();
 		}
+
+		extraKeys.setVisibility(ShaderEditorApp.preferences.showExtraKeys() ? View.VISIBLE :
+				View.GONE);
 
 		invalidateOptionsMenu();
 	}
