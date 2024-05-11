@@ -191,7 +191,6 @@ public class ShaderEditor extends LineNumberEditText {
 				text.length());
 	}
 
-
 	public void addUniform(String statement) {
 		if (statement == null) {
 			return;
@@ -242,27 +241,6 @@ public class ShaderEditor extends LineNumberEditText {
 	@Override
 	protected void onSelectionChanged(int selStart, int selEnd) {
 		super.onSelectionChanged(selStart, selEnd);
-//		// Selecting text
-//		if (selStart != selEnd) {
-//			return;
-//		}
-//		Editable text = getText();
-//		if (text == null || text.length() == 0) {
-//			return;
-//		}
-//		Lexer lexer = new Lexer(text.toString());
-//		// Cursor moved
-//		Token tok = null;
-//		for (Token token : lexer) {
-//			tok = token;
-//			if (token.startOffset() <= selStart && token.endOffset() >= selEnd) {
-//				Log.d(TAG, token.toString());
-//				break;
-//			}
-//		}
-//		if (tok != null) {
-//			Log.d("ShaderEditor", Lexer.complete(lexer.source(tok), tok.category()).toString());
-//		}
 	}
 
 	private void removeUniform(Editable e, String statement) {
