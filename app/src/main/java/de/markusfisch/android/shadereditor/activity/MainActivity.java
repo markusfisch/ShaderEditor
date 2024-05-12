@@ -19,6 +19,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -47,12 +48,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -73,7 +77,7 @@ import de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout;
 
 public class MainActivity
 		extends AppCompatActivity
-		implements ShaderEditor.OnTextChangedListener {
+		implements ShaderEditor.OnTextChangedListener, ShaderEditor.CodeCompletionListener {
 	private static final String SELECTED_SHADER = "selected_shader";
 	private static final String CODE_VISIBLE = "code_visible";
 	private static final int PREVIEW_SHADER = 1;
@@ -105,6 +109,8 @@ public class MainActivity
 	private volatile int fps;
 	private float[] qualityValues;
 	private float quality = 1f;
+	private final List<String> currentCompletions = new ArrayList<>();
+	private Adapter completionsAdapter;
 
 	@Override
 	public void onConfigurationChanged(@NonNull Configuration newConfig) {
@@ -137,6 +143,11 @@ public class MainActivity
 		}
 
 		setFragmentShader(text);
+	}
+
+	@Override
+	public void onCodeCompletions(List<String> completions) {
+		completionsAdapter.submitList(completions);
 	}
 
 	@Override
@@ -296,19 +307,8 @@ public class MainActivity
 		RecyclerView completions = extraKeys.findViewById(R.id.completions);
 		completions.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL,
 				false));
-		completions.setAdapter(new Adapter(this,
-				Arrays.asList(
-						"if",
-						"else",
-						"for",
-						"while",
-						"texture2D",
-						"distance",
-						"smoothstep",
-						"min",
-						"max"
-				)
-		));
+		this.completionsAdapter = new Adapter(this);
+		completions.setAdapter(completionsAdapter);
 		DividerItemDecoration divider = new DividerItemDecoration(completions.getContext(),
 				DividerItemDecoration.HORIZONTAL);
 		divider.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(this,
@@ -352,13 +352,27 @@ public class MainActivity
 				View.GONE);
 	}
 
-	private class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
-		private final List<String> list;
+	private static final DiffUtil.ItemCallback<String> DIFF_CALLBACK =
+			new DiffUtil.ItemCallback<String>() {
+		@Override
+		public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
+			// Update the condition according to your unique identifier
+			return oldItem.equals(newItem);
+		}
+
+		@Override
+		public boolean areContentsTheSame(@NonNull String oldItem, @NonNull String newItem) {
+			// Return true if the contents of the items have not changed
+			return oldItem.equals(newItem);
+		}
+	};
+
+	private class Adapter extends ListAdapter<String, Adapter.ViewHolder> {
 		private final LayoutInflater inflater;
 
-		public Adapter(Context context, List<String> list) {
+		public Adapter(Context context) {
+			super(DIFF_CALLBACK);
 			this.inflater = LayoutInflater.from(context);
-			this.list = list;
 		}
 
 		@NonNull
@@ -370,12 +384,8 @@ public class MainActivity
 
 		@Override
 		public void onBindViewHolder(@NonNull Adapter.ViewHolder holder, int position) {
-			holder.update(list.get(position));
-		}
-
-		@Override
-		public int getItemCount() {
-			return list.size();
+			String item = getItem(position); // Use getItem provided by ListAdapter
+			holder.update(item);
 		}
 
 		private class ViewHolder extends RecyclerView.ViewHolder {

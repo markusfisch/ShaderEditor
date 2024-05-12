@@ -10,8 +10,9 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Lexer implements Iterable<Token> {
-	public String source(Token token) {
-		return source.substring(token.startOffset(), token.endOffset());
+	@NonNull
+	public static CharSequence tokenSource(@NonNull Token token, @NonNull CharSequence source) {
+		return source.subSequence(token.startOffset(), token.endOffset());
 	}
 
 	public static class Diff {
@@ -606,6 +607,35 @@ public class Lexer implements Iterable<Token> {
 			root.findAll(text, (short) TokenType.INVALID.ordinal(), result);
 		}
 		return result;
+	}
+
+	/**
+	 * Performs a binary search to find the token that includes the given position.
+	 * Assumes tokens are non-overlapping and touch each other.
+	 *
+	 * @param tokens   List of tokens sorted by their start offsets.
+	 * @param position The offset to search for.
+	 * @return The token that contains the position, or null if no such token exists.
+	 */
+	@Nullable
+	public static Token findToken(@NonNull List<Token> tokens, int position) {
+		int low = 0;
+		int high = tokens.size() - 1;
+
+		while (low <= high) {
+			int mid = low + (high - low) / 2;
+			Token midToken = tokens.get(mid);
+
+			if (position >= midToken.startOffset() && position <= midToken.endOffset()) {
+				return midToken;
+			} else if (position < midToken.startOffset()) {
+				high = mid - 1;
+			} else {
+				low = mid + 1;
+			}
+		}
+
+		return null; // No token contains the position
 	}
 
 	@Nullable

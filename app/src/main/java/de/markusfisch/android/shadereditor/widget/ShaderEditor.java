@@ -44,6 +44,11 @@ public class ShaderEditor extends LineNumberEditText {
 		void onTextChanged(String text);
 	}
 
+	@FunctionalInterface
+	public interface CodeCompletionListener {
+		void onCodeCompletions(List<String> completions);
+	}
+
 	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
 			"[\\t ]+$",
 			Pattern.MULTILINE);
@@ -75,6 +80,8 @@ public class ShaderEditor extends LineNumberEditText {
 	private final int[] colors = new int[Highlight.values().length];
 
 	private OnTextChangedListener onTextChangedListener;
+	@Nullable
+	private CodeCompletionListener codeCompletionListener;
 	private int updateDelay = 1000;
 	private int errorLine = 0;
 	private boolean dirty = false;
@@ -97,6 +104,10 @@ public class ShaderEditor extends LineNumberEditText {
 
 	public void setOnTextChangedListener(OnTextChangedListener listener) {
 		onTextChangedListener = listener;
+	}
+
+	public void setOnCompletionsListener(@NonNull CodeCompletionListener listener) {
+		codeCompletionListener = listener;
 	}
 
 	public void setUpdateDelay(int ms) {
@@ -248,6 +259,25 @@ public class ShaderEditor extends LineNumberEditText {
 	@Override
 	protected void onSelectionChanged(int selStart, int selEnd) {
 		super.onSelectionChanged(selStart, selEnd);
+		Editable text = getText();
+		CodeCompletionListener listener = codeCompletionListener;
+		if (text == null || listener == null) {
+			return;
+		}
+		int start = getSelectionStart();
+		int end = getSelectionEnd();
+		if (start != end) {
+			return;
+		}
+		updateHandler.post(() -> {
+			Token tok = Lexer.findToken(tokens, start);
+			if (tok == null) {
+				listener.onCodeCompletions(new ArrayList<>());
+				return;
+			}
+			listener.onCodeCompletions(Lexer.complete(Lexer.tokenSource(tok, text).toString(),
+					tok.category()));
+		});
 	}
 
 	private void removeUniform(Editable e, String statement) {
