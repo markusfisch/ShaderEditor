@@ -99,12 +99,12 @@ public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFrag
 
 			if (bitmap == null ||
 					(bitmap = BitmapEditor.crop(
-							bitmap, clip, rotation)) == null ||
-					(bitmap = Bitmap.createScaledBitmap(
-							bitmap, size, size, true)) == null) {
+							bitmap, clip, rotation)) == null) {
 				return R.string.cannot_pick_image;
 			}
 
+			bitmap = Bitmap.createScaledBitmap(
+					bitmap, size, size, true);
 			canvas.drawBitmap(bitmap, x, y, null);
 			bitmap.recycle();
 
