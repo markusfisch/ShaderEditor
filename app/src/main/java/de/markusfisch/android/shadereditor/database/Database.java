@@ -141,6 +141,10 @@ public class Database {
 	}
 
 	public Cursor getShaders() {
+		return getShaders(false);
+	}
+
+	public Cursor getShaders(boolean sortByLastModification) {
 		return db.rawQuery(
 				"SELECT " +
 						SHADERS_ID + "," +
@@ -148,7 +152,9 @@ public class Database {
 						SHADERS_NAME + "," +
 						SHADERS_MODIFIED +
 						" FROM " + SHADERS +
-						" ORDER BY " + SHADERS_ID,
+						" ORDER BY " + (sortByLastModification
+								? SHADERS_MODIFIED + " DESC"
+								: SHADERS_ID),
 				null);
 	}
 

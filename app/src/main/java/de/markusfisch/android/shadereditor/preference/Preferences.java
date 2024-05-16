@@ -18,6 +18,7 @@ import de.markusfisch.android.shadereditor.R;
 public class Preferences {
 	public static final String WALLPAPER_SHADER = "shader";
 	public static final String SAVE_BATTERY = "save_battery";
+	public static final String SORT_BY_LAST_MODIFICATION = "sort_by_last_modification";
 	public static final String RUN_MODE = "run_mode";
 	public static final String UPDATE_DELAY = "update_delay";
 	public static final String SENSOR_DELAY = "sensor_delay";
@@ -57,6 +58,7 @@ public class Preferences {
 	private SharedPreferences preferences;
 	private long wallpaperShaderId = 1;
 	private boolean saveBattery = true;
+	private boolean sortByLastModification = true;
 	private int runMode = RUN_AUTO;
 	private int updateDelay = 1000;
 	private int sensorDelay = SensorManager.SENSOR_DELAY_NORMAL;
@@ -108,6 +110,9 @@ public class Preferences {
 		saveBattery = preferences.getBoolean(
 				SAVE_BATTERY,
 				saveBattery);
+		sortByLastModification = preferences.getBoolean(
+				SORT_BY_LAST_MODIFICATION,
+				sortByLastModification);
 		runMode = parseInt(
 				preferences.getString(RUN_MODE, null),
 				runMode);
@@ -184,6 +189,10 @@ public class Preferences {
 
 	public boolean saveBattery() {
 		return saveBattery;
+	}
+
+	public boolean sortByLastModification() {
+		return sortByLastModification;
 	}
 
 	public boolean doesRunOnChange() {

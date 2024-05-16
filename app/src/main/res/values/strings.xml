@@ -36,6 +36,8 @@
 	<string name="wallpaper">Wallpaper</string>
 	<string name="save_battery">Save battery</string>
 	<string name="save_battery_summary">Stop rendering when battery is low</string>
+	<string name="sort_by_last_modification">Sort by last modification</string>
+	<string name="sort_by_last_modification_summary">Sort shaders by last modification</string>
 	<string name="sensors">Sensors</string>
 	<string name="sensor_delay">Sensor Delay</string>
 	<string name="no_shader_selected">No shader selected</string>

@@ -15,6 +15,12 @@
 			android:defaultValue="true"/>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/editor">
+		<androidx.preference.SwitchPreferenceCompat
+			android:key="sort_by_last_modification"
+			android:title="@string/sort_by_last_modification"
+			android:summary="@string/sort_by_last_modification_summary"
+			android:checked="true"
+			android:defaultValue="true"/>
 		<ListPreference
 			android:key="run_mode"
 			android:title="@string/run_mode"
