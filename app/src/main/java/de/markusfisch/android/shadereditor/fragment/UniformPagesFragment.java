@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager.widget.PagerTabStrip;
 import androidx.viewpager.widget.ViewPager;
 
 import de.markusfisch.android.shadereditor.R;
@@ -34,6 +35,13 @@ public class UniformPagesFragment extends Fragment {
 		viewPager.setAdapter(new UniformPageAdapter(
 				getActivity(),
 				getChildFragmentManager()));
+
+		// Workaround to make sure PagerTabStrip is visible in a release
+		// build. Without this, it will only be visible in a debug build.
+		// See: https://code.google.com/p/android/issues/detail?id=213359
+		PagerTabStrip pagerTabStrip = view.findViewById(R.id.pagerTabStrip);
+		((ViewPager.LayoutParams) pagerTabStrip.getLayoutParams())
+				.isDecor = true;
 
 		return view;
 	}
