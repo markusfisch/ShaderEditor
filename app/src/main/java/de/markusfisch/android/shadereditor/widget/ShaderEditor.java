@@ -18,8 +18,8 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.LineHeightSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
-import android.view.View;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -29,6 +29,11 @@ import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,11 +81,6 @@ public class ShaderEditor extends LineNumberEditText {
 				}
 
 				highlightWithoutChange(e);
-
-				int start = getSelectionStart();
-				if (start == getSelectionEnd() && codeCompletionListener != null) {
-					provideCompletions(getSelectionStart(), codeCompletionListener, e);
-				}
 			}
 
 		}
@@ -99,6 +99,8 @@ public class ShaderEditor extends LineNumberEditText {
 	private int tabWidthInCharacters = 0;
 	private int tabWidth = 0;
 	private List<Token> tokens = new ArrayList<>();
+	private int revision = 0;
+	private final TokenListUpdater tokenListUpdater = new TokenListUpdater(this::provideCompletions);
 	private boolean editing = false;
 
 	public ShaderEditor(Context context) {
@@ -278,9 +280,8 @@ public class ShaderEditor extends LineNumberEditText {
 		if (start != end) {
 			return;
 		}
-
-		if (!editing) {
-			provideCompletions(start, listener, text);
+		if (!editing && tokenListUpdater.isDone()) {
+			provideCompletions(tokens, text);
 		}
 	}
 
@@ -366,10 +367,13 @@ public class ShaderEditor extends LineNumberEditText {
 				}
 
 				if (!modified) {
+					editing = false;
 					return;
 				}
 
+				editing = false;
 				dirty = true;
+				tokenListUpdater.update(e, ++revision);
 				updateHandler.postDelayed(updateRunnable, updateDelay);
 			}
 		});
@@ -378,19 +382,16 @@ public class ShaderEditor extends LineNumberEditText {
 		setUpdateDelay(ShaderEditorApp.preferences.getUpdateDelay());
 		setTabWidth(ShaderEditorApp.preferences.getTabWidth());
 
-		setOnKeyListener(new OnKeyListener() {
-			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if (ShaderEditorApp.preferences.useTabForIndent() &&
-						event.getAction() == KeyEvent.ACTION_DOWN &&
-						keyCode == KeyEvent.KEYCODE_TAB) {
-					// Insert a tab character instead of doing focus
-					// navigation.
-					insert("\t");
-					return true;
-				}
-				return false;
+		setOnKeyListener((v, keyCode, event) -> {
+			if (ShaderEditorApp.preferences.useTabForIndent() &&
+					event.getAction() == KeyEvent.ACTION_DOWN &&
+					keyCode == KeyEvent.KEYCODE_TAB) {
+				// Insert a tab character instead of doing focus
+				// navigation.
+				insert("\t");
+				return true;
 			}
+			return false;
 		});
 	}
 
@@ -436,18 +437,11 @@ public class ShaderEditor extends LineNumberEditText {
 			clearSpans(e, 0, length, ForegroundColorSpan.class);
 			return e;
 		}
-
-		Lexer lexer = new Lexer(e.toString());
-		List<Token> oldTokens = tokens;
-		tokens = new ArrayList<>();
-		for (Token token : lexer) {
-			tokens.add(token);
-		}
-		editing = false; // TODO: Separate the token generation from highlighting
+		List<Token> newTokens = tokenListUpdater.ensureUpdated(e, revision);
 
 		if (complete) {
 			clearSpans(e, 0, length, ForegroundColorSpan.class);
-			for (Token token : tokens) {
+			for (Token token : newTokens) {
 				@ColorInt int color = colors[Highlight.from(token.type()).ordinal()];
 				if (color != textColor) {
 					e.setSpan(
@@ -457,25 +451,31 @@ public class ShaderEditor extends LineNumberEditText {
 				}
 			}
 		} else {
-			Lexer.Diff diff = Lexer.diff(oldTokens, tokens);
+			Lexer.Diff diff = Lexer.diff(tokens, newTokens);
 			if (diff.start <= diff.deleteEnd) {
-				int startOffset = tokens.get(diff.start).startOffset();
-				int endOffset = tokens.get(diff.insertEnd).endOffset();
+				int startOffset = newTokens.get(diff.start).startOffset();
+				int endOffset = newTokens.get(diff.insertEnd).endOffset();
 				clearSpans(e, startOffset, endOffset, ForegroundColorSpan.class);
 			}
 			for (int i = diff.start; i <= diff.insertEnd; ++i) {
-				Token token = tokens.get(i);
+				Token token = newTokens.get(i);
 				e.setSpan(
 						new ForegroundColorSpan(colors[Highlight.from(token.type()).ordinal()]),
 						token.startOffset(), token.endOffset(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 		}
 
+		tokens = newTokens;
+
 		return e;
 	}
 
-	private void provideCompletions(int start, @NonNull CodeCompletionListener listener,
-			@NonNull CharSequence text) {
+	private void provideCompletions(@NonNull List<Token> tokens, @NonNull CharSequence text) {
+		CodeCompletionListener listener = codeCompletionListener;
+		if (listener == null) {
+			return;
+		}
+		int start = getSelectionStart();
 		Token tok = Lexer.findToken(tokens, start);
 		if (tok == null) {
 			listener.onCodeCompletions(new ArrayList<>(), 0);
@@ -483,7 +483,7 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 		int positionInToken = start - tok.startOffset();
 		listener.onCodeCompletions(
-				Lexer.complete(
+				Lexer.completeKeyword(
 						Lexer.tokenSource(tok, text).subSequence(0, positionInToken).toString(),
 						tok.category()
 				),
@@ -667,6 +667,84 @@ public class ShaderEditor extends LineNumberEditText {
 		@Override
 		public void chooseHeight(CharSequence text, int start, int end,
 				int spanstartv, int lineHeight, Paint.FontMetricsInt fm) {
+		}
+	}
+
+	@FunctionalInterface
+	interface OnTokenized {
+		void onTokens(@NonNull List<Token> tokens, @NonNull CharSequence text);
+	}
+
+	static class TokenizeCalculation implements Callable<List<Token>> {
+		private final String text;
+		@NonNull
+		private final OnTokenized onTokenized;
+
+		public TokenizeCalculation(@NonNull String text, @NonNull OnTokenized onTokenized) {
+			this.text = text;
+			this.onTokenized = onTokenized;
+		}
+		@Override
+		public List<Token> call() {
+			Lexer lexer = new Lexer(text);
+			List<Token> tokens = new ArrayList<>();
+			for (Token token : lexer) {
+				tokens.add(token);
+				if (Thread.currentThread().isInterrupted()) {
+					break;
+				}
+			}
+			onTokenized.onTokens(tokens, text);
+			return tokens;
+		}
+	}
+
+	static class TokenListUpdater {
+		@NonNull
+		private final OnTokenized onTokenized;
+		@NonNull
+		private final ExecutorService executor = Executors.newSingleThreadExecutor();
+		@Nullable
+		private FutureTask<List<Token>> task;
+		private int revision = -1;
+
+		public TokenListUpdater(@NonNull OnTokenized onTokenized) {
+			this.onTokenized = onTokenized;
+		}
+
+		@NonNull
+		public List<Token> ensureUpdated(@NonNull CharSequence text, int revision) {
+			if (task != null && revision == this.revision) {
+				try {
+					return task.get();
+				} catch (ExecutionException | InterruptedException e) {
+					throw new RuntimeException(e);
+				}
+			}
+			update(text, revision);
+			try {
+				return task.get();
+			} catch (ExecutionException | InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		public void update(@NonNull CharSequence text, int revision) {
+			if (revision == this.revision) {
+				Log.d("TEST", "Same revision: " + revision);
+				return;
+			} else if (task != null) {
+				task.cancel(false);
+			}
+			Log.d("TEST", "Different revision: " + revision + " != " + this.revision);
+
+			this.revision = revision;
+			task = new FutureTask<>(new TokenizeCalculation(text.toString(), onTokenized));
+			executor.submit(task);
+		}
+
+		public boolean isDone() {
+			return task != null && task.isDone();
 		}
 	}
 }

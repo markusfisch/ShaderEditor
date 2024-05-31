@@ -600,7 +600,7 @@ public class Lexer implements Iterable<Token> {
 		return possibleOctal && incorrectOctal ? TokenType.INVALID : type;
 	}
 
-	public static List<String> complete(@NonNull String text, @NonNull Token.Category type) {
+	public static List<String> completeKeyword(@NonNull String text, @NonNull Token.Category type) {
 		List<String> result = new ArrayList<>();
 		TrieNode root = tokenRoot(type);
 		if (root != null) {
