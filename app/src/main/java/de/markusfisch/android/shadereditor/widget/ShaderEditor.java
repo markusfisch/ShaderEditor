@@ -46,7 +46,7 @@ public class ShaderEditor extends LineNumberEditText {
 
 	@FunctionalInterface
 	public interface CodeCompletionListener {
-		void onCodeCompletions(List<String> completions);
+		void onCodeCompletions(@NonNull List<String> completions, int position);
 	}
 
 	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
@@ -272,11 +272,11 @@ public class ShaderEditor extends LineNumberEditText {
 		updateHandler.post(() -> {
 			Token tok = Lexer.findToken(tokens, start);
 			if (tok == null) {
-				listener.onCodeCompletions(new ArrayList<>());
+				listener.onCodeCompletions(new ArrayList<>(), 0);
 				return;
 			}
 			listener.onCodeCompletions(Lexer.complete(Lexer.tokenSource(tok, text).toString(),
-					tok.category()));
+					tok.category()), start - tok.startOffset());
 		});
 	}
 

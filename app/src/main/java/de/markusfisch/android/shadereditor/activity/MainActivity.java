@@ -146,7 +146,8 @@ public class MainActivity
 	}
 
 	@Override
-	public void onCodeCompletions(List<String> completions) {
+	public void onCodeCompletions(@NonNull List<String> completions, int position) {
+		completionsAdapter.setPosition(position);
 		completionsAdapter.submitList(completions);
 	}
 
@@ -354,21 +355,24 @@ public class MainActivity
 
 	private static final DiffUtil.ItemCallback<String> DIFF_CALLBACK =
 			new DiffUtil.ItemCallback<String>() {
-		@Override
-		public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
-			// Update the condition according to your unique identifier
-			return oldItem.equals(newItem);
-		}
+				@Override
+				public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
+					// Update the condition according to your unique identifier
+					return oldItem.equals(newItem);
+				}
 
-		@Override
-		public boolean areContentsTheSame(@NonNull String oldItem, @NonNull String newItem) {
-			// Return true if the contents of the items have not changed
-			return oldItem.equals(newItem);
-		}
-	};
+				@Override
+				public boolean areContentsTheSame(@NonNull String oldItem,
+						@NonNull String newItem) {
+					// Return true if the contents of the items have not changed
+					return oldItem.equals(newItem);
+				}
+			};
 
 	private class Adapter extends ListAdapter<String, Adapter.ViewHolder> {
+		@NonNull
 		private final LayoutInflater inflater;
+		int position = 0;
 
 		public Adapter(Context context) {
 			super(DIFF_CALLBACK);
@@ -377,15 +381,19 @@ public class MainActivity
 
 		@NonNull
 		@Override
-		public Adapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+		public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 			View view = inflater.inflate(R.layout.extra_key_btn, parent, false);
 			return new ViewHolder(view);
 		}
 
 		@Override
-		public void onBindViewHolder(@NonNull Adapter.ViewHolder holder, int position) {
+		public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 			String item = getItem(position); // Use getItem provided by ListAdapter
 			holder.update(item);
+		}
+
+		public void setPosition(int position) {
+			this.position = position;
 		}
 
 		private class ViewHolder extends RecyclerView.ViewHolder {
@@ -394,7 +402,10 @@ public class MainActivity
 			public ViewHolder(@NonNull View itemView) {
 				super(itemView);
 				btn = itemView.findViewById(R.id.btn);
-				btn.setOnClickListener((v) -> editorFragment.insert(btn.getText()));
+				btn.setOnClickListener((v) -> {
+					CharSequence text = btn.getText();
+					editorFragment.insert(text.subSequence(position, text.length()));
+				});
 				itemView.setOnTouchListener(new View.OnTouchListener() {
 					@SuppressLint("ClickableViewAccessibility")
 					@Override
