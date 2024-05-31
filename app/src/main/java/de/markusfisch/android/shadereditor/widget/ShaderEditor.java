@@ -70,11 +70,19 @@ public class ShaderEditor extends LineNumberEditText {
 		public void run() {
 			Editable e = getText();
 
-			if (e != null && onTextChangedListener != null) {
-				onTextChangedListener.onTextChanged(e.toString());
+			if (e != null) {
+				if (onTextChangedListener != null) {
+					onTextChangedListener.onTextChanged(e.toString());
+				}
+
+				highlightWithoutChange(e);
+
+				int start = getSelectionStart();
+				if (start == getSelectionEnd() && codeCompletionListener != null) {
+					provideCompletions(getSelectionStart(), codeCompletionListener, e);
+				}
 			}
 
-			highlightWithoutChange(e);
 		}
 	};
 	private final int[] colors = new int[Highlight.values().length];
@@ -91,6 +99,7 @@ public class ShaderEditor extends LineNumberEditText {
 	private int tabWidthInCharacters = 0;
 	private int tabWidth = 0;
 	private List<Token> tokens = new ArrayList<>();
+	private boolean editing = false;
 
 	public ShaderEditor(Context context) {
 		super(context);
@@ -269,15 +278,10 @@ public class ShaderEditor extends LineNumberEditText {
 		if (start != end) {
 			return;
 		}
-		updateHandler.post(() -> {
-			Token tok = Lexer.findToken(tokens, start);
-			if (tok == null) {
-				listener.onCodeCompletions(new ArrayList<>(), 0);
-				return;
-			}
-			listener.onCodeCompletions(Lexer.complete(Lexer.tokenSource(tok, text).toString(),
-					tok.category()), start - tok.startOffset());
-		});
+
+		if (!editing) {
+			provideCompletions(start, listener, text);
+		}
 	}
 
 	private void removeUniform(Editable e, String statement) {
@@ -348,6 +352,7 @@ public class ShaderEditor extends LineNumberEditText {
 					int start,
 					int count,
 					int after) {
+				editing = true;
 			}
 
 			@Override
@@ -403,13 +408,13 @@ public class ShaderEditor extends LineNumberEditText {
 		updateHandler.removeCallbacks(updateRunnable);
 	}
 
-	private void highlightWithoutChange(Editable e) {
+	private void highlightWithoutChange(@NonNull Editable e) {
 		modified = false;
 		highlight(e, false);
 		modified = true;
 	}
 
-	private Editable highlight(Editable e, boolean complete) {
+	private Editable highlight(@NonNull Editable e, boolean complete) {
 		int length = e.length();
 
 		clearError(e);
@@ -438,6 +443,7 @@ public class ShaderEditor extends LineNumberEditText {
 		for (Token token : lexer) {
 			tokens.add(token);
 		}
+		editing = false; // TODO: Separate the token generation from highlighting
 
 		if (complete) {
 			clearSpans(e, 0, length, ForegroundColorSpan.class);
@@ -466,6 +472,22 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 
 		return e;
+	}
+
+	private void provideCompletions(int start, @NonNull CodeCompletionListener listener,
+			@NonNull CharSequence text) {
+		Token tok = Lexer.findToken(tokens, start);
+		if (tok == null) {
+			listener.onCodeCompletions(new ArrayList<>(), 0);
+			return;
+		}
+		int positionInToken = start - tok.startOffset();
+		listener.onCodeCompletions(
+				Lexer.complete(
+						Lexer.tokenSource(tok, text).subSequence(0, positionInToken).toString(),
+						tok.category()
+				),
+				positionInToken);
 	}
 
 	private static <T> void clearSpans(Spannable e, int start, int end, Class<T> clazz) {
