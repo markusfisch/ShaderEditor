@@ -189,6 +189,8 @@ public class ShaderEditor extends LineNumberEditText {
 		dirty = false;
 
 		modified = false;
+
+		tokenListUpdater.update(text, ++revision); // `setText` can't be overridden
 		setText(highlight(new SpannableStringBuilder(text), true));
 		modified = true;
 
