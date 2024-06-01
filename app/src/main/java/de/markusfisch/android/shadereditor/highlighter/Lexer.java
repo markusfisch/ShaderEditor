@@ -606,6 +606,12 @@ public class Lexer implements Iterable<Token> {
 		if (root != null) {
 			root.findAll(text, (short) TokenType.INVALID.ordinal(), result);
 		}
+
+		if (type == Token.Category.PREPROC) {
+			// Also add normal keywords to the list
+			KEYWORDS_TRIE.findAll(text, (short) TokenType.INVALID.ordinal(), result);
+		}
+
 		return result;
 	}
 
