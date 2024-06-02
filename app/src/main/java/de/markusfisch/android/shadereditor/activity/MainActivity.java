@@ -20,10 +20,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
@@ -47,10 +44,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.IOException;
@@ -60,6 +55,7 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.adapter.CompletionsAdapter;
 import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.Database;
@@ -106,7 +102,7 @@ public class MainActivity
 	private volatile int fps;
 	private float[] qualityValues;
 	private float quality = 1f;
-	private Adapter completionsAdapter;
+	private CompletionsAdapter completionsAdapter;
 
 	@Override
 	public void onConfigurationChanged(@NonNull Configuration newConfig) {
@@ -304,7 +300,8 @@ public class MainActivity
 		RecyclerView completions = extraKeys.findViewById(R.id.completions);
 		completions.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL,
 				false));
-		this.completionsAdapter = new Adapter(this);
+		completionsAdapter = new CompletionsAdapter(this,
+				sequence -> editorFragment.insert(sequence));
 		completions.setAdapter(completionsAdapter);
 		DividerItemDecoration divider = new DividerItemDecoration(completions.getContext(),
 				DividerItemDecoration.HORIZONTAL);
@@ -342,74 +339,6 @@ public class MainActivity
 		extraKeys.setVisibility(ShaderEditorApp.preferences.showExtraKeys()
 				? View.VISIBLE
 				: View.GONE);
-	}
-
-	private static final DiffUtil.ItemCallback<String> DIFF_CALLBACK =
-			new DiffUtil.ItemCallback<String>() {
-				@Override
-				public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
-					// Update the condition according to your unique identifier
-					return oldItem.equals(newItem);
-				}
-
-				@Override
-				public boolean areContentsTheSame(@NonNull String oldItem,
-						@NonNull String newItem) {
-					// Return true if the contents of the items have not changed
-					return oldItem.equals(newItem);
-				}
-			};
-
-	private class Adapter extends ListAdapter<String, Adapter.ViewHolder> {
-		@NonNull
-		private final LayoutInflater inflater;
-		int position = 0;
-
-		public Adapter(Context context) {
-			super(DIFF_CALLBACK);
-			this.inflater = LayoutInflater.from(context);
-		}
-
-		@NonNull
-		@Override
-		public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-			View view = inflater.inflate(R.layout.extra_key_btn, parent, false);
-			return new ViewHolder(view);
-		}
-
-		@Override
-		public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-			String item = getItem(position); // Use getItem provided by ListAdapter
-			holder.update(item);
-		}
-
-		public void setPosition(int position) {
-			this.position = position;
-		}
-
-		private class ViewHolder extends RecyclerView.ViewHolder {
-			private final Button btn;
-
-			public ViewHolder(@NonNull View itemView) {
-				super(itemView);
-				btn = itemView.findViewById(R.id.btn);
-				btn.setOnClickListener((v) -> {
-					CharSequence text = btn.getText();
-					editorFragment.insert(text.subSequence(position, text.length()));
-				});
-				itemView.setOnTouchListener(new View.OnTouchListener() {
-					@SuppressLint("ClickableViewAccessibility")
-					@Override
-					public boolean onTouch(View v, MotionEvent event) {
-						return btn.onTouchEvent(event); // The FrameLayout always forwards
-					}
-				});
-			}
-
-			public void update(String item) {
-				btn.setText(item);
-			}
-		}
 	}
 
 	private void initToolbar() {
