@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -56,8 +55,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executors;
@@ -109,7 +106,6 @@ public class MainActivity
 	private volatile int fps;
 	private float[] qualityValues;
 	private float quality = 1f;
-	private final List<String> currentCompletions = new ArrayList<>();
 	private Adapter completionsAdapter;
 
 	@Override

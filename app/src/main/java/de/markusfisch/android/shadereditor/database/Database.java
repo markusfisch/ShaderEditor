@@ -153,8 +153,8 @@ public class Database {
 						SHADERS_MODIFIED +
 						" FROM " + SHADERS +
 						" ORDER BY " + (sortByLastModification
-								? SHADERS_MODIFIED + " DESC"
-								: SHADERS_ID),
+						? SHADERS_MODIFIED + " DESC"
+						: SHADERS_ID),
 				null);
 	}
 

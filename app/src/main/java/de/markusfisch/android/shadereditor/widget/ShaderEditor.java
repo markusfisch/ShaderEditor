@@ -686,6 +686,7 @@ public class ShaderEditor extends LineNumberEditText {
 			this.text = text;
 			this.onTokenized = onTokenized;
 		}
+
 		@Override
 		public List<Token> call() {
 			Lexer lexer = new Lexer(text);
