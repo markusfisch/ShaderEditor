@@ -47,6 +47,8 @@ public class EditorFragment extends Fragment {
 		if (activity instanceof ShaderEditor.OnTextChangedListener) {
 			shaderEditor.setOnTextChangedListener(
 					(ShaderEditor.OnTextChangedListener) activity);
+			shaderEditor.setOnCompletionsListener(
+					(ShaderEditor.CodeCompletionListener) activity);
 		} else {
 			throw new ClassCastException(activity +
 					" must implement " +
