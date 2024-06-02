@@ -1,0 +1,4 @@
+* Add a suggestion bar with auto-completions over the keyboard
+* Add option to sort shaders by last modification
+* Fix showing PagerTabStrip when adding uniforms/textures
+

@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.34.0
+* Add a suggestion bar with auto-completions over the keyboard
+* Add option to sort shaders by last modification
+* Fix showing PagerTabStrip when adding uniforms/textures
+
 ## 2.33.3
 * Add notification uniforms
 
