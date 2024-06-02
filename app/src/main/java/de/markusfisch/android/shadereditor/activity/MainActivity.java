@@ -319,7 +319,7 @@ public class MainActivity
 
 			@Override
 			public void onGlobalLayout() {
-				boolean enabled = ShaderEditorApp.preferences.autoHideExtraKeys();
+				boolean autoHide = ShaderEditorApp.preferences.autoHideExtraKeys();
 				Rect r = new Rect();
 				completions.getWindowVisibleDisplayFrame(r);
 				int screenHeight = completions.getRootView().getHeight();
@@ -328,28 +328,23 @@ public class MainActivity
 				// if keypad is shown, the r.bottom is smaller than that before.
 				int keypadHeight = screenHeight - r.bottom;
 
-				if (keypadHeight > screenHeight * 0.15) { // 0.15 ratio is perhaps enough to
-					// determine keypad height.
-					// keyboard is opened
-					if (!isKeyboardShowing) {
-						isKeyboardShowing = true;
-						if (enabled && ShaderEditorApp.preferences.showExtraKeys()) {
-							extraKeys.setVisibility(View.VISIBLE);
-						}
+				if (keypadHeight > screenHeight * 0.15) {
+					// 0.15 ratio is perhaps enough to determine keypad height.
+					isKeyboardShowing = true;
+					if (autoHide && ShaderEditorApp.preferences.showExtraKeys()) {
+						extraKeys.setVisibility(View.VISIBLE);
 					}
 				} else {
-					// keyboard is closed
-					if (isKeyboardShowing) {
-						isKeyboardShowing = false;
-						if (enabled) {
-							extraKeys.setVisibility(View.GONE);
-						}
+					isKeyboardShowing = false;
+					if (autoHide) {
+						extraKeys.setVisibility(View.GONE);
 					}
 				}
 			}
 		});
-		extraKeys.setVisibility(ShaderEditorApp.preferences.showExtraKeys() ? View.VISIBLE :
-				View.GONE);
+		extraKeys.setVisibility(ShaderEditorApp.preferences.showExtraKeys()
+				? View.VISIBLE
+				: View.GONE);
 	}
 
 	private class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
