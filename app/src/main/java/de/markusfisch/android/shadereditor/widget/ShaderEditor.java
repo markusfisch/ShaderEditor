@@ -479,7 +479,7 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 		int start = getSelectionStart();
 		Token tok = Lexer.findToken(tokens, start);
-		if (tok == null) {
+		if (tok == null || tok.endOffset() >= text.length()) {
 			listener.onCodeCompletions(new ArrayList<>(), 0);
 			return;
 		}
