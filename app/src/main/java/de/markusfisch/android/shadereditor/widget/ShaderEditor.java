@@ -68,6 +68,16 @@ public class ShaderEditor extends LineNumberEditText {
 			".*void\\s+main\\s*\\(.*");
 	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
 			"\\xA0");
+	private static final ArrayList<String> DEFAULT_COMPLETIONS = new ArrayList<>();
+
+	static {
+		DEFAULT_COMPLETIONS.add("{");
+		DEFAULT_COMPLETIONS.add("}");
+		DEFAULT_COMPLETIONS.add("(");
+		DEFAULT_COMPLETIONS.add(")");
+		DEFAULT_COMPLETIONS.add("[");
+		DEFAULT_COMPLETIONS.add("]");
+	}
 
 	private final Handler updateHandler = new Handler();
 	private final Runnable updateRunnable = new Runnable() {
@@ -480,7 +490,7 @@ public class ShaderEditor extends LineNumberEditText {
 		int start = getSelectionStart();
 		Token tok = Lexer.findToken(tokens, start);
 		if (tok == null || tok.endOffset() >= text.length()) {
-			listener.onCodeCompletions(new ArrayList<>(), 0);
+			listener.onCodeCompletions(DEFAULT_COMPLETIONS, 0);
 			return;
 		}
 		int positionInToken = start - tok.startOffset();
