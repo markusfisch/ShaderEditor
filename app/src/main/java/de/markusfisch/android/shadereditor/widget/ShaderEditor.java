@@ -110,7 +110,8 @@ public class ShaderEditor extends LineNumberEditText {
 	private int tabWidth = 0;
 	private List<Token> tokens = new ArrayList<>();
 	private int revision = 0;
-	private final TokenListUpdater tokenListUpdater = new TokenListUpdater(this::provideCompletions);
+	private final TokenListUpdater tokenListUpdater =
+			new TokenListUpdater(this::provideCompletions);
 	private boolean editing = false;
 
 	public ShaderEditor(Context context) {
