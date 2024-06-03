@@ -153,7 +153,10 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	public void updateHighlighting() {
-		highlightWithoutChange(getText());
+		Editable text = getText();
+		if (text != null) {
+			highlightWithoutChange(text);
+		}
 	}
 
 	private void clearError(@Nullable Spannable e) {
