@@ -1,0 +1,3 @@
+* Use bracket characters as default completions
+* Improve auto-completion
+

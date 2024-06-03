@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.34.1
+* Use bracket characters as default completions
+* Improve auto-completion
+
 ## 2.34.0
 * Add a suggestion bar with auto-completions over the keyboard
 * Add option to sort shaders by last modification
