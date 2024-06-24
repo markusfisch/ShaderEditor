@@ -1,0 +1,280 @@
+<resources>
+	<string name="app_name">Редактор шейдерів</string>
+	<string name="cannot_open_database">Неможливо відкрити базу даних!</string>
+
+	<!-- MainActivity -->
+	<string name="drawer_open">Відкрити меню</string>
+	<string name="drawer_close">Закрити меню</string>
+	<string name="no_shaders">Немає шейдерів</string>
+	<string name="unsuitable_text">Вибачте, цей текст не підходить.</string>
+	<string name="cannot_open_content">На жаль, немає програми, яка може відкривати URL-адреси</string>
+	<string name="insert_tab">Вставити табуляцію</string>
+	<string name="run_code">Запустити код</string>
+	<string name="toggle_code">Переключити код</string>
+	<string name="undo">Відмінити</string>
+	<string name="redo">Повторити</string>
+	<string name="save_shader">Зберегти шейдер</string>
+	<string name="add_shader">Новий шейдер</string>
+	<string name="duplicate_shader">Зберегти як новий шейдер</string>
+	<string name="delete_shader">Видалити шейдер</string>
+	<string name="share_shader">Поділитися шейдером</string>
+	<string name="update_wallpaper">Оновити шпалери</string>
+	<string name="set_as_wallpaper">Встановити як шпалери</string>
+	<string name="faq">FAQ</string>
+	<string name="show_extra_keys">Показати додаткові клавіші</string>
+	<string name="settings">Налаштування</string>
+	<string name="sure_remove_shader">Ви впевнені, що хочете видалити цей шейдер?</string>
+	<string name="rename_shader">Перейменувати шейдер</string>
+	<string name="enter_name">Введіть назву</string>
+	<string name="wallpaper_set">Шпалери встановлено</string>
+	<string name="cannot_set_wallpaper">Неможливо встановити шпалери</string>
+	<string name="pick_live_wallpaper">Будь ласка, виберіть цю програму як живі шпалери, щоб встановити ці шпалери</string>
+	<string name="pick_live_wallpaper_manually">Спершу вам потрібно вибрати цю програму як живі шпалери</string>
+
+	<!-- PreferencesFragment -->
+	<string name="preferences">Налаштування</string>
+	<string name="wallpaper">Шпалери</string>
+	<string name="save_battery">Економія батареї</string>
+	<string name="save_battery_summary">Зупинити візуалізацію, коли заряд акумулятора низький</string>
+	<string name="sort_by_last_modification">Сортувати за датою останньої зміни</string>
+	<string name="sort_by_last_modification_summary">Сортувати шейдери за датою останньої зміни</string>
+	<string name="sensors">Датчики</string>
+	<string name="sensor_delay">Затримка датчика</string>
+	<string name="no_shader_selected">Шейдер не вибрано</string>
+	<string name="shader">Шейдер</string>
+	<string name="editor">Редактор</string>
+	<string name="run_mode">Режим запуску</string>
+	<string name="update_delay">Затримка оновлення</string>
+	<string name="text_size">Розмір тексту</string>
+	<string name="font">Шрифт</string>
+	<string name="use_ligatures">Використовувати лігатури</string>
+	<string name="use_ligatures_summary">З\'єднати деякі символи, як &lt;= у ≤</string>
+	<string name="tab_width">Ширина табуляції</string>
+	<string name="use_tab_for_indent">Використовувати клавішу табуляції</string>
+	<string name="use_tab_for_indent_summary">Використовувати клавішу табуляції для створення відступу замість навігації по фокусу.</string>
+	<string name="export_tabs">Експортувати табуляції</string>
+	<string name="export_tabs_summary">Експортувати табуляції замість перетворення на пробіли при поширенні</string>
+	<string name="show_insert_tab">Показувати вставити табуляцію</string>
+	<string name="show_insert_tab_summary">Показувати пункт меню «Вставити табуляцію».</string>
+	<string name="save_on_run">Зберегти при запуску</string>
+	<string name="save_on_run_summary">Зберегти зміни під час ручного запуску</string>
+	<string name="disable_highlighting">Вимкнути підсвічування</string>
+	<string name="disable_highlighting_summary">Вимкнути підсвічування для великих шейдерів</string>
+	<string name="auto_save">Автоматичне збереження</string>
+	<string name="auto_save_summary">Зберігати шейдер автоматично</string>
+	<string name="auto_hide_extra_keys">Автоматично приховувати додаткові клавіші</string>
+	<string name="auto_hide_extra_keys_summary">Автоматично приховувати рядок додаткових клавіш над програмною клавіатурою</string>
+	<string name="default_new_shader">Стандартний новий шейдер</string>
+	<string name="import_export">Імпорт та експорт</string>
+	<string name="import_shaders_files">Імпортувати шейдери з файлів</string>
+	<string name="import_shaders_files_summary">Імпортувати всі файли *.glsl із Download/ShaderEditor</string>
+	<string name="export_shaders_files">Експортувати шейдери у файли</string>
+	<string name="export_shaders_files_summary">Експортувати всі шейдери в Download/ShaderEditor</string>
+	<string name="import_database">Імпорт бази даних</string>
+	<string name="import_database_summary">Імпорт попередньо експортованої бази даних SQLite</string>
+	<string name="export_database">Експорт бази даних</string>
+	<string name="export_database_summary">Експорт усіх шейдерів у базу даних SQLite</string>
+
+	<!-- Preferences -->
+	<string name="run_auto">Автоматичний запуск при зміні</string>
+	<string name="run_manually">Запустити вручну</string>
+	<string name="run_manually_extra">Запустити у додатковій активності</string>
+	<string name="run_manually_new">Запустити як нове завдання</string>
+	<string name="monospace">Monospace</string>
+	<string name="fira_code">Fira Code</string>
+	<string name="ibm_plex_mono">IBM Plex Mono</string>
+	<string name="jetbrains_mono">JetBrains Mono</string>
+	<string name="roboto_mono">Roboto Mono</string>
+	<string name="source_code_pro">Source Code Pro</string>
+	<string name="fastest">Найшвидший</string>
+	<string name="game">Гра</string>
+	<string name="normal">Звичайний</string>
+	<string name="ui">Інтерфейс користувача</string>
+	<string name="small">Малий</string>
+	<string name="medium">Середній</string>
+	<string name="big">Великий</string>
+
+	<!-- WallpaperService -->
+	<string name="wallpaper_description">Напишіть власні живі шпалери</string>
+
+	<!-- PreviewActivity -->
+	<string name="preview">Попередній перегляд</string>
+
+	<!-- UniformPagesFragment -->
+	<string name="add_uniform">Додати однорідність/фактуру</string>
+	<string name="sampler_2d">sampler2D</string>
+	<string name="sampler_cube">samplerCube</string>
+	<string name="preset">попередньо встановлено</string>
+	<string name="search">Пошук</string>
+
+	<!-- UniformPresetPageFragment -->
+	<string name="uniform_format">%1$s (%2$s)</string>
+	<string name="resolution_in_pixels">Роздільна здатність поверхні в пікселях</string>
+	<string name="time_in_seconds_since_load">Час у секундах з моменту завантаження</string>
+	<string name="int_seconds_since_load">Час у цілих секундах з моменту завантаження</string>
+	<string name="fractional_part_of_seconds_since_load">Дробові частини секунди з моменту завантаження</string>
+	<string name="frame_number">Номер поточного фрейму, починаючи з 0</string>
+	<string name="time_in_cycle">Час у межах циклу #define FTIME_PERIOD секунд від -1,0 до +1,0</string>
+	<string name="touch_position_in_pixels">Позиція першого дотику пальця в пікселях</string>
+	<string name="touch_start_position_in_pixels">Позиція початкового дотику в пікселях</string>
+	<string name="number_of_touches">Кількість дотиків</string>
+	<string name="positions_of_touches">Позиції дотиків у пікселях</string>
+	<string name="linear_acceleration_vector">Лінійне прискорення в м/с^2</string>
+	<string name="gravity_vector">Вектор сили тяжіння в м/с^2</string>
+	<string name="gyroscope">Швидкість обертання в рад/с навколо осі x, y та z пристрою, інтегрована за часом</string>
+	<string name="last_notification_time">Час з моменту останнього сповіщення. NaN, якщо сповіщень ще не було.</string>
+	<string name="device_orientation">Азимут (від -π до π), тангаж (від -π до π) та крен (від -π/2 до π/2) пристрою</string>
+	<string name="device_inclination">Кут геомагнітного нахилу пристрою в радіанах</string>
+	<string name="device_rotation_matrix">Матриця обертання навколо світової системи координат, тобто коли вісь X пристрою вказує на схід, вісь Y вказує на Північний полюс, а пристрій дивиться в небо</string>
+	<string name="device_rotation_vector">Вектор обертання представляє орієнтацію пристрою як комбінацію кута та осі, у якій пристрій повернувся на кут θ навколо осі x, y, z</string>
+	<string name="device_inclination_matrix">Матриця обертання перетворює геомагнітний вектор у той самий координатний простір, що й сила тяжіння</string>
+	<string name="magnetic_field">Сила геомагнітного поля вздовж осей x, y та z у μT</string>
+	<string name="night_mode">Нічний режим, 1, якщо встановлено, 0, якщо ні</string>
+	<string name="notification_count">Кількість активних сповіщень</string>
+	<string name="light">Рівень навколишнього освітлення в одиницях люкс SI</string>
+	<string name="pressure">Атмосферний тиск в гПа (мілібар)</string>
+	<string name="proximity">Датчик наближення відстань вимірюється в сантиметрах</string>
+	<string name="battery_level">Рівень заряду батареї від 0,0 до 1,0</string>
+	<string name="power_connected">1, коли кабель живлення підключено, 0 в іншому випадку</string>
+	<string name="wallpaper_offset">Зміщення шпалер від 0,0 до 1,0</string>
+	<string name="previous_frame">Попередньо візуалізований кадр</string>
+	<string name="camera_back">Задня камера (лише на Ice Cream Sandwich або краще)</string>
+	<string name="camera_front">Фронтальна камера (лише на Ice Cream Sandwich або краще)</string>
+	<string name="camera_addent">Доданок до координати текстури камери, див. також орієнтацію камери (лише на Ice Cream Sandwich або краще)</string>
+	<string name="camera_orientation">Помножте на координату текстури з цією матрицею, щоб повернути рамку камери до орієнтації пристрою (cameraAddent + uv * cameraOrientation; лише на Ice Cream Sandwich або краще)</string>
+	<string name="date_time">Рік, місяць, день і час у секундах</string>
+	<string name="daytime">Година, хвилина і секунди</string>
+	<string name="start_random">Випадкове значення від 0,0 до 1,0, ініціалізується під час завантаження</string>
+	<string name="media_volume_level">Рівень гучності медіа від 0,0 до 1,0</string>
+
+	<!-- UniformSampler2dPageFragment -->
+	<string name="texture_preview">Попередній перегляд текстури</string>
+	<string name="texture_name_noise">шум</string>
+	<string name="choose_image">Вибрати зображення</string>
+	<string name="no_textures">Немає доступних текстур</string>
+	<string name="texture_size_format" formatted="false">%d x %d</string>
+
+	<!-- CropImageFragment -->
+	<string name="crop_image">Обрізати зображення</string>
+	<string name="cannot_pick_image">Не вдається відкрити зображення. Спробуйте інший додаток, щоб вибрати зображення.</string>
+	<string name="rotate_clockwise">Обернути за годинниковою стрілкою</string>
+
+	<!-- CubeMapFragment -->
+	<string name="compose_sampler_cube">Скласти кубічну мапу</string>
+	<string name="not_enough_faces">Не вистачає граней</string>
+	<string name="add_texture">Додати текстуру</string>
+
+	<!-- CubeMapView -->
+	<string name="cube_map_negative_x">-X Ліво</string>
+	<string name="cube_map_positive_x">+X Право</string>
+	<string name="cube_map_negative_y">-Y Низ</string>
+	<string name="cube_map_positive_y">+Y Верх</string>
+	<string name="cube_map_negative_z">-Z Перед</string>
+	<string name="cube_map_positive_z">+Z Зад</string>
+
+	<!-- AbstractSamplerPropertiesFragment -->
+	<string name="texture_properties">Властивості текстури</string>
+	<string name="texture_size">%d x %d</string>
+	<string name="face_size">Розмір грані в пікселях</string>
+	<string name="texture_name">шум</string>
+	<string name="input_texture_name">Дайте назву</string>
+	<string name="should_add_uniform">Додати уніфікований оператор sampler2D до джерела?</string>
+	<string name="save_texture">Зберегти текстуру</string>
+	<string name="missing_name">Потрібно дати назву</string>
+	<string name="invalid_texture_name">Недійсна назва, будь ласка, виберіть назву, яку можна використовувати в джерелі GLSL</string>
+	<string name="illegal_rectangle">Недопустимий прямокутник</string>
+	<string name="name_already_taken">Назва вже зайнята</string>
+	<string name="insert_uniform_sampler">Вставити уніфікований інструкцію sampler2D</string>
+
+	<!-- TextureViewFragment -->
+	<string name="view_texture">Переглянути текстуру</string>
+	<string name="remove_texture">Видалити текстуру</string>
+	<string name="sure_remove_texture">Ви хочете видалити цю текстуру?</string>
+	<string name="image_too_big">Зображення завелике</string>
+	<string name="removed_invalid_texture">Текстура була занадто великою для обробки</string>
+
+	<!-- TextureParametersFragment -->
+	<string name="texture_parameters">Параметри текстури</string>
+	<string name="texture_minifying">Функція мінімізації текстури</string>
+	<string name="texture_magnification">Функція збільшення текстури</string>
+	<string name="texture_wrap_s">Параметр обтікання для координат текстури s</string>
+	<string name="texture_wrap_t">Параметр обтікання для координати текстури t</string>
+
+	<!-- BackBufferParametersFragment -->
+	<string name="backbuffer_preset">Попередньо встановлена текстура</string>
+	<string name="no_preset">(не встановлено)</string>
+	<string name="insert_code">Вставте код</string>
+
+	<!-- LoadSampleFragment -->
+	<string name="load_sample">Завантажити зразок</string>
+	<string name="sample_battery_name">Батарея</string>
+	<string name="sample_battery_rationale">Горизонтальний датчик батареї</string>
+	<string name="sample_camera_back_name">Задня камера</string>
+	<string name="sample_camera_back_rationale">Як користуватися задньою камерою (тільки на Ice Cream Sandwich або краще)</string>
+	<string name="sample_circles_name">Круги</string>
+	<string name="sample_circles_rationale">Намалюйте кілька кіл</string>
+	<string name="sample_cloudy_conway_name">Cloudy Conway</string>
+	<string name="sample_cloudy_conway_rationale">Варіація «Гри життя» Конвея.</string>
+	<string name="sample_electric_fade_name">Електричне згасання</string>
+	<string name="sample_electric_fade_rationale">Як Cloudy Conway, але із попередньо встановленим зворотним буфером.</string>
+	<string name="sample_game_of_life_name">Гра життя</string>
+	<string name="sample_game_of_life_rationale">Гра життя Конвея. Торкніться, щоб запалити нове життя.</string>
+	<string name="sample_gles_300_name">GLES 300</string>
+	<string name="sample_gles_300_rationale">Використовувати GLES версії 3.00</string>
+	<string name="sample_gravity_name">Датчик сили тяжіння</string>
+	<string name="sample_gravity_rationale">Як використовувати форму гравітації</string>
+	<string name="sample_orientation_name">Орієнтація</string>
+	<string name="sample_orientation_rationale">Як користуватися уніформою орієнтації</string>
+	<string name="sample_swirl_name">Вир</string>
+	<string name="sample_swirl_rationale">Як спотворити текстури за допомогою вихрового візерунка</string>
+	<string name="sample_texture_name">Текстура</string>
+	<string name="sample_texture_rationale">Як малювати текстури</string>
+	<string name="sample_touch_name">Дотик</string>
+	<string name="sample_touch_rationale">Як обробляти сенсорне введення</string>
+
+	<!-- Database -->
+	<string name="default_shader">За замовчуванням</string>
+
+	<!-- ImportExport -->
+	<string name="write_access_required">Для роботи експорту потрібен доступ для запису на зовнішню пам\'ять.</string>
+	<string name="read_access_required">Для роботи імпорту потрібен доступ для читання зовнішньої пам\'яті.</string>
+	<plurals name="n_shaders_successfully_exported">
+		<item quantity="one">Успішно експортовано %1$d шейдер</item>
+		<item quantity="few">Успішно експортовано %1$d шейдери</item>
+		<item quantity="many">Успішно експортовано %1$d шейдерів</item>
+		<item quantity="other">Успішно експортовано %1$d шейдерів</item>
+	</plurals>
+	<plurals name="n_shaders_successfully_exported_m_failed">
+		<item quantity="one">Успішно експортовано %1$d шейдер, %2$d не вдалося</item>
+		<item quantity="few">Успішно експортовано %1$d шейдери, %2$d не вдалося</item>
+		<item quantity="many">Успішно експортовано %1$d шейдерів, %2$d не вдалося</item>
+		<item quantity="other">Успішно експортовано %1$d шейдерів, %2$d не вдалося</item>
+	</plurals>
+	<string name="n_shaders_export_failed">Помилка експорту: %1$s</string>
+	<plurals name="n_shaders_successfully_imported">
+		<item quantity="one">Успішно імпортовано %1$d шейдер</item>
+		<item quantity="few">Успішно імпортовано %1$d шейдери</item>
+		<item quantity="many">Успішно імпортовано %1$d шейдерів</item>
+		<item quantity="other">Успішно імпортовано %1$d шейдерів</item>
+	</plurals>
+	<plurals name="n_shaders_successfully_imported_m_failed">
+		<item quantity="one">Успішно імпортовано %1$d шейдер, %2$d не вдалося</item>
+		<item quantity="few">Успішно імпортовано %1$d шейдери, %2$d не вдалося</item>
+		<item quantity="many">Успішно імпортовано %1$d шейдерів %2$d не вдалося</item>
+		<item quantity="other">Успішно імпортовано %1$d шейдерів, %2$d не вдалося</item>
+	</plurals>
+	<string name="import_failed">Помилка імпорту: %1$s</string>
+	<string name="no_shaders_found">Шейдерів не знайдено</string>
+	<string name="no_shaders_could_be_written">Не вдалося записати шейдери в каталог</string>
+	<string name="path_is_no_directory">Шлях %1$s не є каталогом</string>
+	<string name="cant_find_db">Не вдається знайти базу даних</string>
+	<string name="storage_not_writeable">Не вдається записати в базу даних</string>
+	<string name="successfully_exported">Експортовано до Завантаження</string>
+	<string name="successfully_imported">Базу даних імпортовано</string>
+	<string name="show_line_numbers">Показувати номери рядків</string>
+	<string name="show_line_numbers_summary">Показувати номери рядків на початку кожного рядка.</string>
+	<string name="menu_btn">Додаткові параметри</string>
+	<string name="enable_notification_listener">Щоб використати форму NotificationCount або LastNotificationTime, увімкніть прослуховувач сповіщень у налаштуваннях.</string>
+	<string name="go_to_settings">Перейти до Налаштувань</string>
+	<string name="enable_notification_listener_title">Увімкнути прослуховувач сповіщень</string>
+</resources>
