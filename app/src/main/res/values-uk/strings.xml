@@ -30,6 +30,7 @@
 	<string name="cannot_set_wallpaper">Неможливо встановити шпалери</string>
 	<string name="pick_live_wallpaper">Будь ласка, виберіть цю програму як живі шпалери, щоб встановити ці шпалери</string>
 	<string name="pick_live_wallpaper_manually">Спершу вам потрібно вибрати цю програму як живі шпалери</string>
+	<string name="menu_btn">Додаткові параметри</string>
 
 	<!-- PreferencesFragment -->
 	<string name="preferences">Налаштування</string>
@@ -74,6 +75,13 @@
 	<string name="import_database_summary">Імпорт попередньо експортованої бази даних SQLite</string>
 	<string name="export_database">Експорт бази даних</string>
 	<string name="export_database_summary">Експорт усіх шейдерів у базу даних SQLite</string>
+	<string name="show_line_numbers">Показувати номери рядків</string>
+	<string name="show_line_numbers_summary">Показувати номери рядків на початку кожного рядка.</string>
+	<string name="enable_notification_listener">Щоб використати форму NotificationCount або LastNotificationTime, увімкніть прослуховувач сповіщень у налаштуваннях.</string>
+	<string name="go_to_settings">Перейти до Налаштувань</string>
+	<string name="enable_notification_listener_title">Увімкнути прослуховувач сповіщень</string>
+	<string name="hide_native_suggestions">Приховати рідні пропозиції</string>
+	<string name="hide_native_suggestions_summary">Приховує підказки м\'якої клавіатури. Якщо виникають проблеми, вимкніть цей параметр.</string>
 
 	<!-- Preferences -->
 	<string name="run_auto">Автоматичний запуск при зміні</string>
@@ -174,7 +182,7 @@
 
 	<!-- AbstractSamplerPropertiesFragment -->
 	<string name="texture_properties">Властивості текстури</string>
-	<string name="texture_size">%d x %d</string>
+	<string name="texture_size">Розмір текстури в пікселях</string>
 	<string name="face_size">Розмір грані в пікселях</string>
 	<string name="texture_name">шум</string>
 	<string name="input_texture_name">Дайте назву</string>
@@ -271,10 +279,4 @@
 	<string name="storage_not_writeable">Не вдається записати в базу даних</string>
 	<string name="successfully_exported">Експортовано до Завантаження</string>
 	<string name="successfully_imported">Базу даних імпортовано</string>
-	<string name="show_line_numbers">Показувати номери рядків</string>
-	<string name="show_line_numbers_summary">Показувати номери рядків на початку кожного рядка.</string>
-	<string name="menu_btn">Додаткові параметри</string>
-	<string name="enable_notification_listener">Щоб використати форму NotificationCount або LastNotificationTime, увімкніть прослуховувач сповіщень у налаштуваннях.</string>
-	<string name="go_to_settings">Перейти до Налаштувань</string>
-	<string name="enable_notification_listener_title">Увімкнути прослуховувач сповіщень</string>
 </resources>
