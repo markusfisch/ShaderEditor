@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.InputType;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -20,6 +21,8 @@ import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -281,6 +284,14 @@ public class ShaderEditor extends LineNumberEditText {
 	@Override
 	public int getAutofillType() {
 		return AUTOFILL_TYPE_NONE;
+	}
+
+	@Nullable
+	@Override
+	public InputConnection onCreateInputConnection(@NonNull EditorInfo outAttrs) {
+		InputConnection connection = super.onCreateInputConnection(outAttrs);
+		outAttrs.inputType = InputType.TYPE_NULL;
+		return connection;
 	}
 
 	@Override
