@@ -40,6 +40,7 @@ public class Preferences {
 	public static final String SHOW_LINE_NUMBERS = "show_line_numbers";
 	public static final String SHOW_EXTRA_KEYS = "show_extra_keys";
 	public static final String AUTO_HIDE_EXTRA_KEYS = "auto_hide_extra_keys";
+	public static final String HIDE_NATIVE_SUGGESTIONS = "hide_native_suggestions";
 
 	private static final int RUN_AUTO = 1;
 	private static final int RUN_MANUALLY = 2;
@@ -79,6 +80,7 @@ public class Preferences {
 	private boolean showLineNumbers = true;
 	private boolean showExtraKeys = true;
 	private boolean autoHideExtraKeys = true;
+	private boolean hideNativeSuggestions = true;
 	private String defaultFont;
 
 	public void init(Context context) {
@@ -162,10 +164,17 @@ public class Preferences {
 		autoHideExtraKeys = preferences.getBoolean(
 				AUTO_HIDE_EXTRA_KEYS,
 				autoHideExtraKeys);
+		hideNativeSuggestions = preferences.getBoolean(
+				HIDE_NATIVE_SUGGESTIONS,
+				hideNativeSuggestions);
 	}
 
 	public boolean autoHideExtraKeys() {
 		return autoHideExtraKeys;
+	}
+
+	public boolean hideNativeSuggestions() {
+		return hideNativeSuggestions;
 	}
 
 	private @NonNull Typeface loadFont(

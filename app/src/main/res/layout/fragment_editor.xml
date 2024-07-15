@@ -27,7 +27,7 @@
 			android:gravity="left|top"
 			android:imeOptions="flagNoExtractUi"
 			android:importantForAutofill="no"
-			android:inputType="textMultiLine|textVisiblePassword|textNoSuggestions"
+			android:inputType="textMultiLine|textNoSuggestions"
 			android:paddingHorizontal="@dimen/editor_padding"
 			android:paddingTop="@dimen/editor_padding"
 			android:textColor="@color/editor_text"

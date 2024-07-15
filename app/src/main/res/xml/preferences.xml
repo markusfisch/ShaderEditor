@@ -104,6 +104,12 @@
 			android:summary="@string/auto_hide_extra_keys_summary"
 			android:checked="true"
 			android:defaultValue="true"/>
+		<androidx.preference.SwitchPreferenceCompat
+			android:key="hide_native_suggestions"
+			android:title="@string/hide_native_suggestions"
+			android:summary="@string/hide_native_suggestions_summary"
+			android:checked="true"
+			android:defaultValue="true"/>
 		<de.markusfisch.android.shadereditor.preference.ShaderListPreference
 			android:key="default_new_shader"
 			android:title="@string/default_new_shader"/>
