@@ -290,7 +290,9 @@ public class ShaderEditor extends LineNumberEditText {
 	@Override
 	public InputConnection onCreateInputConnection(@NonNull EditorInfo outAttrs) {
 		InputConnection connection = super.onCreateInputConnection(outAttrs);
-		outAttrs.inputType = InputType.TYPE_NULL;
+		if (ShaderEditorApp.preferences.hideNativeSuggestions()) {
+			outAttrs.inputType = InputType.TYPE_NULL;
+		}
 		return connection;
 	}
 
