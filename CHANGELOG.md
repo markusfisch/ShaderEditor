@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.34.2
+* Add a setting to hide native suggestions of the soft keyboard
+* Add Ukrainian translation
+
 ## 2.34.1
 * Use bracket characters as default completions
 * Improve auto-completion
