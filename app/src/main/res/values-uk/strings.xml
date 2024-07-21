@@ -81,7 +81,7 @@
 	<string name="go_to_settings">Перейти до Налаштувань</string>
 	<string name="enable_notification_listener_title">Увімкнути прослуховувач сповіщень</string>
 	<string name="hide_native_suggestions">Приховати рідні пропозиції</string>
-	<string name="hide_native_suggestions_summary">Приховує підказки м\'якої клавіатури. Якщо виникають проблеми, вимкніть цей параметр.</string>
+	<string name="hide_native_suggestions_summary">Приховує підказки екранної клавіатури. Якщо виникають проблеми, вимкніть цей параметр.</string>
 
 	<!-- Preferences -->
 	<string name="run_auto">Автоматичний запуск при зміні</string>
