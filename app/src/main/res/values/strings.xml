@@ -32,6 +32,9 @@
 	<string name="pick_live_wallpaper_manually">You need to pick this app as Live Wallpaper first</string>
 	<string name="menu_btn">More options</string>
 
+	<!-- EditorFragment -->
+	<string name="details">Details</string>
+
 	<!-- PreferencesFragment -->
 	<string name="preferences">Preferences</string>
 	<string name="wallpaper">Wallpaper</string>

@@ -32,6 +32,9 @@
 	<string name="pick_live_wallpaper_manually">Спершу вам потрібно вибрати цю програму як живі шпалери</string>
 	<string name="menu_btn">Додаткові параметри</string>
 
+	<!-- EditorFragment -->
+	<string name="details">деталі</string>
+
 	<!-- PreferencesFragment -->
 	<string name="preferences">Налаштування</string>
 	<string name="wallpaper">Шпалери</string>

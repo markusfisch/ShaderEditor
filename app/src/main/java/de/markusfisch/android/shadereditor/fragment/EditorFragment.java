@@ -1,6 +1,7 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -8,10 +9,11 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
@@ -106,19 +108,19 @@ public class EditorFragment extends Fragment {
 	}
 
 	public void showError(String infoLog) {
-		Activity activity = getActivity();
-		if (activity == null) {
-			return;
-		}
-
 		InfoLog.parse(infoLog);
 		shaderEditor.setErrorLine(InfoLog.getErrorLine());
 		highlightError();
 
-		Toast.makeText(
-				activity,
-				InfoLog.getMessage(),
-				Toast.LENGTH_SHORT).show();
+		View view = getView();
+		if (view != null) {
+			String message = InfoLog.getMessage();
+			Snackbar.make(getView(), message, Snackbar.LENGTH_LONG)
+					.setAction(R.string.details,
+							v -> new AlertDialog.Builder(v.getContext())
+									.setMessage(message).show())
+					.show();
+		}
 	}
 
 	public boolean isModified() {
