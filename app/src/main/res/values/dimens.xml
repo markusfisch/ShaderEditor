@@ -8,4 +8,5 @@
 	<dimen name="extra_key_tab_width">36dp</dimen>
 	<dimen name="extra_key_width">64dp</dimen>
 	<dimen name="extra_key_divider_padding">13dp</dimen>
+	<dimen name="error_list_divider_padding">16dp</dimen>
 </resources>

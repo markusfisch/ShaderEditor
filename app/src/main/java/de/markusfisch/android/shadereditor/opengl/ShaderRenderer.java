@@ -19,6 +19,7 @@ import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -27,6 +28,8 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -50,7 +53,7 @@ import de.markusfisch.android.shadereditor.service.NotificationService;
 
 public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public interface OnRendererListener {
-		void onInfoLog(String error);
+		void onInfoLog(@NonNull List<ShaderError> error);
 
 		void onFramesPerSecond(int fps);
 	}
@@ -728,14 +731,32 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private void loadPrograms() {
-		if (((surfaceProgram = Program.loadProgram(
-				VERTEX_SHADER,
-				FRAGMENT_SHADER)) == 0 ||
-				(program = Program.loadProgram(
-						getVertexShader(),
-						fragmentShader)) == 0) &&
-				onRendererListener != null) {
-			onRendererListener.onInfoLog(Program.getInfoLog());
+		// Attempt to load the surface program
+		surfaceProgram = Program.loadProgram(VERTEX_SHADER, FRAGMENT_SHADER);
+
+		// If the surface program fails to compile, submit errors and return
+		if (surfaceProgram == 0) {
+			submitErrors(Program.getInfoLog());
+			return;
+		}
+
+		// Attempt to load the main program
+		program = Program.loadProgram(getVertexShader(), fragmentShader);
+
+		// If the main program fails to compile, submit errors and return
+		if (program == 0) {
+			submitErrors(Program.getInfoLog());
+			return;
+		}
+
+		// If both programs compiled successfully, log an empty list of errors
+		submitErrors(Collections.emptyList());
+	}
+
+	// Helper method to submit program errors
+	private void submitErrors(@NonNull List<ShaderError> errors) {
+		if (onRendererListener != null) {
+			onRendererListener.onInfoLog(errors);
 		}
 	}
 
@@ -1199,7 +1220,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private void setTexture(Bitmap bitmap) {
 		String message = TextureParameters.setBitmap(bitmap);
 		if (message != null && onRendererListener != null) {
-			onRendererListener.onInfoLog(message);
+			onRendererListener.onInfoLog(List.of(ShaderError.createGeneral(message)));
 		}
 	}
 

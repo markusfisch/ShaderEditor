@@ -6,6 +6,7 @@
 	android:background="@drawable/ripple_effect"
 	android:clickable="true"
 	android:focusable="true"
+	android:gravity="start"
 	android:padding="16dp"
 	android:textColor="?attr/colorOnSurface"
 	android:textSize="16sp">

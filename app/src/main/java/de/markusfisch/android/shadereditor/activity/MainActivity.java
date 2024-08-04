@@ -309,7 +309,7 @@ public class MainActivity
 		DividerItemDecoration divider = new DividerItemDecoration(completions.getContext(),
 				DividerItemDecoration.HORIZONTAL);
 		divider.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(this,
-				R.drawable.divider_with_padding)));
+				R.drawable.divider_with_padding_vertical)));
 		completions.addItemDecoration(divider);
 		completions.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 			boolean isKeyboardShowing = false;
@@ -353,6 +353,7 @@ public class MainActivity
 		toolbar.findViewById(R.id.run_code).setOnClickListener((v) -> runShader());
 		toolbar.findViewById(R.id.toggle_code).setOnClickListener((v) -> toggleCode());
 		showErrorBtn = toolbar.findViewById(R.id.show_errors);
+		setTooltipText(showErrorBtn, R.string.show_errors);
 		showErrorBtn.setVisibility(View.GONE);
 		showErrorBtn.setOnClickListener((v) -> editorFragment.showErrors());
 		menuButton.setOnClickListener(this::showMenu);
@@ -571,7 +572,7 @@ public class MainActivity
 					}
 
 					@Override
-					public void onInfoLog(String infoLog) {
+					public void onInfoLog(@NonNull List<ShaderError> infoLog) {
 						// Invoked from the GL thread.
 						postInfoLog(infoLog);
 					}
@@ -587,7 +588,7 @@ public class MainActivity
 		toolbar.post(updateFpsRunnable);
 	}
 
-	private void postInfoLog(final String infoLog) {
+	private void postInfoLog(final List<ShaderError> infoLog) {
 		if (infoLog == null) {
 			return;
 		}
@@ -600,7 +601,7 @@ public class MainActivity
 					if (view != null) {
 						ShaderError firstError = editorFragment.getErrors().get(0);
 						String message = String.format(Locale.getDefault(), "%d: %s",
-								firstError.getErrorLine(), firstError.getMessage());
+								firstError.getLine(), firstError.getMessage());
 						Snackbar.make(view, message, Snackbar.LENGTH_LONG)
 								.setAction(R.string.details,
 										v -> editorFragment.showErrors())

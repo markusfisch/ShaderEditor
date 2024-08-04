@@ -1,22 +1,21 @@
 package de.markusfisch.android.shadereditor.adapter;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.ListAdapter;
+import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.List;
 import java.util.Locale;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.opengl.ShaderError;
 
-public class ErrorAdapter extends ArrayAdapter<ShaderError> {
+public class ErrorAdapter extends ListAdapter<ShaderError, ErrorAdapter.ViewHolder> {
 	@FunctionalInterface
 	public interface OnItemClickListener {
 		void onItemClick(int lineNumber);
@@ -25,34 +24,58 @@ public class ErrorAdapter extends ArrayAdapter<ShaderError> {
 	@NonNull
 	private final OnItemClickListener listener;
 
-	public ErrorAdapter(@NonNull Context context, @NonNull List<ShaderError> errors,
-			@NonNull OnItemClickListener listener) {
-		super(context, 0, errors);
+	public ErrorAdapter(@NonNull OnItemClickListener listener) {
+		super(DIFF_CALLBACK);
 		this.listener = listener;
 	}
 
 	@NonNull
 	@Override
-	public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-		if (convertView == null) {
-			convertView = LayoutInflater.from(getContext()).inflate(R.layout.error_item, parent,
-					false);
+	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+		return new ViewHolder(LayoutInflater.from(parent.getContext())
+				.inflate(R.layout.error_item, parent, false));
+	}
+
+	@Override
+	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+		ShaderError error = getItem(position);
+		if (error != null) {
+			holder.bind(error, listener);
+		}
+	}
+
+	public static class ViewHolder extends RecyclerView.ViewHolder {
+		TextView errorLine;
+		TextView errorMessage;
+
+		public ViewHolder(@NonNull View itemView) {
+			super(itemView);
+			errorLine = itemView.findViewById(R.id.error_line);
+			errorMessage = itemView.findViewById(R.id.error_message);
 		}
 
-		ShaderError error = getItem(position);
-
-		if (error != null) {
-			TextView errorLine = convertView.findViewById(R.id.error_line);
-			errorLine.setText(String.format(Locale.getDefault(), "%d: ", error.getErrorLine()));
-			TextView errorMessage = convertView.findViewById(R.id.error_message);
+		public void bind(ShaderError error, ErrorAdapter.OnItemClickListener listener) {
+			errorLine.setText(String.format(Locale.getDefault(), "%d: ", error.getLine()));
 			errorMessage.setText(error.getMessage());
 
-			convertView.setOnClickListener(v -> {
-				int lineNumber = error.getErrorLine();
-				listener.onItemClick(lineNumber);
-			});
+			itemView.setOnClickListener(v -> listener.onItemClick(error.getLine()));
 		}
-
-		return convertView;
 	}
+
+	private static final DiffUtil.ItemCallback<ShaderError> DIFF_CALLBACK =
+			new DiffUtil.ItemCallback<ShaderError>() {
+				@Override
+				public boolean areItemsTheSame(@NonNull ShaderError oldItem,
+						@NonNull ShaderError newItem) {
+					// Implement logic to check if items are the same
+					return oldItem.equals(newItem);
+				}
+
+				@Override
+				public boolean areContentsTheSame(@NonNull ShaderError oldItem,
+						@NonNull ShaderError newItem) {
+					// Implement logic to check if item contents are the same
+					return oldItem.equals(newItem);
+				}
+			};
 }

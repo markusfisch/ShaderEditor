@@ -107,8 +107,7 @@ public class EditorFragment extends Fragment {
 		shaderEditor.updateErrorHighlighting();
 	}
 
-	public void setErrors(String infoLog) {
-		List<ShaderError> errors = ShaderError.parseAll(infoLog);
+	public void setErrors(@NonNull List<ShaderError> errors) {
 		shaderEditor.setErrors(errors);
 		highlightErrors();
 	}

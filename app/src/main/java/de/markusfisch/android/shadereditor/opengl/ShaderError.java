@@ -18,17 +18,24 @@ public class ShaderError {
 	@NonNull
 	private final String message;
 
-	public ShaderError(int sourceStringNumber, int errorLine, @NonNull String message) {
+	private ShaderError(int sourceStringNumber, int errorLine, @NonNull String message) {
 		this.sourceStringNumber = sourceStringNumber;
 		this.errorLine = errorLine;
 		this.message = message;
 	}
 
+	public static ShaderError createGeneral(@NonNull String message) {
+		return new ShaderError(0, -1, message);
+	}
+
 	public int getSourceStringNumber() {
 		return sourceStringNumber;
 	}
+	public boolean hasLine() {
+		return errorLine > 0;
+	}
 
-	public int getErrorLine() {
+	public int getLine() {
 		return errorLine - silentlyAddedExtraLines;
 	}
 
@@ -69,5 +76,22 @@ public class ShaderError {
 
 	public static void addSilentlyAddedExtraLine() {
 		++silentlyAddedExtraLines;
+	}
+
+	@Override
+	public final boolean equals(Object o) {
+		if (this == o) return true;
+		if (!(o instanceof ShaderError)) return false;
+
+		ShaderError that = (ShaderError) o;
+		return sourceStringNumber == that.sourceStringNumber && errorLine == that.errorLine && message.equals(that.message);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = sourceStringNumber;
+		result = 31 * result + errorLine;
+		result = 31 * result + message.hashCode();
+		return result;
 	}
 }
