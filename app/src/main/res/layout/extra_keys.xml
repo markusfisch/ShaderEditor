@@ -18,7 +18,8 @@
 		android:layout_height="@dimen/extra_key_height"
 		android:layout_weight="0"
 		android:contentDescription="@string/insert_tab"
-		app:icon="@drawable/ic_keyboard_tab" />
+		app:icon="@drawable/ic_keyboard_tab"
+		app:iconSize="24dp" />
 
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/completions"
