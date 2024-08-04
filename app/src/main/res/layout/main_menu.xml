@@ -147,7 +147,7 @@
 
 		<CheckBox
 			android:id="@+id/show_extra_keys_box"
-			style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+			style="@style/Widget.Material3.Button.UnelevatedButton"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/menu_item_height"
 			android:background="?attr/selectableItemBackground"

@@ -83,6 +83,7 @@
 		<activity
 			android:name=".activity.MainActivity"
 			android:launchMode="singleTop"
+			android:theme="@style/MainTheme"
 			android:exported="true">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW"/>

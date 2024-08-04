@@ -1,6 +1,5 @@
 package de.markusfisch.android.shadereditor.opengl;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +15,6 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.os.BatteryManager;
-import android.os.Build;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -453,9 +451,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			GLES20.glUniform1i(nightModeLoc, nightMode);
 		}
 		if (notificationCountLoc > -1) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-				GLES20.glUniform1i(notificationCountLoc, NotificationService.getCount());
-			}
+			GLES20.glUniform1i(notificationCountLoc, NotificationService.getCount());
 		}
 		if (pointerCountLoc > -1) {
 			GLES20.glUniform1i(pointerCountLoc, pointerCount);
@@ -481,14 +477,13 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			setRotationMatrix();
 		}
 		if (lastNotificationTimeLoc > -1) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-				Long lastTime = NotificationService.getLastNotificationTime();
-				if (lastTime == null) {
-					GLES20.glUniform1f(lastNotificationTimeLoc, Float.NaN);
-				} else {
-					float millisPerSecond = 1.f / 1000.f;
-					GLES20.glUniform1f(lastNotificationTimeLoc, (System.currentTimeMillis() - lastTime) * millisPerSecond);
-				}
+			Long lastTime = NotificationService.getLastNotificationTime();
+			if (lastTime == null) {
+				GLES20.glUniform1f(lastNotificationTimeLoc, Float.NaN);
+			} else {
+				float millisPerSecond = 1.f / 1000.f;
+				GLES20.glUniform1f(lastNotificationTimeLoc,
+						(System.currentTimeMillis() - lastTime) * millisPerSecond);
 			}
 		}
 		if (lightLoc > -1 && lightListener != null) {
@@ -914,9 +909,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 
 		if (notificationCountLoc > -1 || lastNotificationTimeLoc > -1) {
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-				NotificationService.requirePermissions(context);
-			}
+			NotificationService.requirePermissions(context);
 		}
 
 		if (pressureLoc > -1) {
@@ -1283,10 +1276,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			String name,
 			int id,
 			TextureParameters tp) {
-		if (Build.VERSION.SDK_INT <
-				Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-			return;
-		}
 
 		int cameraId = CameraListener.findCameraId(
 				UNIFORM_CAMERA_BACK.equals(name)
@@ -1330,14 +1319,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 	}
 
-	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
 	private static void setCameraTextureProperties(
 			int id,
 			TextureParameters tp) {
-		if (Build.VERSION.SDK_INT <
-				Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-			return;
-		}
 		GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, id);
 		tp.setParameters(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
 	}
@@ -1355,7 +1339,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private String indexTextureNames(String source) {
-		InfoLog.resetSilentlyAddedExtraLines();
+		ShaderError.resetSilentlyAddedExtraLines();
 		if (source == null) {
 			return null;
 		}
@@ -1390,15 +1374,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					target = GLES20.GL_TEXTURE_CUBE_MAP;
 					break;
 				case SAMPLER_EXTERNAL_OES:
-					if (Build.VERSION.SDK_INT >
-							Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-						// Needs to be done here or lint won't recognize
-						// we're checking SDK version.
-						target = GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
-					} else {
-						// Ignore that uniform on lower SDKs.
-						continue;
-					}
+					// Needs to be done here or lint won't recognize
+					// we're checking SDK version.
+					target = GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
 					if (!source.contains(OES_EXTERNAL)) {
 						source = addPreprocessorDirective(source,
 								OES_EXTERNAL);
@@ -1422,7 +1400,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 	private static String addPreprocessorDirective(String source,
 			String directive) {
-		InfoLog.addSilentlyAddedExtraLine();
+		ShaderError.addSilentlyAddedExtraLine();
 		// #version must always be the very first directive.
 		if (source.trim().startsWith("#version")) {
 			int lf = source.indexOf("\n");

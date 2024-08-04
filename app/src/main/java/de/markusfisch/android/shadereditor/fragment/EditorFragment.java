@@ -1,9 +1,7 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -13,14 +11,16 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.material.snackbar.Snackbar;
+import java.util.Collections;
+import java.util.List;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.opengl.InfoLog;
+import de.markusfisch.android.shadereditor.opengl.ShaderError;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.view.UndoRedo;
+import de.markusfisch.android.shadereditor.widget.ErrorListModal;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 
 public class EditorFragment extends Fragment {
@@ -91,36 +91,41 @@ public class EditorFragment extends Fragment {
 		return undoRedo.canRedo();
 	}
 
-	public boolean hasErrorLine() {
-		return shaderEditor.hasErrorLine();
+	public boolean hasErrors() {
+		return shaderEditor.hasErrors();
 	}
 
 	public void clearError() {
-		shaderEditor.setErrorLine(0);
+		shaderEditor.setErrors(Collections.emptyList());
 	}
 
 	public void updateHighlighting() {
 		shaderEditor.updateHighlighting();
 	}
 
-	public void highlightError() {
+	public void highlightErrors() {
 		shaderEditor.updateErrorHighlighting();
 	}
 
-	public void showError(String infoLog) {
-		InfoLog.parse(infoLog);
-		shaderEditor.setErrorLine(InfoLog.getErrorLine());
-		highlightError();
+	public void setErrors(String infoLog) {
+		List<ShaderError> errors = ShaderError.parseAll(infoLog);
+		shaderEditor.setErrors(errors);
+		highlightErrors();
+	}
 
-		View view = getView();
-		if (view != null) {
-			String message = InfoLog.getMessage();
-			Snackbar.make(getView(), message, Snackbar.LENGTH_LONG)
-					.setAction(R.string.details,
-							v -> new AlertDialog.Builder(v.getContext())
-									.setMessage(message).show())
-					.show();
-		}
+	@NonNull
+	public List<ShaderError> getErrors() {
+		return shaderEditor.getErrors();
+	}
+
+	public void showErrors() {
+		List<ShaderError> errors = shaderEditor.getErrors();
+		new ErrorListModal(errors, this::navigateToLine).show(getParentFragmentManager(),
+				ErrorListModal.TAG);
+	}
+
+	public void navigateToLine(int lineNumber) {
+		shaderEditor.navigateToLine(lineNumber);
 	}
 
 	public boolean isModified() {
@@ -168,16 +173,14 @@ public class EditorFragment extends Fragment {
 				preferences.getTextSize());
 		Typeface font = preferences.getFont();
 		shaderEditor.setTypeface(font);
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			String features = shaderEditor.getFontFeatureSettings();
-			boolean isMono = font == Typeface.MONOSPACE;
-			// Don't touch font features for the default MONOSPACE font as
-			// this can impact performance.
-			if (!isMono || features != null) {
-				shaderEditor.setFontFeatureSettings(isMono
-						? null
-						: preferences.useLigatures() ? "normal" : "calt off");
-			}
+		String features = shaderEditor.getFontFeatureSettings();
+		boolean isMono = font == Typeface.MONOSPACE;
+		// Don't touch font features for the default MONOSPACE font as
+		// this can impact performance.
+		if (!isMono || features != null) {
+			shaderEditor.setFontFeatureSettings(isMono
+					? null
+					: preferences.useLigatures() ? "normal" : "calt off");
 		}
 	}
 

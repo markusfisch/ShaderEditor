@@ -1,7 +1,6 @@
 package de.markusfisch.android.shadereditor.adapter;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,42 +15,27 @@ import androidx.recyclerview.widget.RecyclerView;
 import de.markusfisch.android.shadereditor.R;
 
 public class CompletionsAdapter extends ListAdapter<String, CompletionsAdapter.ViewHolder> {
+	@FunctionalInterface
 	public interface OnInsertListener {
-		void onInsert(CharSequence sequence);
+		void onInsert(@NonNull CharSequence sequence);
 	}
 
-	private static final DiffUtil.ItemCallback<String> DIFF_CALLBACK =
-			new DiffUtil.ItemCallback<String>() {
-				@Override
-				public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
-					// Update the condition according to your unique identifier
-					return oldItem.equals(newItem);
-				}
+	private static final DiffUtil.ItemCallback<String> DIFF_CALLBACK = new StringDiffer();
 
-				@Override
-				public boolean areContentsTheSame(@NonNull String oldItem,
-						@NonNull String newItem) {
-					// Return true if the contents of the items have not changed
-					return oldItem.equals(newItem);
-				}
-			};
-
-	@NonNull
-	private final LayoutInflater inflater;
 	private final OnInsertListener onInsertListener;
 
 	private int position = 0;
 
-	public CompletionsAdapter(Context context, OnInsertListener onInsertListener) {
+	public CompletionsAdapter(OnInsertListener onInsertListener) {
 		super(DIFF_CALLBACK);
-		this.inflater = LayoutInflater.from(context);
 		this.onInsertListener = onInsertListener;
 	}
 
 	@NonNull
 	@Override
 	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-		View view = inflater.inflate(R.layout.extra_key_btn, parent, false);
+		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.extra_key_btn,
+				parent, false);
 		return new ViewHolder(view);
 	}
 

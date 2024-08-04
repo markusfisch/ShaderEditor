@@ -1,10 +1,8 @@
 package de.markusfisch.android.shadereditor.service;
 
-import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
@@ -13,11 +11,11 @@ import android.service.notification.StatusBarNotification;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import de.markusfisch.android.shadereditor.R;
 
-@RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class NotificationService extends NotificationListenerService {
 	private static int counter = 0;
 	private static Long lastNotificationTime = null;
@@ -78,7 +76,7 @@ public class NotificationService extends NotificationListenerService {
 	}
 
 	private static void requestNotificationPermission(@NonNull Context context) {
-		new Handler(Looper.getMainLooper()).post(() -> new AlertDialog.Builder(context)
+		new Handler(Looper.getMainLooper()).post(() -> new MaterialAlertDialogBuilder(context)
 				.setTitle(R.string.enable_notification_listener_title)
 				.setMessage(R.string.enable_notification_listener)
 				.setPositiveButton(R.string.go_to_settings, (dialog, id) -> {
