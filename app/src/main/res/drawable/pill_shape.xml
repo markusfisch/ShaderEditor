@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+	android:shape="rectangle">
+
+	<!-- Set the background color of the pill -->
+	<solid android:color="?attr/colorSurfaceBright" />
+
+	<!-- Define the corner radius to make it a pill shape -->
+	<corners android:radius="1000dp" />
+</shape>
