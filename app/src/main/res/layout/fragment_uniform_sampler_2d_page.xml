@@ -8,7 +8,7 @@
 		android:choiceMode="singleChoice"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		android:divider="@color/primary"
+		android:divider="?attr/colorSurfaceContainerHigh"
 		android:dividerHeight="1px"/>
 	<FrameLayout
 		android:id="@+id/no_textures"
