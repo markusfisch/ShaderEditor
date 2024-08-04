@@ -58,12 +58,4 @@ public class ErrorListModal extends BottomSheetDialogFragment {
 		errorList.setAdapter(adapter);
 		return view;
 	}
-
-	@NonNull
-	@Override
-	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-		Dialog dialog = super.onCreateDialog(savedInstanceState);
-		Objects.requireNonNull(dialog.getWindow()).addFlags(WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM);
-		return dialog;
-	}
 }

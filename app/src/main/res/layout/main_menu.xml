@@ -157,9 +157,10 @@
 			android:drawablePadding="8dp"
 			app:drawableTint="@color/menu_item_selector"
 			android:gravity="center|start"
-			android:paddingHorizontal="8dp"
+			android:paddingHorizontal="12dp"
 			android:text="@string/show_extra_keys"
 			android:textColor="@color/menu_item_selector"
+			app:iconSize="24dp"
 			app:textAllCaps="false" />
 
 		<com.google.android.material.textfield.TextInputLayout
