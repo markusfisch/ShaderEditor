@@ -31,6 +31,7 @@ import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -45,6 +46,7 @@ import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.highlighter.Highlight;
 import de.markusfisch.android.shadereditor.highlighter.Lexer;
 import de.markusfisch.android.shadereditor.highlighter.Token;
+import de.markusfisch.android.shadereditor.opengl.ShaderError;
 
 public class ShaderEditor extends LineNumberEditText {
 	@FunctionalInterface
@@ -104,7 +106,8 @@ public class ShaderEditor extends LineNumberEditText {
 	@Nullable
 	private CodeCompletionListener codeCompletionListener;
 	private int updateDelay = 1000;
-	private int errorLine = 0;
+	@NonNull
+	private List<ShaderError> shaderErrors = Collections.emptyList();
 	private boolean dirty = false;
 	private boolean modified = true;
 	private int colorError;
@@ -148,12 +151,16 @@ public class ShaderEditor extends LineNumberEditText {
 		tabWidth = Math.round(getPaint().measureText("m") * characters);
 	}
 
-	public boolean hasErrorLine() {
-		return errorLine > 0;
+	public boolean hasErrors() {
+		return !shaderErrors.isEmpty();
 	}
 
-	public void setErrorLine(int line) {
-		errorLine = line;
+	public void setErrors(@NonNull List<ShaderError> errorLines) {
+		this.shaderErrors = errorLines;
+	}
+
+	public List<ShaderError> getErrors() {
+		return shaderErrors;
 	}
 
 	public void updateHighlighting() {
@@ -168,26 +175,31 @@ public class ShaderEditor extends LineNumberEditText {
 		clearSpans(e, 0, e.length(), BackgroundColorSpan.class);
 	}
 
-	private void highlightError(int errorLine) {
+	private void highlightErrors(List<ShaderError> shaderErrors) {
 		Spannable e = getText();
 		clearError(e);
-		if (e == null || e.length() == 0 || errorLine <= 0) {
+		if (e == null || e.length() == 0) {
 			return;
 		}
-		int line = errorLine - 1;
-		Layout layout = getLayout();
-		e.setSpan(
-				new BackgroundColorSpan(colorError),
-				layout.getLineStart(line),
-				layout.getLineEnd(line),
-				Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		for (ShaderError shaderError : shaderErrors) {
+			int line = shaderError.getLine() - 1;
+			Layout layout = getLayout();
+			if (line < 0 || line >= layout.getLineCount()) {
+				continue;
+			}
+			e.setSpan(
+					new BackgroundColorSpan(colorError),
+					layout.getLineStart(line),
+					layout.getLineEnd(line),
+					Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+		}
 	}
 
 	public void updateErrorHighlighting() {
 		Spannable e = getText();
 		clearError(e);
-		if (errorLine > 0) {
-			highlightError(errorLine);
+		if (!shaderErrors.isEmpty()) {
+			highlightErrors(shaderErrors);
 		}
 	}
 
@@ -202,7 +214,7 @@ public class ShaderEditor extends LineNumberEditText {
 
 		cancelUpdate();
 
-		errorLine = 0;
+		shaderErrors = Collections.emptyList();
 		dirty = false;
 
 		modified = false;
@@ -235,6 +247,20 @@ public class ShaderEditor extends LineNumberEditText {
 				text,
 				0,
 				text.length());
+	}
+
+	public void navigateToLine(int lineNumber) {
+		// Navigate to start of line if not already there.
+		if (lineNumber < 1) {
+			return;
+		}
+		Layout layout = getLayout();
+		int lineStart = layout.getLineStart(lineNumber - 1);
+		int lineEnd = layout.getLineEnd(lineNumber - 1);
+		if (getSelectionStart() >= lineStart && getSelectionEnd() <= lineEnd) {
+			return;
+		}
+		setSelection(lineStart, lineStart);
 	}
 
 	public void addUniform(String statement) {

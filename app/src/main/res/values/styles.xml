@@ -1,37 +1,25 @@
 <resources>
 
-	<style name="AppTheme" parent="Theme.MaterialComponents.NoActionBar">
+	<style name="AppTheme" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
 		<item name="background">@android:color/transparent</item>
-		<item name="colorPrimary">@color/primary</item>
-		<item name="colorPrimaryDark">@color/primary_dark</item>
-		<item name="colorAccent">@color/accent</item>
-		<item name="colorSecondary">@color/accent</item>
 		<item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
-		<item name="alertDialogTheme">@style/AlertDialogTheme</item>
 		<item name="buttonStyle">@style/ButtonTheme</item>
 	</style>
 
-	<style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
-		<item name="buttonBarPositiveButtonStyle">@style/AlertDialogButtonStyle</item>
-		<item name="buttonBarNegativeButtonStyle">@style/AlertDialogButtonStyle</item>
-	</style>
-
-	<style name="AlertDialogButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
-		<item name="android:textColor">@color/accent</item>
-		<!-- You can also set other button properties here if needed -->
+	<style name="MainTheme" parent="AppTheme">
+		<item name="android:windowTranslucentStatus">true</item>
 	</style>
 
 	<style name="SplashTheme" parent="@style/AppTheme">
 		<item name="android:windowBackground">@drawable/background_splash</item>
 	</style>
 
-	<style name="PreviewTheme" parent="Theme.MaterialComponents.NoActionBar">
-		<item name="android:windowNoTitle">true</item>
+	<style name="PreviewTheme" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
 		<item name="android:windowFullscreen">true</item>
 		<item name="android:windowContentOverlay">@null</item>
 	</style>
 
-	<style name="Title" parent="@android:style/TextAppearance.Medium"></style>
+	<style name="Title" parent="@android:style/TextAppearance.Medium" />
 
 	<style name="Subtitle" parent="@android:style/TextAppearance.Small">
 		<item name="android:textSize">12sp</item>
@@ -49,7 +37,7 @@
 		<item name="android:textColor">@drawable/drawer_item_selector</item>
 	</style>
 
-	<style name="FAB" parent="Widget.MaterialComponents.FloatingActionButton">
+	<style name="FAB" parent="Widget.Material3.FloatingActionButton.Primary">
 		<item name="android:layout_width">wrap_content</item>
 		<item name="android:layout_height">wrap_content</item>
 		<item name="android:layout_margin">20dp</item>
@@ -66,12 +54,13 @@
 		<item name="android:layout_alignParentRight">true</item>
 	</style>
 
-	<style name="ButtonTheme" parent="Widget.MaterialComponents.Button">
+	<style name="ButtonTheme" parent="Widget.Material3.Button">
 		<item name="iconTint">@color/menu_item_selector</item>
 		<item name="rippleColor">?attr/colorControlHighlight</item>
 	</style>
 	<!-- FilledBarButton == BarButton, because android styles do not support multiple inheritance -->
-	<style name="FilledBarButton" parent="Widget.MaterialComponents.Button">
+	<style name="FilledBarButton" parent="Widget.Material3.Button">
+		<item name="backgroundTint">?attr/colorSurfaceContainerHigh</item>
 		<item name="android:insetTop">0dp</item>
 		<item name="android:insetRight">0dp</item>
 		<item name="android:insetBottom">0dp</item>
@@ -90,7 +79,8 @@
 		<item name="android:gravity">center</item>
 		<item name="android:layout_gravity">center</item>
 	</style>
-	<style name="BarButton" parent="Widget.MaterialComponents.Button.TextButton">
+
+	<style name="BarButton" parent="Widget.Material3.Button.TextButton">
 		<item name="android:insetTop">0dp</item>
 		<item name="android:insetRight">0dp</item>
 		<item name="android:insetBottom">0dp</item>
@@ -110,7 +100,7 @@
 		<item name="android:layout_gravity">center</item>
 	</style>
 
-	<style name="IconButton" parent="Widget.MaterialComponents.Button.UnelevatedButton">
+	<style name="IconButton" parent="Widget.Material3.Button.UnelevatedButton">
 		<item name="android:insetTop">0dp</item>
 		<item name="android:insetRight">0dp</item>
 		<item name="android:insetBottom">0dp</item>
@@ -123,7 +113,7 @@
 		<item name="iconTint">@color/menu_item_selector</item>
 	</style>
 
-	<style name="MenuItem" parent="Widget.MaterialComponents.Button.TextButton">
+	<style name="MenuItem" parent="Widget.Material3.Button.TextButton">
 		<item name="android:gravity">center|start</item>
 		<item name="textAllCaps">false</item>
 		<item name="android:textColor">@color/menu_item_selector</item>

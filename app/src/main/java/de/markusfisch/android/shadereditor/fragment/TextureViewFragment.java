@@ -14,8 +14,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.concurrent.Executors;
 
@@ -57,7 +58,7 @@ public class TextureViewFragment extends Fragment {
 			imageView = ((ScalingImageViewProvider) activity)
 					.getScalingImageView();
 		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString() +
+			throw new ClassCastException(activity +
 					" must implement " +
 					"TextureViewFragment.ScalingImageViewProvider");
 		}
@@ -127,7 +128,7 @@ public class TextureViewFragment extends Fragment {
 			return;
 		}
 
-		new AlertDialog.Builder(activity)
+		new MaterialAlertDialogBuilder(activity)
 				.setTitle(R.string.remove_texture)
 				.setMessage(R.string.sure_remove_texture)
 				.setPositiveButton(

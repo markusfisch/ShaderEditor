@@ -5,8 +5,9 @@
 	android:layout_width="match_parent"
 	android:layout_height="?attr/actionBarSize"
 	android:background="@color/primary_translucent"
-	android:theme="@style/ThemeOverlay.MaterialComponents.ActionBar"
-	app:popupTheme="@style/ThemeOverlay.MaterialComponents"
+	android:fitsSystemWindows="false"
+	android:theme="@style/ThemeOverlay.Material3.ActionBar"
+	app:popupTheme="@style/ThemeOverlay.Material3"
 	app:subtitleTextAppearance="@style/Subtitle"
 	app:titleTextAppearance="@style/Title"
 	tools:ignore="Overdraw" />

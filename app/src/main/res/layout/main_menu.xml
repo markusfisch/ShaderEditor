@@ -147,7 +147,7 @@
 
 		<CheckBox
 			android:id="@+id/show_extra_keys_box"
-			style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+			style="@style/Widget.Material3.Button.UnelevatedButton"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/menu_item_height"
 			android:background="?attr/selectableItemBackground"
@@ -157,9 +157,10 @@
 			android:drawablePadding="8dp"
 			app:drawableTint="@color/menu_item_selector"
 			android:gravity="center|start"
-			android:paddingHorizontal="8dp"
+			android:paddingHorizontal="12dp"
 			android:text="@string/show_extra_keys"
 			android:textColor="@color/menu_item_selector"
+			app:iconSize="24dp"
 			app:textAllCaps="false" />
 
 		<com.google.android.material.textfield.TextInputLayout

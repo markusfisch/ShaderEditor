@@ -2,10 +2,17 @@ package de.markusfisch.android.shadereditor.opengl;
 
 import android.opengl.GLES20;
 
-class Program {
-	private static String infoLog;
+import androidx.annotation.NonNull;
 
-	static String getInfoLog() {
+import java.util.Collections;
+import java.util.List;
+
+class Program {
+	@NonNull
+	private static List<ShaderError> infoLog = Collections.emptyList();
+
+	@NonNull
+	static List<ShaderError> getInfoLog() {
 		return infoLog;
 	}
 
@@ -39,7 +46,7 @@ class Program {
 		int p = GLES20.glCreateProgram();
 
 		if (p == 0) {
-			infoLog = "Cannot create program";
+			infoLog = List.of(ShaderError.createGeneral("Cannot create program"));
 			return 0;
 		}
 
@@ -56,7 +63,7 @@ class Program {
 				linkStatus, 0);
 
 		if (linkStatus[0] != GLES20.GL_TRUE) {
-			infoLog = GLES20.glGetProgramInfoLog(p);
+			infoLog = ShaderError.parseAll(GLES20.glGetProgramInfoLog(p));
 
 			GLES20.glDeleteProgram(p);
 			p = 0;
@@ -69,7 +76,7 @@ class Program {
 		int s = GLES20.glCreateShader(type);
 
 		if (s == 0) {
-			infoLog = "Cannot create shader";
+			infoLog = List.of(ShaderError.createGeneral("Cannot create shader"));
 			return 0;
 		}
 
@@ -84,7 +91,7 @@ class Program {
 				0);
 
 		if (compiled[0] == 0) {
-			infoLog = GLES20.glGetShaderInfoLog(s);
+			infoLog = ShaderError.parseAll(GLES20.glGetShaderInfoLog(s));
 
 			GLES20.glDeleteShader(s);
 			s = 0;

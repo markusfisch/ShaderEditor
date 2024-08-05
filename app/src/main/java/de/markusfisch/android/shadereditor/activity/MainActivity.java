@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Rect;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -39,7 +38,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
@@ -47,6 +45,9 @@ import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,6 +61,7 @@ import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
+import de.markusfisch.android.shadereditor.opengl.ShaderError;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.service.ShaderWallpaperService;
 import de.markusfisch.android.shadereditor.view.SoftKeyboard;
@@ -103,6 +105,7 @@ public class MainActivity
 	private float[] qualityValues;
 	private float quality = 1f;
 	private CompletionsAdapter completionsAdapter;
+	private Button showErrorBtn;
 
 	@Override
 	public void onConfigurationChanged(@NonNull Configuration newConfig) {
@@ -129,9 +132,9 @@ public class MainActivity
 			return;
 		}
 
-		if (editorFragment.hasErrorLine()) {
+		if (editorFragment.hasErrors()) {
 			editorFragment.clearError();
-			editorFragment.highlightError();
+			editorFragment.highlightErrors();
 		}
 
 		setFragmentShader(text);
@@ -300,13 +303,12 @@ public class MainActivity
 		RecyclerView completions = extraKeys.findViewById(R.id.completions);
 		completions.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL,
 				false));
-		completionsAdapter = new CompletionsAdapter(this,
-				sequence -> editorFragment.insert(sequence));
+		completionsAdapter = new CompletionsAdapter(sequence -> editorFragment.insert(sequence));
 		completions.setAdapter(completionsAdapter);
 		DividerItemDecoration divider = new DividerItemDecoration(completions.getContext(),
 				DividerItemDecoration.HORIZONTAL);
 		divider.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(this,
-				R.drawable.divider_with_padding)));
+				R.drawable.divider_with_padding_vertical)));
 		completions.addItemDecoration(divider);
 		completions.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
 			boolean isKeyboardShowing = false;
@@ -349,6 +351,10 @@ public class MainActivity
 		setTooltipText(menuButton, R.string.menu_btn);
 		toolbar.findViewById(R.id.run_code).setOnClickListener((v) -> runShader());
 		toolbar.findViewById(R.id.toggle_code).setOnClickListener((v) -> toggleCode());
+		showErrorBtn = toolbar.findViewById(R.id.show_errors);
+		setTooltipText(showErrorBtn, R.string.show_errors);
+		showErrorBtn.setVisibility(View.GONE);
+		showErrorBtn.setOnClickListener((v) -> editorFragment.showErrors());
 		menuButton.setOnClickListener(this::showMenu);
 		menuPopup = new PopupBuilder(R.layout.main_menu)
 				.setClickListener(R.id.undo, (v, popup) -> {
@@ -385,15 +391,11 @@ public class MainActivity
 		extraKeysToggle.setChecked(visible);
 		Drawable drawable = ContextCompat.getDrawable(this, visible ?
 				R.drawable.ic_bottom_panel_close : R.drawable.ic_bottom_panel_open);
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) {
+		{
 			Drawable[] drawables = extraKeysToggle.getCompoundDrawablesRelative();
 			extraKeysToggle.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, drawables[1]
 					, drawables[2],
 					drawables[3]);
-		} else {
-			Drawable[] drawables = extraKeysToggle.getCompoundDrawables();
-			extraKeysToggle.setCompoundDrawablesWithIntrinsicBounds(drawable, drawables[1],
-					drawables[2], drawables[3]);
 		}
 	}
 
@@ -569,7 +571,7 @@ public class MainActivity
 					}
 
 					@Override
-					public void onInfoLog(String infoLog) {
+					public void onInfoLog(@NonNull List<ShaderError> infoLog) {
 						// Invoked from the GL thread.
 						postInfoLog(infoLog);
 					}
@@ -585,14 +587,28 @@ public class MainActivity
 		toolbar.post(updateFpsRunnable);
 	}
 
-	private void postInfoLog(final String infoLog) {
+	private void postInfoLog(final List<ShaderError> infoLog) {
 		if (infoLog == null) {
 			return;
 		}
 
 		runOnUiThread(() -> {
 			if (editorFragment != null) {
-				editorFragment.showError(infoLog);
+				editorFragment.setErrors(infoLog);
+				if (editorFragment.hasErrors()) {
+					View view = findViewById(R.id.main_coordinator);
+					if (view != null) {
+						ShaderError firstError = editorFragment.getErrors().get(0);
+						String message = firstError.toString();
+						Snackbar.make(view, message, Snackbar.LENGTH_LONG)
+								.setAction(R.string.details,
+										v -> editorFragment.showErrors())
+								.setAnchorView(R.id.extra_keys)
+								.show();
+					}
+				}
+				showErrorBtn.setVisibility(editorFragment.hasErrors() ? View.VISIBLE :
+						View.GONE);
 			}
 		});
 	}
@@ -872,7 +888,7 @@ public class MainActivity
 		if (id < 1) {
 			return;
 		}
-		new AlertDialog.Builder(this)
+		new MaterialAlertDialogBuilder(this)
 				.setMessage(R.string.sure_remove_shader)
 				.setPositiveButton(
 						android.R.string.ok,
@@ -951,9 +967,6 @@ public class MainActivity
 	}
 
 	private boolean startChangeLiveWallpaper() {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-			return false;
-		}
 		Intent intent = new Intent(
 				WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
 		intent.putExtra(
@@ -1009,7 +1022,7 @@ public class MainActivity
 		if (name != null) {
 			nameView.setText(name);
 		}
-		new AlertDialog.Builder(this)
+		new MaterialAlertDialogBuilder(this)
 				.setMessage(R.string.rename_shader)
 				.setView(view)
 				.setPositiveButton(android.R.string.ok,
@@ -1175,9 +1188,7 @@ public class MainActivity
 
 		public PopupBuilder(@LayoutRes int layout) {
 			view = getLayoutInflater().inflate(layout, null);
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				view.setClipToOutline(true);
-			}
+			view.setClipToOutline(true);
 		}
 
 		@NonNull
@@ -1220,12 +1231,7 @@ public class MainActivity
 			);
 			popupWindow.setOutsideTouchable(true);
 			popupWindow.setFocusable(true);
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-				// Required to make `setOutsideTouchable()` work.
-				popupWindow.setBackgroundDrawable(new ColorDrawable(0));
-			} else {
-				popupWindow.setElevation(6 * getResources().getDisplayMetrics().density);
-			}
+			popupWindow.setElevation(6 * getResources().getDisplayMetrics().density);
 			// Do not effect the soft input - don't hide nor show
 			popupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NOT_NEEDED);
 			return popupWindow;

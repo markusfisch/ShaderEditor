@@ -3,8 +3,12 @@ package de.markusfisch.android.shadereditor.activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.List;
+
+import de.markusfisch.android.shadereditor.opengl.ShaderError;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
@@ -12,7 +16,7 @@ import de.markusfisch.android.shadereditor.widget.ShaderView;
 public class PreviewActivity extends AppCompatActivity {
 	public static class RenderStatus {
 		volatile int fps;
-		volatile String infoLog;
+		volatile List<ShaderError> infoLog;
 		byte[] thumbnail;
 
 		RenderStatus() {
@@ -65,7 +69,7 @@ public class PreviewActivity extends AppCompatActivity {
 					}
 
 					@Override
-					public void onInfoLog(String infoLog) {
+					public void onInfoLog(@NonNull List<ShaderError> infoLog) {
 						// Invoked from the GL thread.
 						renderStatus.infoLog = infoLog;
 						runOnUiThread(finishRunnable);
