@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.34.3
+* Use a Snackbar for GLSL error messages
+* Update Ukrainian translation
+
 ## 2.34.2
 * Add a setting to hide native suggestions of the soft keyboard
 * Add Ukrainian translation
