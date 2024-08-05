@@ -184,6 +184,9 @@ public class ShaderEditor extends LineNumberEditText {
 		for (ShaderError shaderError : shaderErrors) {
 			int line = shaderError.getLine() - 1;
 			Layout layout = getLayout();
+			if (line < 0 || line >= layout.getLineCount()) {
+				continue;
+			}
 			e.setSpan(
 					new BackgroundColorSpan(colorError),
 					layout.getLineStart(line),

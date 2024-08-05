@@ -40,7 +40,7 @@ public class ErrorAdapter extends ListAdapter<ShaderError, ErrorAdapter.ViewHold
 	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 		ShaderError error = getItem(position);
 		if (error != null) {
-			holder.bind(error, listener);
+			holder.update(error, listener);
 		}
 	}
 
@@ -54,8 +54,13 @@ public class ErrorAdapter extends ListAdapter<ShaderError, ErrorAdapter.ViewHold
 			errorMessage = itemView.findViewById(R.id.error_message);
 		}
 
-		public void bind(ShaderError error, ErrorAdapter.OnItemClickListener listener) {
-			errorLine.setText(String.format(Locale.getDefault(), "%d: ", error.getLine()));
+		public void update(@NonNull ShaderError error, ErrorAdapter.OnItemClickListener listener) {
+			if (error.hasLine()) {
+				errorLine.setText(String.format(Locale.getDefault(), "%d: ", error.getLine()));
+			} else {
+				errorLine.setVisibility(View.GONE);
+			}
+
 			errorMessage.setText(error.getMessage());
 
 			itemView.setOnClickListener(v -> listener.onItemClick(error.getLine()));

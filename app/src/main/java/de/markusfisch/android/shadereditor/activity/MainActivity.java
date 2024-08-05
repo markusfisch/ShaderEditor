@@ -52,7 +52,6 @@ import com.google.android.material.snackbar.Snackbar;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 
@@ -600,8 +599,7 @@ public class MainActivity
 					View view = findViewById(R.id.main_coordinator);
 					if (view != null) {
 						ShaderError firstError = editorFragment.getErrors().get(0);
-						String message = String.format(Locale.getDefault(), "%d: %s",
-								firstError.getLine(), firstError.getMessage());
+						String message = firstError.toString();
 						Snackbar.make(view, message, Snackbar.LENGTH_LONG)
 								.setAction(R.string.details,
 										v -> editorFragment.showErrors())

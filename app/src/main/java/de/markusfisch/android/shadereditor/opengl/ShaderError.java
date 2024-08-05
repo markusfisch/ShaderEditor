@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,6 +32,7 @@ public class ShaderError {
 	public int getSourceStringNumber() {
 		return sourceStringNumber;
 	}
+
 	public boolean hasLine() {
 		return errorLine > 0;
 	}
@@ -56,16 +58,13 @@ public class ShaderError {
 
 	@NonNull
 	public static ShaderError parse(@NonNull String message) {
-		int sourceStringNumber = 0;
-		int errorLine = -1;
-		String infoLog = message;
 		Matcher matcher = ERROR_PATTERN.matcher(message);
 		if (!matcher.matches()) {
-			return new ShaderError(sourceStringNumber, errorLine, infoLog);
+			return ShaderError.createGeneral(message);
 		}
-		sourceStringNumber = Integer.parseInt(matcher.group(1));
-		errorLine = Integer.parseInt(matcher.group(2));
-		infoLog = Objects.requireNonNull(matcher.group(3));
+		int sourceStringNumber = Integer.parseInt(matcher.group(1));
+		int errorLine = Integer.parseInt(matcher.group(2));
+		String infoLog = Objects.requireNonNull(matcher.group(3));
 		return new ShaderError(sourceStringNumber, errorLine, infoLog);
 
 	}
@@ -93,5 +92,15 @@ public class ShaderError {
 		result = 31 * result + errorLine;
 		result = 31 * result + message.hashCode();
 		return result;
+	}
+
+	@NonNull
+	@Override
+	public String toString() {
+		if (hasLine()) {
+			return String.format(Locale.getDefault(), "%d: %s", errorLine, message);
+		} else {
+			return message;
+		}
 	}
 }
