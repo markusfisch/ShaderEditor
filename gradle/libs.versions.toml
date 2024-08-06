@@ -10,4 +10,4 @@ androidx-preference = { module = "androidx.preference:preference", version.ref =
 material = { module = "com.google.android.material:material", version.ref = "material" }
 
 [plugins]
-androidApplication = { id = "com.android.application", version.ref = "agp" }
+android-application = { id = "com.android.application", version.ref = "agp" }
