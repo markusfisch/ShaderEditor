@@ -31,6 +31,7 @@
 	<string name="pick_live_wallpaper">Please pick this app as Live Wallpaper to set this wallpaper</string>
 	<string name="pick_live_wallpaper_manually">You need to pick this app as Live Wallpaper first</string>
 	<string name="menu_btn">More options</string>
+	<string name="show_errors">Show errors</string>
 
 	<!-- EditorFragment -->
 	<string name="details">Details</string>
@@ -274,5 +275,4 @@
 	<string name="storage_not_writeable">Cannot write database</string>
 	<string name="successfully_exported">Exported to Downloads</string>
 	<string name="successfully_imported">Database imported</string>
-	<string name="show_errors">Show errors</string>
 </resources>

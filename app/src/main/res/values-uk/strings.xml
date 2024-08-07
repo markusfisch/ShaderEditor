@@ -31,6 +31,7 @@
 	<string name="pick_live_wallpaper">Будь ласка, виберіть цю програму як живі шпалери, щоб встановити ці шпалери</string>
 	<string name="pick_live_wallpaper_manually">Спершу вам потрібно вибрати цю програму як живі шпалери</string>
 	<string name="menu_btn">Додаткові параметри</string>
+	<string name="show_errors">Показати помилки</string>
 
 	<!-- EditorFragment -->
 	<string name="details">деталі</string>
