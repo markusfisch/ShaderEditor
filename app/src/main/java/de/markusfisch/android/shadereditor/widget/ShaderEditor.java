@@ -537,11 +537,20 @@ public class ShaderEditor extends LineNumberEditText {
 			return;
 		}
 		int positionInToken = start - tok.startOffset();
+		List<String> completions = Lexer.completeKeyword(
+				Lexer.tokenSource(tok, text).subSequence(0, positionInToken).toString(),
+				tok.category());
+
+		if (completions.isEmpty()) {
+			completions = DEFAULT_COMPLETIONS;
+			positionInToken = 0;
+		}
+		if (completions.size() == 1 && completions.get(0).contentEquals(text.subSequence(tok.startOffset(), start))) {
+			completions = DEFAULT_COMPLETIONS;
+			positionInToken = 0;
+		}
 		listener.onCodeCompletions(
-				Lexer.completeKeyword(
-						Lexer.tokenSource(tok, text).subSequence(0, positionInToken).toString(),
-						tok.category()
-				),
+				completions,
 				positionInToken);
 	}
 
