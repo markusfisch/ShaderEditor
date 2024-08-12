@@ -668,11 +668,12 @@ public class MainActivity
 			return;
 		}
 		Handler handler = new Handler(Looper.getMainLooper());
-		Executors.newSingleThreadExecutor().execute(() -> {
-			Cursor cursor = ShaderEditorApp.db.getShaders(
-					ShaderEditorApp.preferences.sortByLastModification());
-			handler.post(() -> updateShaderAdapter(cursor));
-		});
+		Executors.newSingleThreadExecutor().execute(() -> handler.post(() -> {
+			try (Cursor cursor = ShaderEditorApp.db.getShaders(
+					ShaderEditorApp.preferences.sortByLastModification())) {
+				updateShaderAdapter(cursor);
+			}
+		}));
 	}
 
 	private void updateShaderAdapter(Cursor cursor) {
