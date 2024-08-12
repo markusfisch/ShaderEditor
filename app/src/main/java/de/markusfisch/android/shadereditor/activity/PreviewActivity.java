@@ -72,7 +72,9 @@ public class PreviewActivity extends AppCompatActivity {
 					public void onInfoLog(@NonNull List<ShaderError> infoLog) {
 						// Invoked from the GL thread.
 						renderStatus.infoLog = infoLog;
-						runOnUiThread(finishRunnable);
+						if (!infoLog.isEmpty()) {
+							runOnUiThread(finishRunnable);
+						}
 					}
 				});
 

@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.fragment.CropImageFragment;
 import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
@@ -15,6 +17,7 @@ public class CropImageActivity
 		implements CropImageFragment.CropImageViewProvider {
 	private CropImageView cropImageView;
 
+	@NonNull
 	public static Intent getIntentForImage(Context context, Uri imageUri) {
 		Intent intent = new Intent(context, CropImageActivity.class);
 		intent.putExtra(CropImageFragment.IMAGE_URI, imageUri);
