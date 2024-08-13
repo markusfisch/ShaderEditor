@@ -11,8 +11,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
@@ -35,24 +37,54 @@ import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
 public class PreferencesFragment
 		extends PreferenceFragmentCompat
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
-	private static final int READ_EXTERNAL_STORAGE_REQUEST = 1;
-	private static final int WRITE_EXTERNAL_STORAGE_REQUEST = 2;
-	private static final int PICK_FILE_RESULT_CODE = 1;
+	private ActivityResultLauncher<Intent> pickFileLauncher;
+	private ActivityResultLauncher<String> requestReadPermissionLauncher;
+	private ActivityResultLauncher<String> requestWritePermissionLauncher;
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode,
-			Intent resultData) {
-		if (requestCode == PICK_FILE_RESULT_CODE &&
-				resultCode == Activity.RESULT_OK && resultData != null) {
-			Context context = getContext();
-			if (context == null) {
-				return;
-			}
-			String message = DatabaseImporter.importDatabase(
-					context, resultData.getData());
-			Toast.makeText(context, message,
-					Toast.LENGTH_LONG).show();
-		}
+	public void onCreate(@Nullable Bundle state) {
+		super.onCreate(state);
+
+		// Register ActivityResultLaunchers
+		pickFileLauncher = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> {
+					if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+						Context context = getContext();
+						if (context != null) {
+							String message = DatabaseImporter.importDatabase(
+									context, result.getData().getData());
+							Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+						}
+					}
+				});
+
+		requestReadPermissionLauncher = registerForActivityResult(
+				new ActivityResultContracts.RequestPermission(),
+				isGranted -> {
+					if (isGranted) {
+						ImportExportAsFiles.importFromDirectory(getContext());
+					} else {
+						Toast.makeText(getActivity(),
+								getString(R.string.read_access_required),
+								Toast.LENGTH_LONG).show();
+					}
+				});
+
+		requestWritePermissionLauncher = registerForActivityResult(
+				new ActivityResultContracts.RequestPermission(),
+				isGranted -> {
+					if (isGranted) {
+						ImportExportAsFiles.exportToDirectory(getContext());
+					} else {
+						Toast.makeText(getActivity(),
+								getString(R.string.write_access_required),
+								Toast.LENGTH_LONG).show();
+					}
+				});
+
+		addPreferencesFromResource(R.xml.preferences);
+		wireImportExport();
 	}
 
 	@Override
@@ -116,7 +148,7 @@ public class PreferencesFragment
 		super.onDisplayPreferenceDialog(preference);
 	}
 
-	private void setSummaries(PreferenceGroup screen) {
+	private void setSummaries(@NonNull PreferenceGroup screen) {
 		for (int i = screen.getPreferenceCount(); i-- > 0; ) {
 			setSummary(screen.getPreference(i));
 		}
@@ -155,68 +187,21 @@ public class PreferencesFragment
 		return summary;
 	}
 
-	public boolean checkExternalStoragePermission(
-			int request,
-			String permission) {
+	private boolean checkExternalStoragePermission(@NonNull String permission) {
 		FragmentActivity activity = getActivity();
 		if (activity != null &&
 				ContextCompat.checkSelfPermission(activity, permission)
 						!= PackageManager.PERMISSION_GRANTED) {
-			if (ActivityCompat.shouldShowRequestPermissionRationale(
-					activity,
-					permission)) {
-				int strId = request == WRITE_EXTERNAL_STORAGE_REQUEST
-						? R.string.write_access_required
-						: R.string.read_access_required;
-				Toast.makeText(getActivity(), getString(strId),
-						Toast.LENGTH_LONG).show();
+
+			if (permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+				requestWritePermissionLauncher.launch(permission);
+			} else if (permission.equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+				requestReadPermissionLauncher.launch(permission);
 			}
-			ActivityCompat.requestPermissions(
-					activity,
-					new String[]{permission},
-					request);
 			return false;
 		}
 
 		return true;
-	}
-
-	@Override
-	public void onRequestPermissionsResult(
-			int requestCode,
-			@NonNull String[] permissions,
-			@NonNull int[] grantResults) {
-		for (int grantResult : grantResults) {
-			if (grantResult == PackageManager.PERMISSION_GRANTED) {
-				switch (requestCode) {
-					default:
-						// Make FindBugs happy.
-						continue;
-					case WRITE_EXTERNAL_STORAGE_REQUEST:
-						ImportExportAsFiles.exportToDirectory(getContext());
-						break;
-					case READ_EXTERNAL_STORAGE_REQUEST:
-						ImportExportAsFiles.importFromDirectory(getContext());
-						break;
-				}
-			} else {
-				int messageId;
-				switch (requestCode) {
-					default:
-						// Make FindBugs happy.
-						continue;
-					case WRITE_EXTERNAL_STORAGE_REQUEST:
-						messageId = R.string.write_access_required;
-						break;
-					case READ_EXTERNAL_STORAGE_REQUEST:
-						messageId = R.string.read_access_required;
-						break;
-				}
-				Toast.makeText(getActivity(),
-						getString(messageId),
-						Toast.LENGTH_LONG).show();
-			}
-		}
 	}
 
 	private void wireImportExport() {
@@ -228,7 +213,6 @@ public class PreferencesFragment
 			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
 				importFromDirectory.setOnPreferenceClickListener(preference -> {
 					if (checkExternalStoragePermission(
-							READ_EXTERNAL_STORAGE_REQUEST,
 							Manifest.permission.READ_EXTERNAL_STORAGE)) {
 						ImportExportAsFiles.importFromDirectory(getContext());
 					}
@@ -236,7 +220,6 @@ public class PreferencesFragment
 				});
 				exportToDirectory.setOnPreferenceClickListener(preference -> {
 					if (checkExternalStoragePermission(
-							WRITE_EXTERNAL_STORAGE_REQUEST,
 							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
 						ImportExportAsFiles.exportToDirectory(getContext());
 					}
@@ -259,11 +242,10 @@ public class PreferencesFragment
 				// or the newer "application/vnd.sqlite3" but
 				// only "application/octet-stream" works.
 				chooseFile.setType("application/octet-stream");
-				startActivityForResult(
+				pickFileLauncher.launch(
 						Intent.createChooser(
 								chooseFile,
-								getString(R.string.import_database)),
-						PICK_FILE_RESULT_CODE);
+								getString(R.string.import_database)));
 				return true;
 			});
 			exportDatabase.setOnPreferenceClickListener(preference -> {

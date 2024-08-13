@@ -12,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
@@ -20,18 +22,29 @@ import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
 import de.markusfisch.android.shadereditor.widget.CubeMapView;
 
 public class CubeMapFragment extends Fragment {
-	private static final int PICK_IMAGE = 1;
-
 	public interface CubeMapViewProvider {
 		CubeMapView getCubeMapView();
 	}
 
 	private CubeMapView cubeMapView;
+	private ActivityResultLauncher<Intent> pickImageLauncher;
 
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 		setHasOptionsMenu(true);
+
+		// Register the ActivityResultLauncher for picking an image
+		pickImageLauncher = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> {
+					if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+						Uri imageUri = result.getData().getData();
+						if (imageUri != null) {
+							cubeMapView.setSelectedFaceImage(imageUri);
+						}
+					}
+				});
 	}
 
 	@Override
@@ -81,20 +94,6 @@ public class CubeMapFragment extends Fragment {
 		return super.onOptionsItemSelected(item);
 	}
 
-	@Override
-	public void onActivityResult(
-			int requestCode,
-			int resultCode,
-			Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		Uri imageUri;
-		if (requestCode == PICK_IMAGE &&
-				resultCode == Activity.RESULT_OK &&
-				(imageUri = data.getData()) != null) {
-			cubeMapView.setSelectedFaceImage(imageUri);
-		}
-	}
-
 	private void composeMap() {
 		CubeMapView.Face[] faces = cubeMapView.getFaces();
 
@@ -133,13 +132,10 @@ public class CubeMapFragment extends Fragment {
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 		intent.setType("image/*");
 
-		// Use Activity.startActivityForResult() to keep
-		// requestCode. Fragment.startActivityForResult()
-		// will modify the requestCode.
-		startActivityForResult(
+		// Use the ActivityResultLauncher to launch the image picker
+		pickImageLauncher.launch(
 				Intent.createChooser(
 						intent,
-						getString(R.string.choose_image)),
-				CubeMapFragment.PICK_IMAGE);
+						getString(R.string.choose_image)));
 	}
 }
