@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.hardware.Camera;
 import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.opengl.GLES11Ext;
@@ -20,8 +19,10 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.CameraSelector;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.ByteBuffer;
@@ -1041,10 +1042,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		} else {
 			return;
 		}
-		if (deviceRotation != 0) {
+		if (deviceRotation != Surface.ROTATION_0) {
 			int x = SensorManager.AXIS_Y;
 			int y = SensorManager.AXIS_MINUS_X;
-			if (deviceRotation == 270) {
+			if (deviceRotation == Surface.ROTATION_270) {
 				x = SensorManager.AXIS_MINUS_Y;
 				y = SensorManager.AXIS_X;
 			}
@@ -1297,30 +1298,25 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			String name,
 			int id,
 			TextureParameters tp) {
-
-		int cameraId = CameraListener.findCameraId(
-				UNIFORM_CAMERA_BACK.equals(name)
-						? Camera.CameraInfo.CAMERA_FACING_BACK
-						: Camera.CameraInfo.CAMERA_FACING_FRONT);
-
-		if (cameraId < 0) {
-			return;
-		}
+		int lensFacing = UNIFORM_CAMERA_BACK.equals(name)
+				? CameraSelector.LENS_FACING_BACK
+				: CameraSelector.LENS_FACING_FRONT;
 
 		if (cameraListener == null ||
-				cameraListener.cameraId != cameraId) {
+				cameraListener.facing != lensFacing) {
 			unregisterCameraListener();
 			requestCameraPermission();
 			setCameraTextureProperties(id, tp);
 			cameraListener = new CameraListener(
 					id,
-					cameraId,
+					lensFacing,
 					(int) resolution[0],
 					(int) resolution[1],
-					deviceRotation);
+					deviceRotation,
+					context);
 		}
 
-		cameraListener.register();
+		cameraListener.register((LifecycleOwner) context);
 	}
 
 	private void requestCameraPermission() {
@@ -1454,24 +1450,14 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		return (float) level / scale;
 	}
 
-	private static int getDeviceRotation(Context context) {
+	private static int getDeviceRotation(@NonNull Context context) {
 		WindowManager wm = (WindowManager) context.getSystemService(
 				Context.WINDOW_SERVICE);
 		if (wm == null) {
 			return 0;
 		}
 
-		switch (wm.getDefaultDisplay().getRotation()) {
-			default:
-			case Surface.ROTATION_0:
-				return 0;
-			case Surface.ROTATION_90:
-				return 90;
-			case Surface.ROTATION_180:
-				return 180;
-			case Surface.ROTATION_270:
-				return 270;
-		}
+		return wm.getDefaultDisplay().getRotation();
 	}
 
 	private static float getMediaVolumeLevel(Context context) {
