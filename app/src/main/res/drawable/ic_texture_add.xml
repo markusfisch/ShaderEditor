@@ -1,10 +1,3 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="960"
-    android:viewportHeight="960"
-    android:tint="?attr/colorControlNormal">
-  <path
-      android:fillColor="@android:color/white"
-      android:pathData="M176,840Q157,836 140.5,819.5Q124,803 120,784L784,120Q805,125 820,140.5Q835,156 841,176L176,840ZM120,588L120,476L476,120L588,120L120,588ZM120,280L120,200Q120,167 143.5,143.5Q167,120 200,120L280,120L120,280ZM840,372L840,484L821,503Q801,493 778.5,487.5Q756,482 732,480L840,372ZM372,840L480,732Q482,756 487.5,778.5Q493,801 503,821L484,840L372,840ZM680,760L560,760L560,680L680,680L680,560L760,560L760,680L880,680L880,760L760,760L760,880L680,880L680,760Z"/>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="960" android:viewportHeight="960" android:tint="?attr/colorControlNormal">
+    <path android:fillColor="@android:color/white" android:pathData="M176 840q-19-4-35.5-20.5T120 784l664-664q21 5 36 20.5t21 35.5L176 840zm-56-252V476l356-356h112L120 588zm0-308v-80q0-33 23.5-56.5T200 120h80L120 280zm720 92v112l-19 19q-20-10-42.5-15.5T732 480l108-108zM372 840l108-108q2 24 7.5 46.5T503 821l-19 19H372zm308-80H560v-80h120V560h80v120h120v80H760v120h-80V760z"/>
 </vector>
