@@ -1,6 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -20,7 +19,6 @@ import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
-import de.markusfisch.android.shadereditor.activity.TextureViewActivity;
 import de.markusfisch.android.shadereditor.adapter.TextureAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
@@ -85,44 +83,17 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 	}
 
 	protected void addTexture() {
-		Activity activity = getActivity();
-		if (activity == null) {
-			return;
-		}
-
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 		intent.setType("image/*");
-
-		// Use Activity.startActivityForResult() to keep
-		// requestCode. Fragment.startActivityForResult()
-		// will modify the requestCode.
-		activity.startActivityForResult(
-				Intent.createChooser(
-						intent,
-						getString(R.string.choose_image)),
-				AddUniformActivity.PICK_IMAGE);
-	}
-
-	protected Cursor loadTextures() {
-		return ShaderEditorApp.db.getTextures(searchQuery);
+		if (getActivity() instanceof AddUniformActivity activity) {
+			activity.startPickImage();
+		}
 	}
 
 	private void showTexture(long id) {
-		Activity activity = getActivity();
-		if (activity == null) {
-			return;
+		if ((getActivity() instanceof AddUniformActivity activity)) {
+			activity.startPickTexture(id, samplerType);
 		}
-
-		Intent intent = new Intent(activity, TextureViewActivity.class);
-		intent.putExtra(TextureViewFragment.TEXTURE_ID, id);
-		intent.putExtra(TextureViewFragment.SAMPLER_TYPE, samplerType);
-
-		// Use Activity.startActivityForResult() to keep
-		// requestCode. Fragment.startActivityForResult()
-		// will modify the requestCode.
-		activity.startActivityForResult(
-				intent,
-				AddUniformActivity.PICK_TEXTURE);
 	}
 
 	private void loadTexturesAsync(final Context context) {
@@ -142,6 +113,10 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 		});
 	}
 
+	protected Cursor loadTextures() {
+		return ShaderEditorApp.db.getTextures(searchQuery);
+	}
+
 	private void updateAdapter(Context context, Cursor cursor) {
 		if (texturesAdapter != null) {
 			texturesAdapter.changeCursor(cursor);
@@ -157,7 +132,7 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 		}
 	}
 
-	private void initListView(View view) {
+	private void initListView(@NonNull View view) {
 		listView.setEmptyView(view.findViewById(R.id.no_textures));
 		listView.setOnItemClickListener(
 				(parent, view1, position, id) -> showTexture(id));

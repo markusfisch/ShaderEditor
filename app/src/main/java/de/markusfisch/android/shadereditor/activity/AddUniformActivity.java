@@ -6,20 +6,21 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuInflater;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 
+import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.fragment.TextureViewFragment;
 import de.markusfisch.android.shadereditor.fragment.UniformPagesFragment;
 import de.markusfisch.android.shadereditor.widget.SearchMenu;
 
 public class AddUniformActivity extends AbstractContentActivity {
 	public static final String STATEMENT = "statement";
-	public static final int PICK_IMAGE = 1;
-	public static final int CROP_IMAGE = 2;
-	public static final int PICK_TEXTURE = 3;
 
 	private SearchMenu.OnSearchListener onSearchListener;
 
@@ -31,7 +32,11 @@ public class AddUniformActivity extends AbstractContentActivity {
 		return currentSearchQuery;
 	}
 
-	public static void setAddUniformResult(Activity activity, String name) {
+	private ActivityResultLauncher<Intent> pickImageLauncher;
+	private ActivityResultLauncher<Intent> cropImageLauncher;
+	private ActivityResultLauncher<Intent> pickTextureLauncher;
+
+	public static void setAddUniformResult(@NonNull Activity activity, String name) {
 		Bundle bundle = new Bundle();
 		bundle.putString(STATEMENT, name);
 
@@ -67,36 +72,47 @@ public class AddUniformActivity extends AbstractContentActivity {
 	}
 
 	@Override
-	public void onActivityResult(
-			int requestCode,
-			int resultCode,
-			Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
+	protected void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 
-		if (resultCode != RESULT_OK) {
-			return;
-		}
+		// Register the ActivityResultLaunchers
+		pickImageLauncher = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> {
+					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+						Uri imageUri = result.getData().getData();
+						if (imageUri != null) {
+							Intent cropIntent = CropImageActivity.getIntentForImage(this,
+									imageUri);
+							cropImageLauncher.launch(cropIntent);
+						}
+					}
+				});
 
-		Uri imageUri;
+		cropImageLauncher = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> {
+					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+						setResult(RESULT_OK, result.getData());
+						finish();
+					}
+				});
 
-		if (requestCode == PICK_IMAGE &&
-				data != null &&
-				(imageUri = data.getData()) != null) {
-			startActivityForResult(
-					CropImageActivity.getIntentForImage(
-							this,
-							imageUri),
-					CROP_IMAGE);
-		} else if (requestCode == CROP_IMAGE ||
-				requestCode == PICK_TEXTURE) {
-			setResult(RESULT_OK, data);
-			finish();
-		}
+		pickTextureLauncher = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> {
+					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+						setResult(RESULT_OK, result.getData());
+						finish();
+					}
+				});
+
+		// Handle any intents passed to this activity
+		startActivityForIntent(getIntent());
 	}
 
 	@Override
 	protected Fragment defaultFragment() {
-		startActivityForIntent(getIntent());
 		return new UniformPagesFragment();
 	}
 
@@ -117,6 +133,21 @@ public class AddUniformActivity extends AbstractContentActivity {
 			return;
 		}
 
-		startActivity(CropImageActivity.getIntentForImage(this, imageUri));
+		Intent cropIntent = CropImageActivity.getIntentForImage(this, imageUri);
+		cropImageLauncher.launch(cropIntent);
+	}
+
+	public void startPickImage() {
+		Intent pickImageIntent = new Intent(Intent.ACTION_GET_CONTENT);
+		pickImageIntent.setType("image/*");
+		pickImageLauncher.launch(Intent.createChooser(pickImageIntent,
+				getString(R.string.choose_image)));
+	}
+
+	public void startPickTexture(long id, @NonNull String samplerType) {
+		Intent pickTextureIntent = new Intent(this, TextureViewActivity.class);
+		pickTextureIntent.putExtra(TextureViewFragment.TEXTURE_ID, id);
+		pickTextureIntent.putExtra(TextureViewFragment.SAMPLER_TYPE, samplerType);
+		pickTextureLauncher.launch(pickTextureIntent);
 	}
 }

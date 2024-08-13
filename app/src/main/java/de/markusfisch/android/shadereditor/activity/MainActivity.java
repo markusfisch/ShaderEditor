@@ -32,6 +32,8 @@ import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
@@ -75,9 +77,6 @@ public class MainActivity
 		implements ShaderEditor.OnTextChangedListener, ShaderEditor.CodeCompletionListener {
 	private static final String SELECTED_SHADER = "selected_shader";
 	private static final String CODE_VISIBLE = "code_visible";
-	private static final int PREVIEW_SHADER = 1;
-	private static final int ADD_UNIFORM = 2;
-	private static final int LOAD_SAMPLE = 3;
 	private static final int FIRST_SHADER = -1;
 	private static final int NO_SHADER = 0;
 
@@ -106,6 +105,10 @@ public class MainActivity
 	private float quality = 1f;
 	private CompletionsAdapter completionsAdapter;
 	private Button showErrorBtn;
+
+	private ActivityResultLauncher<Intent> addUniformLauncher;
+	private ActivityResultLauncher<Intent> loadSampleLauncher;
+	private ActivityResultLauncher<Intent> previewShaderLauncher;
 
 	@Override
 	public void onConfigurationChanged(@NonNull Configuration newConfig) {
@@ -147,67 +150,12 @@ public class MainActivity
 	}
 
 	@Override
-	protected void onActivityResult(
-			int requestCode,
-			int resultCode,
-			Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-
-		// Add uniform statement.
-		if (editorFragment != null &&
-				requestCode == ADD_UNIFORM &&
-				resultCode == RESULT_OK &&
-				data != null) {
-			editorFragment.addUniform(data.getStringExtra(
-					AddUniformActivity.STATEMENT));
-		}
-
-		// Load sample.
-		if (editorFragment != null &&
-				requestCode == LOAD_SAMPLE &&
-				resultCode == RESULT_OK &&
-				data != null) {
-			if (selectedShaderId != FIRST_SHADER) {
-				saveShader(selectedShaderId);
-			}
-			selectShaderAndUpdate(ShaderEditorApp.db.insertShaderFromResource(
-					this,
-					data.getStringExtra(LoadSampleActivity.NAME),
-					data.getIntExtra(LoadSampleActivity.RESOURCE_ID,
-							R.raw.new_shader),
-					data.getIntExtra(LoadSampleActivity.THUMBNAIL_ID,
-							R.drawable.thumbnail_new_shader),
-					data.getFloatExtra(LoadSampleActivity.QUALITY,
-							1f)));
-		}
-
-		// Update fps, info log and thumbnail after shader ran.
-		if (requestCode == PREVIEW_SHADER) {
-			PreviewActivity.RenderStatus status =
-					PreviewActivity.renderStatus;
-
-			if (status.fps > 0) {
-				postUpdateFps(status.fps);
-			}
-
-			if (status.infoLog != null) {
-				postInfoLog(status.infoLog);
-			}
-
-			if (selectedShaderId > 0 &&
-					status.thumbnail != null &&
-					ShaderEditorApp.preferences.doesSaveOnRun()) {
-				saveShader(selectedShaderId);
-			}
-		}
-	}
-
-	@Override
 	protected void onCreate(Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_main);
 
 		SystemBarMetrics.initSystemBars(this);
+		initLaunchers();
 		initExtraKeys();
 		initToolbar();
 		initQualitySpinner();
@@ -227,6 +175,56 @@ public class MainActivity
 							EditorFragment.TAG)
 					.commit();
 		}
+	}
+
+	private void initLaunchers() {
+		// Initialize the ActivityResultLaunchers
+		addUniformLauncher = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> {
+					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+						editorFragment.addUniform(result.getData().getStringExtra(
+								AddUniformActivity.STATEMENT));
+					}
+				});
+
+		loadSampleLauncher = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> {
+					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+						if (selectedShaderId != FIRST_SHADER) {
+							saveShader(selectedShaderId);
+						}
+						selectShaderAndUpdate(ShaderEditorApp.db.insertShaderFromResource(
+								this,
+								result.getData().getStringExtra(LoadSampleActivity.NAME),
+								result.getData().getIntExtra(LoadSampleActivity.RESOURCE_ID,
+										R.raw.new_shader),
+								result.getData().getIntExtra(LoadSampleActivity.THUMBNAIL_ID,
+										R.drawable.thumbnail_new_shader),
+								result.getData().getFloatExtra(LoadSampleActivity.QUALITY, 1f)));
+					}
+				});
+
+		previewShaderLauncher = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> {
+					if (result.getResultCode() == RESULT_OK) {
+						PreviewActivity.RenderStatus status = PreviewActivity.renderStatus;
+
+						if (status.fps > 0) {
+							postUpdateFps(status.fps);
+						}
+
+						if (status.infoLog != null) {
+							postInfoLog(status.infoLog);
+						}
+
+						if (selectedShaderId > 0 && status.thumbnail != null && ShaderEditorApp.preferences.doesSaveOnRun()) {
+							saveShader(selectedShaderId);
+						}
+					}
+				});
 	}
 
 	@Override
@@ -985,15 +983,13 @@ public class MainActivity
 	}
 
 	private void addUniform() {
-		startActivityForResult(
-				new Intent(this, AddUniformActivity.class),
-				ADD_UNIFORM);
+
+		addUniformLauncher.launch(new Intent(this, AddUniformActivity.class));
 	}
 
 	private void loadSample() {
-		startActivityForResult(
-				new Intent(this, LoadSampleActivity.class),
-				LOAD_SAMPLE);
+		loadSampleLauncher.launch(
+				new Intent(this, LoadSampleActivity.class));
 	}
 
 	private void showFaq() {
@@ -1154,7 +1150,7 @@ public class MainActivity
 
 			startActivity(intent);
 		} else {
-			startActivityForResult(intent, PREVIEW_SHADER);
+			previewShaderLauncher.launch(intent);
 		}
 	}
 
