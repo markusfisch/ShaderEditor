@@ -12,6 +12,9 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Preview;
+import androidx.camera.core.resolutionselector.AspectRatioStrategy;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Lifecycle;
@@ -70,6 +73,7 @@ public class CameraListener {
 			cameraProviderFuture.addListener(() -> {
 				try {
 					ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+					cameraProvider.unbindAll();
 					Preview preview = new Preview.Builder()
 							.setTargetResolution(frameSize)
 							.build();
