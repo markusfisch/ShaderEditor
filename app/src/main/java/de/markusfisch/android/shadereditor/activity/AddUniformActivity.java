@@ -4,19 +4,33 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.MenuInflater;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.fragment.TextureViewFragment;
 import de.markusfisch.android.shadereditor.fragment.UniformPagesFragment;
+import de.markusfisch.android.shadereditor.widget.SearchMenu;
 
 public class AddUniformActivity extends AbstractContentActivity {
 	public static final String STATEMENT = "statement";
+
+	private SearchMenu.OnSearchListener onSearchListener;
+
+	@Nullable
+	private String currentSearchQuery = null;
+
+	@Nullable
+	public String getCurrentSearchQuery() {
+		return currentSearchQuery;
+	}
 
 	private ActivityResultLauncher<Intent> pickImageLauncher;
 	private ActivityResultLauncher<Intent> cropImageLauncher;
@@ -30,6 +44,31 @@ public class AddUniformActivity extends AbstractContentActivity {
 		data.putExtras(bundle);
 
 		activity.setResult(RESULT_OK, data);
+	}
+
+	public void setSearchListener(SearchMenu.OnSearchListener onSearchListener) {
+		this.onSearchListener = onSearchListener;
+	}
+
+	@Override
+	protected void onCreate(Bundle state) {
+		super.onCreate(state);
+		addMenuProvider(new MenuProvider() {
+			@Override
+			public void onCreateMenu(@NonNull android.view.Menu menu,
+					@NonNull MenuInflater menuInflater) {
+				SearchMenu.addSearchMenu(menu, menuInflater,
+						(value) -> {
+							currentSearchQuery = value;
+							onSearchListener.filter(value);
+						});
+			}
+
+			@Override
+			public boolean onMenuItemSelected(@NonNull android.view.MenuItem menuItem) {
+				return false;
+			}
+		}, this, Lifecycle.State.RESUMED);
 	}
 
 	@Override

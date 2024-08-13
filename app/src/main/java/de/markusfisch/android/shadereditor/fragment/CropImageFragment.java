@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -15,7 +14,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 
 import java.util.concurrent.Executors;
 
@@ -39,7 +40,6 @@ public class CropImageFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		setHasOptionsMenu(true);
 	}
 
 	@Override
@@ -80,6 +80,23 @@ public class CropImageFragment extends Fragment {
 
 		view.findViewById(R.id.crop).setOnClickListener(v -> cropImage());
 
+		requireActivity().addMenuProvider(new MenuProvider() {
+			@Override
+			public void onCreateMenu(@NonNull android.view.Menu menu,
+					@NonNull MenuInflater menuInflater) {
+				menuInflater.inflate(R.menu.fragment_crop_image, menu);
+			}
+
+			@Override
+			public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+				if (menuItem.getItemId() == R.id.rotate_clockwise) {
+					rotateClockwise();
+					return true;
+				}
+				return false;
+			}
+		}, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+
 		return view;
 	}
 
@@ -87,20 +104,6 @@ public class CropImageFragment extends Fragment {
 	public void onResume() {
 		super.onResume();
 		loadBitmapAsync();
-	}
-
-	@Override
-	public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.fragment_crop_image, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.rotate_clockwise) {
-			rotateClockwise();
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	private void loadBitmapAsync() {

@@ -4,22 +4,24 @@ import android.view.Menu;
 import android.view.MenuInflater;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
-import androidx.core.view.MenuItemCompat;
+
+import java.util.Objects;
 
 import de.markusfisch.android.shadereditor.R;
 
 public class SearchMenu {
 	public interface OnSearchListener {
-		void filter(String value);
+		void filter(@Nullable String value);
 	}
 
 	public static void addSearchMenu(@NonNull Menu menu,
-			MenuInflater inflater,
-			OnSearchListener onSearchListener) {
+			@NonNull MenuInflater inflater,
+			@NonNull OnSearchListener onSearchListener) {
 		inflater.inflate(R.menu.search, menu);
-		SearchView searchView = (SearchView)
-				MenuItemCompat.getActionView(menu.findItem(R.id.search));
+		SearchView searchView =
+				(SearchView) Objects.requireNonNull(menu.findItem(R.id.search).getActionView());
 		searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 			@Override
 			public boolean onQueryTextChange(String newText) {
