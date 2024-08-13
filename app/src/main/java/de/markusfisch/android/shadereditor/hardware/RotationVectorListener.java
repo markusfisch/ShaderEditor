@@ -15,11 +15,8 @@ public class RotationVectorListener extends AbstractListener {
 	public boolean register() {
 		// Prefer TYPE_GAME_ROTATION_VECTOR if possible because it doesn't
 		// depend from a geomagnetic sensor.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2 &&
-				register(Sensor.TYPE_GAME_ROTATION_VECTOR)) {
-			return true;
-		}
-		return register(Sensor.TYPE_ROTATION_VECTOR);
+		return register(Sensor.TYPE_GAME_ROTATION_VECTOR) ||
+				register(Sensor.TYPE_ROTATION_VECTOR);
 	}
 
 	@Override

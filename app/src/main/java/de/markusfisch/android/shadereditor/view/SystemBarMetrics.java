@@ -32,14 +32,10 @@ public class SystemBarMetrics {
 		}
 	}
 
-	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	public static boolean setSystemBarColor(
 			Window window,
 			int color,
 			boolean expand) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-			return false;
-		}
 		if (expand) {
 			window.getDecorView().setSystemUiVisibility(
 					View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
@@ -51,11 +47,7 @@ public class SystemBarMetrics {
 		return true;
 	}
 
-	@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 	public static void hideNavigation(Window window) {
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-			return;
-		}
 		window.getDecorView().setSystemUiVisibility(
 				View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
 						View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
