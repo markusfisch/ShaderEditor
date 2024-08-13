@@ -51,8 +51,9 @@ public class AddUniformActivity extends AbstractContentActivity {
 	}
 
 	@Override
-	protected void onCreate(Bundle state) {
-		super.onCreate(state);
+	protected void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
 		addMenuProvider(new MenuProvider() {
 			@Override
 			public void onCreateMenu(@NonNull android.view.Menu menu,
@@ -69,11 +70,6 @@ public class AddUniformActivity extends AbstractContentActivity {
 				return false;
 			}
 		}, this, Lifecycle.State.RESUMED);
-	}
-
-	@Override
-	protected void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
 
 		// Register the ActivityResultLaunchers
 		pickImageLauncher = registerForActivityResult(
