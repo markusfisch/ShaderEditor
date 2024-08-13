@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,7 +13,9 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Lifecycle;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -41,7 +42,6 @@ public class TextureViewFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		setHasOptionsMenu(true);
 	}
 
 	@Override
@@ -105,21 +105,24 @@ public class TextureViewFragment extends Fragment {
 		view.findViewById(R.id.insert_code).setOnClickListener(
 				v -> insertUniformSamplerStatement());
 
+		requireActivity().addMenuProvider(new MenuProvider() {
+			@Override
+			public void onCreateMenu(@NonNull android.view.Menu menu,
+					@NonNull MenuInflater menuInflater) {
+				menuInflater.inflate(R.menu.fragment_view_texture, menu);
+			}
+
+			@Override
+			public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
+				if (menuItem.getItemId() == R.id.remove_texture) {
+					askToRemoveTexture(textureId);
+					return true;
+				}
+				return false;
+			}
+		}, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+
 		return view;
-	}
-
-	@Override
-	public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.fragment_view_texture, menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.remove_texture) {
-			askToRemoveTexture(textureId);
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	private void askToRemoveTexture(final long id) {

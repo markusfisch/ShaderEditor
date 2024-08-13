@@ -8,14 +8,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+import androidx.annotation.Nullable;
 
 import java.util.Locale;
 import java.util.concurrent.Executors;
@@ -25,9 +23,8 @@ import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
 import de.markusfisch.android.shadereditor.activity.TextureViewActivity;
 import de.markusfisch.android.shadereditor.adapter.TextureAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.widget.SearchMenu;
 
-public class UniformSampler2dPageFragment extends Fragment {
+public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 	protected String searchQuery;
 
 	private ListView listView;
@@ -39,7 +36,6 @@ public class UniformSampler2dPageFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		setHasOptionsMenu(true);
 	}
 
 	@Override
@@ -82,11 +78,6 @@ public class UniformSampler2dPageFragment extends Fragment {
 		listView = null;
 		progressBar = null;
 		noTexturesMessage = null;
-	}
-
-	@Override
-	public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-		SearchMenu.addSearchMenu(menu, inflater, this::filterTextures);
 	}
 
 	public void setSamplerType(String type) {
@@ -172,7 +163,7 @@ public class UniformSampler2dPageFragment extends Fragment {
 				(parent, view1, position, id) -> showTexture(id));
 	}
 
-	private void filterTextures(String query) {
+	protected void onSearch(@Nullable String query) {
 		searchQuery = query == null
 				? null
 				: query.toLowerCase(Locale.getDefault());
