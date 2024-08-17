@@ -60,7 +60,8 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 	}
 
 	/**
-	 * Taken from <a href="https://www.baeldung.com/java-number-of-digits-in-int#5-divide-and-conquer">Baeldung (Number of Digits in an Integer in Java)</a>
+	 * Taken from
+	 * <a href="https://www.baeldung.com/java-number-of-digits-in-int#5-divide-and-conquer">Baeldung (Number of Digits in an Integer in Java)</a>
 	 *
 	 * @param number the number of which you want to get the number of digits.
 	 * @return the number of decimal digits of the given {@code number}

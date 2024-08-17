@@ -3,7 +3,6 @@ package de.markusfisch.android.shadereditor.hardware;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 

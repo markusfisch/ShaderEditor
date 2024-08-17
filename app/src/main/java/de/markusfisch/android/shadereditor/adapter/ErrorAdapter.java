@@ -54,7 +54,8 @@ public class ErrorAdapter extends ListAdapter<ShaderError, ErrorAdapter.ViewHold
 			errorMessage = itemView.findViewById(R.id.error_message);
 		}
 
-		public void update(@NonNull ShaderError error, @NonNull ErrorAdapter.OnItemClickListener listener) {
+		public void update(@NonNull ShaderError error,
+				@NonNull ErrorAdapter.OnItemClickListener listener) {
 			if (error.hasLine()) {
 				errorLine.setText(String.format(Locale.getDefault(), "%d: ", error.getLine()));
 			} else {
@@ -68,7 +69,7 @@ public class ErrorAdapter extends ListAdapter<ShaderError, ErrorAdapter.ViewHold
 	}
 
 	private static final DiffUtil.ItemCallback<ShaderError> DIFF_CALLBACK =
-			new DiffUtil.ItemCallback<ShaderError>() {
+			new DiffUtil.ItemCallback<>() {
 				@Override
 				public boolean areItemsTheSame(@NonNull ShaderError oldItem,
 						@NonNull ShaderError newItem) {
