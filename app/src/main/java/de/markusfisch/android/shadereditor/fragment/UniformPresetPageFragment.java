@@ -57,7 +57,7 @@ public class UniformPresetPageFragment extends AddUniformPageFragment {
 	private void addUniform(PresetUniformAdapter.Uniform uniform) {
 		if (uniform.isSampler()) {
 			AbstractSubsequentActivity.addFragment(
-					getParentFragment().getFragmentManager(),
+					requireParentFragment().getParentFragmentManager(),
 					TextureParametersFragment.newInstance(
 							uniform.type,
 							uniform.name));

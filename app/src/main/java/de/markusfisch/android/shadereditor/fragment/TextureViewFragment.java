@@ -158,7 +158,7 @@ public class TextureViewFragment extends Fragment {
 	private void insertUniformSamplerStatement() {
 		imageView.setVisibility(View.GONE);
 		AbstractSubsequentActivity.addFragment(
-				getFragmentManager(),
+				getParentFragmentManager(),
 				TextureParametersFragment.newInstance(
 						samplerType,
 						textureName));
