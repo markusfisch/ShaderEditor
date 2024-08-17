@@ -1,144 +1,102 @@
-package de.markusfisch.android.shadereditor.fragment;
+package de.markusfisch.android.shadereditor.fragment
 
-import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.MenuProvider
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import de.markusfisch.android.shadereditor.R
+import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity
+import de.markusfisch.android.shadereditor.widget.CubeMapView
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.core.view.MenuProvider;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
+class CubeMapFragment : Fragment() {
 
-import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
-import de.markusfisch.android.shadereditor.widget.CubeMapView;
+    interface CubeMapViewProvider {
+        fun getCubeMapView(): CubeMapView
+    }
 
-public class CubeMapFragment extends Fragment {
-	public interface CubeMapViewProvider {
-		CubeMapView getCubeMapView();
-	}
+    private lateinit var cubeMapView: CubeMapView
+    private val pickImageLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.data?.let { imageUri ->
+                cubeMapView.setSelectedFaceImage(imageUri)
+            }
+        }
+    }
 
-	private CubeMapView cubeMapView;
-	private ActivityResultLauncher<Intent> pickImageLauncher;
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? {
+        val activity = requireActivity()
+        activity.title = getString(R.string.compose_sampler_cube)
 
-	@Override
-	public void onCreate(Bundle state) {
-		super.onCreate(state);
+        cubeMapView = (activity as? CubeMapViewProvider)?.getCubeMapView()
+            ?: throw IllegalArgumentException("$activity must implement CubeMapViewProvider")
 
-		// Register the ActivityResultLauncher for picking an image
-		pickImageLauncher = registerForActivityResult(
-				new ActivityResultContracts.StartActivityForResult(),
-				result -> {
-					if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-						Uri imageUri = result.getData().getData();
-						if (imageUri != null) {
-							cubeMapView.setSelectedFaceImage(imageUri);
-						}
-					}
-				});
-	}
+        val view = inflater.inflate(R.layout.fragment_cube_map, container, false).apply {
+            findViewById<View>(R.id.add_texture).setOnClickListener { addTexture() }
+            findViewById<View>(R.id.crop).setOnClickListener { composeMap() }
+        }
 
-	@Override
-	public View onCreateView(
-			@NonNull LayoutInflater inflater,
-			ViewGroup container,
-			Bundle state) {
-		Activity activity = getActivity();
-		if (activity == null) {
-			return null;
-		}
-		activity.setTitle(R.string.compose_sampler_cube);
+        cubeMapView.visibility = View.VISIBLE
 
-		try {
-			cubeMapView = ((CubeMapViewProvider) activity).getCubeMapView();
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString() +
-					" must implement " +
-					"CubeMapFragment.CubeMapViewProvider");
-		}
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_crop_image, menu)
+            }
 
-		View view = inflater.inflate(
-				R.layout.fragment_cube_map,
-				container,
-				false);
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return when (menuItem.itemId) {
+                    R.id.rotate_clockwise -> {
+                        rotateClockwise()
+                        true
+                    }
 
-		view.findViewById(R.id.add_texture).setOnClickListener(v -> addTexture());
-		view.findViewById(R.id.crop).setOnClickListener(v -> composeMap());
+                    else -> false
+                }
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
-		// Make cubeMapView in activity visible (again).
-		cubeMapView.setVisibility(View.VISIBLE);
+        return view
+    }
 
-		requireActivity().addMenuProvider(new MenuProvider() {
-			@Override
-			public void onCreateMenu(@NonNull android.view.Menu menu,
-					@NonNull MenuInflater menuInflater) {
-				menuInflater.inflate(R.menu.fragment_crop_image, menu);
-			}
+    private fun composeMap() {
+        val faces = cubeMapView.faces
 
-			@Override
-			public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-				if (menuItem.getItemId() == R.id.rotate_clockwise) {
-					rotateClockwise();
-					return true;
-				}
-				return false;
-			}
-		}, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+        if (faces.any { it.uri == null }) {
+            Toast.makeText(
+                requireContext(), R.string.not_enough_faces, Toast.LENGTH_SHORT
+            ).show()
+            return
+        }
 
-		return view;
-	}
+        AbstractSubsequentActivity.addFragment(
+            parentFragmentManager, SamplerCubePropertiesFragment.newInstance(faces)
+        )
 
-	private void composeMap() {
-		CubeMapView.Face[] faces = cubeMapView.getFaces();
+        cubeMapView.visibility = View.GONE
+    }
 
-		for (int i = faces.length; i-- > 0; ) {
-			if (faces[i].getUri() == null) {
-				Activity activity = getActivity();
-				if (activity == null) {
-					return;
-				}
-				Toast.makeText(
-						activity,
-						R.string.not_enough_faces,
-						Toast.LENGTH_SHORT).show();
-				return;
-			}
-		}
+    private fun rotateClockwise() {
+        cubeMapView.imageRotation = (cubeMapView.imageRotation + 90) % 360
+    }
 
-		AbstractSubsequentActivity.addFragment(
-				getParentFragmentManager(),
-				SamplerCubePropertiesFragment.newInstance(faces));
+    private fun addTexture() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+            type = "image/*"
+        }
 
-		cubeMapView.setVisibility(View.GONE);
-	}
-
-	private void rotateClockwise() {
-		cubeMapView.setImageRotation(
-				(cubeMapView.getImageRotation() + 90) % 360);
-	}
-
-	private void addTexture() {
-		Activity activity = getActivity();
-		if (activity == null) {
-			return;
-		}
-
-		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-		intent.setType("image/*");
-
-		// Use the ActivityResultLauncher to launch the image picker
-		pickImageLauncher.launch(
-				Intent.createChooser(
-						intent,
-						getString(R.string.choose_image)));
-	}
+        pickImageLauncher.launch(Intent.createChooser(intent, getString(R.string.choose_image)))
+    }
 }

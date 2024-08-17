@@ -36,9 +36,8 @@ class AddUniformActivity : AbstractContentActivity() {
 
     private var onSearchListener: SearchMenu.OnSearchListener? = null
 
-    private var currentSearchQuery: String? = null
-
-    fun getCurrentSearchQuery(): String? = currentSearchQuery
+    var currentSearchQuery: String? = null
+        private set
 
     private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
     private lateinit var cropImageLauncher: ActivityResultLauncher<Intent>

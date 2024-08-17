@@ -1,153 +1,109 @@
-package de.markusfisch.android.shadereditor.fragment;
+package de.markusfisch.android.shadereditor.fragment
 
-import android.content.Context;
-import android.content.Intent;
-import android.database.Cursor;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListView;
+import android.content.Context
+import android.database.Cursor
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ListView
+import de.markusfisch.android.shadereditor.R
+import de.markusfisch.android.shadereditor.activity.AddUniformActivity
+import de.markusfisch.android.shadereditor.adapter.TextureAdapter
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+open class UniformSampler2dPageFragment : AddUniformPageFragment() {
 
-import java.util.Locale;
-import java.util.concurrent.Executors;
+    var searchQuery: String? = null
+        private set
+    private lateinit var listView: ListView
+    private var texturesAdapter: TextureAdapter? = null
+    private lateinit var progressBar: View
+    private lateinit var noTexturesMessage: View
+    private var samplerType = AbstractSamplerPropertiesFragment.SAMPLER_2D
 
-import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
-import de.markusfisch.android.shadereditor.adapter.TextureAdapter;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(R.layout.fragment_uniform_sampler_2d_page, container, false)
 
-public class UniformSampler2dPageFragment extends AddUniformPageFragment {
-	@Nullable
-	protected String searchQuery;
+        val fab = view.findViewById<View>(R.id.add_texture)
+        fab.setOnClickListener { addTexture() }
 
-	@Nullable
-	private ListView listView;
-	@Nullable
-	private TextureAdapter texturesAdapter;
-	@Nullable
-	private View progressBar;
-	@Nullable
-	private View noTexturesMessage;
-	private String samplerType = AbstractSamplerPropertiesFragment.SAMPLER_2D;
+        listView = view.findViewById(R.id.textures)
+        initListView(view)
 
-	@Override
-	public void onCreate(Bundle state) {
-		super.onCreate(state);
-	}
+        progressBar = view.findViewById(R.id.progress_bar)
+        noTexturesMessage = view.findViewById(R.id.no_textures_message)
 
-	@Override
-	public View onCreateView(
-			@NonNull LayoutInflater inflater,
-			ViewGroup container,
-			Bundle state) {
-		View view = inflater.inflate(
-				R.layout.fragment_uniform_sampler_2d_page,
-				container,
-				false);
+        return view
+    }
 
-		View fab = view.findViewById(R.id.add_texture);
-		fab.setOnClickListener(v -> addTexture());
+    override fun onResume() {
+        super.onResume()
+        loadTexturesAsync(requireContext())
+    }
 
-		listView = view.findViewById(R.id.textures);
-		initListView(view);
+    override fun onDestroyView() {
+        super.onDestroyView()
+        texturesAdapter?.changeCursor(null)
+    }
 
-		progressBar = view.findViewById(R.id.progress_bar);
-		noTexturesMessage = view.findViewById(R.id.no_textures_message);
+    fun setSamplerType(type: String) {
+        samplerType = type
+    }
 
-		return view;
-	}
+    protected open fun addTexture() {
+        (activity as? AddUniformActivity)?.startPickImage()
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		loadTexturesAsync(getActivity());
-	}
+    private fun showTexture(id: Long) {
+        (activity as? AddUniformActivity)?.startPickTexture(id, samplerType)
+    }
 
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
+    private fun loadTexturesAsync(context: Context) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val cursor = loadTextures()
+            withContext(Dispatchers.Main) {
+                if (!isAdded) return@withContext
+                updateAdapter(context, cursor)
+            }
+        }
+    }
 
-		if (texturesAdapter != null) {
-			texturesAdapter.changeCursor(null);
-			texturesAdapter = null;
-		}
+    protected open fun loadTextures(): Cursor {
+        return ShaderEditorApp.db.getTextures(searchQuery)
+    }
 
-		listView = null;
-		progressBar = null;
-		noTexturesMessage = null;
-	}
+    private fun updateAdapter(context: Context, cursor: Cursor) {
+        texturesAdapter?.apply {
+            changeCursor(cursor)
+            notifyDataSetChanged()
+        } ?: run {
+            texturesAdapter = TextureAdapter(context, cursor)
+            listView.adapter = texturesAdapter
+        }
 
-	public void setSamplerType(String type) {
-		samplerType = type;
-	}
+        if (cursor.count < 1) {
+            progressBar.visibility = View.GONE
+            noTexturesMessage.visibility = View.VISIBLE
+        }
+    }
 
-	protected void addTexture() {
-		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-		intent.setType("image/*");
-		if (getActivity() instanceof AddUniformActivity activity) {
-			activity.startPickImage();
-		}
-	}
+    private fun initListView(view: View) {
+        listView.apply {
+            emptyView = view.findViewById(R.id.no_textures)
+            setOnItemClickListener { _, _, _, id -> showTexture(id) }
+        }
+    }
 
-	private void showTexture(long id) {
-		if ((getActivity() instanceof AddUniformActivity activity)) {
-			activity.startPickTexture(id, samplerType);
-		}
-	}
-
-	private void loadTexturesAsync(@Nullable final Context context) {
-		if (context == null) {
-			return;
-		}
-		Handler handler = new Handler(Looper.getMainLooper());
-		Executors.newSingleThreadExecutor().execute(() -> {
-			//noinspection resource
-			Cursor cursor = loadTextures();
-			handler.post(() -> {
-				if (!isAdded() || cursor == null) {
-					return;
-				}
-				updateAdapter(context, cursor);
-			});
-		});
-	}
-
-	protected Cursor loadTextures() {
-		return ShaderEditorApp.db.getTextures(searchQuery);
-	}
-
-	private void updateAdapter(@NonNull Context context, @NonNull Cursor cursor) {
-		if (texturesAdapter != null) {
-			texturesAdapter.changeCursor(cursor);
-			texturesAdapter.notifyDataSetChanged();
-		} else {
-			texturesAdapter = new TextureAdapter(context, cursor);
-			listView.setAdapter(texturesAdapter);
-		}
-
-		if (cursor.getCount() < 1) {
-			progressBar.setVisibility(View.GONE);
-			noTexturesMessage.setVisibility(View.VISIBLE);
-		}
-	}
-
-	private void initListView(@NonNull View view) {
-		listView.setEmptyView(view.findViewById(R.id.no_textures));
-		listView.setOnItemClickListener(
-				(parent, view1, position, id) -> showTexture(id));
-	}
-
-	protected void onSearch(@Nullable String query) {
-		searchQuery = query == null
-				? null
-				: query.toLowerCase(Locale.getDefault());
-
-		loadTexturesAsync(getActivity());
-	}
+    override fun onSearch(query: String?) {
+        searchQuery = query?.lowercase(Locale.getDefault())
+        loadTexturesAsync(requireContext())
+    }
 }

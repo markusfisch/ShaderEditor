@@ -1,74 +1,61 @@
-package de.markusfisch.android.shadereditor.fragment;
+package de.markusfisch.android.shadereditor.fragment
 
-import android.app.Activity;
-import android.content.Context;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ListView;
+import android.content.Context
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ListView
+import de.markusfisch.android.shadereditor.R
+import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity
+import de.markusfisch.android.shadereditor.activity.AddUniformActivity
+import de.markusfisch.android.shadereditor.adapter.PresetUniformAdapter
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+class UniformPresetPageFragment : AddUniformPageFragment() {
 
-import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
-import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
-import de.markusfisch.android.shadereditor.adapter.PresetUniformAdapter;
+    private lateinit var uniformsAdapter: PresetUniformAdapter
+    private lateinit var listView: ListView
 
-public class UniformPresetPageFragment extends AddUniformPageFragment {
-	private PresetUniformAdapter uniformsAdapter;
-	private ListView listView;
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(R.layout.fragment_uniform_preset_page, container, false)
 
-	@Override
-	public View onCreateView(
-			@NonNull LayoutInflater inflater,
-			ViewGroup container,
-			Bundle state) {
-		View view = inflater.inflate(
-				R.layout.fragment_uniform_preset_page,
-				container,
-				false);
+        val activity = requireActivity()
+        listView = view.findViewById(R.id.uniforms)
+        initListView(activity)
 
-		Activity activity = requireActivity();
-		listView = view.findViewById(R.id.uniforms);
-		initListView(activity);
+        return view
+    }
 
-		return view;
-	}
+    override fun onSearch(query: String?) {
+        uniformsAdapter.filter.filter(query) { uniformsAdapter.notifyDataSetChanged() }
+    }
 
-	@Override
-	protected void onSearch(@Nullable String query) {
-		uniformsAdapter.getFilter().filter(query,
-				count -> uniformsAdapter.notifyDataSetChanged());
-	}
+    private fun initListView(context: Context) {
+        uniformsAdapter = PresetUniformAdapter(context)
 
-	private void initListView(@NonNull Context context) {
-		uniformsAdapter = new PresetUniformAdapter(context);
+        listView.adapter = uniformsAdapter
+        listView.setOnItemClickListener { _, view, position, _ ->
+            if (view.isEnabled) {
+                addUniform(uniformsAdapter.getItem(position))
+            }
+        }
+    }
 
-		listView.setAdapter(uniformsAdapter);
-		listView.setOnItemClickListener((parent, view, position, id) -> {
-			if (view.isEnabled()) {
-				addUniform(uniformsAdapter.getItem(position));
-			}
-		});
-	}
-
-	private void addUniform(@NonNull PresetUniformAdapter.Uniform uniform) {
-		if (uniform.isSampler()) {
-			AbstractSubsequentActivity.addFragment(
-					requireParentFragment().getParentFragmentManager(),
-					TextureParametersFragment.newInstance(
-							uniform.getType(),
-							uniform.getName()));
-		} else {
-			Activity activity = getActivity();
-			if (activity != null) {
-				AddUniformActivity.setAddUniformResult(activity,
-						"uniform " + uniform.getType() + " " +
-								uniform.getName() + ";");
-				activity.finish();
-			}
-		}
-	}
+    private fun addUniform(uniform: PresetUniformAdapter.Uniform) {
+        if (uniform.isSampler) {
+            AbstractSubsequentActivity.addFragment(
+                requireParentFragment().parentFragmentManager,
+                TextureParametersFragment.newInstance(uniform.type, uniform.name)
+            )
+        } else {
+            val activity = activity ?: return
+            AddUniformActivity.setAddUniformResult(
+                activity,
+                "uniform ${uniform.type} ${uniform.name};"
+            )
+            activity.finish()
+        }
+    }
 }

@@ -1,213 +1,166 @@
-package de.markusfisch.android.shadereditor.fragment;
+package de.markusfisch.android.shadereditor.fragment
 
-import android.app.Activity;
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.text.InputFilter;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.app.Activity
+import android.content.Context
+import android.text.InputFilter
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.SeekBar
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import de.markusfisch.android.shadereditor.R
+import de.markusfisch.android.shadereditor.activity.AddUniformActivity
+import de.markusfisch.android.shadereditor.opengl.ShaderRenderer
+import de.markusfisch.android.shadereditor.opengl.TextureParameters
+import de.markusfisch.android.shadereditor.view.SoftKeyboard
+import de.markusfisch.android.shadereditor.widget.TextureParametersView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
+import java.util.regex.Pattern
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+abstract class AbstractSamplerPropertiesFragment : Fragment() {
+    companion object {
+        const val TEXTURE_NAME_PATTERN = "[a-zA-Z0-9_]+"
+        const val SAMPLER_2D = "sampler2D"
+        const val SAMPLER_CUBE = "samplerCube"
+        private val NAME_PATTERN = Pattern.compile("^$TEXTURE_NAME_PATTERN$")
+    }
 
-import java.util.Locale;
-import java.util.concurrent.Executors;
-import java.util.regex.Pattern;
+    private var inProgress = false
+    private lateinit var sizeCaption: TextView
+    private lateinit var sizeBarView: SeekBar
+    private lateinit var sizeView: TextView
+    private lateinit var nameView: EditText
+    private lateinit var addUniformView: CheckBox
+    private lateinit var textureParameterView: TextureParametersView
+    private lateinit var progressView: View
+    private var samplerType = SAMPLER_2D
 
-import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
-import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
-import de.markusfisch.android.shadereditor.opengl.TextureParameters;
-import de.markusfisch.android.shadereditor.view.SoftKeyboard;
-import de.markusfisch.android.shadereditor.widget.TextureParametersView;
+    protected fun setSizeCaption(caption: String) {
+        sizeCaption.text = caption
+    }
 
-public abstract class AbstractSamplerPropertiesFragment extends Fragment {
-	public static final String TEXTURE_NAME_PATTERN = "[a-zA-Z0-9_]+";
-	public static final String SAMPLER_2D = "sampler2D";
-	public static final String SAMPLER_CUBE = "samplerCube";
+    protected fun setMaxValue(max: Int) {
+        sizeBarView.max = max
+    }
 
-	private static final Pattern NAME_PATTERN = Pattern.compile(
-			"^" + TEXTURE_NAME_PATTERN + "$");
+    protected fun setSamplerType(name: String) {
+        samplerType = name
+    }
 
-	private static boolean inProgress = false;
+    protected abstract fun saveSampler(
+        context: Context, name: String, size: Int
+    ): Int
 
-	private TextView sizeCaption;
-	private SeekBar sizeBarView;
-	private TextView sizeView;
-	private EditText nameView;
-	private CheckBox addUniformView;
-	private TextureParametersView textureParameterView;
-	private View progressView;
-	private String samplerType = SAMPLER_2D;
+    protected fun initView(
+        activity: Activity, inflater: LayoutInflater, container: ViewGroup?
+    ): View {
+        return inflater.inflate(R.layout.fragment_sampler_properties, container, false).apply {
+            sizeCaption = findViewById(R.id.size_caption)
+            sizeBarView = findViewById(R.id.size_bar)
+            sizeView = findViewById(R.id.size)
+            nameView = findViewById(R.id.name)
+            addUniformView = findViewById(R.id.should_add_uniform)
+            textureParameterView = findViewById(R.id.texture_parameters)
+            progressView = findViewById(R.id.progress_view)
 
-	protected void setSizeCaption(String caption) {
-		sizeCaption.setText(caption);
-	}
+            findViewById<View>(R.id.save).setOnClickListener {
+                saveSamplerAsync()
+            }
 
-	protected void setMaxValue(int max) {
-		sizeBarView.setMax(max);
-	}
+            if (activity.callingActivity == null) {
+                addUniformView.visibility = View.GONE
+                addUniformView.isChecked = false
+                textureParameterView.visibility = View.GONE
+            }
 
-	protected void setSamplerType(String name) {
-		samplerType = name;
-	}
+            initSizeView()
+            initNameView()
+        }
+    }
 
-	protected abstract int saveSampler(
-			Context context,
-			String name,
-			int size);
+    private fun initSizeView() {
+        setSizeView(sizeBarView.progress)
+        sizeBarView.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(
+                seekBar: SeekBar,
+                progressValue: Int,
+                fromUser: Boolean
+            ) {
+                setSizeView(progressValue)
+            }
 
-	@NonNull
-	protected View initView(
-			@NonNull Activity activity,
-			@NonNull LayoutInflater inflater,
-			ViewGroup container) {
-		View view = inflater.inflate(
-				R.layout.fragment_sampler_properties,
-				container,
-				false);
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        })
+    }
 
-		sizeCaption = view.findViewById(R.id.size_caption);
-		sizeBarView = view.findViewById(R.id.size_bar);
-		sizeView = view.findViewById(R.id.size);
-		nameView = view.findViewById(R.id.name);
-		addUniformView = view.findViewById(
-				R.id.should_add_uniform);
-		textureParameterView = view.findViewById(
-				R.id.texture_parameters);
-		progressView = view.findViewById(R.id.progress_view);
+    private fun setSizeView(power: Int) {
+        val size = getPower(power)
+        sizeView.text = String.format(Locale.US, "%d x %d", size, size)
+    }
 
-		view.findViewById(R.id.save).setOnClickListener(v -> saveSamplerAsync());
+    private fun initNameView() {
+        nameView.filters = arrayOf(InputFilter { source, _, _, _, _, _ ->
+            if (NAME_PATTERN.matcher(source).find()) null else ""
+        })
+    }
 
-		if (activity.getCallingActivity() == null) {
-			addUniformView.setVisibility(View.GONE);
-			addUniformView.setChecked(false);
-			textureParameterView.setVisibility(View.GONE);
-		}
+    private fun saveSamplerAsync() {
+        val context = activity ?: return
 
-		initSizeView();
-		initNameView();
+        if (inProgress) return
 
-		return view;
-	}
+        val name = nameView.text.toString()
+        val tp = TextureParameters().apply {
+            textureParameterView.setParameters(this)
+        }
+        val params = tp.toString()
 
-	private void initSizeView() {
-		setSizeView(sizeBarView.getProgress());
-		sizeBarView.setOnSeekBarChangeListener(
-				new SeekBar.OnSeekBarChangeListener() {
-					@Override
-					public void onProgressChanged(
-							SeekBar seekBar,
-							int progressValue,
-							boolean fromUser) {
-						setSizeView(progressValue);
-					}
+        if (name.trim().isEmpty()) {
+            Toast.makeText(context, R.string.missing_name, Toast.LENGTH_SHORT).show()
+            return
+        } else if (!name.matches(Regex(TEXTURE_NAME_PATTERN)) || name == ShaderRenderer.UNIFORM_BACKBUFFER) {
+            Toast.makeText(context, R.string.invalid_texture_name, Toast.LENGTH_SHORT).show()
+            return
+        }
 
-					@Override
-					public void onStartTrackingTouch(
-							SeekBar seekBar) {
-					}
+        SoftKeyboard.hide(context, nameView)
 
-					@Override
-					public void onStopTrackingTouch(
-							SeekBar seekBar) {
-					}
-				});
-	}
+        val size = getPower(sizeBarView.progress)
 
-	private void setSizeView(int power) {
-		int size = getPower(power);
-		sizeView.setText(String.format(
-				Locale.US,
-				"%d x %d",
-				size,
-				size));
-	}
+        inProgress = true
+        progressView.visibility = View.VISIBLE
 
-	private void initNameView() {
-		nameView.setFilters(new InputFilter[]{
-				(source, start, end, dest, dstart, dend) -> NAME_PATTERN
-						.matcher(source)
-						.find() ? null : ""});
-	}
+        CoroutineScope(Dispatchers.IO).launch {
+            val messageId = saveSampler(context, name, size)
+            withContext(Dispatchers.Main) {
+                inProgress = false
+                progressView.visibility = View.GONE
+                activity?.let { activity ->
+                    if (messageId > 0) {
+                        Toast.makeText(activity, messageId, Toast.LENGTH_SHORT).show()
+                    } else {
+                        if (addUniformView.isChecked) {
+                            AddUniformActivity.setAddUniformResult(
+                                activity, "uniform $samplerType $name;$params"
+                            )
+                        }
+                        activity.finish()
+                    }
+                }
+            }
+        }
+    }
 
-	private void saveSamplerAsync() {
-		final Context context = getActivity();
-
-		if (context == null || inProgress) {
-			return;
-		}
-
-		final String name = nameView.getText().toString();
-		final TextureParameters tp = new TextureParameters();
-		textureParameterView.setParameters(tp);
-		final String params = tp.toString();
-
-		if (name.trim().isEmpty()) {
-			Toast.makeText(
-					context,
-					R.string.missing_name,
-					Toast.LENGTH_SHORT).show();
-
-			return;
-		} else if (!name.matches(TEXTURE_NAME_PATTERN) ||
-				name.equals(ShaderRenderer.UNIFORM_BACKBUFFER)) {
-			Toast.makeText(
-					context,
-					R.string.invalid_texture_name,
-					Toast.LENGTH_SHORT).show();
-
-			return;
-		}
-
-		SoftKeyboard.hide(context, nameView);
-
-		final int size = getPower(sizeBarView.getProgress());
-
-		inProgress = true;
-		progressView.setVisibility(View.VISIBLE);
-
-		Handler handler = new Handler(Looper.getMainLooper());
-		Executors.newSingleThreadExecutor().execute(() -> {
-			int messageId = saveSampler(context, name, size);
-			handler.post(() -> {
-				inProgress = false;
-				progressView.setVisibility(View.GONE);
-
-				Activity activity = getActivity();
-				if (activity == null) {
-					return;
-				}
-
-				if (messageId > 0) {
-					Toast.makeText(
-							activity,
-							messageId,
-							Toast.LENGTH_SHORT).show();
-
-					return;
-				}
-
-				if (addUniformView.isChecked()) {
-					AddUniformActivity.setAddUniformResult(
-							activity,
-							"uniform " + samplerType + " " + name + ";" +
-									params);
-				}
-
-				activity.finish();
-			});
-		});
-	}
-
-	private static int getPower(int power) {
-		return 1 << (power + 1);
-	}
+    private fun getPower(power: Int): Int {
+        return 1 shl (power + 1)
+    }
 }

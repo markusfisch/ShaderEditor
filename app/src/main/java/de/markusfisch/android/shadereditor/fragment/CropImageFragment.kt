@@ -1,170 +1,135 @@
-package de.markusfisch.android.shadereditor.fragment;
+package de.markusfisch.android.shadereditor.fragment
 
-import android.app.Activity;
-import android.graphics.Bitmap;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.LayoutInflater;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Toast;
+import android.app.Activity
+import android.graphics.Bitmap
+import android.net.Uri
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Toast
+import androidx.core.os.BundleCompat
+import androidx.core.view.MenuProvider
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import de.markusfisch.android.shadereditor.R
+import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor
+import de.markusfisch.android.shadereditor.widget.CropImageView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.view.MenuProvider;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
+class CropImageFragment : Fragment() {
 
-import java.util.concurrent.Executors;
+    fun interface CropImageViewProvider {
+        fun getCropImageView(): CropImageView
+    }
 
-import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
-import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
-import de.markusfisch.android.shadereditor.widget.CropImageView;
+    companion object {
+        const val IMAGE_URI = "image_uri"
+        private var inProgress = false
+    }
 
-public class CropImageFragment extends Fragment {
-	public interface CropImageViewProvider {
-		CropImageView getCropImageView();
-	}
+    private lateinit var cropImageView: CropImageView
+    private lateinit var progressView: View
+    private lateinit var imageUri: Uri
+    private var bitmap: Bitmap? = null
 
-	public static final String IMAGE_URI = "image_uri";
-	private static boolean inProgress = false;
-	private CropImageView cropImageView;
-	private View progressView;
-	@Nullable
-	private Uri imageUri;
-	@Nullable
-	private Bitmap bitmap;
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? {
+        val activity = activity ?: return null
+        activity.title = getString(R.string.crop_image)
 
-	@Override
-	public void onCreate(Bundle state) {
-		super.onCreate(state);
-	}
+        cropImageView = (activity as? CropImageViewProvider)?.getCropImageView()
+            ?: throw ClassCastException("$activity must implement CropImageViewProvider")
 
-	@Override
-	public View onCreateView(
-			@NonNull LayoutInflater inflater,
-			ViewGroup container,
-			Bundle state) {
-		Activity activity = getActivity();
-		if (activity == null) {
-			return null;
-		}
-		activity.setTitle(R.string.crop_image);
+        imageUri =
+            BundleCompat.getParcelable(requireArguments(), IMAGE_URI, Uri::class.java) ?: run {
+                abort(activity)
+                return null
+            }
 
-		try {
-			cropImageView = ((CropImageViewProvider) activity)
-					.getCropImageView();
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString() +
-					" must implement " +
-					"CropImageFragment.CropImageViewProvider");
-		}
+        val view = inflater.inflate(R.layout.fragment_crop_image, container, false)
+        progressView = view.findViewById(R.id.progress_view)
 
-		Bundle args = getArguments();
-		if (args == null ||
-				(imageUri = args.getParcelable(IMAGE_URI)) == null) {
-			abort(activity);
-			return null;
-		}
+        // Make cropImageView in activity visible again
+        cropImageView.visibility = View.VISIBLE
 
-		View view = inflater.inflate(
-				R.layout.fragment_crop_image,
-				container,
-				false);
-		progressView = view.findViewById(R.id.progress_view);
+        view.findViewById<View>(R.id.crop).setOnClickListener { cropImage() }
 
-		// Make cropImageView in activity visible (again).
-		cropImageView.setVisibility(View.VISIBLE);
+        activity.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.fragment_crop_image, menu)
+            }
 
-		view.findViewById(R.id.crop).setOnClickListener(v -> cropImage());
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                if (menuItem.itemId == R.id.rotate_clockwise) {
+                    rotateClockwise()
+                    return true
+                }
+                return false
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
-		requireActivity().addMenuProvider(new MenuProvider() {
-			@Override
-			public void onCreateMenu(@NonNull android.view.Menu menu,
-					@NonNull MenuInflater menuInflater) {
-				menuInflater.inflate(R.menu.fragment_crop_image, menu);
-			}
+        return view
+    }
 
-			@Override
-			public boolean onMenuItemSelected(@NonNull MenuItem menuItem) {
-				if (menuItem.getItemId() == R.id.rotate_clockwise) {
-					rotateClockwise();
-					return true;
-				}
-				return false;
-			}
-		}, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
+    override fun onResume() {
+        super.onResume()
+        loadBitmapAsync()
+    }
 
-		return view;
-	}
+    private fun loadBitmapAsync() {
+        val activity = activity ?: return
+        if (inProgress) return
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		loadBitmapAsync();
-	}
+        inProgress = true
+        progressView.visibility = View.VISIBLE
 
-	private void loadBitmapAsync() {
-		final Activity activity = getActivity();
-		if (activity == null || inProgress) {
-			return;
-		}
+        // Launch background task to load the bitmap
+        lifecycleScope.launch {
+            val b = withContext(Dispatchers.IO) {
+                BitmapEditor.getBitmapFromUri(activity, imageUri, 1024)
+            }
 
-		inProgress = true;
-		progressView.setVisibility(View.VISIBLE);
-		Handler handler = new Handler(Looper.getMainLooper());
-		Executors.newSingleThreadExecutor().execute(() -> {
-			Bitmap b = BitmapEditor.getBitmapFromUri(
-					activity,
-					imageUri,
-					1024);
-			handler.post(() -> {
-				inProgress = false;
-				progressView.setVisibility(View.GONE);
+            inProgress = false
+            progressView.visibility = View.GONE
 
-				if (b == null) {
-					abort(activity);
-					return;
-				}
+            if (b == null) {
+                abort(activity)
+            } else if (isAdded) {
+                bitmap = b
+                cropImageView.setImageBitmap(b)
+            }
+        }
+    }
 
-				if (isAdded()) {
-					bitmap = b;
-					cropImageView.setImageBitmap(b);
-				}
-			});
-		});
-	}
+    private fun abort(activity: Activity) {
+        Toast.makeText(activity, R.string.cannot_pick_image, Toast.LENGTH_SHORT).show()
+        activity.finish()
+    }
 
-	private void abort(@NonNull Activity activity) {
-		Toast.makeText(
-				activity,
-				R.string.cannot_pick_image,
-				Toast.LENGTH_SHORT).show();
-		activity.finish();
-	}
+    private fun cropImage() {
+        val uri = imageUri
+        AbstractSubsequentActivity.addFragment(
+            parentFragmentManager, Sampler2dPropertiesFragment.newInstance(
+                uri, cropImageView.normalizedRectInBounds, cropImageView.imageRotation
+            )
+        )
+        bitmap?.recycle()
+        bitmap = null
 
-	private void cropImage() {
-		AbstractSubsequentActivity.addFragment(
-				getParentFragmentManager(),
-				Sampler2dPropertiesFragment.newInstance(
-						imageUri,
-						cropImageView.getNormalizedRectInBounds(),
-						cropImageView.getImageRotation()));
+        cropImageView.setImageBitmap(null)
+        cropImageView.visibility = View.GONE
+    }
 
-		bitmap.recycle();
-		bitmap = null;
-
-		cropImageView.setImageBitmap(null);
-		cropImageView.setVisibility(View.GONE);
-	}
-
-	private void rotateClockwise() {
-		cropImageView.setImageRotation(
-				(cropImageView.getImageRotation() + 90) % 360);
-	}
+    private fun rotateClockwise() {
+        cropImageView.imageRotation = (cropImageView.imageRotation + 90) % 360
+    }
 }
