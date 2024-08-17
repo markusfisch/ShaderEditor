@@ -71,6 +71,7 @@ import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 import de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout;
+import kotlin.Unit;
 
 public class MainActivity
 		extends AppCompatActivity
@@ -145,12 +146,12 @@ public class MainActivity
 
 	@Override
 	public void onCodeCompletions(@NonNull List<String> completions, int position) {
-		completionsAdapter.setPosition(position);
+		completionsAdapter.setPositionInCompletion(position);
 		completionsAdapter.submitList(completions);
 	}
 
 	@Override
-	protected void onCreate(Bundle state) {
+	protected void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_main);
 
@@ -212,15 +213,15 @@ public class MainActivity
 					if (result.getResultCode() == RESULT_OK) {
 						PreviewActivity.RenderStatus status = PreviewActivity.renderStatus;
 
-						if (status.fps > 0) {
-							postUpdateFps(status.fps);
+						if (status.getFps() > 0) {
+							postUpdateFps(status.getFps());
 						}
 
-						if (status.infoLog != null) {
-							postInfoLog(status.infoLog);
+						if (status.getInfoLog() != null) {
+							postInfoLog(status.getInfoLog());
 						}
 
-						if (selectedShaderId > 0 && status.thumbnail != null && ShaderEditorApp.preferences.doesSaveOnRun()) {
+						if (selectedShaderId > 0 && status.getThumbnail() != null && ShaderEditorApp.preferences.doesSaveOnRun()) {
 							saveShader(selectedShaderId);
 						}
 					}
@@ -301,7 +302,10 @@ public class MainActivity
 		RecyclerView completions = extraKeys.findViewById(R.id.completions);
 		completions.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL,
 				false));
-		completionsAdapter = new CompletionsAdapter(sequence -> editorFragment.insert(sequence));
+		completionsAdapter = new CompletionsAdapter(sequence -> {
+			editorFragment.insert(sequence);
+			return Unit.INSTANCE;
+		});
 		completions.setAdapter(completionsAdapter);
 		DividerItemDecoration divider = new DividerItemDecoration(completions.getContext(),
 				DividerItemDecoration.HORIZONTAL);
@@ -418,7 +422,7 @@ public class MainActivity
 				ShaderEditorApp.preferences.showExtraKeys());
 	}
 
-	private void showMenu(View anchor) {
+	private void showMenu(@NonNull View anchor) {
 		if (!menuPopup.isShowing()) {
 			int[] location = new int[2];
 			anchor.getLocationOnScreen(location);
@@ -585,7 +589,7 @@ public class MainActivity
 		toolbar.post(updateFpsRunnable);
 	}
 
-	private void postInfoLog(final List<ShaderError> infoLog) {
+	private void postInfoLog(@Nullable final List<ShaderError> infoLog) {
 		if (infoLog == null) {
 			return;
 		}
@@ -673,7 +677,7 @@ public class MainActivity
 		});
 	}
 
-	private void updateShaderAdapter(Cursor cursor) {
+	private void updateShaderAdapter(@Nullable Cursor cursor) {
 		handleSendText(getIntent());
 
 		if (cursor == null || cursor.getCount() < 1) {
@@ -715,7 +719,7 @@ public class MainActivity
 		}
 	}
 
-	private void handleSendText(Intent intent) {
+	private void handleSendText(@Nullable Intent intent) {
 		if (intent == null) {
 			return;
 		}
@@ -764,7 +768,8 @@ public class MainActivity
 		setDefaultToolbarTitle();
 	}
 
-	private static String getTextFromUri(ContentResolver resolver, Uri uri) {
+	@Nullable
+	private static String getTextFromUri(@NonNull ContentResolver resolver, @NonNull Uri uri) {
 		try {
 			InputStream in = resolver.openInputStream(uri);
 			if (in == null) {
@@ -812,7 +817,7 @@ public class MainActivity
 		String fragmentShader = editorFragment.getText();
 		byte[] thumbnail = ShaderEditorApp.preferences.doesRunInBackground()
 				? shaderView.getRenderer().getThumbnail()
-				: PreviewActivity.renderStatus.thumbnail;
+				: PreviewActivity.renderStatus.getThumbnail();
 
 		if (id > 0) {
 			ShaderEditorApp.db.updateShader(
@@ -1008,7 +1013,7 @@ public class MainActivity
 	}
 
 	@SuppressLint("InflateParams")
-	private void editShaderName(final long id, String name) {
+	private void editShaderName(final long id, @Nullable String name) {
 		View view = getLayoutInflater().inflate(
 				R.layout.dialog_rename_shader,
 				// A dialog does not have a parent view group
@@ -1073,7 +1078,7 @@ public class MainActivity
 		return id;
 	}
 
-	private void loadShader(Cursor cursor) {
+	private void loadShader(@Nullable Cursor cursor) {
 		if (cursor == null) {
 			return;
 		}
@@ -1105,7 +1110,7 @@ public class MainActivity
 		cursor.close();
 	}
 
-	private void setToolbarTitle(Cursor cursor) {
+	private void setToolbarTitle(@Nullable Cursor cursor) {
 		if (cursor != null && shaderAdapter != null) {
 			setToolbarTitle(shaderAdapter.getTitle(cursor));
 		}
@@ -1116,7 +1121,7 @@ public class MainActivity
 		toolbar.setSubtitle(null);
 	}
 
-	private void setQualitySpinner(Cursor cursor) {
+	private void setQualitySpinner(@NonNull Cursor cursor) {
 		setQualitySpinner(Database.getFloat(cursor,
 				Database.SHADERS_QUALITY));
 	}
@@ -1154,7 +1159,7 @@ public class MainActivity
 		}
 	}
 
-	private static boolean startActivity(Context context, Intent intent) {
+	private static boolean startActivity(@NonNull Context context, Intent intent) {
 		try {
 			// Avoid using `intent.resolveActivity()` at API level 30+ due
 			// to the new package visibility restrictions. In order for

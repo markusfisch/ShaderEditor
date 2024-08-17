@@ -6,6 +6,9 @@ import android.text.TextWatcher;
 import android.text.style.UnderlineSpan;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.LinkedList;
 
 /**
@@ -77,6 +80,7 @@ public class UndoRedo {
 		 * Traverses the history backward by one position, returns and item at
 		 * that position.
 		 */
+		@Nullable
 		private EditItem getPrevious() {
 			if (position == 0) {
 				return null;
@@ -89,6 +93,7 @@ public class UndoRedo {
 		 * Traverses the history forward by one position, returns and item at
 		 * that position.
 		 */
+		@Nullable
 		private EditItem getNext() {
 			if (position >= history.size()) {
 				return null;
@@ -121,13 +126,13 @@ public class UndoRedo {
 	private boolean isUndoOrRedo = false;
 	private boolean isListening = false;
 
-	public UndoRedo(TextView textView, EditHistory editHistory) {
+	public UndoRedo(@NonNull TextView textView, EditHistory editHistory) {
 		this.textView = textView;
 		this.editHistory = editHistory;
 		textView.addTextChangedListener(changeListener);
 	}
 
-	public UndoRedo(TextView textView) {
+	public UndoRedo(@NonNull TextView textView) {
 		this(textView, new EditHistory());
 	}
 
@@ -207,7 +212,7 @@ public class UndoRedo {
 	 * Get rid of underlines inserted when editor tries to come
 	 * up with a suggestion.
 	 */
-	private static void removeUnderlineSpans(Editable text) {
+	private static void removeUnderlineSpans(@NonNull Editable text) {
 		for (Object o : text.getSpans(0, text.length(), UnderlineSpan.class)) {
 			text.removeSpan(o);
 		}
@@ -242,7 +247,7 @@ public class UndoRedo {
 		private CharSequence beforeChange;
 
 		@Override
-		public void beforeTextChanged(CharSequence s, int start, int count,
+		public void beforeTextChanged(@NonNull CharSequence s, int start, int count,
 				int after) {
 			if (isUndoOrRedo || !isListening) {
 				return;
@@ -251,7 +256,7 @@ public class UndoRedo {
 		}
 
 		@Override
-		public void onTextChanged(CharSequence s, int start, int before,
+		public void onTextChanged(@NonNull CharSequence s, int start, int before,
 				int count) {
 			if (isUndoOrRedo || !isListening) {
 				return;

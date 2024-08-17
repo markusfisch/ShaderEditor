@@ -23,11 +23,16 @@ import de.markusfisch.android.shadereditor.adapter.TextureAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public class UniformSampler2dPageFragment extends AddUniformPageFragment {
+	@Nullable
 	protected String searchQuery;
 
+	@Nullable
 	private ListView listView;
+	@Nullable
 	private TextureAdapter texturesAdapter;
+	@Nullable
 	private View progressBar;
+	@Nullable
 	private View noTexturesMessage;
 	private String samplerType = AbstractSamplerPropertiesFragment.SAMPLER_2D;
 
@@ -38,7 +43,7 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 
 	@Override
 	public View onCreateView(
-			LayoutInflater inflater,
+			@NonNull LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
 		View view = inflater.inflate(
@@ -96,7 +101,7 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 		}
 	}
 
-	private void loadTexturesAsync(final Context context) {
+	private void loadTexturesAsync(@Nullable final Context context) {
 		if (context == null) {
 			return;
 		}
@@ -117,7 +122,7 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 		return ShaderEditorApp.db.getTextures(searchQuery);
 	}
 
-	private void updateAdapter(Context context, Cursor cursor) {
+	private void updateAdapter(@NonNull Context context, @NonNull Cursor cursor) {
 		if (texturesAdapter != null) {
 			texturesAdapter.changeCursor(cursor);
 			texturesAdapter.notifyDataSetChanged();

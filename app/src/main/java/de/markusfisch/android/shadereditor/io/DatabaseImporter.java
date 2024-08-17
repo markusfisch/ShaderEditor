@@ -4,6 +4,9 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,7 +15,8 @@ import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public class DatabaseImporter {
-	public static String importDatabase(Context context, Uri uri) {
+	@NonNull
+	public static String importDatabase(@NonNull Context context, @Nullable Uri uri) {
 		String cantFindDb = context.getString(R.string.cant_find_db);
 		if (uri == null) {
 			return cantFindDb;

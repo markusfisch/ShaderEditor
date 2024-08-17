@@ -6,6 +6,7 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class TextureParameters {
 	protected static final String HEADER = "///";
@@ -54,10 +55,10 @@ public class TextureParameters {
 	}
 
 	public void set(
-			String minShortcut,
-			String magShortcut,
-			String wrapSShortcut,
-			String wrapTShortcut) {
+			@NonNull String minShortcut,
+			@NonNull String magShortcut,
+			@NonNull String wrapSShortcut,
+			@NonNull String wrapTShortcut) {
 		min = shortcutToMin(minShortcut);
 		mag = shortcutToMag(magShortcut);
 		wrapS = shortcutToWrap(wrapSShortcut);
@@ -81,18 +82,22 @@ public class TextureParameters {
 				WRAP_T + ASSIGN + getWrapTShortcut() + SEPARATOR;
 	}
 
+	@NonNull
 	public String getMinShortcut() {
 		return minToShortcut(min);
 	}
 
+	@NonNull
 	public String getMagShortcut() {
 		return magToShortcut(mag);
 	}
 
+	@NonNull
 	public String getWrapSShortcut() {
 		return wrapToShortcut(wrapS);
 	}
 
+	@NonNull
 	public String getWrapTShortcut() {
 		return wrapToShortcut(wrapT);
 	}
@@ -123,7 +128,7 @@ public class TextureParameters {
 				wrapT);
 	}
 
-	static String setBitmap(Bitmap bitmap) {
+	static String setBitmap(@Nullable Bitmap bitmap) {
 		if (bitmap == null) {
 			return null;
 		}
@@ -153,7 +158,7 @@ public class TextureParameters {
 		return message;
 	}
 
-	void parse(String params) {
+	void parse(@Nullable String params) {
 		if (params == null) {
 			return;
 		}
@@ -172,7 +177,7 @@ public class TextureParameters {
 		}
 	}
 
-	protected void parseParameter(String name, String value) {
+	protected void parseParameter(@NonNull String name, @NonNull String value) {
 		switch (name) {
 			default:
 			case MIN:
@@ -190,7 +195,7 @@ public class TextureParameters {
 		}
 	}
 
-	private static int shortcutToMin(String shortcut) {
+	private static int shortcutToMin(@NonNull String shortcut) {
 		switch (shortcut) {
 			case "n":
 				return GLES20.GL_NEAREST;
@@ -207,6 +212,7 @@ public class TextureParameters {
 		}
 	}
 
+	@NonNull
 	private static String minToShortcut(int min) {
 		switch (min) {
 			case GLES20.GL_NEAREST:
@@ -224,7 +230,7 @@ public class TextureParameters {
 		}
 	}
 
-	private static int shortcutToMag(String shortcut) {
+	private static int shortcutToMag(@NonNull String shortcut) {
 		if (shortcut.equals("n")) {
 			return GLES20.GL_NEAREST;
 		} else {
@@ -232,11 +238,12 @@ public class TextureParameters {
 		}
 	}
 
+	@NonNull
 	private static String magToShortcut(int mag) {
 		return mag == GLES20.GL_NEAREST ? "n" : "l";
 	}
 
-	private static int shortcutToWrap(String shortcut) {
+	private static int shortcutToWrap(@NonNull String shortcut) {
 		switch (shortcut) {
 			case "c":
 				return GLES20.GL_CLAMP_TO_EDGE;
@@ -247,6 +254,7 @@ public class TextureParameters {
 		}
 	}
 
+	@NonNull
 	private static String wrapToShortcut(int wrap) {
 		switch (wrap) {
 			case GLES20.GL_CLAMP_TO_EDGE:

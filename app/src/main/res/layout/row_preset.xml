@@ -1,13 +1,19 @@
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical"
 	android:padding="16dp">
+
 	<TextView
+		android:id="@+id/name"
 		style="@style/ListItem"
-		android:id="@+id/name"/>
+		android:textColor="?attr/colorOnSurface"
+		tools:text="@string/sample_camera_back_name" />
+
 	<TextView
+		android:id="@+id/rationale"
 		style="@style/ListItemSecondary"
-		android:id="@+id/rationale"/>
+		android:textColor="?attr/colorOnSurfaceVariant"
+		tools:text="@string/sample_camera_back_rationale" />
 </LinearLayout>

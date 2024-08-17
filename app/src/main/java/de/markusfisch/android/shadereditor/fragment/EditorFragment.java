@@ -32,7 +32,7 @@ public class EditorFragment extends Fragment {
 
 	@Override
 	public View onCreateView(
-			LayoutInflater inflater,
+			@NonNull LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
 		View view = inflater.inflate(

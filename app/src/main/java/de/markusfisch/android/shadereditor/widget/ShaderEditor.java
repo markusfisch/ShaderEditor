@@ -114,13 +114,14 @@ public class ShaderEditor extends LineNumberEditText {
 	private int textColor;
 	private int tabWidthInCharacters = 0;
 	private int tabWidth = 0;
+	@NonNull
 	private List<Token> tokens = new ArrayList<>();
 	private int revision = 0;
 	private final TokenListUpdater tokenListUpdater =
 			new TokenListUpdater(this::provideCompletions);
 	private boolean editing = false;
 
-	public ShaderEditor(Context context) {
+	public ShaderEditor(@NonNull Context context) {
 		super(context);
 		init(context);
 	}
@@ -159,6 +160,7 @@ public class ShaderEditor extends LineNumberEditText {
 		this.shaderErrors = errorLines;
 	}
 
+	@NonNull
 	public List<ShaderError> getErrors() {
 		return shaderErrors;
 	}
@@ -175,7 +177,7 @@ public class ShaderEditor extends LineNumberEditText {
 		clearSpans(e, 0, e.length(), BackgroundColorSpan.class);
 	}
 
-	private void highlightErrors(List<ShaderError> shaderErrors) {
+	private void highlightErrors(@NonNull List<ShaderError> shaderErrors) {
 		Spannable e = getText();
 		clearError(e);
 		if (e == null || e.length() == 0) {
@@ -207,7 +209,7 @@ public class ShaderEditor extends LineNumberEditText {
 		return dirty;
 	}
 
-	public void setTextHighlighted(CharSequence text) {
+	public void setTextHighlighted(@Nullable CharSequence text) {
 		if (text == null) {
 			text = "";
 		}
@@ -229,6 +231,7 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 	}
 
+	@NonNull
 	public String getCleanText() {
 		return PATTERN_TRAILING_WHITE_SPACE
 				.matcher(getText())
@@ -263,7 +266,7 @@ public class ShaderEditor extends LineNumberEditText {
 		setSelection(lineStart, lineStart);
 	}
 
-	public void addUniform(String statement) {
+	public void addUniform(@Nullable String statement) {
 		if (statement == null) {
 			return;
 		}
@@ -340,7 +343,7 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 	}
 
-	private void removeUniform(Editable e, String statement) {
+	private void removeUniform(@NonNull Editable e, @Nullable String statement) {
 		if (statement == null) {
 			return;
 		}
@@ -358,7 +361,7 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 	}
 
-	private int endIndexOfLastEndIf(Editable e) {
+	private int endIndexOfLastEndIf(@NonNull Editable e) {
 		Matcher m = PATTERN_ENDIF.matcher(e);
 		int idx = -1;
 
@@ -412,7 +415,7 @@ public class ShaderEditor extends LineNumberEditText {
 			}
 
 			@Override
-			public void afterTextChanged(Editable e) {
+			public void afterTextChanged(@NonNull Editable e) {
 				cancelUpdate();
 				convertTabs(e, start, count);
 
@@ -450,7 +453,7 @@ public class ShaderEditor extends LineNumberEditText {
 		});
 	}
 
-	private void setSyntaxColors(Context context) {
+	private void setSyntaxColors(@NonNull Context context) {
 		for (Highlight highlight : Highlight.values()) {
 			colors[highlight.ordinal()] = ContextCompat.getColor(context, highlight.id());
 		}
@@ -470,6 +473,7 @@ public class ShaderEditor extends LineNumberEditText {
 		modified = true;
 	}
 
+	@NonNull
 	private Editable highlight(@NonNull Editable e, boolean complete) {
 		int length = e.length();
 
@@ -554,7 +558,7 @@ public class ShaderEditor extends LineNumberEditText {
 				positionInToken);
 	}
 
-	private static <T> void clearSpans(Spannable e, int start, int end, Class<T> clazz) {
+	private static <T> void clearSpans(@NonNull Spannable e, int start, int end, Class<T> clazz) {
 		// Remove foreground color spans.
 		T[] spans = e.getSpans(
 				start,
@@ -565,9 +569,10 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 	}
 
+	@NonNull
 	private CharSequence autoIndent(
 			CharSequence source,
-			Spanned dest,
+			@NonNull Spanned dest,
 			int dstart,
 			int dend) {
 		String indent = "";
@@ -644,7 +649,7 @@ public class ShaderEditor extends LineNumberEditText {
 		return source + indent;
 	}
 
-	private void convertTabs(Editable e, int start, int count) {
+	private void convertTabs(@NonNull Editable e, int start, int count) {
 		clearSpans(e, start, count, TabWidthSpan.class);
 		if (tabWidth < 1) {
 			return;
@@ -663,7 +668,8 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 	}
 
-	private static String convertShaderToySource(String src) {
+	@Nullable
+	private static String convertShaderToySource(@NonNull String src) {
 		if (!PATTERN_SHADER_TOY.matcher(src).find() ||
 				PATTERN_MAIN.matcher(src).find()) {
 			return null;
@@ -724,7 +730,7 @@ public class ShaderEditor extends LineNumberEditText {
 		@Override
 		public void chooseHeight(CharSequence text, int start, int end,
 				int spanstartv, int lineHeight,
-				Paint.FontMetricsInt fm, TextPaint paint) {
+				Paint.FontMetricsInt fm, @NonNull TextPaint paint) {
 			paint.getFontMetricsInt(fm);
 		}
 
@@ -740,6 +746,7 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	static class TokenizeCalculation implements Callable<List<Token>> {
+		@NonNull
 		private final String text;
 		@NonNull
 		private final OnTokenized onTokenized;
@@ -749,6 +756,7 @@ public class ShaderEditor extends LineNumberEditText {
 			this.onTokenized = onTokenized;
 		}
 
+		@NonNull
 		@Override
 		public List<Token> call() {
 			Lexer lexer = new Lexer(text);

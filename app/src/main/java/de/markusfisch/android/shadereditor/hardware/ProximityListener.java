@@ -4,10 +4,12 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 
+import androidx.annotation.NonNull;
+
 public class ProximityListener extends AbstractListener {
 	private float centimeters = 0f;
 
-	public ProximityListener(Context context) {
+	public ProximityListener(@NonNull Context context) {
 		super(context);
 	}
 
@@ -16,7 +18,7 @@ public class ProximityListener extends AbstractListener {
 	}
 
 	@Override
-	public void onSensorChanged(SensorEvent event) {
+	public void onSensorChanged(@NonNull SensorEvent event) {
 		centimeters = event.values[0];
 	}
 

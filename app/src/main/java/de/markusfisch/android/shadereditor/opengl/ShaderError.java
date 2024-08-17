@@ -25,6 +25,7 @@ public class ShaderError {
 		this.message = message;
 	}
 
+	@NonNull
 	public static ShaderError createGeneral(@NonNull String message) {
 		return new ShaderError(0, -1, message);
 	}

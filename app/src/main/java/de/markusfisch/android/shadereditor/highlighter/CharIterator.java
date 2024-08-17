@@ -51,8 +51,8 @@ public final class CharIterator {
 	}
 
 	/**
-	 * Peek the next character. If the peeked index out of bounds, {@link #INVALID} is returned. This
-	 * character is used, because it is invalid unicode.
+	 * Peek the next character. If the peeked index out of bounds, {@link #INVALID} is returned.
+	 * This character is used, because it is invalid unicode.
 	 *
 	 * @param position The absolute current char position.
 	 * @param source   The source string.

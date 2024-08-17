@@ -18,10 +18,11 @@ import de.markusfisch.android.shadereditor.R;
 
 public class NotificationService extends NotificationListenerService {
 	private static int counter = 0;
+	@Nullable
 	private static Long lastNotificationTime = null;
 
 	@Override
-	public synchronized void onNotificationPosted(StatusBarNotification sbn) {
+	public synchronized void onNotificationPosted(@NonNull StatusBarNotification sbn) {
 		counter = getActiveNotifications().length;
 		lastNotificationTime = sbn.getPostTime();
 	}

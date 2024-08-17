@@ -16,11 +16,11 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 	private final int sourceId;
 	private TextView source;
 
-	public LineNumbers(Context context) {
+	public LineNumbers(@NonNull Context context) {
 		this(context, null);
 	}
 
-	public LineNumbers(Context context, AttributeSet attrs) {
+	public LineNumbers(@NonNull Context context, AttributeSet attrs) {
 		super(context, attrs);
 		// Try-with-resources not allowed for API < 31
 		// noinspection resource
@@ -60,7 +60,8 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 	}
 
 	/**
-	 * Taken from <a href="https://www.baeldung.com/java-number-of-digits-in-int#5-divide-and-conquer">Baeldung (Number of Digits in an Integer in Java)</a>
+	 * Taken from
+	 * <a href="https://www.baeldung.com/java-number-of-digits-in-int#5-divide-and-conquer">Baeldung (Number of Digits in an Integer in Java)</a>
 	 *
 	 * @param number the number of which you want to get the number of digits.
 	 * @return the number of decimal digits of the given {@code number}

@@ -42,7 +42,7 @@ class Program {
 		return p;
 	}
 
-	private static int linkProgram(int... shaders) {
+	private static int linkProgram(@NonNull int... shaders) {
 		int p = GLES20.glCreateProgram();
 
 		if (p == 0) {

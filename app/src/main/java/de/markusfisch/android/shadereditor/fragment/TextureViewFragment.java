@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
@@ -37,6 +38,7 @@ public class TextureViewFragment extends Fragment {
 	private ScalingImageView imageView;
 	private long textureId;
 	private String textureName;
+	@Nullable
 	private String samplerType;
 
 	@Override

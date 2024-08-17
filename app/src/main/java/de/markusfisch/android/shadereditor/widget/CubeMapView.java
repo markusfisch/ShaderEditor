@@ -16,6 +16,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import de.markusfisch.android.shadereditor.R;
@@ -34,8 +36,9 @@ public class CubeMapView extends ScalingImageView {
 
 	public static class Face implements Parcelable {
 		public static final Parcelable.Creator<Face> CREATOR = new Parcelable.Creator<Face>() {
+			@NonNull
 			@Override
-			public Face createFromParcel(Parcel in) {
+			public Face createFromParcel(@NonNull Parcel in) {
 				return new Face(in);
 			}
 
@@ -46,12 +49,16 @@ public class CubeMapView extends ScalingImageView {
 		};
 
 		private final RectF bounds = new RectF();
+		@Nullable
 		private final String label;
 
+		@Nullable
 		private Uri uri;
+		@Nullable
 		private RectF clip;
 		private float rotation = 0;
 		private Bitmap bitmap;
+		@Nullable
 		private Matrix matrix;
 
 		public Uri getUri() {
@@ -72,7 +79,7 @@ public class CubeMapView extends ScalingImageView {
 		}
 
 		@Override
-		public void writeToParcel(Parcel out, int flags) {
+		public void writeToParcel(@NonNull Parcel out, int flags) {
 			out.writeParcelable(uri, flags);
 			out.writeParcelable(clip, flags);
 			out.writeFloat(rotation);
@@ -82,7 +89,7 @@ public class CubeMapView extends ScalingImageView {
 			this.label = label;
 		}
 
-		private Face(Parcel in) {
+		private Face(@NonNull Parcel in) {
 			label = null;
 			uri = in.readParcelable(Uri.class.getClassLoader());
 			clip = in.readParcelable(RectF.class.getClassLoader());
@@ -102,11 +109,12 @@ public class CubeMapView extends ScalingImageView {
 	private int mapPadding;
 	private int textPadding;
 	private int toolbarHeight;
+	@Nullable
 	private Bitmap selectedBitmap;
 	private int selectedFace = 0;
 	private long touchDownTime = 0;
 
-	public CubeMapView(Context context, AttributeSet attr) {
+	public CubeMapView(@NonNull Context context, AttributeSet attr) {
 		super(context, attr);
 
 		float dp = context.getResources().getDisplayMetrics().density;
@@ -132,7 +140,7 @@ public class CubeMapView extends ScalingImageView {
 	// Click actions are handled correctly.
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent(@NonNull MotionEvent event) {
 		long now = System.currentTimeMillis();
 
 		switch (event.getActionMasked()) {
@@ -157,7 +165,7 @@ public class CubeMapView extends ScalingImageView {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(@NonNull Canvas canvas) {
 		super.onDraw(canvas);
 
 		RectF selectedBounds = null;
@@ -242,7 +250,7 @@ public class CubeMapView extends ScalingImageView {
 		setImageMatrixForFace(face);
 	}
 
-	private void setImageMatrixForFace(Face face) {
+	private void setImageMatrixForFace(@NonNull Face face) {
 		if (selectedBitmap == null) {
 			return;
 		}
@@ -263,13 +271,13 @@ public class CubeMapView extends ScalingImageView {
 		setImageMatrix(face.matrix);
 	}
 
-	private void initFaces(Context context) {
+	private void initFaces(@NonNull Context context) {
 		for (int i = faces.length; i-- > 0; ) {
 			faces[i] = new Face(context.getString(LABEL_ID[i]));
 		}
 	}
 
-	private void initPaints(Context context, float dp) {
+	private void initPaints(@NonNull Context context, float dp) {
 		selectedPaint.setColor(ContextCompat.getColor(
 				context,
 				R.color.cube_face_selected));
@@ -291,13 +299,13 @@ public class CubeMapView extends ScalingImageView {
 		textPaint.setTextSize(14f * dp);
 	}
 
-	private void initMetrics(Context context, float dp) {
+	private void initMetrics(@NonNull Context context, float dp) {
 		mapPadding = Math.round(24f * dp);
 		textPadding = Math.round(8f * dp);
 		toolbarHeight = SystemBarMetrics.getToolBarHeight(context);
 	}
 
-	private void restoreFace(int idx, Face from) {
+	private void restoreFace(int idx, @NonNull Face from) {
 		if (from.uri == null || from.clip == null) {
 			return;
 		}
@@ -321,7 +329,7 @@ public class CubeMapView extends ScalingImageView {
 		face.rotation = from.rotation;
 	}
 
-	private void setMatrixFromClip(Face face) {
+	private void setMatrixFromClip(@NonNull Face face) {
 		face.matrix = getMatrixFromClip(
 				selectedBitmap.getWidth(),
 				selectedBitmap.getHeight(),
@@ -330,11 +338,12 @@ public class CubeMapView extends ScalingImageView {
 				face.rotation);
 	}
 
+	@NonNull
 	private static Matrix getMatrixFromClip(
 			int width,
 			int height,
-			RectF bounds,
-			RectF normalizedClip,
+			@NonNull RectF bounds,
+			@NonNull RectF normalizedClip,
 			float rotation) {
 		Matrix matrix = new Matrix();
 		RectF dstRect = new RectF();
@@ -477,7 +486,7 @@ public class CubeMapView extends ScalingImageView {
 		face.rotation = getImageRotation();
 	}
 
-	private void setImageFromUri(Uri uri) {
+	private void setImageFromUri(@Nullable Uri uri) {
 		selectedBitmap = uri != null
 				? BitmapEditor.getBitmapFromUri(getContext(), uri, PREVIEW_SIZE)
 				: null;
@@ -487,12 +496,14 @@ public class CubeMapView extends ScalingImageView {
 
 	private static class SavedState extends BaseSavedState {
 		private final int savedSelectedFace;
+		@Nullable
 		private final Face[] savedFaces;
 
 		public static final Parcelable.Creator<SavedState> CREATOR =
 				new Parcelable.Creator<SavedState>() {
+					@NonNull
 					@Override
-					public SavedState createFromParcel(Parcel in) {
+					public SavedState createFromParcel(@NonNull Parcel in) {
 						return new SavedState(in);
 					}
 
@@ -503,7 +514,7 @@ public class CubeMapView extends ScalingImageView {
 				};
 
 		@Override
-		public void writeToParcel(Parcel out, int flags) {
+		public void writeToParcel(@NonNull Parcel out, int flags) {
 			super.writeToParcel(out, flags);
 
 			out.writeInt(savedSelectedFace);
@@ -520,7 +531,7 @@ public class CubeMapView extends ScalingImageView {
 			savedFaces = faces;
 		}
 
-		private SavedState(Parcel in) {
+		private SavedState(@NonNull Parcel in) {
 			super(in);
 
 			savedSelectedFace = in.readInt();

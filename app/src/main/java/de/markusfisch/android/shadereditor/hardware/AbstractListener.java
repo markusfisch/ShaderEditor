@@ -6,6 +6,9 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public abstract class AbstractListener implements SensorEventListener {
@@ -14,9 +17,10 @@ public abstract class AbstractListener implements SensorEventListener {
 	private final SensorManager sensorManager;
 
 	private boolean listening = false;
+	@Nullable
 	private Sensor sensor;
 
-	AbstractListener(Context context) {
+	AbstractListener(@NonNull Context context) {
 		sensorManager = (SensorManager) context.getSystemService(
 				Context.SENSOR_SERVICE);
 	}
@@ -35,7 +39,7 @@ public abstract class AbstractListener implements SensorEventListener {
 	}
 
 	@Override
-	public void onSensorChanged(SensorEvent event) {
+	public void onSensorChanged(@NonNull SensorEvent event) {
 		last = event.timestamp;
 	}
 

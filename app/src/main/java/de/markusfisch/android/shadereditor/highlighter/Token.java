@@ -1,6 +1,7 @@
 package de.markusfisch.android.shadereditor.highlighter;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class Token {
 	private int start;
@@ -22,6 +23,7 @@ public class Token {
 		return start;
 	}
 
+	@NonNull
 	public Token setStart(int start) {
 		this.start = start;
 		return this;
@@ -31,6 +33,7 @@ public class Token {
 		return end;
 	}
 
+	@NonNull
 	public Token setEnd(int end) {
 		this.end = end;
 		return this;
@@ -40,6 +43,7 @@ public class Token {
 		return startOffset;
 	}
 
+	@NonNull
 	public Token setStartOffset(int startOffset) {
 		this.startOffset = startOffset;
 		return this;
@@ -49,6 +53,7 @@ public class Token {
 		return endOffset;
 	}
 
+	@NonNull
 	public Token setEndOffset(int endOffset) {
 		this.endOffset = endOffset;
 		return this;
@@ -58,6 +63,7 @@ public class Token {
 		return line;
 	}
 
+	@NonNull
 	public Token setLine(short line) {
 		this.line = line;
 		return this;
@@ -67,6 +73,7 @@ public class Token {
 		return column;
 	}
 
+	@NonNull
 	public Token setColumn(short column) {
 		this.column = column;
 		return this;
@@ -76,6 +83,7 @@ public class Token {
 		return type;
 	}
 
+	@NonNull
 	public Token setType(@NonNull TokenType type) {
 		this.type = type;
 		return this;
@@ -85,6 +93,7 @@ public class Token {
 		return category;
 	}
 
+	@NonNull
 	public Token setCategory(@NonNull Category category) {
 		this.category = category;
 		return this;
@@ -104,7 +113,7 @@ public class Token {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 

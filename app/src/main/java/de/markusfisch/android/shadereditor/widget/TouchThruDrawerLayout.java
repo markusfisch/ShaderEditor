@@ -5,6 +5,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 /**
@@ -13,11 +14,11 @@ import androidx.drawerlayout.widget.DrawerLayout;
 public class TouchThruDrawerLayout extends DrawerLayout {
 	private boolean touchThru = false;
 
-	public TouchThruDrawerLayout(Context context) {
+	public TouchThruDrawerLayout(@NonNull Context context) {
 		super(context);
 	}
 
-	public TouchThruDrawerLayout(Context context, AttributeSet attr) {
+	public TouchThruDrawerLayout(@NonNull Context context, AttributeSet attr) {
 		super(context, attr);
 	}
 

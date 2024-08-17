@@ -8,12 +8,14 @@ import android.graphics.Shader;
 import android.opengl.GLES20;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public class BackBufferParameters extends TextureParameters {
 	private static final String PRESET = "p";
 
+	@Nullable
 	private String preset;
 
 	public BackBufferParameters() {
@@ -48,6 +50,7 @@ public class BackBufferParameters extends TextureParameters {
 		preset = null;
 	}
 
+	@Nullable
 	Bitmap getPresetBitmap(int width, int height) {
 		if (preset == null) {
 			return null;
@@ -84,7 +87,7 @@ public class BackBufferParameters extends TextureParameters {
 	}
 
 	@Override
-	protected void parseParameter(String name, String value) {
+	protected void parseParameter(@NonNull String name, @NonNull String value) {
 		if (PRESET.equals(name)) {
 			preset = value;
 		} else {

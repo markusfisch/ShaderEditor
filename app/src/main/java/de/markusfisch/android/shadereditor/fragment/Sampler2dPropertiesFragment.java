@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import de.markusfisch.android.shadereditor.R;
@@ -22,10 +23,13 @@ public class Sampler2dPropertiesFragment extends AbstractSamplerPropertiesFragme
 	private static final String CROP_RECT = "crop_rect";
 	private static final String ROTATION = "rotation";
 
+	@Nullable
 	private Uri imageUri;
+	@Nullable
 	private RectF cropRect;
 	private float imageRotation;
 
+	@NonNull
 	public static Fragment newInstance(
 			Uri uri,
 			RectF rect,
@@ -76,7 +80,7 @@ public class Sampler2dPropertiesFragment extends AbstractSamplerPropertiesFragme
 
 	@Override
 	protected int saveSampler(
-			Context context,
+			@NonNull Context context,
 			String name,
 			int size) {
 		return saveTexture(

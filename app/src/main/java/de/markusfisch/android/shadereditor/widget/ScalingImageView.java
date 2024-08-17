@@ -14,6 +14,7 @@ import android.view.MotionEvent;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 
 public class ScalingImageView extends AppCompatImageView {
@@ -26,23 +27,24 @@ public class ScalingImageView extends AppCompatImageView {
 	private final RectF bounds = new RectF();
 
 	private GestureDetector gestureDetector;
+	@NonNull
 	private ImageView.ScaleType scaleType = ImageView.ScaleType.CENTER_INSIDE;
 	private float magnifyScale = 4f;
 	private float minWidth;
 	private float rotation;
 
-	public ScalingImageView(Context context) {
+	public ScalingImageView(@NonNull Context context) {
 		super(context);
 		init(context);
 	}
 
-	public ScalingImageView(Context context, AttributeSet attrs) {
+	public ScalingImageView(@NonNull Context context, AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
 	}
 
 	public ScalingImageView(
-			Context context,
+			@NonNull Context context,
 			AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
@@ -58,7 +60,7 @@ public class ScalingImageView extends AppCompatImageView {
 	}
 
 	@Override
-	public void setScaleType(ImageView.ScaleType scaleType) {
+	public void setScaleType(@NonNull ImageView.ScaleType scaleType) {
 		if (scaleType != ImageView.ScaleType.CENTER &&
 				scaleType != ImageView.ScaleType.CENTER_CROP &&
 				scaleType != ImageView.ScaleType.CENTER_INSIDE) {
@@ -78,7 +80,7 @@ public class ScalingImageView extends AppCompatImageView {
 	// Click handling is correct.
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent(@NonNull MotionEvent event) {
 		if (gestureDetector.onTouchEvent(event)) {
 			return true;
 		}
@@ -127,6 +129,7 @@ public class ScalingImageView extends AppCompatImageView {
 		return rotation;
 	}
 
+	@NonNull
 	public Rect getRectInBounds() {
 		RectF srcRect = getDrawableRect();
 		RectF dstRect = new RectF();
@@ -140,6 +143,7 @@ public class ScalingImageView extends AppCompatImageView {
 				Math.round((bounds.bottom - dstRect.top) / scale));
 	}
 
+	@NonNull
 	public RectF getNormalizedRectInBounds() {
 		RectF dstRect = getMappedRect();
 		float w = dstRect.width();
@@ -186,7 +190,7 @@ public class ScalingImageView extends AppCompatImageView {
 		bounds.set(left, top, right, bottom);
 	}
 
-	protected void setBounds(RectF rect) {
+	protected void setBounds(@NonNull RectF rect) {
 		bounds.set(rect);
 	}
 
@@ -203,7 +207,7 @@ public class ScalingImageView extends AppCompatImageView {
 		return getMappedRect().width() <= minWidth;
 	}
 
-	protected void setMinWidth(RectF rect, Matrix matrix) {
+	protected void setMinWidth(@Nullable RectF rect, @Nullable Matrix matrix) {
 		// Don't try to store the drawable dimensions by overriding
 		// setImageDrawable() since it is called in the ImageView's
 		// constructor and no referenced member of this object will
@@ -267,6 +271,7 @@ public class ScalingImageView extends AppCompatImageView {
 				});
 	}
 
+	@NonNull
 	private RectF getDrawableRect() {
 		Drawable drawable;
 		int w = 0;
@@ -280,13 +285,14 @@ public class ScalingImageView extends AppCompatImageView {
 		return new RectF(0, 0, w, h);
 	}
 
+	@NonNull
 	private RectF getMappedRect() {
 		RectF dstRect = new RectF();
 		transformMatrix.mapRect(dstRect, getDrawableRect());
 		return dstRect;
 	}
 
-	private void initTransform(MotionEvent event, int ignoreIndex) {
+	private void initTransform(@NonNull MotionEvent event, int ignoreIndex) {
 		initialMatrix.set(transformMatrix);
 		drawableRect.set(getDrawableRect());
 
@@ -316,7 +322,7 @@ public class ScalingImageView extends AppCompatImageView {
 		}
 	}
 
-	private void transform(MotionEvent event) {
+	private void transform(@NonNull MotionEvent event) {
 		transformMatrix.set(initialMatrix);
 
 		int pointerCount = event.getPointerCount();
@@ -355,7 +361,7 @@ public class ScalingImageView extends AppCompatImageView {
 	}
 
 	private float fitScale(
-			Matrix matrix,
+			@NonNull Matrix matrix,
 			RectF rect,
 			float scale) {
 		RectF dstRect = new RectF();
@@ -366,9 +372,9 @@ public class ScalingImageView extends AppCompatImageView {
 	}
 
 	private static boolean fitTranslate(
-			Matrix matrix,
+			@NonNull Matrix matrix,
 			RectF rect,
-			RectF frame) {
+			@NonNull RectF frame) {
 		RectF dstRect = new RectF();
 		matrix.mapRect(dstRect, rect);
 
@@ -409,7 +415,7 @@ public class ScalingImageView extends AppCompatImageView {
 		private float pivotX;
 		private float pivotY;
 
-		private void set(MotionEvent event, int p1, int p2) {
+		private void set(@NonNull MotionEvent event, int p1, int p2) {
 			float x1 = event.getX(p1);
 			float y1 = event.getY(p1);
 			float x2 = event.getX(p2);

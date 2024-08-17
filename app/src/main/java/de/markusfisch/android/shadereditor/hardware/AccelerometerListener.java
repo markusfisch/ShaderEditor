@@ -4,12 +4,14 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 
+import androidx.annotation.NonNull;
+
 public class AccelerometerListener extends AbstractListener {
 	public final float[] gravity = new float[]{0, 0, 0};
 	public final float[] linear = new float[]{0, 0, 0};
 	public final float[] values = new float[]{0, 0, 0};
 
-	public AccelerometerListener(Context context) {
+	public AccelerometerListener(@NonNull Context context) {
 		super(context);
 	}
 
@@ -18,7 +20,7 @@ public class AccelerometerListener extends AbstractListener {
 	}
 
 	@Override
-	public void onSensorChanged(SensorEvent event) {
+	public void onSensorChanged(@NonNull SensorEvent event) {
 		if (last > 0) {
 			final float a = .8f;
 			final float b = 1f - a;

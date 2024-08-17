@@ -117,7 +117,7 @@ public class PreferencesFragment
 	@Override
 	public void onSharedPreferenceChanged(
 			SharedPreferences sharedPreferences,
-			String key) {
+			@NonNull String key) {
 		Preference preference = findPreference(key);
 		if (preference == null) {
 			return;

@@ -7,13 +7,17 @@ import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.IOException;
 import java.io.InputStream;
 
 public class BitmapEditor {
+	@Nullable
 	public static Bitmap getBitmapFromUri(
-			Context context,
-			Uri uri,
+			@NonNull Context context,
+			@NonNull Uri uri,
 			int maxSize) {
 		InputStream in = null;
 		try {
@@ -42,8 +46,8 @@ public class BitmapEditor {
 	}
 
 	public static Bitmap crop(
-			Bitmap bitmap,
-			RectF rect,
+			@Nullable Bitmap bitmap,
+			@NonNull RectF rect,
 			float rotation) {
 		if (bitmap == null) {
 			return null;
@@ -79,7 +83,7 @@ public class BitmapEditor {
 	}
 
 	private static void setSampleSize(
-			BitmapFactory.Options options,
+			@NonNull BitmapFactory.Options options,
 			InputStream in,
 			int maxWidth,
 			int maxHeight) {

@@ -6,6 +6,8 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -19,7 +21,7 @@ public class SystemBarMetrics {
 		initSystemBars(activity, null);
 	}
 
-	public static void initSystemBars(AppCompatActivity activity,
+	public static void initSystemBars(@Nullable AppCompatActivity activity,
 			Rect insets) {
 		View mainLayout;
 		if (activity != null &&
@@ -33,7 +35,7 @@ public class SystemBarMetrics {
 	}
 
 	public static boolean setSystemBarColor(
-			Window window,
+			@NonNull Window window,
 			int color,
 			boolean expand) {
 		if (expand) {
@@ -47,7 +49,7 @@ public class SystemBarMetrics {
 		return true;
 	}
 
-	public static void hideNavigation(Window window) {
+	public static void hideNavigation(@NonNull Window window) {
 		window.getDecorView().setSystemUiVisibility(
 				View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY |
 						View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
@@ -57,7 +59,7 @@ public class SystemBarMetrics {
 						View.SYSTEM_UI_FLAG_FULLSCREEN);
 	}
 
-	public static int getToolBarHeight(Context context) {
+	public static int getToolBarHeight(@NonNull Context context) {
 		TypedValue tv = new TypedValue();
 		return context.getTheme().resolveAttribute(
 				android.R.attr.actionBarSize,
@@ -67,8 +69,8 @@ public class SystemBarMetrics {
 				context.getResources().getDisplayMetrics()) : 0;
 	}
 
-	private static void setWindowInsets(final View mainLayout,
-			final Rect windowInsets) {
+	private static void setWindowInsets(@NonNull final View mainLayout,
+			@Nullable final Rect windowInsets) {
 		ViewCompat.setOnApplyWindowInsetsListener(mainLayout, (v, insets) -> {
 			Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
 			int left = systemBarsInsets.left;

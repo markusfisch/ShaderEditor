@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import de.markusfisch.android.shadereditor.R;
@@ -19,7 +20,7 @@ public class LoadSampleFragment extends Fragment {
 
 	@Override
 	public View onCreateView(
-			LayoutInflater inflater,
+			@NonNull LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
 		View view = inflater.inflate(
@@ -33,7 +34,7 @@ public class LoadSampleFragment extends Fragment {
 		return view;
 	}
 
-	private void initListView(Context context) {
+	private void initListView(@NonNull Context context) {
 		final SamplesAdapter samplesAdapter = new SamplesAdapter(context);
 
 		listView.setAdapter(samplesAdapter);
@@ -41,15 +42,15 @@ public class LoadSampleFragment extends Fragment {
 				loadSample(samplesAdapter.getItem(position)));
 	}
 
-	private void loadSample(SamplesAdapter.Sample sample) {
+	private void loadSample(@NonNull SamplesAdapter.Sample sample) {
 		Activity activity = getActivity();
 		if (activity != null) {
 			LoadSampleActivity.setSampleResult(
 					activity,
-					sample.name,
-					sample.resId,
-					sample.thumbId,
-					sample.quality);
+					sample.getName(),
+					sample.getResId(),
+					sample.getThumbId(),
+					sample.getQuality());
 			activity.finish();
 		}
 	}

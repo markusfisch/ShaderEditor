@@ -8,6 +8,8 @@ import android.util.AttributeSet;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
+import androidx.annotation.Nullable;
+
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.adapter.TextureSpinnerAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
@@ -63,7 +65,7 @@ public class BackBufferParametersView extends LinearLayout {
 		adapter.changeCursor(null);
 	}
 
-	public void setParameters(BackBufferParameters tp) {
+	public void setParameters(@Nullable BackBufferParameters tp) {
 		Cursor cursor = (Cursor) presetView.getSelectedItem();
 		if (cursor == null) {
 			return;

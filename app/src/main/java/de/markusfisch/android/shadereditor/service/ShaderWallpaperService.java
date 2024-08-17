@@ -10,6 +10,9 @@ import android.service.wallpaper.WallpaperService;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.preference.Preferences;
@@ -17,6 +20,7 @@ import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 
 public class ShaderWallpaperService extends WallpaperService {
+	@Nullable
 	private static ShaderWallpaperEngine engine;
 
 	private ComponentName batteryLevelComponent;
@@ -46,6 +50,7 @@ public class ShaderWallpaperService extends WallpaperService {
 		engine = null;
 	}
 
+	@NonNull
 	@Override
 	public Engine onCreateEngine() {
 		engine = new ShaderWallpaperEngine();
@@ -57,6 +62,7 @@ public class ShaderWallpaperService extends WallpaperService {
 			implements SharedPreferences.OnSharedPreferenceChangeListener {
 		private final Handler handler = new Handler();
 
+		@Nullable
 		private ShaderWallpaperView view;
 
 		@Override
@@ -94,7 +100,7 @@ public class ShaderWallpaperService extends WallpaperService {
 		}
 
 		@Override
-		public void onTouchEvent(MotionEvent e) {
+		public void onTouchEvent(@NonNull MotionEvent e) {
 			super.onTouchEvent(e);
 			view.getRenderer().touchAt(e);
 		}
@@ -185,7 +191,7 @@ public class ShaderWallpaperService extends WallpaperService {
 		}
 	}
 
-	private void enableComponent(ComponentName name, boolean enable) {
+	private void enableComponent(@NonNull ComponentName name, boolean enable) {
 		getPackageManager().setComponentEnabledSetting(name,
 				enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED :
 						PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
