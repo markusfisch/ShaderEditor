@@ -1,15 +1,15 @@
 package de.markusfisch.android.shadereditor.view;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
@@ -70,17 +70,18 @@ public class SystemBarMetrics {
 	private static void setWindowInsets(final View mainLayout,
 			final Rect windowInsets) {
 		ViewCompat.setOnApplyWindowInsetsListener(mainLayout, (v, insets) -> {
-			if (insets.hasSystemWindowInsets()) {
-				int left = insets.getSystemWindowInsetLeft();
-				int top = insets.getSystemWindowInsetTop();
-				int right = insets.getSystemWindowInsetRight();
-				int bottom = insets.getSystemWindowInsetBottom();
-				mainLayout.setPadding(left, top, right, bottom);
-				if (windowInsets != null) {
-					windowInsets.set(left, top, right, bottom);
-				}
+			Insets systemBarsInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+			int left = systemBarsInsets.left;
+			int top = systemBarsInsets.top;
+			int right = systemBarsInsets.right;
+			int bottom = systemBarsInsets.bottom;
+			mainLayout.setPadding(left, top, right, bottom);
+
+			if (windowInsets != null) {
+				windowInsets.set(left, top, right, bottom);
 			}
-			return insets.consumeSystemWindowInsets();
+
+			return insets;
 		});
 	}
 }
