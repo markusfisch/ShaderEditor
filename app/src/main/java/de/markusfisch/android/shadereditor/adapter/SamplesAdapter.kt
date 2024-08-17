@@ -1,158 +1,114 @@
-package de.markusfisch.android.shadereditor.adapter;
+package de.markusfisch.android.shadereditor.adapter
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.content.Context
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.ImageView
+import android.widget.TextView
+import de.markusfisch.android.shadereditor.R
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+class SamplesAdapter(context: Context) : BaseAdapter() {
 
-import de.markusfisch.android.shadereditor.R;
+    data class Sample(
+        val resId: Int,
+        val thumbId: Int,
+        val name: String,
+        val rationale: String,
+        val quality: Float = 1f
+    )
 
-public class SamplesAdapter extends BaseAdapter {
-	public static final class Sample {
-		public final int resId;
-		public final int thumbId;
-		public final float quality;
-		public final String name;
-		public final String rationale;
+    private val samples: Array<Sample> = arrayOf(
+        Sample(
+            R.raw.sample_battery,
+            R.drawable.thumbnail_battery,
+            context.getString(R.string.sample_battery_name),
+            context.getString(R.string.sample_battery_rationale)
+        ), Sample(
+            R.raw.sample_camera_back,
+            R.drawable.thumbnail_camera_back,
+            context.getString(R.string.sample_camera_back_name),
+            context.getString(R.string.sample_camera_back_rationale)
+        ), Sample(
+            R.raw.sample_circles,
+            R.drawable.thumbnail_circles,
+            context.getString(R.string.sample_circles_name),
+            context.getString(R.string.sample_circles_rationale)
+        ), Sample(
+            R.raw.sample_cloudy_conway,
+            R.drawable.thumbnail_cloudy_conway,
+            context.getString(R.string.sample_cloudy_conway_name),
+            context.getString(R.string.sample_cloudy_conway_rationale),
+            0.125f
+        ), Sample(
+            R.raw.sample_electric_fade,
+            R.drawable.thumbnail_electric_fade,
+            context.getString(R.string.sample_electric_fade_name),
+            context.getString(R.string.sample_electric_fade_rationale),
+            0.125f
+        ), Sample(
+            R.raw.sample_game_of_life,
+            R.drawable.thumbnail_game_of_life,
+            context.getString(R.string.sample_game_of_life_name),
+            context.getString(R.string.sample_game_of_life_rationale),
+            0.125f
+        ), Sample(
+            R.raw.sample_gles_300,
+            R.drawable.thumbnail_default,
+            context.getString(R.string.sample_gles_300_name),
+            context.getString(R.string.sample_gles_300_rationale)
+        ), Sample(
+            R.raw.sample_gravity,
+            R.drawable.thumbnail_gravity,
+            context.getString(R.string.sample_gravity_name),
+            context.getString(R.string.sample_gravity_rationale)
+        ), Sample(
+            R.raw.sample_orientation,
+            R.drawable.thumbnail_orientation,
+            context.getString(R.string.sample_orientation_name),
+            context.getString(R.string.sample_orientation_rationale)
+        ), Sample(
+            R.raw.sample_swirl,
+            R.drawable.thumbnail_swirl,
+            context.getString(R.string.sample_swirl_name),
+            context.getString(R.string.sample_swirl_rationale)
+        ), Sample(
+            R.raw.sample_texture,
+            R.drawable.thumbnail_texture,
+            context.getString(R.string.sample_texture_name),
+            context.getString(R.string.sample_texture_rationale)
+        ), Sample(
+            R.raw.sample_touch,
+            R.drawable.thumbnail_touch,
+            context.getString(R.string.sample_touch_name),
+            context.getString(R.string.sample_touch_rationale)
+        )
+    )
 
-		private Sample(
-				int resId,
-				int thumbId,
-				String name,
-				String rationale) {
-			this(resId, thumbId, name, rationale, 1f);
-		}
+    override fun getCount(): Int = samples.size
 
-		private Sample(
-				int resId,
-				int thumbId,
-				String name,
-				String rationale,
-				float quality) {
-			this.resId = resId;
-			this.thumbId = thumbId;
-			this.name = name;
-			this.rationale = rationale;
-			this.quality = quality;
-		}
-	}
+    override fun getItem(position: Int): Sample = samples[position]
 
-	@NonNull
-	private final Sample[] samples;
+    override fun getItemId(position: Int): Long = position.toLong()
 
-	public SamplesAdapter(@NonNull Context context) {
-		samples = new Sample[]{
-				new Sample(R.raw.sample_battery,
-						R.drawable.thumbnail_battery,
-						context.getString(R.string.sample_battery_name),
-						context.getString(R.string.sample_battery_rationale)),
-				new Sample(R.raw.sample_camera_back,
-						R.drawable.thumbnail_camera_back,
-						context.getString(R.string.sample_camera_back_name),
-						context.getString(R.string.sample_camera_back_rationale)),
-				new Sample(R.raw.sample_circles,
-						R.drawable.thumbnail_circles,
-						context.getString(R.string.sample_circles_name),
-						context.getString(R.string.sample_circles_rationale)),
-				new Sample(R.raw.sample_cloudy_conway,
-						R.drawable.thumbnail_cloudy_conway,
-						context.getString(R.string.sample_cloudy_conway_name),
-						context.getString(R.string.sample_cloudy_conway_rationale),
-						.125f),
-				new Sample(R.raw.sample_electric_fade,
-						R.drawable.thumbnail_electric_fade,
-						context.getString(R.string.sample_electric_fade_name),
-						context.getString(R.string.sample_electric_fade_rationale),
-						.125f),
-				new Sample(R.raw.sample_game_of_life,
-						R.drawable.thumbnail_game_of_life,
-						context.getString(R.string.sample_game_of_life_name),
-						context.getString(R.string.sample_game_of_life_rationale),
-						.125f),
-				new Sample(R.raw.sample_gles_300,
-						R.drawable.thumbnail_default,
-						context.getString(R.string.sample_gles_300_name),
-						context.getString(R.string.sample_gles_300_rationale)),
-				new Sample(R.raw.sample_gravity,
-						R.drawable.thumbnail_gravity,
-						context.getString(R.string.sample_gravity_name),
-						context.getString(R.string.sample_gravity_rationale)),
-				new Sample(R.raw.sample_orientation,
-						R.drawable.thumbnail_orientation,
-						context.getString(R.string.sample_orientation_name),
-						context.getString(R.string.sample_orientation_rationale)),
-				new Sample(R.raw.sample_swirl,
-						R.drawable.thumbnail_swirl,
-						context.getString(R.string.sample_swirl_name),
-						context.getString(R.string.sample_swirl_rationale)),
-				new Sample(R.raw.sample_texture,
-						R.drawable.thumbnail_texture,
-						context.getString(R.string.sample_texture_name),
-						context.getString(R.string.sample_texture_rationale)),
-				new Sample(R.raw.sample_touch,
-						R.drawable.thumbnail_touch,
-						context.getString(R.string.sample_touch_name),
-						context.getString(R.string.sample_touch_rationale)),
-		};
-	}
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val view = convertView ?: LayoutInflater.from(parent.context)
+            .inflate(R.layout.row_sample, parent, false)
+        val holder = (view.tag as? ViewHolder) ?: ViewHolder(view).also { view.tag = it }
 
-	@Override
-	public int getCount() {
-		return samples.length;
-	}
+        val sample = getItem(position)
 
-	@Override
-	public Sample getItem(int position) {
-		return samples[position];
-	}
+        holder.thumbnail.setImageResource(sample.thumbId)
+        holder.name.text = sample.name
+        holder.rationale.text = sample.rationale
 
-	@Override
-	public long getItemId(int position) {
-		return 0;
-	}
+        return view
+    }
 
-	@NonNull
-	@Override
-	public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-		if (convertView == null) {
-			convertView = LayoutInflater
-					.from(parent.getContext())
-					.inflate(R.layout.row_sample, parent, false);
-		}
-
-		ViewHolder holder = getViewHolder(convertView);
-		Sample sample = samples[position];
-
-		holder.thumbnail.setImageResource(sample.thumbId);
-		holder.name.setText(sample.name);
-		holder.rationale.setText(sample.rationale);
-
-		return convertView;
-	}
-
-	@NonNull
-	private ViewHolder getViewHolder(@NonNull View view) {
-		ViewHolder holder;
-		if ((holder = (ViewHolder) view.getTag()) == null) {
-			holder = new ViewHolder();
-			holder.thumbnail = view.findViewById(R.id.thumbnail);
-			holder.name = view.findViewById(R.id.name);
-			holder.rationale = view.findViewById(R.id.rationale);
-			view.setTag(holder);
-		}
-
-		return holder;
-	}
-
-	private static final class ViewHolder {
-		private ImageView thumbnail;
-		private TextView name;
-		private TextView rationale;
-	}
+    private class ViewHolder(view: View) {
+        val thumbnail: ImageView = view.findViewById(R.id.thumbnail)
+        val name: TextView = view.findViewById(R.id.name)
+        val rationale: TextView = view.findViewById(R.id.rationale)
+    }
 }

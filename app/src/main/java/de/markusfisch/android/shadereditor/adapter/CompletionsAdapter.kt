@@ -1,75 +1,44 @@
-package de.markusfisch.android.shadereditor.adapter;
+package de.markusfisch.android.shadereditor.adapter
 
-import android.annotation.SuppressLint;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import android.widget.Button
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import de.markusfisch.android.shadereditor.R
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.ListAdapter;
-import androidx.recyclerview.widget.RecyclerView;
+class CompletionsAdapter(private val onInsertListener: (CharSequence) -> Unit) :
+    ListAdapter<String, CompletionsAdapter.ViewHolder>(StringDiffer()) {
 
-import de.markusfisch.android.shadereditor.R;
+    private var positionInCompletion: Int = 0
 
-public class CompletionsAdapter extends ListAdapter<String, CompletionsAdapter.ViewHolder> {
-	@FunctionalInterface
-	public interface OnInsertListener {
-		void onInsert(@NonNull CharSequence sequence);
-	}
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view =
+            LayoutInflater.from(parent.context).inflate(R.layout.extra_key_btn, parent, false)
+        return ViewHolder(view as Button)
+    }
 
-	private static final DiffUtil.ItemCallback<String> DIFF_CALLBACK = new StringDiffer();
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = getItem(position)
+        holder.update(item)
+    }
 
-	private final OnInsertListener onInsertListener;
+    fun setPositionInCompletion(position: Int) {
+        this.positionInCompletion = position
+    }
 
-	private int position = 0;
+    inner class ViewHolder(itemView: Button) : RecyclerView.ViewHolder(itemView) {
+        private val btn: Button = itemView
 
-	public CompletionsAdapter(OnInsertListener onInsertListener) {
-		super(DIFF_CALLBACK);
-		this.onInsertListener = onInsertListener;
-	}
+        init {
+            btn.setOnClickListener {
+                val text = btn.text
+                onInsertListener(text.subSequence(positionInCompletion, text.length))
+            }
+        }
 
-	@NonNull
-	@Override
-	public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-		View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.extra_key_btn,
-				parent, false);
-		return new ViewHolder(view);
-	}
-
-	@Override
-	public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-		String item = getItem(position);
-		holder.update(item);
-	}
-
-	public void setPosition(int position) {
-		this.position = position;
-	}
-
-	public class ViewHolder extends RecyclerView.ViewHolder {
-		private final Button btn;
-
-		public ViewHolder(@NonNull View itemView) {
-			super(itemView);
-			btn = itemView.findViewById(R.id.btn);
-			btn.setOnClickListener((v) -> {
-				CharSequence text = btn.getText();
-				onInsertListener.onInsert(text.subSequence(position, text.length()));
-			});
-			itemView.setOnTouchListener(new View.OnTouchListener() {
-				@SuppressLint("ClickableViewAccessibility")
-				@Override
-				public boolean onTouch(View v, MotionEvent event) {
-					return btn.onTouchEvent(event); // The FrameLayout always forwards
-				}
-			});
-		}
-
-		public void update(String item) {
-			btn.setText(item);
-		}
-	}
+        fun update(item: String) {
+            btn.text = item
+        }
+    }
 }

@@ -1,150 +1,134 @@
-package de.markusfisch.android.shadereditor.activity;
+package de.markusfisch.android.shadereditor.activity
 
-import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.MenuInflater;
+import android.app.Activity
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.view.MenuInflater
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.IntentCompat
+import androidx.core.view.MenuProvider
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import de.markusfisch.android.shadereditor.R
+import de.markusfisch.android.shadereditor.fragment.TextureViewFragment
+import de.markusfisch.android.shadereditor.fragment.UniformPagesFragment
+import de.markusfisch.android.shadereditor.widget.SearchMenu
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.view.MenuProvider;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Lifecycle;
+class AddUniformActivity : AbstractContentActivity() {
+    companion object {
+        const val STATEMENT = "statement"
 
-import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.fragment.TextureViewFragment;
-import de.markusfisch.android.shadereditor.fragment.UniformPagesFragment;
-import de.markusfisch.android.shadereditor.widget.SearchMenu;
+        @JvmStatic
+        fun setAddUniformResult(activity: Activity, name: String) {
+            val bundle = Bundle().apply {
+                putString(STATEMENT, name)
+            }
 
-public class AddUniformActivity extends AbstractContentActivity {
-	public static final String STATEMENT = "statement";
+            val data = Intent().apply {
+                putExtras(bundle)
+            }
 
-	private SearchMenu.OnSearchListener onSearchListener;
+            activity.setResult(Activity.RESULT_OK, data)
+        }
+    }
 
-	@Nullable
-	private String currentSearchQuery = null;
+    private var onSearchListener: SearchMenu.OnSearchListener? = null
 
-	@Nullable
-	public String getCurrentSearchQuery() {
-		return currentSearchQuery;
-	}
+    private var currentSearchQuery: String? = null
 
-	private ActivityResultLauncher<Intent> pickImageLauncher;
-	private ActivityResultLauncher<Intent> cropImageLauncher;
-	private ActivityResultLauncher<Intent> pickTextureLauncher;
+    fun getCurrentSearchQuery(): String? = currentSearchQuery
 
-	public static void setAddUniformResult(@NonNull Activity activity, String name) {
-		Bundle bundle = new Bundle();
-		bundle.putString(STATEMENT, name);
+    private lateinit var pickImageLauncher: ActivityResultLauncher<Intent>
+    private lateinit var cropImageLauncher: ActivityResultLauncher<Intent>
+    private lateinit var pickTextureLauncher: ActivityResultLauncher<Intent>
 
-		Intent data = new Intent();
-		data.putExtras(bundle);
+    fun setSearchListener(onSearchListener: SearchMenu.OnSearchListener) {
+        this.onSearchListener = onSearchListener
+    }
 
-		activity.setResult(RESULT_OK, data);
-	}
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-	public void setSearchListener(SearchMenu.OnSearchListener onSearchListener) {
-		this.onSearchListener = onSearchListener;
-	}
+        addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: android.view.Menu, menuInflater: MenuInflater) {
+                SearchMenu.addSearchMenu(menu, menuInflater) { value ->
+                    currentSearchQuery = value
+                    onSearchListener?.filter(value)
+                }
+            }
 
-	@Override
-	protected void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+            override fun onMenuItemSelected(menuItem: android.view.MenuItem) = false
+        }, this, Lifecycle.State.RESUMED)
 
-		addMenuProvider(new MenuProvider() {
-			@Override
-			public void onCreateMenu(@NonNull android.view.Menu menu,
-					@NonNull MenuInflater menuInflater) {
-				SearchMenu.addSearchMenu(menu, menuInflater,
-						(value) -> {
-							currentSearchQuery = value;
-							onSearchListener.filter(value);
-						});
-			}
+        // Register the ActivityResultLaunchers
+        pickImageLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.data?.let { imageUri ->
+                    val cropIntent = CropImageActivity.getIntentForImage(this, imageUri)
+                    cropImageLauncher.launch(cropIntent)
+                }
+            }
+        }
 
-			@Override
-			public boolean onMenuItemSelected(@NonNull android.view.MenuItem menuItem) {
-				return false;
-			}
-		}, this, Lifecycle.State.RESUMED);
+        cropImageLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                setResult(Activity.RESULT_OK, result.data)
+                finish()
+            }
+        }
 
-		// Register the ActivityResultLaunchers
-		pickImageLauncher = registerForActivityResult(
-				new ActivityResultContracts.StartActivityForResult(),
-				result -> {
-					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-						Uri imageUri = result.getData().getData();
-						if (imageUri != null) {
-							Intent cropIntent = CropImageActivity.getIntentForImage(this,
-									imageUri);
-							cropImageLauncher.launch(cropIntent);
-						}
-					}
-				});
+        pickTextureLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                setResult(Activity.RESULT_OK, result.data)
+                finish()
+            }
+        }
 
-		cropImageLauncher = registerForActivityResult(
-				new ActivityResultContracts.StartActivityForResult(),
-				result -> {
-					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-						setResult(RESULT_OK, result.getData());
-						finish();
-					}
-				});
+        // Handle any intents passed to this activity
+        startActivityForIntent(intent)
+    }
 
-		pickTextureLauncher = registerForActivityResult(
-				new ActivityResultContracts.StartActivityForResult(),
-				result -> {
-					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-						setResult(RESULT_OK, result.getData());
-						finish();
-					}
-				});
+    override fun defaultFragment(): Fragment {
+        return UniformPagesFragment()
+    }
 
-		// Handle any intents passed to this activity
-		startActivityForIntent(getIntent());
-	}
+    private fun startActivityForIntent(intent: Intent?) {
+        intent ?: return
 
-	@NonNull
-	@Override
-	protected Fragment defaultFragment() {
-		return new UniformPagesFragment();
-	}
+        val type = intent.type
+        if (Intent.ACTION_SEND == intent.action && type?.startsWith("image/") == true) {
 
-	private void startActivityForIntent(@Nullable Intent intent) {
-		if (intent == null) {
-			return;
-		}
+            val imageUri =
+                IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri::class.java)
+            imageUri?.let {
+                val cropIntent = CropImageActivity.getIntentForImage(this, it)
+                cropImageLauncher.launch(cropIntent)
+            }
+        }
+    }
 
-		String type;
-		if (!Intent.ACTION_SEND.equals(intent.getAction()) ||
-				(type = intent.getType()) == null ||
-				!type.startsWith("image/")) {
-			return;
-		}
+    fun startPickImage() {
+        val pickImageIntent = Intent(Intent.ACTION_GET_CONTENT).apply { type = "image/*" }
+        pickImageLauncher.launch(
+            Intent.createChooser(
+                pickImageIntent, getString(R.string.choose_image)
+            )
+        )
+    }
 
-		Uri imageUri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
-		if (imageUri == null) {
-			return;
-		}
-
-		Intent cropIntent = CropImageActivity.getIntentForImage(this, imageUri);
-		cropImageLauncher.launch(cropIntent);
-	}
-
-	public void startPickImage() {
-		Intent pickImageIntent = new Intent(Intent.ACTION_GET_CONTENT);
-		pickImageIntent.setType("image/*");
-		pickImageLauncher.launch(Intent.createChooser(pickImageIntent,
-				getString(R.string.choose_image)));
-	}
-
-	public void startPickTexture(long id, @NonNull String samplerType) {
-		Intent pickTextureIntent = new Intent(this, TextureViewActivity.class);
-		pickTextureIntent.putExtra(TextureViewFragment.TEXTURE_ID, id);
-		pickTextureIntent.putExtra(TextureViewFragment.SAMPLER_TYPE, samplerType);
-		pickTextureLauncher.launch(pickTextureIntent);
-	}
+    fun startPickTexture(id: Long, samplerType: String) {
+        val pickTextureIntent = Intent(this, TextureViewActivity::class.java).apply {
+            putExtra(TextureViewFragment.TEXTURE_ID, id)
+            putExtra(TextureViewFragment.SAMPLER_TYPE, samplerType)
+        }
+        pickTextureLauncher.launch(pickTextureIntent)
+    }
 }

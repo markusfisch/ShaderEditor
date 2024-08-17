@@ -1,37 +1,30 @@
-package de.markusfisch.android.shadereditor.activity;
+package de.markusfisch.android.shadereditor.activity
 
-import android.os.Bundle;
+import android.os.Bundle
+import de.markusfisch.android.shadereditor.R
+import de.markusfisch.android.shadereditor.fragment.TextureViewFragment
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics
+import de.markusfisch.android.shadereditor.widget.ScalingImageView
 
-import androidx.annotation.Nullable;
+class TextureViewActivity : AbstractSubsequentActivity(),
+    TextureViewFragment.ScalingImageViewProvider {
+    private lateinit var scalingImageView: ScalingImageView
 
-import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.fragment.TextureViewFragment;
-import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
-import de.markusfisch.android.shadereditor.widget.ScalingImageView;
+    override fun getScalingImageView(): ScalingImageView {
+        return scalingImageView
+    }
 
-public class TextureViewActivity
-		extends AbstractSubsequentActivity
-		implements TextureViewFragment.ScalingImageViewProvider {
-	private ScalingImageView scalingImageView;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_view_texture)
 
-	@Override
-	public ScalingImageView getScalingImageView() {
-		return scalingImageView;
-	}
+        scalingImageView = findViewById(R.id.scaling_image_view)
 
-	@Override
-	protected void onCreate(@Nullable Bundle state) {
-		super.onCreate(state);
-		setContentView(R.layout.activity_view_texture);
+        SystemBarMetrics.initSystemBars(this)
+        initToolbar(this)
 
-		scalingImageView = (ScalingImageView) findViewById(
-				R.id.scaling_image_view);
-
-		SystemBarMetrics.initSystemBars(this);
-		AbstractSubsequentActivity.initToolbar(this);
-
-		if (state == null) {
-			setFragmentForIntent(new TextureViewFragment(), getIntent());
-		}
-	}
+        if (savedInstanceState == null) {
+            setFragmentForIntent(TextureViewFragment(), intent)
+        }
+    }
 }

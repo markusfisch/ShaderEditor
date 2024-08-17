@@ -1,60 +1,60 @@
-package de.markusfisch.android.shadereditor.app;
+package de.markusfisch.android.shadereditor.app
 
-import android.app.Application;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.os.Build;
-import android.os.StrictMode;
+import android.app.Application
+import android.content.Intent
+import android.content.IntentFilter
+import android.os.Build
+import android.os.StrictMode
+import de.markusfisch.android.shadereditor.BuildConfig
+import de.markusfisch.android.shadereditor.database.Database
+import de.markusfisch.android.shadereditor.preference.Preferences
+import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver
+import de.markusfisch.android.shadereditor.view.UndoRedo
 
-import de.markusfisch.android.shadereditor.BuildConfig;
-import de.markusfisch.android.shadereditor.database.Database;
-import de.markusfisch.android.shadereditor.preference.Preferences;
-import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
-import de.markusfisch.android.shadereditor.view.UndoRedo;
+class ShaderEditorApp : Application() {
 
-public class ShaderEditorApp extends Application {
-	public static final Preferences preferences = new Preferences();
-	public static final Database db = new Database();
-	public static final UndoRedo.EditHistory editHistory =
-			new UndoRedo.EditHistory();
+    companion object {
+        @JvmField
+        val preferences = Preferences()
 
-	private static final BatteryLevelReceiver batteryLevelReceiver =
-			new BatteryLevelReceiver();
+        @JvmField
+        val db = Database()
 
-	@Override
-	public void onCreate() {
-		super.onCreate();
+        @JvmField
+        val editHistory = UndoRedo.EditHistory()
 
-		if (BuildConfig.DEBUG) {
-			StrictMode.setThreadPolicy(
-					new StrictMode.ThreadPolicy.Builder()
-							.detectAll()
-							.penaltyLog()
-							.build());
+        private val batteryLevelReceiver = BatteryLevelReceiver()
+    }
 
-			StrictMode.setVmPolicy(
-					new StrictMode.VmPolicy.Builder()
-							.detectLeakedSqlLiteObjects()
-							.penaltyLog()
-							.penaltyDeath()
-							.build());
-		}
+    override fun onCreate() {
+        super.onCreate()
 
-		preferences.init(this);
-		db.open(this);
+        if (BuildConfig.DEBUG) {
+            StrictMode.setThreadPolicy(
+                StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build()
+            )
+            StrictMode.setVmPolicy(
+                StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().penaltyLog()
+                    .penaltyDeath().build()
+            )
+        }
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			registerBatteryReceiver();
-		}
-	}
+        preferences.init(this)
+        db.open(this)
 
-	private void registerBatteryReceiver() {
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(Intent.ACTION_BATTERY_LOW);
-		filter.addAction(Intent.ACTION_BATTERY_OKAY);
-		filter.addAction(Intent.ACTION_BATTERY_CHANGED);
-		registerReceiver(batteryLevelReceiver, filter);
-		// Note it's not required to unregister the receiver because it
-		// needs to be there as long as this application is running.
-	}
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            registerBatteryReceiver()
+        }
+    }
+
+    private fun registerBatteryReceiver() {
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_BATTERY_LOW)
+            addAction(Intent.ACTION_BATTERY_OKAY)
+            addAction(Intent.ACTION_BATTERY_CHANGED)
+        }
+        registerReceiver(batteryLevelReceiver, filter)
+        // Note it's not required to unregister the receiver because it
+        // needs to be there as long as this application is running.
+    }
 }

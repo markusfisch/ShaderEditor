@@ -71,6 +71,7 @@ import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 import de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout;
+import kotlin.Unit;
 
 public class MainActivity
 		extends AppCompatActivity
@@ -88,7 +89,6 @@ public class MainActivity
 		}
 	};
 
-	@Nullable
 	private EditorFragment editorFragment;
 	private Toolbar toolbar;
 	private Spinner qualitySpinner;
@@ -146,7 +146,7 @@ public class MainActivity
 
 	@Override
 	public void onCodeCompletions(@NonNull List<String> completions, int position) {
-		completionsAdapter.setPosition(position);
+		completionsAdapter.setPositionInCompletion(position);
 		completionsAdapter.submitList(completions);
 	}
 
@@ -213,15 +213,15 @@ public class MainActivity
 					if (result.getResultCode() == RESULT_OK) {
 						PreviewActivity.RenderStatus status = PreviewActivity.renderStatus;
 
-						if (status.fps > 0) {
-							postUpdateFps(status.fps);
+						if (status.getFps() > 0) {
+							postUpdateFps(status.getFps());
 						}
 
-						if (status.infoLog != null) {
-							postInfoLog(status.infoLog);
+						if (status.getInfoLog() != null) {
+							postInfoLog(status.getInfoLog());
 						}
 
-						if (selectedShaderId > 0 && status.thumbnail != null && ShaderEditorApp.preferences.doesSaveOnRun()) {
+						if (selectedShaderId > 0 && status.getThumbnail() != null && ShaderEditorApp.preferences.doesSaveOnRun()) {
 							saveShader(selectedShaderId);
 						}
 					}
@@ -302,7 +302,10 @@ public class MainActivity
 		RecyclerView completions = extraKeys.findViewById(R.id.completions);
 		completions.setLayoutManager(new LinearLayoutManager(this, RecyclerView.HORIZONTAL,
 				false));
-		completionsAdapter = new CompletionsAdapter(sequence -> editorFragment.insert(sequence));
+		completionsAdapter = new CompletionsAdapter(sequence -> {
+			editorFragment.insert(sequence);
+			return Unit.INSTANCE;
+		});
 		completions.setAdapter(completionsAdapter);
 		DividerItemDecoration divider = new DividerItemDecoration(completions.getContext(),
 				DividerItemDecoration.HORIZONTAL);
@@ -814,7 +817,7 @@ public class MainActivity
 		String fragmentShader = editorFragment.getText();
 		byte[] thumbnail = ShaderEditorApp.preferences.doesRunInBackground()
 				? shaderView.getRenderer().getThumbnail()
-				: PreviewActivity.renderStatus.thumbnail;
+				: PreviewActivity.renderStatus.getThumbnail();
 
 		if (id > 0) {
 			ShaderEditorApp.db.updateShader(

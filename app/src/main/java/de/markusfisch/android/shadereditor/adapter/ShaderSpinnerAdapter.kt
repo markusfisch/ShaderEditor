@@ -1,35 +1,22 @@
-package de.markusfisch.android.shadereditor.adapter;
+package de.markusfisch.android.shadereditor.adapter
 
-import android.content.Context;
-import android.database.Cursor;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.SpinnerAdapter;
+import android.content.Context
+import android.database.Cursor
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.SpinnerAdapter
+import de.markusfisch.android.shadereditor.R
 
-import androidx.annotation.NonNull;
+class ShaderSpinnerAdapter(
+    context: Context, cursor: Cursor
+) : ShaderAdapter(context, cursor), SpinnerAdapter {
 
-import de.markusfisch.android.shadereditor.R;
+    override fun newDropDownView(context: Context, cursor: Cursor, parent: ViewGroup): View {
+        return LayoutInflater.from(parent.context).inflate(R.layout.row_shader, parent, false)
+    }
 
-public class ShaderSpinnerAdapter
-		extends ShaderAdapter
-		implements SpinnerAdapter {
-	public ShaderSpinnerAdapter(@NonNull Context context, @NonNull Cursor cursor) {
-		super(context, cursor);
-	}
-
-	@Override
-	public View newDropDownView(
-			Context context,
-			Cursor cursor,
-			@NonNull ViewGroup parent) {
-		return LayoutInflater
-				.from(parent.getContext())
-				.inflate(R.layout.row_shader, parent, false);
-	}
-
-	@Override
-	public void bindView(@NonNull View view, Context context, @NonNull Cursor cursor) {
-		setData(getViewHolder(view), cursor);
-	}
+    override fun bindView(view: View, context: Context, cursor: Cursor) {
+        setData(getViewHolder(view), cursor)
+    }
 }

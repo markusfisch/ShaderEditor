@@ -1,28 +1,24 @@
-package de.markusfisch.android.shadereditor.activity;
+package de.markusfisch.android.shadereditor.activity
 
-import android.os.Bundle;
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import de.markusfisch.android.shadereditor.R
 
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+abstract class AbstractContentActivity : AbstractSubsequentActivity() {
 
-import de.markusfisch.android.shadereditor.R;
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_subsequent)
 
-public abstract class AbstractContentActivity
-		extends AbstractSubsequentActivity {
-	@Override
-	protected void onCreate(@Nullable Bundle state) {
-		super.onCreate(state);
-		setContentView(R.layout.activity_subsequent);
+        initSystemBars(this)
+        initToolbar(this)
 
-		initSystemBars(this);
-		initToolbar(this);
+        if (savedInstanceState == null) {
+            setFragment(
+                supportFragmentManager, defaultFragment()
+            )
+        }
+    }
 
-		if (state == null) {
-			AbstractSubsequentActivity.setFragment(
-					getSupportFragmentManager(),
-					defaultFragment());
-		}
-	}
-
-	protected abstract Fragment defaultFragment();
+    protected abstract fun defaultFragment(): Fragment
 }

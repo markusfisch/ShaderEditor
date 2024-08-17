@@ -1,20 +1,17 @@
-package de.markusfisch.android.shadereditor.activity;
+package de.markusfisch.android.shadereditor.activity
 
-import android.content.Intent;
-import android.os.Bundle;
+import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 
-import androidx.appcompat.app.AppCompatActivity;
+class SplashActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-public class SplashActivity extends AppCompatActivity {
-	@Override
-	protected void onCreate(Bundle state) {
-		super.onCreate(state);
+        // It's important _not_ to inflate a layout file here
+        // because that would happen after the app is fully initialized what is too late.
 
-		// It's important _not_ to inflate a layout file here
-		// because that would happen after the app is fully
-		// initialized what is too late.
-
-		startActivity(new Intent(this, MainActivity.class));
-		finish();
-	}
+        startActivity(Intent(this, MainActivity::class.java))
+        finish()
+    }
 }

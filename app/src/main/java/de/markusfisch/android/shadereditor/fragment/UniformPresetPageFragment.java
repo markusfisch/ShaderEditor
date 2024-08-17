@@ -59,14 +59,14 @@ public class UniformPresetPageFragment extends AddUniformPageFragment {
 			AbstractSubsequentActivity.addFragment(
 					requireParentFragment().getParentFragmentManager(),
 					TextureParametersFragment.newInstance(
-							uniform.type,
-							uniform.name));
+							uniform.getType(),
+							uniform.getName()));
 		} else {
 			Activity activity = getActivity();
 			if (activity != null) {
 				AddUniformActivity.setAddUniformResult(activity,
-						"uniform " + uniform.type + " " +
-								uniform.name + ";");
+						"uniform " + uniform.getType() + " " +
+								uniform.getName() + ";");
 				activity.finish();
 			}
 		}

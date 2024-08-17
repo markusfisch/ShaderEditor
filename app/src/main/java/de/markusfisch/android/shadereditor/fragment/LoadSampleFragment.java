@@ -47,10 +47,10 @@ public class LoadSampleFragment extends Fragment {
 		if (activity != null) {
 			LoadSampleActivity.setSampleResult(
 					activity,
-					sample.name,
-					sample.resId,
-					sample.thumbId,
-					sample.quality);
+					sample.getName(),
+					sample.getResId(),
+					sample.getThumbId(),
+					sample.getQuality());
 			activity.finish();
 		}
 	}

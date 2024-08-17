@@ -1,93 +1,59 @@
-package de.markusfisch.android.shadereditor.adapter;
+package de.markusfisch.android.shadereditor.adapter
 
-import android.content.Context;
-import android.database.Cursor;
-import android.graphics.BitmapFactory;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CursorAdapter;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.content.Context
+import android.database.Cursor
+import android.graphics.BitmapFactory
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.CursorAdapter
+import android.widget.ImageView
+import android.widget.TextView
+import de.markusfisch.android.shadereditor.R
+import de.markusfisch.android.shadereditor.database.Database
 
-import androidx.annotation.NonNull;
+open class TextureAdapter(
+    context: Context, cursor: Cursor
+) : CursorAdapter(context, cursor, false) {
 
-import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.database.Database;
+    private val sizeFormat: String = context.getString(R.string.texture_size_format)
 
-public class TextureAdapter extends CursorAdapter {
-	@NonNull
-	private final String sizeFormat;
+    private val nameIndex: Int = cursor.getColumnIndex(Database.TEXTURES_NAME)
+    private val widthIndex: Int = cursor.getColumnIndex(Database.TEXTURES_WIDTH)
+    private val heightIndex: Int = cursor.getColumnIndex(Database.TEXTURES_HEIGHT)
+    private val thumbIndex: Int = cursor.getColumnIndex(Database.TEXTURES_THUMB)
 
-	private int nameIndex;
-	private int widthIndex;
-	private int heightIndex;
-	private int thumbIndex;
+    override fun newView(context: Context, cursor: Cursor, parent: ViewGroup): View {
+        return LayoutInflater.from(context).inflate(R.layout.row_texture, parent, false)
+    }
 
-	public TextureAdapter(@NonNull Context context, @NonNull Cursor cursor) {
-		super(context, cursor, false);
+    override fun bindView(view: View, context: Context, cursor: Cursor) {
+        val holder = getViewHolder(view)
+        setData(holder, cursor)
+    }
 
-		indexColumns(cursor);
-		sizeFormat = context.getString(R.string.texture_size_format);
-	}
+    fun getViewHolder(view: View): ViewHolder {
+        return (view.tag as? ViewHolder) ?: ViewHolder(view).apply {
+            view.tag = this
+        }
+    }
 
-	@Override
-	public View newView(Context context, Cursor cursor, @NonNull ViewGroup parent) {
-		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-		return inflater.inflate(R.layout.row_texture, parent, false);
-	}
+    fun setData(holder: ViewHolder, cursor: Cursor) {
+        val bytes = cursor.getBlob(thumbIndex)
+        val bitmap = bytes?.let {
+            if (it.isNotEmpty()) {
+                BitmapFactory.decodeByteArray(it, 0, it.size)
+            } else null
+        }
+        holder.preview.setImageBitmap(bitmap)
+        holder.name.text = cursor.getString(nameIndex)
+        holder.size.text =
+            String.format(sizeFormat, cursor.getInt(widthIndex), cursor.getInt(heightIndex))
+    }
 
-	@Override
-	public void bindView(@NonNull View view, Context context, @NonNull Cursor cursor) {
-		ViewHolder holder = getViewHolder(view);
-		setData(holder, cursor);
-	}
-
-	@NonNull
-	ViewHolder getViewHolder(@NonNull View view) {
-		ViewHolder holder;
-		if ((holder = (ViewHolder) view.getTag()) == null) {
-			holder = new ViewHolder();
-			holder.preview = view.findViewById(R.id.texture_preview);
-			holder.name = view.findViewById(R.id.texture_name);
-			holder.size = view.findViewById(R.id.texture_size);
-			view.setTag(holder);
-		}
-
-		return holder;
-	}
-
-	void setData(@NonNull ViewHolder holder, @NonNull Cursor cursor) {
-		byte[] bytes = cursor.getBlob(thumbIndex);
-
-		if (bytes != null && bytes.length > 0) {
-			holder.preview.setImageBitmap(BitmapFactory.decodeByteArray(
-					bytes,
-					0,
-					bytes.length));
-		}
-
-		holder.name.setText(cursor.getString(nameIndex));
-		holder.size.setText(String.format(
-				sizeFormat,
-				cursor.getInt(widthIndex),
-				cursor.getInt(heightIndex)));
-	}
-
-	private void indexColumns(@NonNull Cursor cursor) {
-		nameIndex = cursor.getColumnIndex(
-				Database.TEXTURES_NAME);
-		widthIndex = cursor.getColumnIndex(
-				Database.TEXTURES_WIDTH);
-		heightIndex = cursor.getColumnIndex(
-				Database.TEXTURES_HEIGHT);
-		thumbIndex = cursor.getColumnIndex(
-				Database.TEXTURES_THUMB);
-	}
-
-	private static final class ViewHolder {
-		private ImageView preview;
-		private TextView name;
-		private TextView size;
-	}
+    class ViewHolder(view: View) {
+        val preview: ImageView = view.findViewById(R.id.texture_preview)
+        val name: TextView = view.findViewById(R.id.texture_name)
+        val size: TextView = view.findViewById(R.id.texture_size)
+    }
 }

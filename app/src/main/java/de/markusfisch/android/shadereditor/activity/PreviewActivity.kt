@@ -1,131 +1,98 @@
-package de.markusfisch.android.shadereditor.activity;
+package de.markusfisch.android.shadereditor.activity
 
-import android.content.Intent;
-import android.os.Bundle;
+import android.content.Intent
+import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
+import de.markusfisch.android.shadereditor.opengl.ShaderError
+import de.markusfisch.android.shadereditor.opengl.ShaderRenderer
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics
+import de.markusfisch.android.shadereditor.widget.ShaderView
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+class PreviewActivity : AppCompatActivity() {
 
-import java.util.List;
+    companion object {
+        const val FRAGMENT_SHADER = "fragment_shader"
+        const val QUALITY = "quality"
+        @JvmField
+        val renderStatus = RenderStatus()
+    }
 
-import de.markusfisch.android.shadereditor.opengl.ShaderError;
-import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
-import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
-import de.markusfisch.android.shadereditor.widget.ShaderView;
+    class RenderStatus {
+        @Volatile
+        var fps: Int = 0
 
-public class PreviewActivity extends AppCompatActivity {
-	public static class RenderStatus {
-		volatile int fps;
-		@Nullable
-		volatile List<ShaderError> infoLog;
-		@Nullable
-		byte[] thumbnail;
+        @Volatile
+        var infoLog: List<ShaderError>? = null
 
-		RenderStatus() {
-			reset();
-		}
+        @Volatile
+        var thumbnail: ByteArray? = null
 
-		void reset() {
-			fps = 0;
-			infoLog = null;
-			thumbnail = null;
-		}
-	}
+        fun reset() {
+            fps = 0
+            infoLog = null
+            thumbnail = null
+        }
+    }
 
-	public static final String FRAGMENT_SHADER = "fragment_shader";
-	public static final String QUALITY = "quality";
-	public static final RenderStatus renderStatus = new RenderStatus();
+    private val finishRunnable = Runnable { finish() }
+    private val thumbnailRunnable = Runnable {
+        shaderView?.let {
+            renderStatus.thumbnail = it.renderer.thumbnail
+        }
+    }
 
-	private final Runnable finishRunnable = this::finish;
-	private final Runnable thumbnailRunnable = new Runnable() {
-		@Override
-		public void run() {
-			if (shaderView == null) {
-				return;
-			}
+    private var shaderView: ShaderView? = null
 
-			renderStatus.thumbnail = shaderView.getRenderer().getThumbnail();
-		}
-	};
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-	private ShaderView shaderView;
+        renderStatus.reset()
+        shaderView = ShaderView(this)
 
-	@Override
-	protected void onCreate(Bundle state) {
-		super.onCreate(state);
+        if (!setShaderFromIntent(intent)) {
+            finish()
+            return
+        }
 
-		renderStatus.reset();
-		shaderView = new ShaderView(this);
+        shaderView?.renderer?.setOnRendererListener(object : ShaderRenderer.OnRendererListener {
+            override fun onFramesPerSecond(fps: Int) {
+                renderStatus.fps = fps
+            }
 
-		if (!setShaderFromIntent(getIntent())) {
-			finish();
-			return;
-		}
+            override fun onInfoLog(infoLog: List<ShaderError>) {
+                renderStatus.infoLog = infoLog
+                if (infoLog.isNotEmpty()) {
+                    runOnUiThread(finishRunnable)
+                }
+            }
+        })
 
-		shaderView.getRenderer().setOnRendererListener(
-				new ShaderRenderer.OnRendererListener() {
-					@Override
-					public void onFramesPerSecond(int fps) {
-						// Invoked from the GL thread.
-						renderStatus.fps = fps;
-					}
+        setContentView(shaderView)
+        SystemBarMetrics.hideNavigation(window)
+    }
 
-					@Override
-					public void onInfoLog(@NonNull List<ShaderError> infoLog) {
-						// Invoked from the GL thread.
-						renderStatus.infoLog = infoLog;
-						if (!infoLog.isEmpty()) {
-							runOnUiThread(finishRunnable);
-						}
-					}
-				});
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        if (!setShaderFromIntent(intent)) {
+            finish()
+        }
+    }
 
-		setContentView(shaderView);
-		SystemBarMetrics.hideNavigation(getWindow());
-	}
+    override fun onStart() {
+        super.onStart()
+        shaderView?.onResume()
+        renderStatus.reset()
+        shaderView?.postDelayed(thumbnailRunnable, 500)
+    }
 
-	@Override
-	protected void onNewIntent(Intent intent) {
-		super.onNewIntent(intent);
+    override fun onStop() {
+        super.onStop()
+        shaderView?.onPause()
+    }
 
-		if (!setShaderFromIntent(intent)) {
-			finish();
-		}
-	}
-
-	@Override
-	protected void onStart() {
-		// Don't use onResume()/onPause() because in multi window mode
-		// an activity may be paused but should still show animations.
-		super.onStart();
-
-		shaderView.onResume();
-		renderStatus.reset();
-		shaderView.postDelayed(thumbnailRunnable, 500);
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-
-		shaderView.onPause();
-	}
-
-	private boolean setShaderFromIntent(@Nullable Intent intent) {
-		String fragmentShader;
-
-		if (intent == null ||
-				shaderView == null ||
-				(fragmentShader = intent.getStringExtra(
-						FRAGMENT_SHADER)) == null) {
-			return false;
-		}
-
-		shaderView.setFragmentShader(
-				fragmentShader,
-				intent.getFloatExtra(QUALITY, 1f));
-
-		return true;
-	}
+    private fun setShaderFromIntent(intent: Intent?): Boolean {
+        val fragmentShader = intent?.getStringExtra(FRAGMENT_SHADER) ?: return false
+        shaderView?.setFragmentShader(fragmentShader, intent.getFloatExtra(QUALITY, 1f))
+        return true
+    }
 }
