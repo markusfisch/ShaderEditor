@@ -33,7 +33,6 @@ public class CubeMapFragment extends Fragment {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		setHasOptionsMenu(true);
 
 		// Register the ActivityResultLauncher for picking an image
 		pickImageLauncher = registerForActivityResult(
