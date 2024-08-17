@@ -4,11 +4,13 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 
+import androidx.annotation.NonNull;
+
 public class MagneticFieldListener extends AbstractListener {
 	public final float[] values = new float[]{0, 0, 0};
 	public final float[] filtered = new float[]{0, 0, 0};
 
-	public MagneticFieldListener(Context context) {
+	public MagneticFieldListener(@NonNull Context context) {
 		super(context);
 	}
 
@@ -17,7 +19,7 @@ public class MagneticFieldListener extends AbstractListener {
 	}
 
 	@Override
-	public void onSensorChanged(SensorEvent event) {
+	public void onSensorChanged(@NonNull SensorEvent event) {
 		final float a = .8f;
 		final float b = 1f - a;
 

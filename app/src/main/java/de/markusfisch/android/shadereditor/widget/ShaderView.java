@@ -6,6 +6,9 @@ import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.egl.EGLContext;
@@ -40,7 +43,7 @@ public class ShaderView extends GLSurfaceView {
 	// Click handling is implemented in renderer.
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
-	public boolean onTouchEvent(MotionEvent event) {
+	public boolean onTouchEvent(@NonNull MotionEvent event) {
 		renderer.touchAt(event);
 		return true;
 	}
@@ -72,7 +75,7 @@ public class ShaderView extends GLSurfaceView {
 		setRenderMode(renderMode);
 	}
 
-	private static String removeNonAscii(String text) {
+	private static String removeNonAscii(@Nullable String text) {
 		return text == null
 				? null
 				: text.replaceAll("[^\\x0A\\x09\\x20-\\x7E]", "");
@@ -87,7 +90,7 @@ public class ShaderView extends GLSurfaceView {
 		}
 
 		@Override
-		public EGLContext createContext(EGL10 egl, EGLDisplay display,
+		public EGLContext createContext(@NonNull EGL10 egl, EGLDisplay display,
 				EGLConfig eglConfig) {
 			int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
 			EGLContext context = egl.eglCreateContext(display, eglConfig,
@@ -110,7 +113,7 @@ public class ShaderView extends GLSurfaceView {
 		}
 
 		@Override
-		public void destroyContext(EGL10 egl, EGLDisplay display,
+		public void destroyContext(@NonNull EGL10 egl, EGLDisplay display,
 				EGLContext context) {
 			egl.eglDestroyContext(display, context);
 		}

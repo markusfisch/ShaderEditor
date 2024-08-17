@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.List;
@@ -16,7 +17,9 @@ import de.markusfisch.android.shadereditor.widget.ShaderView;
 public class PreviewActivity extends AppCompatActivity {
 	public static class RenderStatus {
 		volatile int fps;
+		@Nullable
 		volatile List<ShaderError> infoLog;
+		@Nullable
 		byte[] thumbnail;
 
 		RenderStatus() {
@@ -109,7 +112,7 @@ public class PreviewActivity extends AppCompatActivity {
 		shaderView.onPause();
 	}
 
-	private boolean setShaderFromIntent(Intent intent) {
+	private boolean setShaderFromIntent(@Nullable Intent intent) {
 		String fragmentShader;
 
 		if (intent == null ||

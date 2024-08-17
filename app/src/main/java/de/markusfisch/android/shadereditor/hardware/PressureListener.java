@@ -4,10 +4,12 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 
+import androidx.annotation.NonNull;
+
 public class PressureListener extends AbstractListener {
 	private float pressure = 0f;
 
-	public PressureListener(Context context) {
+	public PressureListener(@NonNull Context context) {
 		super(context);
 	}
 
@@ -16,7 +18,7 @@ public class PressureListener extends AbstractListener {
 	}
 
 	@Override
-	public void onSensorChanged(SensorEvent event) {
+	public void onSensorChanged(@NonNull SensorEvent event) {
 		pressure = event.values[0];
 	}
 

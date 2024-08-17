@@ -6,12 +6,14 @@ import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.BatteryManager;
 
+import androidx.annotation.NonNull;
+
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.service.ShaderWallpaperService;
 
 public class BatteryLevelReceiver extends BroadcastReceiver {
 	@Override
-	public void onReceive(Context context, Intent intent) {
+	public void onReceive(Context context, @NonNull Intent intent) {
 		String action = intent.getAction();
 
 		if (Intent.ACTION_BATTERY_LOW.equals(action)) {

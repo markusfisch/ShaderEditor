@@ -54,7 +54,7 @@ public class ErrorAdapter extends ListAdapter<ShaderError, ErrorAdapter.ViewHold
 			errorMessage = itemView.findViewById(R.id.error_message);
 		}
 
-		public void update(@NonNull ShaderError error, ErrorAdapter.OnItemClickListener listener) {
+		public void update(@NonNull ShaderError error, @NonNull ErrorAdapter.OnItemClickListener listener) {
 			if (error.hasLine()) {
 				errorLine.setText(String.format(Locale.getDefault(), "%d: ", error.getLine()));
 			} else {

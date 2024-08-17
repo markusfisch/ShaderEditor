@@ -7,6 +7,7 @@ import android.database.MergeCursor;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import de.markusfisch.android.shadereditor.R;
@@ -18,6 +19,7 @@ import de.markusfisch.android.shadereditor.preference.Preferences;
 public class ShaderListPreferenceDialogFragment
 		extends MaterialPreferenceDialogFragmentCompat {
 
+	@Nullable
 	private ShaderSpinnerAdapter adapter;
 
 	@NonNull
@@ -86,6 +88,7 @@ public class ShaderListPreferenceDialogFragment
 		}
 	}
 
+	@NonNull
 	private Cursor addEmptyItem(Cursor cursor) {
 		try (MatrixCursor matrixCursor = new MatrixCursor(new String[]{
 				Database.SHADERS_ID,

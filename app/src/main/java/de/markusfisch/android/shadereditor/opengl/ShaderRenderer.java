@@ -19,6 +19,7 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -226,19 +227,30 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private final float[] inclinationMatrix = new float[9];
 	private final float[] orientation = new float[]{0, 0, 0};
 	private final Context context;
+	@NonNull
 	private final ByteBuffer vertexBuffer;
 
 	private AccelerometerListener accelerometerListener;
+	@Nullable
 	private CameraListener cameraListener;
+	@Nullable
 	private GravityListener gravityListener;
+	@Nullable
 	private GyroscopeListener gyroscopeListener;
+	@Nullable
 	private MagneticFieldListener magneticFieldListener;
+	@Nullable
 	private LightListener lightListener;
+	@Nullable
 	private LinearAccelerationListener linearAccelerationListener;
+	@Nullable
 	private PressureListener pressureListener;
+	@Nullable
 	private ProximityListener proximityListener;
+	@Nullable
 	private RotationVectorListener rotationVectorListener;
 	private OnRendererListener onRendererListener;
+	@Nullable
 	private String fragmentShader;
 	private int version = 2;
 	private int deviceRotation;
@@ -298,9 +310,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private float quality = 1f;
 	private float startRandom;
 	private float fTimeMax;
+	@Nullable
 	private float[] gravityValues;
+	@Nullable
 	private float[] linearValues;
 
+	@Nullable
 	private volatile byte[] thumbnail = new byte[1];
 	private volatile long nextFpsUpdate = 0;
 	private volatile float sum;
@@ -666,7 +681,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		unregisterCameraListener();
 	}
 
-	public void touchAt(MotionEvent e) {
+	public void touchAt(@NonNull MotionEvent e) {
 		float x = e.getX() * quality;
 		float y = e.getY() * quality;
 
@@ -761,6 +776,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 	}
 
+	@NonNull
 	private String getVertexShader() {
 		Matcher m = PATTERN_VERSION.matcher(fragmentShader);
 		if (version == 3 && m.find()) {
@@ -963,6 +979,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 	}
 
+	@Nullable
 	private AccelerometerListener getAccelerometerListener() {
 		if (accelerometerListener == null) {
 			accelerometerListener = new AccelerometerListener(context);
@@ -1127,7 +1144,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			int idx,
 			int width,
 			int height,
-			BackBufferParameters tp) {
+			@NonNull BackBufferParameters tp) {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, tx[idx]);
 
 		Bitmap bitmap = tp.getPresetBitmap(width, height);
@@ -1211,7 +1228,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private void createTexture(
 			int id,
 			Bitmap bitmap,
-			TextureParameters tp) {
+			@NonNull TextureParameters tp) {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, id);
 		tp.setParameters(GLES20.GL_TEXTURE_2D);
 		setTexture(bitmap);
@@ -1227,8 +1244,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 	private void createCubeTexture(
 			int id,
-			Bitmap bitmap,
-			TextureParameters tp) {
+			@NonNull Bitmap bitmap,
+			@NonNull TextureParameters tp) {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, id);
 		tp.setParameters(GLES20.GL_TEXTURE_CUBE_MAP);
 
@@ -1297,7 +1314,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private void openCameraListener(
 			String name,
 			int id,
-			TextureParameters tp) {
+			@NonNull TextureParameters tp) {
 		int lensFacing = UNIFORM_CAMERA_BACK.equals(name)
 				? CameraSelector.LENS_FACING_BACK
 				: CameraSelector.LENS_FACING_FRONT;
@@ -1338,12 +1355,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 	private static void setCameraTextureProperties(
 			int id,
-			TextureParameters tp) {
+			@NonNull TextureParameters tp) {
 		GLES20.glBindTexture(GLES11Ext.GL_TEXTURE_EXTERNAL_OES, id);
 		tp.setParameters(GLES11Ext.GL_TEXTURE_EXTERNAL_OES);
 	}
 
-	private static float parseFTime(String source) {
+	private static float parseFTime(@Nullable String source) {
 		if (source != null) {
 			Matcher m = PATTERN_FTIME.matcher(source);
 			String s;
@@ -1355,7 +1372,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		return 3f;
 	}
 
-	private String indexTextureNames(String source) {
+	@Nullable
+	private String indexTextureNames(@Nullable String source) {
 		ShaderError.resetSilentlyAddedExtraLines();
 		if (source == null) {
 			return null;
@@ -1415,7 +1433,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		return source;
 	}
 
-	private static String addPreprocessorDirective(String source,
+	@NonNull
+	private static String addPreprocessorDirective(@NonNull String source,
 			String directive) {
 		ShaderError.addSilentlyAddedExtraLine();
 		// #version must always be the very first directive.
@@ -1460,7 +1479,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		return wm.getDefaultDisplay().getRotation();
 	}
 
-	private static float getMediaVolumeLevel(Context context) {
+	private static float getMediaVolumeLevel(@NonNull Context context) {
 		AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
 		float maxVolume = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
 		float currVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);

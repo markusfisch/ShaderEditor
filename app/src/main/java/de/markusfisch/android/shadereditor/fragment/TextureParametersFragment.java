@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import de.markusfisch.android.shadereditor.R;
@@ -23,11 +24,14 @@ public class TextureParametersFragment extends Fragment {
 
 	private TextureParametersView textureParameterView;
 	private BackBufferParametersView backBufferParametersView;
+	@Nullable
 	private String samplerType;
+	@Nullable
 	private String textureName;
 	private TextureParameters textureParameters;
 	private boolean isBackBuffer;
 
+	@NonNull
 	public static Fragment newInstance(String type, String name) {
 		Bundle args = new Bundle();
 		args.putString(TYPE, type);

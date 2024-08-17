@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import de.markusfisch.android.shadereditor.R;
@@ -18,7 +19,7 @@ public class CropImageView extends ScalingImageView {
 	private final int padding;
 	private final int toolbarHeight;
 
-	public CropImageView(Context context, AttributeSet attr) {
+	public CropImageView(@NonNull Context context, AttributeSet attr) {
 		super(context, attr);
 
 		paint.setColor(ContextCompat.getColor(context, R.color.crop_bound));
@@ -64,7 +65,7 @@ public class CropImageView extends ScalingImageView {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(@NonNull Canvas canvas) {
 		super.onDraw(canvas);
 		canvas.drawRect(getBounds(), paint);
 	}

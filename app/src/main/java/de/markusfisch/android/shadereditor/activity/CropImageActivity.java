@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.fragment.CropImageFragment;
@@ -30,7 +31,7 @@ public class CropImageActivity
 	}
 
 	@Override
-	protected void onCreate(Bundle state) {
+	protected void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_crop_image);
 

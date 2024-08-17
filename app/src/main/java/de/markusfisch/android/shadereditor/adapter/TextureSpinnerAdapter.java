@@ -7,12 +7,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SpinnerAdapter;
 
+import androidx.annotation.NonNull;
+
 import de.markusfisch.android.shadereditor.R;
 
 public class TextureSpinnerAdapter
 		extends TextureAdapter
 		implements SpinnerAdapter {
-	public TextureSpinnerAdapter(Context context, Cursor cursor) {
+	public TextureSpinnerAdapter(@NonNull Context context, @NonNull Cursor cursor) {
 		super(context, cursor);
 	}
 
@@ -20,14 +22,14 @@ public class TextureSpinnerAdapter
 	public View newDropDownView(
 			Context context,
 			Cursor cursor,
-			ViewGroup parent) {
+			@NonNull ViewGroup parent) {
 		return LayoutInflater
 				.from(parent.getContext())
 				.inflate(R.layout.row_texture, parent, false);
 	}
 
 	@Override
-	public void bindView(View view, Context context, Cursor cursor) {
+	public void bindView(@NonNull View view, Context context, @NonNull Cursor cursor) {
 		setData(getViewHolder(view), cursor);
 	}
 }

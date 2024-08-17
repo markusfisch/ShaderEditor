@@ -14,6 +14,9 @@ import android.graphics.ColorSpace;
 import android.os.Build;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +51,8 @@ public class Database {
 	private SQLiteDatabase db;
 	private int textureThumbnailSize;
 
-	public String importDatabase(Context context, String fileName) {
+	@Nullable
+	public String importDatabase(@NonNull Context context, String fileName) {
 		SQLiteDatabase edb = null;
 		try {
 			edb = new ImportHelper(new ExternalDatabaseContext(context),
@@ -72,7 +76,7 @@ public class Database {
 		}
 	}
 
-	public void open(Context context) {
+	public void open(@NonNull Context context) {
 		textureThumbnailSize = Math.round(
 				context.getResources().getDisplayMetrics().density * 48f);
 		try {
@@ -89,7 +93,7 @@ public class Database {
 		return db != null;
 	}
 
-	public static long getLong(Cursor cursor, String column) {
+	public static long getLong(@NonNull Cursor cursor, String column) {
 		int index = cursor.getColumnIndex(column);
 		if (index < 0) {
 			return 0L;
@@ -97,7 +101,7 @@ public class Database {
 		return cursor.getLong(index);
 	}
 
-	public static float getFloat(Cursor cursor, String column) {
+	public static float getFloat(@NonNull Cursor cursor, String column) {
 		int index = cursor.getColumnIndex(column);
 		if (index < 0) {
 			return 0f;
@@ -105,7 +109,7 @@ public class Database {
 		return cursor.getFloat(index);
 	}
 
-	public static String getString(Cursor cursor, String column) {
+	public static String getString(@NonNull Cursor cursor, String column) {
 		int index = cursor.getColumnIndex(column);
 		if (index < 0) {
 			return "";
@@ -113,7 +117,7 @@ public class Database {
 		return cursor.getString(index);
 	}
 
-	public static byte[] getBlob(Cursor cursor, String column) {
+	public static byte[] getBlob(@NonNull Cursor cursor, String column) {
 		int index = cursor.getColumnIndex(column);
 		if (index < 0) {
 			return null;
@@ -121,7 +125,7 @@ public class Database {
 		return cursor.getBlob(index);
 	}
 
-	public static boolean closeIfEmpty(Cursor cursor) {
+	public static boolean closeIfEmpty(@Nullable Cursor cursor) {
 		try {
 			if (cursor != null && cursor.moveToFirst()) {
 				return false;
@@ -158,7 +162,7 @@ public class Database {
 				null);
 	}
 
-	public Cursor getTextures(String substring) {
+	public Cursor getTextures(@Nullable String substring) {
 		boolean useSubstring = substring != null;
 		return db.rawQuery(
 				"SELECT " +
@@ -178,7 +182,7 @@ public class Database {
 						: null);
 	}
 
-	public Cursor getSamplerCubeTextures(String substring) {
+	public Cursor getSamplerCubeTextures(@Nullable String substring) {
 		boolean useSubstring = substring != null;
 		return db.rawQuery(
 				"SELECT " +
@@ -299,14 +303,15 @@ public class Database {
 		return bm;
 	}
 
-	public Bitmap getTextureBitmap(Cursor cursor) {
+	@Nullable
+	public Bitmap getTextureBitmap(@NonNull Cursor cursor) {
 		return closeIfEmpty(cursor)
 				? null
 				: textureFromCursor(cursor);
 	}
 
 	public static long insertShader(
-			SQLiteDatabase db,
+			@NonNull SQLiteDatabase db,
 			String shader,
 			String name,
 			String created,
@@ -324,7 +329,7 @@ public class Database {
 	}
 
 	public static long insertShader(
-			SQLiteDatabase db,
+			@NonNull SQLiteDatabase db,
 			String shader,
 			String name,
 			byte[] thumbnail,
@@ -341,7 +346,7 @@ public class Database {
 	}
 
 	public long insertShader(
-			Context context,
+			@NonNull Context context,
 			String shader,
 			String name) {
 		return insertShader(db, shader, name,
@@ -349,7 +354,7 @@ public class Database {
 				1f);
 	}
 
-	public long insertNewShader(Context context) {
+	public long insertNewShader(@NonNull Context context) {
 		return insertShaderFromResource(
 				context,
 				null,
@@ -359,7 +364,7 @@ public class Database {
 	}
 
 	public long insertShaderFromResource(
-			Context context,
+			@NonNull Context context,
 			String name,
 			int sourceId,
 			int thumbId,
@@ -377,7 +382,7 @@ public class Database {
 	}
 
 	public static long insertTexture(
-			SQLiteDatabase db,
+			@NonNull SQLiteDatabase db,
 			String name,
 			int width,
 			int height,
@@ -395,9 +400,9 @@ public class Database {
 	}
 
 	public static long insertTexture(
-			SQLiteDatabase db,
+			@NonNull SQLiteDatabase db,
 			String name,
-			Bitmap bitmap,
+			@NonNull Bitmap bitmap,
 			int thumbnailSize) {
 		Bitmap thumbnail;
 
@@ -424,7 +429,7 @@ public class Database {
 				bitmapToPng(bitmap));
 	}
 
-	public long insertTexture(String name, Bitmap bitmap) {
+	public long insertTexture(String name, @NonNull Bitmap bitmap) {
 		return insertTexture(
 				db,
 				name,
@@ -435,7 +440,7 @@ public class Database {
 	public void updateShader(
 			long id,
 			String shader,
-			byte[] thumbnail,
+			@Nullable byte[] thumbnail,
 			float quality) {
 		ContentValues cv = new ContentValues();
 		cv.put(SHADERS_FRAGMENT_SHADER, shader);
@@ -477,21 +482,24 @@ public class Database {
 				new String[]{String.valueOf(id)});
 	}
 
+	@NonNull
 	private static String currentTime() {
 		return new SimpleDateFormat(
 				"yyyy-MM-dd HH:mm:ss",
 				Locale.US).format(new Date());
 	}
 
-	private static Bitmap textureFromCursor(Cursor cursor) {
+	@Nullable
+	private static Bitmap textureFromCursor(@NonNull Cursor cursor) {
 		byte[] data = getBlob(cursor, TEXTURES_MATRIX);
 		return data == null
 				? null
 				: BitmapFactory.decodeByteArray(data, 0, data.length);
 	}
 
+	@Nullable
 	private static String loadRawResource(
-			Context context,
+			@NonNull Context context,
 			int id) throws IOException {
 		InputStream in = null;
 		try {
@@ -507,13 +515,13 @@ public class Database {
 		}
 	}
 
-	private static byte[] loadBitmapResource(Context context, int id) {
+	private static byte[] loadBitmapResource(@NonNull Context context, int id) {
 		return bitmapToPng(BitmapFactory.decodeResource(
 				context.getResources(),
 				id));
 	}
 
-	private static byte[] bitmapToPng(Bitmap bitmap) {
+	private static byte[] bitmapToPng(@NonNull Bitmap bitmap) {
 		// Convert color space to SRGB because GLUtils.texImage2D()
 		// can't handle other formats.
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
@@ -538,7 +546,7 @@ public class Database {
 		return Math.round(((float) height / width) * 100f) / 100f;
 	}
 
-	private void createShadersTable(SQLiteDatabase db, Context context) {
+	private void createShadersTable(@NonNull SQLiteDatabase db, @NonNull Context context) {
 		db.execSQL("DROP TABLE IF EXISTS " + SHADERS);
 		db.execSQL("CREATE TABLE " + SHADERS + " (" +
 				SHADERS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -552,14 +560,14 @@ public class Database {
 		insertInitalShaders(db, context);
 	}
 
-	private static void addShadersQuality(SQLiteDatabase db) {
+	private static void addShadersQuality(@NonNull SQLiteDatabase db) {
 		db.execSQL("ALTER TABLE " + SHADERS +
 				" ADD COLUMN " + SHADERS_QUALITY + " REAL;");
 		db.execSQL("UPDATE " + SHADERS +
 				" SET " + SHADERS_QUALITY + " = 1;");
 	}
 
-	private void insertInitalShaders(SQLiteDatabase db, Context context) {
+	private void insertInitalShaders(@NonNull SQLiteDatabase db, @NonNull Context context) {
 		try {
 			insertShader(
 					db,
@@ -577,7 +585,7 @@ public class Database {
 		}
 	}
 
-	private void createTexturesTable(SQLiteDatabase db, Context context) {
+	private void createTexturesTable(@NonNull SQLiteDatabase db, @NonNull Context context) {
 		db.execSQL("DROP TABLE IF EXISTS " + TEXTURES);
 		db.execSQL("CREATE TABLE " + TEXTURES + " (" +
 				TEXTURES_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -591,7 +599,7 @@ public class Database {
 		insertInitalTextures(db, context);
 	}
 
-	private static void addTexturesWidthHeightRatio(SQLiteDatabase db) {
+	private static void addTexturesWidthHeightRatio(@NonNull SQLiteDatabase db) {
 		db.execSQL("ALTER TABLE " + TEXTURES +
 				" ADD COLUMN " + TEXTURES_WIDTH + " INTEGER;");
 		db.execSQL("ALTER TABLE " + TEXTURES +
@@ -635,12 +643,12 @@ public class Database {
 		cursor.close();
 	}
 
-	private static void addShaderNames(SQLiteDatabase db) {
+	private static void addShaderNames(@NonNull SQLiteDatabase db) {
 		db.execSQL("ALTER TABLE " + SHADERS +
 				" ADD COLUMN " + SHADERS_NAME + " TEXT;");
 	}
 
-	private void insertInitalTextures(SQLiteDatabase db, Context context) {
+	private void insertInitalTextures(@NonNull SQLiteDatabase db, @NonNull Context context) {
 		Database.insertTexture(
 				db,
 				context.getString(R.string.texture_name_noise),
@@ -651,8 +659,8 @@ public class Database {
 	}
 
 	private static boolean importShaders(
-			SQLiteDatabase dst,
-			SQLiteDatabase src) {
+			@NonNull SQLiteDatabase dst,
+			@NonNull SQLiteDatabase src) {
 		Cursor cursor = src.rawQuery(
 				"SELECT *" +
 						" FROM " + SHADERS +
@@ -694,7 +702,7 @@ public class Database {
 	}
 
 	private static boolean shaderExists(
-			SQLiteDatabase db,
+			@NonNull SQLiteDatabase db,
 			String createdDate,
 			String modifiedDate) {
 		Cursor cursor = db.rawQuery(
@@ -712,8 +720,8 @@ public class Database {
 	}
 
 	private static boolean importTextures(
-			SQLiteDatabase dst,
-			SQLiteDatabase src) {
+			@NonNull SQLiteDatabase dst,
+			@NonNull SQLiteDatabase src) {
 		Cursor cursor = src.rawQuery(
 				"SELECT " +
 						TEXTURES_ID + ", " +
@@ -746,8 +754,8 @@ public class Database {
 	}
 
 	private static boolean importTexture(
-			SQLiteDatabase dst,
-			SQLiteDatabase src,
+			@NonNull SQLiteDatabase dst,
+			@NonNull SQLiteDatabase src,
 			long srcId) {
 		Cursor cursor = src.rawQuery(
 				"SELECT * " +
@@ -783,7 +791,7 @@ public class Database {
 		return success;
 	}
 
-	private static boolean moveToFirstAndCatchOutOfMemory(Cursor cursor) {
+	private static boolean moveToFirstAndCatchOutOfMemory(@NonNull Cursor cursor) {
 		try {
 			return cursor.moveToFirst();
 		} catch (SQLException e) {
@@ -793,7 +801,7 @@ public class Database {
 		}
 	}
 
-	private static boolean textureExists(SQLiteDatabase db, String name) {
+	private static boolean textureExists(@NonNull SQLiteDatabase db, String name) {
 		Cursor cursor = db.rawQuery(
 				"SELECT " + TEXTURES_ID +
 						" FROM " + TEXTURES +
@@ -811,7 +819,7 @@ public class Database {
 		private final Context context;
 
 		@Override
-		public void onCreate(SQLiteDatabase db) {
+		public void onCreate(@NonNull SQLiteDatabase db) {
 			createShadersTable(db, context);
 			createTexturesTable(db, context);
 		}
@@ -827,7 +835,7 @@ public class Database {
 
 		@Override
 		public void onUpgrade(
-				SQLiteDatabase db,
+				@NonNull SQLiteDatabase db,
 				int oldVersion,
 				int newVersion) {
 			if (oldVersion < 2) {
@@ -891,20 +899,21 @@ public class Database {
 			super(base);
 		}
 
+		@NonNull
 		@Override
-		public File getDatabasePath(String name) {
+		public File getDatabasePath(@NonNull String name) {
 			return new File(getFilesDir(), name);
 		}
 
 		@Override
-		public SQLiteDatabase openOrCreateDatabase(String name, int mode,
+		public SQLiteDatabase openOrCreateDatabase(@NonNull String name, int mode,
 				SQLiteDatabase.CursorFactory factory,
 				DatabaseErrorHandler errorHandler) {
 			return openOrCreateDatabase(name, mode, factory);
 		}
 
 		@Override
-		public SQLiteDatabase openOrCreateDatabase(String name, int mode,
+		public SQLiteDatabase openOrCreateDatabase(@NonNull String name, int mode,
 				SQLiteDatabase.CursorFactory factory) {
 			return SQLiteDatabase.openOrCreateDatabase(
 					getDatabasePath(name), null);

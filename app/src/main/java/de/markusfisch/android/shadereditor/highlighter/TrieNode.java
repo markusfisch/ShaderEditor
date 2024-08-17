@@ -26,6 +26,7 @@ public final class TrieNode {
 	 * @param value Value to insert.
 	 * @return this
 	 */
+	@NonNull
 	public TrieNode insert(final @NonNull String key, short value) {
 		TrieNode currentNode = this;
 
@@ -50,6 +51,7 @@ public final class TrieNode {
 	 * @return this
 	 * @see #insert(String, short)
 	 */
+	@NonNull
 	public TrieNode insert(final @NonNull String key, @NonNull Enum<?> value) {
 		return insert(key, (short) value.ordinal());
 	}
@@ -73,7 +75,7 @@ public final class TrieNode {
 		return currentNode.value();
 	}
 
-	public void findAll(String prefix, short invalid, List<String> result) {
+	public void findAll(@Nullable String prefix, short invalid, @NonNull List<String> result) {
 		if (prefix == null || prefix.isEmpty()) {
 			return; // Optionally handle edge cases or invalid input
 		}

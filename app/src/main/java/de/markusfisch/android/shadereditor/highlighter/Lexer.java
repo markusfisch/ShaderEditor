@@ -69,7 +69,7 @@ public class Lexer implements Iterable<Token> {
 		}
 
 		@Override
-		public boolean equals(Object o) {
+		public boolean equals(@Nullable Object o) {
 			if (this == o) return true;
 			if (o == null || getClass() != o.getClass()) return false;
 
@@ -462,7 +462,7 @@ public class Lexer implements Iterable<Token> {
 	 * @param edited   List of tokens after change.
 	 * @return A {@link Diff} object that describes the area of change.
 	 */
-	public static @NonNull Diff diff(List<Token> original, List<Token> edited) {
+	public static @NonNull Diff diff(@NonNull List<Token> original, @NonNull List<Token> edited) {
 		int start = 0;
 		int end = 1;
 		int max = Math.min(original.size(), edited.size());
@@ -600,6 +600,7 @@ public class Lexer implements Iterable<Token> {
 		return possibleOctal && incorrectOctal ? TokenType.INVALID : type;
 	}
 
+	@NonNull
 	public static List<String> completeKeyword(@NonNull String text,
 			@NonNull Token.Category type) {
 		List<String> result = new ArrayList<>();

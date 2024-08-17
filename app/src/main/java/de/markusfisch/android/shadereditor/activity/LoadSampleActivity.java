@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import de.markusfisch.android.shadereditor.fragment.LoadSampleFragment;
@@ -15,7 +16,7 @@ public class LoadSampleActivity extends AbstractContentActivity {
 	public static final String QUALITY = "quality";
 
 	public static void setSampleResult(
-			Activity activity,
+			@NonNull Activity activity,
 			String name,
 			int resId,
 			int thumbId,
@@ -32,6 +33,7 @@ public class LoadSampleActivity extends AbstractContentActivity {
 		activity.setResult(RESULT_OK, data);
 	}
 
+	@NonNull
 	@Override
 	protected Fragment defaultFragment() {
 		return new LoadSampleFragment();

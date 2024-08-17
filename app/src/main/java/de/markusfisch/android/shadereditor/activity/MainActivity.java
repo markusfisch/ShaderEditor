@@ -88,6 +88,7 @@ public class MainActivity
 		}
 	};
 
+	@Nullable
 	private EditorFragment editorFragment;
 	private Toolbar toolbar;
 	private Spinner qualitySpinner;
@@ -150,7 +151,7 @@ public class MainActivity
 	}
 
 	@Override
-	protected void onCreate(Bundle state) {
+	protected void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_main);
 
@@ -418,7 +419,7 @@ public class MainActivity
 				ShaderEditorApp.preferences.showExtraKeys());
 	}
 
-	private void showMenu(View anchor) {
+	private void showMenu(@NonNull View anchor) {
 		if (!menuPopup.isShowing()) {
 			int[] location = new int[2];
 			anchor.getLocationOnScreen(location);
@@ -585,7 +586,7 @@ public class MainActivity
 		toolbar.post(updateFpsRunnable);
 	}
 
-	private void postInfoLog(final List<ShaderError> infoLog) {
+	private void postInfoLog(@Nullable final List<ShaderError> infoLog) {
 		if (infoLog == null) {
 			return;
 		}
@@ -673,7 +674,7 @@ public class MainActivity
 		});
 	}
 
-	private void updateShaderAdapter(Cursor cursor) {
+	private void updateShaderAdapter(@Nullable Cursor cursor) {
 		handleSendText(getIntent());
 
 		if (cursor == null || cursor.getCount() < 1) {
@@ -715,7 +716,7 @@ public class MainActivity
 		}
 	}
 
-	private void handleSendText(Intent intent) {
+	private void handleSendText(@Nullable Intent intent) {
 		if (intent == null) {
 			return;
 		}
@@ -764,7 +765,8 @@ public class MainActivity
 		setDefaultToolbarTitle();
 	}
 
-	private static String getTextFromUri(ContentResolver resolver, Uri uri) {
+	@Nullable
+	private static String getTextFromUri(@NonNull ContentResolver resolver, @NonNull Uri uri) {
 		try {
 			InputStream in = resolver.openInputStream(uri);
 			if (in == null) {
@@ -1008,7 +1010,7 @@ public class MainActivity
 	}
 
 	@SuppressLint("InflateParams")
-	private void editShaderName(final long id, String name) {
+	private void editShaderName(final long id, @Nullable String name) {
 		View view = getLayoutInflater().inflate(
 				R.layout.dialog_rename_shader,
 				// A dialog does not have a parent view group
@@ -1073,7 +1075,7 @@ public class MainActivity
 		return id;
 	}
 
-	private void loadShader(Cursor cursor) {
+	private void loadShader(@Nullable Cursor cursor) {
 		if (cursor == null) {
 			return;
 		}
@@ -1105,7 +1107,7 @@ public class MainActivity
 		cursor.close();
 	}
 
-	private void setToolbarTitle(Cursor cursor) {
+	private void setToolbarTitle(@Nullable Cursor cursor) {
 		if (cursor != null && shaderAdapter != null) {
 			setToolbarTitle(shaderAdapter.getTitle(cursor));
 		}
@@ -1116,7 +1118,7 @@ public class MainActivity
 		toolbar.setSubtitle(null);
 	}
 
-	private void setQualitySpinner(Cursor cursor) {
+	private void setQualitySpinner(@NonNull Cursor cursor) {
 		setQualitySpinner(Database.getFloat(cursor,
 				Database.SHADERS_QUALITY));
 	}
@@ -1154,7 +1156,7 @@ public class MainActivity
 		}
 	}
 
-	private static boolean startActivity(Context context, Intent intent) {
+	private static boolean startActivity(@NonNull Context context, Intent intent) {
 		try {
 			// Avoid using `intent.resolveActivity()` at API level 30+ due
 			// to the new package visibility restrictions. In order for

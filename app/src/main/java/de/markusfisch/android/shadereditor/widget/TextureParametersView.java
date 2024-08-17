@@ -6,6 +6,8 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
+import androidx.annotation.NonNull;
+
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.opengl.TextureParameters;
 
@@ -38,21 +40,21 @@ public class TextureParametersView extends LinearLayout {
 		initSpinner(wrapTView, R.array.wrap_names);
 	}
 
-	public void setDefaults(TextureParameters tp) {
+	public void setDefaults(@NonNull TextureParameters tp) {
 		setSpinnerValue(minView, R.array.min_values, tp.getMinShortcut());
 		setSpinnerValue(magView, R.array.mag_values, tp.getMagShortcut());
 		setSpinnerValue(wrapSView, R.array.wrap_values, tp.getWrapSShortcut());
 		setSpinnerValue(wrapTView, R.array.wrap_values, tp.getWrapTShortcut());
 	}
 
-	public void setParameters(TextureParameters tp) {
+	public void setParameters(@NonNull TextureParameters tp) {
 		tp.set(getSpinnerValue(minView, R.array.min_values),
 				getSpinnerValue(magView, R.array.mag_values),
 				getSpinnerValue(wrapSView, R.array.wrap_values),
 				getSpinnerValue(wrapTView, R.array.wrap_values));
 	}
 
-	private void initSpinner(Spinner spinner, int namesId) {
+	private void initSpinner(@NonNull Spinner spinner, int namesId) {
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
 				spinner.getContext(),
 				namesId,
@@ -62,13 +64,13 @@ public class TextureParametersView extends LinearLayout {
 		spinner.setAdapter(adapter);
 	}
 
-	private String getSpinnerValue(Spinner spinner, int valuesId) {
+	private String getSpinnerValue(@NonNull Spinner spinner, int valuesId) {
 		String[] values = getResources().getStringArray(valuesId);
 		return values[spinner.getSelectedItemPosition()];
 	}
 
 	private void setSpinnerValue(
-			Spinner spinner,
+			@NonNull Spinner spinner,
 			int valuesId,
 			String value) {
 		String[] values = getResources().getStringArray(valuesId);

@@ -8,6 +8,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import de.markusfisch.android.shadereditor.R;
 
 public class SamplesAdapter extends BaseAdapter {
@@ -40,9 +43,10 @@ public class SamplesAdapter extends BaseAdapter {
 		}
 	}
 
+	@NonNull
 	private final Sample[] samples;
 
-	public SamplesAdapter(Context context) {
+	public SamplesAdapter(@NonNull Context context) {
 		samples = new Sample[]{
 				new Sample(R.raw.sample_battery,
 						R.drawable.thumbnail_battery,
@@ -113,8 +117,9 @@ public class SamplesAdapter extends BaseAdapter {
 		return 0;
 	}
 
+	@NonNull
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = LayoutInflater
 					.from(parent.getContext())
@@ -131,7 +136,8 @@ public class SamplesAdapter extends BaseAdapter {
 		return convertView;
 	}
 
-	private ViewHolder getViewHolder(View view) {
+	@NonNull
+	private ViewHolder getViewHolder(@NonNull View view) {
 		ViewHolder holder;
 		if ((holder = (ViewHolder) view.getTag()) == null) {
 			holder = new ViewHolder();

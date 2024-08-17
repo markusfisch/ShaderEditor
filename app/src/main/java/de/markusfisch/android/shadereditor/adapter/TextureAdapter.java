@@ -10,10 +10,13 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.database.Database;
 
 public class TextureAdapter extends CursorAdapter {
+	@NonNull
 	private final String sizeFormat;
 
 	private int nameIndex;
@@ -21,7 +24,7 @@ public class TextureAdapter extends CursorAdapter {
 	private int heightIndex;
 	private int thumbIndex;
 
-	public TextureAdapter(Context context, Cursor cursor) {
+	public TextureAdapter(@NonNull Context context, @NonNull Cursor cursor) {
 		super(context, cursor, false);
 
 		indexColumns(cursor);
@@ -29,18 +32,19 @@ public class TextureAdapter extends CursorAdapter {
 	}
 
 	@Override
-	public View newView(Context context, Cursor cursor, ViewGroup parent) {
+	public View newView(Context context, Cursor cursor, @NonNull ViewGroup parent) {
 		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
 		return inflater.inflate(R.layout.row_texture, parent, false);
 	}
 
 	@Override
-	public void bindView(View view, Context context, Cursor cursor) {
+	public void bindView(@NonNull View view, Context context, @NonNull Cursor cursor) {
 		ViewHolder holder = getViewHolder(view);
 		setData(holder, cursor);
 	}
 
-	ViewHolder getViewHolder(View view) {
+	@NonNull
+	ViewHolder getViewHolder(@NonNull View view) {
 		ViewHolder holder;
 		if ((holder = (ViewHolder) view.getTag()) == null) {
 			holder = new ViewHolder();
@@ -53,7 +57,7 @@ public class TextureAdapter extends CursorAdapter {
 		return holder;
 	}
 
-	void setData(ViewHolder holder, Cursor cursor) {
+	void setData(@NonNull ViewHolder holder, @NonNull Cursor cursor) {
 		byte[] bytes = cursor.getBlob(thumbIndex);
 
 		if (bytes != null && bytes.length > 0) {
@@ -70,7 +74,7 @@ public class TextureAdapter extends CursorAdapter {
 				cursor.getInt(heightIndex)));
 	}
 
-	private void indexColumns(Cursor cursor) {
+	private void indexColumns(@NonNull Cursor cursor) {
 		nameIndex = cursor.getColumnIndex(
 				Database.TEXTURES_NAME);
 		widthIndex = cursor.getColumnIndex(

@@ -2,6 +2,8 @@ package de.markusfisch.android.shadereditor.activity;
 
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
+
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.fragment.TextureViewFragment;
 import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
@@ -18,7 +20,7 @@ public class TextureViewActivity
 	}
 
 	@Override
-	protected void onCreate(Bundle state) {
+	protected void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_view_texture);
 

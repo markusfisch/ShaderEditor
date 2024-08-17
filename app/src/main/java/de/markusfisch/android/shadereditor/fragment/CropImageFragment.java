@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
@@ -34,7 +35,9 @@ public class CropImageFragment extends Fragment {
 	private static boolean inProgress = false;
 	private CropImageView cropImageView;
 	private View progressView;
+	@Nullable
 	private Uri imageUri;
+	@Nullable
 	private Bitmap bitmap;
 
 	@Override
@@ -137,7 +140,7 @@ public class CropImageFragment extends Fragment {
 		});
 	}
 
-	private void abort(Activity activity) {
+	private void abort(@NonNull Activity activity) {
 		Toast.makeText(
 				activity,
 				R.string.cannot_pick_image,

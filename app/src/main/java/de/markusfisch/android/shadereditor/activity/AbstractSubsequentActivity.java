@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -18,17 +20,17 @@ import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 	private FragmentManager fm;
 
-	public static void addFragment(FragmentManager fm, Fragment fragment) {
+	public static void addFragment(@NonNull FragmentManager fm, @NonNull Fragment fragment) {
 		getReplaceFragmentTransaction(fm, fragment)
 				.addToBackStack(null)
 				.commit();
 	}
 
-	public static void setFragment(FragmentManager fm, Fragment fragment) {
+	public static void setFragment(@NonNull FragmentManager fm, @NonNull Fragment fragment) {
 		getReplaceFragmentTransaction(fm, fragment).commit();
 	}
 
-	public static void initToolbar(AppCompatActivity activity) {
+	public static void initToolbar(@NonNull AppCompatActivity activity) {
 		Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
 		activity.setSupportActionBar(toolbar);
 
@@ -39,7 +41,7 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 		actionBar.setDisplayHomeAsUpEnabled(true);
 	}
 
-	public static void initSystemBars(AppCompatActivity activity) {
+	public static void initSystemBars(@NonNull AppCompatActivity activity) {
 		SystemBarMetrics.setSystemBarColor(
 				activity.getWindow(),
 				ShaderEditorApp.preferences.getSystemBarColor(),
@@ -63,7 +65,7 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 		fm = getSupportFragmentManager();
 	}
 
-	protected void setFragmentForIntent(Fragment fragment, Intent intent) {
+	protected void setFragmentForIntent(@Nullable Fragment fragment, @Nullable Intent intent) {
 		if (fragment == null || intent == null) {
 			finish();
 			return;
@@ -75,10 +77,11 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 
 	// Lint is missing the commit() but this method should return an
 	// uncommitted transaction so it can be extended.
+	@NonNull
 	@SuppressLint("CommitTransaction")
 	private static FragmentTransaction getReplaceFragmentTransaction(
-			FragmentManager fm,
-			Fragment fragment) {
+			@NonNull FragmentManager fm,
+			@NonNull Fragment fragment) {
 		return fm.beginTransaction().replace(R.id.content_frame, fragment);
 	}
 }

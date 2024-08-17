@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.activity;
 
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import de.markusfisch.android.shadereditor.R;
@@ -9,7 +10,7 @@ import de.markusfisch.android.shadereditor.R;
 public abstract class AbstractContentActivity
 		extends AbstractSubsequentActivity {
 	@Override
-	protected void onCreate(Bundle state) {
+	protected void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_subsequent);
 

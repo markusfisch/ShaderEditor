@@ -5,6 +5,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 
+import androidx.annotation.NonNull;
+
 public class GyroscopeListener extends AbstractListener {
 	public final float[] rotation = new float[]{1f, 1f, 1f};
 
@@ -14,7 +16,7 @@ public class GyroscopeListener extends AbstractListener {
 	private final float[] deltaRotationVector = new float[4];
 	private final float[] deltaRotationMatrix = new float[9];
 
-	public GyroscopeListener(Context context) {
+	public GyroscopeListener(@NonNull Context context) {
 		super(context);
 	}
 
@@ -24,7 +26,7 @@ public class GyroscopeListener extends AbstractListener {
 	}
 
 	@Override
-	public void onSensorChanged(SensorEvent event) {
+	public void onSensorChanged(@NonNull SensorEvent event) {
 		if (last > 0) {
 			final float dT = (event.timestamp - last) * NS2S;
 

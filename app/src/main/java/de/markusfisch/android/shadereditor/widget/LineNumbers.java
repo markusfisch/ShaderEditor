@@ -16,11 +16,11 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 	private final int sourceId;
 	private TextView source;
 
-	public LineNumbers(Context context) {
+	public LineNumbers(@NonNull Context context) {
 		this(context, null);
 	}
 
-	public LineNumbers(Context context, AttributeSet attrs) {
+	public LineNumbers(@NonNull Context context, AttributeSet attrs) {
 		super(context, attrs);
 		// Try-with-resources not allowed for API < 31
 		// noinspection resource

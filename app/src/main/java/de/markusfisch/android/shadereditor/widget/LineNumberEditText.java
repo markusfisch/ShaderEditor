@@ -7,6 +7,7 @@ import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatEditText;
 
@@ -21,11 +22,11 @@ public class LineNumberEditText extends AppCompatEditText {
 	private float bigChar;
 	private int paddingLeft;
 
-	public LineNumberEditText(Context context) {
+	public LineNumberEditText(@NonNull Context context) {
 		this(context, null);
 	}
 
-	public LineNumberEditText(Context context, AttributeSet attrs) {
+	public LineNumberEditText(@NonNull Context context, AttributeSet attrs) {
 		super(context, attrs);
 		int lineColor;
 		//noinspection resource
@@ -75,7 +76,7 @@ public class LineNumberEditText extends AppCompatEditText {
 	}
 
 	@Override
-	protected void onDraw(Canvas canvas) {
+	protected void onDraw(@NonNull Canvas canvas) {
 		if (!showLineNumbers) {
 			super.setPadding(
 					paddingLeft,

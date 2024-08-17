@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import de.markusfisch.android.shadereditor.R;
@@ -21,8 +22,10 @@ import de.markusfisch.android.shadereditor.widget.CubeMapView;
 public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFragment {
 	private static final String FACES = "faces";
 
+	@Nullable
 	private CubeMapView.Face[] faces;
 
+	@NonNull
 	public static Fragment newInstance(CubeMapView.Face[] faces) {
 		Bundle args = new Bundle();
 		args.putParcelableArray(FACES, faces);
@@ -68,7 +71,7 @@ public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFrag
 
 	@Override
 	protected int saveSampler(
-			Context context,
+			@NonNull Context context,
 			String name,
 			int size) {
 		int width = size * 2;

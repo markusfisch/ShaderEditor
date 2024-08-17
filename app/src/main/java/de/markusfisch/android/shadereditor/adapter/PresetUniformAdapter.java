@@ -10,6 +10,8 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
@@ -52,13 +54,15 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 		}
 	}
 
+	@NonNull
 	private final String uniformFormat;
+	@NonNull
 	private final List<Uniform> uniforms;
 	private final UniformFilter filter = new UniformFilter();
 
 	private List<Uniform> filteredUniforms;
 
-	public PresetUniformAdapter(Context context) {
+	public PresetUniformAdapter(@NonNull Context context) {
 		uniformFormat = context.getString(R.string.uniform_format);
 		uniforms = Arrays.asList(
 				new Uniform(
@@ -218,6 +222,7 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 		filteredUniforms = uniforms;
 	}
 
+	@NonNull
 	@Override
 	public Filter getFilter() {
 		return filter;
@@ -238,8 +243,9 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 		return 0;
 	}
 
+	@NonNull
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 		if (convertView == null) {
 			convertView = LayoutInflater
 					.from(parent.getContext())
@@ -267,7 +273,8 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 		return convertView;
 	}
 
-	private ViewHolder getViewHolder(View view) {
+	@NonNull
+	private ViewHolder getViewHolder(@NonNull View view) {
 		ViewHolder holder;
 		if ((holder = (ViewHolder) view.getTag()) == null) {
 			holder = new ViewHolder();
@@ -285,8 +292,9 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 	}
 
 	private class UniformFilter extends Filter {
+		@NonNull
 		@Override
-		protected FilterResults performFiltering(CharSequence constraint) {
+		protected FilterResults performFiltering(@NonNull CharSequence constraint) {
 			String filterString = constraint.toString().toLowerCase(
 					Locale.getDefault());
 			int size = uniforms.size();
@@ -309,7 +317,7 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 		@Override
 		@SuppressWarnings("unchecked")
 		protected void publishResults(CharSequence constraint,
-				FilterResults results) {
+				@NonNull FilterResults results) {
 			filteredUniforms = (ArrayList<Uniform>) results.values;
 		}
 	}

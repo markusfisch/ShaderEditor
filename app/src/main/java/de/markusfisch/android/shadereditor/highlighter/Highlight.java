@@ -34,6 +34,7 @@ public enum Highlight {
 		this.id = id;
 	}
 
+	@NonNull
 	public static Highlight from(@NonNull TokenType type) {
 		switch (type) {
 			case INVALID:

@@ -14,6 +14,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import java.util.Locale;
@@ -63,9 +64,10 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 			String name,
 			int size);
 
+	@NonNull
 	protected View initView(
-			Activity activity,
-			LayoutInflater inflater,
+			@NonNull Activity activity,
+			@NonNull LayoutInflater inflater,
 			ViewGroup container) {
 		View view = inflater.inflate(
 				R.layout.fragment_sampler_properties,

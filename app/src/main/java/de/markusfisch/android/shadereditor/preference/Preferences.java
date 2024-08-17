@@ -6,6 +6,7 @@ import android.graphics.Typeface;
 import android.hardware.SensorManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.preference.PreferenceManager;
@@ -83,7 +84,7 @@ public class Preferences {
 	private boolean hideNativeSuggestions = true;
 	private String defaultFont;
 
-	public void init(Context context) {
+	public void init(@NonNull Context context) {
 		systemBarColor = ContextCompat.getColor(
 				context,
 				R.color.primary_dark_translucent);
@@ -105,7 +106,7 @@ public class Preferences {
 		return preferences;
 	}
 
-	public void update(Context context) {
+	public void update(@NonNull Context context) {
 		wallpaperShaderId = parseLong(
 				preferences.getString(WALLPAPER_SHADER, null),
 				wallpaperShaderId);
@@ -229,6 +230,7 @@ public class Preferences {
 		return textSize;
 	}
 
+	@NonNull
 	public Typeface getFont() {
 		return font;
 	}
@@ -323,7 +325,7 @@ public class Preferences {
 		editor.apply();
 	}
 
-	private static int parseInt(String s, int preset) {
+	private static int parseInt(@Nullable String s, int preset) {
 		try {
 			if (s != null && !s.isEmpty()) {
 				return Integer.parseInt(s);
@@ -335,7 +337,7 @@ public class Preferences {
 		return preset;
 	}
 
-	private static long parseLong(String s, long preset) {
+	private static long parseLong(@Nullable String s, long preset) {
 		try {
 			if (s != null && !s.isEmpty()) {
 				return Long.parseLong(s);
@@ -347,7 +349,7 @@ public class Preferences {
 		return preset;
 	}
 
-	private static int parseSensorDelay(String s, int preset) {
+	private static int parseSensorDelay(@Nullable String s, int preset) {
 		if (s == null) {
 			return preset;
 		}

@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.os.Environment;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -21,7 +23,7 @@ public class ImportExportAsFiles {
 	private static final String SHADER_FILE_EXTENSION = ".glsl";
 	private static final String ILLEGAL_CHARACTER_REPLACEMENT = "_";
 
-	public static void importFromDirectory(Context context) {
+	public static void importFromDirectory(@NonNull Context context) {
 		try {
 			File importDirectory = getImportExportDirectory(context, false);
 			File[] files = importDirectory.listFiles();
@@ -67,7 +69,7 @@ public class ImportExportAsFiles {
 		}
 	}
 
-	public static void exportToDirectory(Context context) {
+	public static void exportToDirectory(@NonNull Context context) {
 		try {
 			File exportDirectory = getImportExportDirectory(context, true);
 
@@ -126,8 +128,8 @@ public class ImportExportAsFiles {
 
 	private static void writeShaderToDirectory(
 			File directory,
-			String shaderName,
-			String fragmentShader) throws IOException {
+			@NonNull String shaderName,
+			@NonNull String fragmentShader) throws IOException {
 		String filename = shaderName.replaceAll("[^a-zA-Z0-9 \\-_,()]",
 				ILLEGAL_CHARACTER_REPLACEMENT);
 		File shaderFile = new File(directory, filename + SHADER_FILE_EXTENSION);
@@ -148,8 +150,9 @@ public class ImportExportAsFiles {
 		}
 	}
 
+	@NonNull
 	private static File getImportExportDirectory(
-			Context context,
+			@NonNull Context context,
 			boolean create) throws IOException {
 		File downloadsDirectory = Environment.getExternalStoragePublicDirectory(
 				Environment.DIRECTORY_DOWNLOADS);
@@ -167,6 +170,7 @@ public class ImportExportAsFiles {
 		return file;
 	}
 
+	@NonNull
 	private static String readFile(File file) throws IOException {
 		FileInputStream fis = null;
 		try {

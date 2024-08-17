@@ -3,6 +3,8 @@ package de.markusfisch.android.shadereditor.io;
 import android.content.Context;
 import android.os.Environment;
 
+import androidx.annotation.NonNull;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,7 +17,7 @@ import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.database.Database;
 
 public class DatabaseExporter {
-	public static int exportDatabase(Context context) {
+	public static int exportDatabase(@NonNull Context context) {
 		final File current = new File(Environment.getDataDirectory(),
 				"//data//" + context.getPackageName() +
 						"//databases//" + Database.FILE_NAME);

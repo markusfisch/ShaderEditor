@@ -107,12 +107,13 @@ public class AddUniformActivity extends AbstractContentActivity {
 		startActivityForIntent(getIntent());
 	}
 
+	@NonNull
 	@Override
 	protected Fragment defaultFragment() {
 		return new UniformPagesFragment();
 	}
 
-	private void startActivityForIntent(Intent intent) {
+	private void startActivityForIntent(@Nullable Intent intent) {
 		if (intent == null) {
 			return;
 		}
