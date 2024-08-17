@@ -96,10 +96,10 @@ public class PreferencesFragment
 	@Override
 	public void onResume() {
 		super.onResume();
-
-		getPreferenceScreen()
-				.getSharedPreferences()
-				.registerOnSharedPreferenceChangeListener(this);
+		SharedPreferences preferences = getPreferenceScreen().getSharedPreferences();
+		if (preferences != null) {
+			preferences.registerOnSharedPreferenceChangeListener(this);
+		}
 
 		setSummaries(getPreferenceScreen());
 	}
@@ -108,9 +108,10 @@ public class PreferencesFragment
 	public void onPause() {
 		super.onPause();
 
-		getPreferenceScreen()
-				.getSharedPreferences()
-				.unregisterOnSharedPreferenceChangeListener(this);
+		SharedPreferences preferences = getPreferenceScreen().getSharedPreferences();
+		if (preferences != null) {
+			preferences.unregisterOnSharedPreferenceChangeListener(this);
+		}
 	}
 
 	@Override
@@ -134,13 +135,14 @@ public class PreferencesFragment
 
 	@Override
 	public void onDisplayPreferenceDialog(@NonNull Preference preference) {
-		if (preference instanceof ShaderListPreference) {
-			DialogFragment f = ShaderListPreferenceDialogFragment
-					.newInstance(preference.getKey());
-
+		if (preference instanceof ShaderListPreference listPreference) {
+			String key = listPreference.getKey();
+			DialogFragment f = ShaderListPreferenceDialogFragment.newInstance(key);
+			// FIXME: Periodically check whether androidx.preference still uses TargetFragment
+			// noinspection deprecation
 			f.setTargetFragment(this, 0);
-			f.show(getFragmentManager(),
-					"ShaderListPreferenceDialogFragment");
+
+			f.show(getParentFragmentManager(), "ShaderListPreferenceDialogFragment");
 
 			return;
 		}

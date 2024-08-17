@@ -147,7 +147,7 @@ public class CropImageFragment extends Fragment {
 
 	private void cropImage() {
 		AbstractSubsequentActivity.addFragment(
-				getFragmentManager(),
+				getParentFragmentManager(),
 				Sampler2dPropertiesFragment.newInstance(
 						imageUri,
 						cropImageView.getNormalizedRectInBounds(),

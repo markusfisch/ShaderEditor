@@ -115,7 +115,7 @@ public class CubeMapFragment extends Fragment {
 		}
 
 		AbstractSubsequentActivity.addFragment(
-				getFragmentManager(),
+				getParentFragmentManager(),
 				SamplerCubePropertiesFragment.newInstance(faces));
 
 		cubeMapView.setVisibility(View.GONE);
