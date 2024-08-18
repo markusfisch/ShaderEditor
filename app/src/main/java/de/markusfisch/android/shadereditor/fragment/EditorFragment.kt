@@ -1,189 +1,145 @@
-package de.markusfisch.android.shadereditor.fragment;
+package de.markusfisch.android.shadereditor.fragment
 
-import android.app.Activity;
-import android.graphics.Typeface;
-import android.os.Bundle;
-import android.util.TypedValue;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.app.Activity
+import android.graphics.Typeface
+import android.os.Bundle
+import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import de.markusfisch.android.shadereditor.R
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp
+import de.markusfisch.android.shadereditor.opengl.ShaderError
+import de.markusfisch.android.shadereditor.view.SoftKeyboard
+import de.markusfisch.android.shadereditor.view.UndoRedo
+import de.markusfisch.android.shadereditor.widget.ErrorListModal
+import de.markusfisch.android.shadereditor.widget.ShaderEditor
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
+class EditorFragment : Fragment() {
 
-import java.util.Collections;
-import java.util.List;
+    companion object {
+        const val TAG = "EditorFragment"
+    }
 
-import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.opengl.ShaderError;
-import de.markusfisch.android.shadereditor.preference.Preferences;
-import de.markusfisch.android.shadereditor.view.SoftKeyboard;
-import de.markusfisch.android.shadereditor.view.UndoRedo;
-import de.markusfisch.android.shadereditor.widget.ErrorListModal;
-import de.markusfisch.android.shadereditor.widget.ShaderEditor;
+    private lateinit var editorContainer: View
+    private lateinit var shaderEditor: ShaderEditor
+    private lateinit var undoRedo: UndoRedo
 
-public class EditorFragment extends Fragment {
-	public static final String TAG = "EditorFragment";
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View {
+        val view = inflater.inflate(R.layout.fragment_editor, container, false)
+        editorContainer = view.findViewById(R.id.editor_container)
+        shaderEditor = view.findViewById(R.id.editor)
 
-	private View editorContainer;
-	private ShaderEditor shaderEditor;
-	private UndoRedo undoRedo;
+        // Set up preferences and listeners
+        setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers())
+        undoRedo = UndoRedo(shaderEditor, ShaderEditorApp.editHistory)
 
-	@Override
-	public View onCreateView(
-			@NonNull LayoutInflater inflater,
-			ViewGroup container,
-			Bundle state) {
-		View view = inflater.inflate(
-				R.layout.fragment_editor,
-				container,
-				false);
+        val activity = requireActivity()
+        checkActivityImplementsListeners(activity)
 
-		editorContainer = view.findViewById(R.id.editor_container);
-		shaderEditor = view.findViewById(R.id.editor);
-		setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
-		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
+        return view
+    }
 
-		Activity activity = requireActivity();
-		if (activity instanceof ShaderEditor.OnTextChangedListener) {
-			shaderEditor.setOnTextChangedListener(
-					(ShaderEditor.OnTextChangedListener) activity);
-			shaderEditor.setOnCompletionsListener(
-					(ShaderEditor.CodeCompletionListener) activity);
-		} else {
-			throw new ClassCastException(activity +
-					" must implement " +
-					"ShaderEditor.OnTextChangedListener");
-		}
+    private fun checkActivityImplementsListeners(activity: Activity) {
+        if (activity is ShaderEditor.OnTextChangedListener) {
+            shaderEditor.setOnTextChangedListener(activity)
+            shaderEditor.setOnCompletionsListener(activity as ShaderEditor.CodeCompletionListener)
+        } else {
+            throw ClassCastException("$activity must implement ShaderEditor.OnTextChangedListener")
+        }
+    }
 
-		return view;
-	}
+    override fun onDestroyView() {
+        super.onDestroyView()
+        undoRedo.detachListener()
+    }
 
-	@Override
-	public void onDestroyView() {
-		super.onDestroyView();
-		undoRedo.detachListener();
-	}
+    override fun onResume() {
+        super.onResume()
+        updateToPreferences()
+        undoRedo.listenForChanges() // Start listening for changes after content is restored
+    }
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		updateToPreferences();
-		// Only start listening after EditText restored its content
-		// to make sure the initial change is not recorded.
-		undoRedo.listenForChanges();
-	}
+    fun undo() = undoRedo.undo()
 
-	public void undo() {
-		undoRedo.undo();
-	}
+    fun canUndo() = undoRedo.canUndo()
 
-	public boolean canUndo() {
-		return undoRedo.canUndo();
-	}
+    fun redo() = undoRedo.redo()
 
-	public void redo() {
-		undoRedo.redo();
-	}
+    fun canRedo() = undoRedo.canRedo()
 
-	public boolean canRedo() {
-		return undoRedo.canRedo();
-	}
+    fun hasErrors() = shaderEditor.hasErrors()
 
-	public boolean hasErrors() {
-		return shaderEditor.hasErrors();
-	}
+    fun clearError() {
+        shaderEditor.errors = emptyList()
+    }
 
-	public void clearError() {
-		shaderEditor.setErrors(Collections.emptyList());
-	}
+    fun updateHighlighting() = shaderEditor.updateHighlighting()
 
-	public void updateHighlighting() {
-		shaderEditor.updateHighlighting();
-	}
+    fun highlightErrors() = shaderEditor.updateErrorHighlighting()
 
-	public void highlightErrors() {
-		shaderEditor.updateErrorHighlighting();
-	}
+    var errors: List<ShaderError>
+        get() = shaderEditor.errors
+        set(value) {
+            shaderEditor.errors = value
+            highlightErrors()
+        }
 
-	public void setErrors(@NonNull List<ShaderError> errors) {
-		shaderEditor.setErrors(errors);
-		highlightErrors();
-	}
+    fun showErrors() {
+        val errors = shaderEditor.errors
+        ErrorListModal(errors, this::navigateToLine).show(parentFragmentManager, ErrorListModal.TAG)
+    }
 
-	@NonNull
-	public List<ShaderError> getErrors() {
-		return shaderEditor.getErrors();
-	}
+    private fun navigateToLine(lineNumber: Int) = shaderEditor.navigateToLine(lineNumber)
 
-	public void showErrors() {
-		List<ShaderError> errors = shaderEditor.getErrors();
-		new ErrorListModal(errors, this::navigateToLine).show(getParentFragmentManager(),
-				ErrorListModal.TAG);
-	}
+    val isModified: Boolean
+        get() = shaderEditor.isModified
 
-	public void navigateToLine(int lineNumber) {
-		shaderEditor.navigateToLine(lineNumber);
-	}
+    var text: String
+        get() = shaderEditor.cleanText
+        set(value) {
+            clearError()
+            undoRedo.clearHistory()
+            undoRedo.stopListeningForChanges()
+            shaderEditor.setTextHighlighted(value)
+            undoRedo.listenForChanges()
+        }
 
-	public boolean isModified() {
-		return shaderEditor.isModified();
-	}
 
-	public String getText() {
-		return shaderEditor.getCleanText();
-	}
+    fun insert(text: CharSequence) = shaderEditor.insert(text)
 
-	public void setText(String text) {
-		clearError();
-		undoRedo.clearHistory();
-		undoRedo.stopListeningForChanges();
-		shaderEditor.setTextHighlighted(text);
-		undoRedo.listenForChanges();
-	}
+    fun addUniform(name: String) = shaderEditor.addUniform(name)
 
-	public void insert(@NonNull CharSequence text) {
-		shaderEditor.insert(text);
-	}
+    val isCodeVisible: Boolean
+        get() = editorContainer.visibility == View.VISIBLE
 
-	public void addUniform(String name) {
-		shaderEditor.addUniform(name);
-	}
+    fun toggleCode(): Boolean {
+        val visible = isCodeVisible
+        editorContainer.visibility = if (visible) View.GONE else View.VISIBLE
+        if (visible) {
+            SoftKeyboard.hide(requireActivity(), shaderEditor)
+        }
+        return visible
+    }
 
-	public boolean isCodeVisible() {
-		return editorContainer.getVisibility() == View.VISIBLE;
-	}
+    private fun updateToPreferences() {
+        val preferences = ShaderEditorApp.preferences
+        shaderEditor.apply {
+            setUpdateDelay(preferences.updateDelay)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, preferences.textSize.toFloat())
+            val font = preferences.font
+            typeface = font
+            val features = fontFeatureSettings
+            if (font != Typeface.MONOSPACE || features != null) {
+                fontFeatureSettings =
+                    if (font == Typeface.MONOSPACE) null else if (preferences.useLigatures()) "normal" else "calt off"
+            }
+        }
+    }
 
-	public boolean toggleCode() {
-		boolean visible = isCodeVisible();
-		editorContainer.setVisibility(visible ? View.GONE : View.VISIBLE);
-		if (visible) {
-			SoftKeyboard.hide(getActivity(), shaderEditor);
-		}
-		return visible;
-	}
-
-	private void updateToPreferences() {
-		Preferences preferences = ShaderEditorApp.preferences;
-		shaderEditor.setUpdateDelay(preferences.getUpdateDelay());
-		shaderEditor.setTextSize(
-				TypedValue.COMPLEX_UNIT_SP,
-				preferences.getTextSize());
-		Typeface font = preferences.getFont();
-		shaderEditor.setTypeface(font);
-		String features = shaderEditor.getFontFeatureSettings();
-		boolean isMono = font == Typeface.MONOSPACE;
-		// Don't touch font features for the default MONOSPACE font as
-		// this can impact performance.
-		if (!isMono || features != null) {
-			shaderEditor.setFontFeatureSettings(isMono
-					? null
-					: preferences.useLigatures() ? "normal" : "calt off");
-		}
-	}
-
-	public void setShowLineNumbers(boolean showLineNumbers) {
-		shaderEditor.setShowLineNumbers(showLineNumbers);
-	}
+    fun setShowLineNumbers(showLineNumbers: Boolean) =
+        shaderEditor.setShowLineNumbers(showLineNumbers)
 }

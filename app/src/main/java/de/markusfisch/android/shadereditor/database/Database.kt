@@ -414,7 +414,7 @@ class Database {
         }
 
         @JvmStatic
-        fun getString(cursor: Cursor, column: String?): String {
+        fun getString(cursor: Cursor, column: String): String? {
             val index = cursor.getColumnIndex(column)
             if (index < 0) {
                 return ""

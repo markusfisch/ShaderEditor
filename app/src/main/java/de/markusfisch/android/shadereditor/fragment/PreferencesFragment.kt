@@ -1,264 +1,211 @@
-package de.markusfisch.android.shadereditor.fragment;
+package de.markusfisch.android.shadereditor.fragment
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.os.Build;
-import android.os.Bundle;
-import android.widget.Toast;
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceCategory
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.PreferenceGroup
+import de.markusfisch.android.shadereditor.R
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp
+import de.markusfisch.android.shadereditor.database.Database
+import de.markusfisch.android.shadereditor.io.DatabaseExporter
+import de.markusfisch.android.shadereditor.io.DatabaseImporter
+import de.markusfisch.android.shadereditor.io.ImportExportAsFiles
+import de.markusfisch.android.shadereditor.preference.Preferences
+import de.markusfisch.android.shadereditor.preference.ShaderListPreference
+import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.preference.ListPreference;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceCategory;
-import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceGroup;
+class PreferencesFragment : PreferenceFragmentCompat(),
+    SharedPreferences.OnSharedPreferenceChangeListener {
 
-import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.database.Database;
-import de.markusfisch.android.shadereditor.io.DatabaseExporter;
-import de.markusfisch.android.shadereditor.io.DatabaseImporter;
-import de.markusfisch.android.shadereditor.io.ImportExportAsFiles;
-import de.markusfisch.android.shadereditor.preference.Preferences;
-import de.markusfisch.android.shadereditor.preference.ShaderListPreference;
-import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
+    private val pickFileLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        context.takeIf { result.resultCode == Activity.RESULT_OK && result.data != null }?.let {
+            val message = DatabaseImporter.importDatabase(it, result.data?.data)
+            Toast.makeText(it, message, Toast.LENGTH_LONG).show()
+        }
+    }
 
-public class PreferencesFragment
-		extends PreferenceFragmentCompat
-		implements SharedPreferences.OnSharedPreferenceChangeListener {
-	private ActivityResultLauncher<Intent> pickFileLauncher;
-	private ActivityResultLauncher<String> requestReadPermissionLauncher;
-	private ActivityResultLauncher<String> requestWritePermissionLauncher;
+    private val requestReadPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            ImportExportAsFiles.importFromDirectory(requireContext())
+        } else {
+            Toast.makeText(
+                requireActivity(),
+                getString(R.string.read_access_required),
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
-	@Override
-	public void onCreate(@Nullable Bundle state) {
-		super.onCreate(state);
+    private val requestWritePermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            ImportExportAsFiles.exportToDirectory(requireContext())
+        } else {
+            Toast.makeText(
+                requireActivity(),
+                getString(R.string.write_access_required),
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
 
-		// Register ActivityResultLaunchers
-		pickFileLauncher = registerForActivityResult(
-				new ActivityResultContracts.StartActivityForResult(),
-				result -> {
-					if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-						Context context = getContext();
-						if (context != null) {
-							String message = DatabaseImporter.importDatabase(
-									context, result.getData().getData());
-							Toast.makeText(context, message, Toast.LENGTH_LONG).show();
-						}
-					}
-				});
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        addPreferencesFromResource(R.xml.preferences)
+        wireImportExport()
+    }
 
-		requestReadPermissionLauncher = registerForActivityResult(
-				new ActivityResultContracts.RequestPermission(),
-				isGranted -> {
-					if (isGranted) {
-						ImportExportAsFiles.importFromDirectory(getContext());
-					} else {
-						Toast.makeText(getActivity(),
-								getString(R.string.read_access_required),
-								Toast.LENGTH_LONG).show();
-					}
-				});
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        addPreferencesFromResource(R.xml.preferences)
+        wireImportExport()
+    }
 
-		requestWritePermissionLauncher = registerForActivityResult(
-				new ActivityResultContracts.RequestPermission(),
-				isGranted -> {
-					if (isGranted) {
-						ImportExportAsFiles.exportToDirectory(getContext());
-					} else {
-						Toast.makeText(getActivity(),
-								getString(R.string.write_access_required),
-								Toast.LENGTH_LONG).show();
-					}
-				});
+    override fun onResume() {
+        super.onResume()
+        preferenceScreen.sharedPreferences?.registerOnSharedPreferenceChangeListener(this)
+        setSummaries(preferenceScreen)
+    }
 
-		addPreferencesFromResource(R.xml.preferences);
-		wireImportExport();
-	}
+    override fun onPause() {
+        super.onPause()
+        preferenceScreen.sharedPreferences?.unregisterOnSharedPreferenceChangeListener(this)
+    }
 
-	@Override
-	public void onCreatePreferences(Bundle state, String rootKey) {
-		addPreferencesFromResource(R.xml.preferences);
-		wireImportExport();
-	}
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
+        val preference = key?.let { findPreference<Preference>(it) } ?: return
+        ShaderEditorApp.preferences.update(requireContext())
+        setSummary(preference)
 
-	@Override
-	public void onResume() {
-		super.onResume();
-		SharedPreferences preferences = getPreferenceScreen().getSharedPreferences();
-		if (preferences != null) {
-			preferences.registerOnSharedPreferenceChangeListener(this);
-		}
+        if (key == Preferences.SAVE_BATTERY && ShaderEditorApp.preferences.isBatteryLow) {
+            BatteryLevelReceiver.setLowPowerMode(ShaderEditorApp.preferences.saveBattery())
+        }
+    }
 
-		setSummaries(getPreferenceScreen());
-	}
+    override fun onDisplayPreferenceDialog(preference: Preference) {
+        if (preference is ShaderListPreference) {
+            val dialogFragment = ShaderListPreferenceDialogFragment.newInstance(preference.key)
+            // FIXME: Periodically check whether androidx.preference still uses TargetFragment
+            @Suppress("DEPRECATION")
+            dialogFragment.setTargetFragment(this, 0)
+            dialogFragment.show(parentFragmentManager, "ShaderListPreferenceDialogFragment")
+        } else {
+            super.onDisplayPreferenceDialog(preference)
+        }
+    }
 
-	@Override
-	public void onPause() {
-		super.onPause();
+    private fun setSummaries(screen: PreferenceGroup) {
+        for (i in 0 until screen.preferenceCount) {
+            setSummary(screen.getPreference(i))
+        }
+    }
 
-		SharedPreferences preferences = getPreferenceScreen().getSharedPreferences();
-		if (preferences != null) {
-			preferences.unregisterOnSharedPreferenceChangeListener(this);
-		}
-	}
+    private fun setSummary(preference: Preference) {
+        when (preference) {
+            is ShaderListPreference -> {
+                val id = if (preference.key == Preferences.WALLPAPER_SHADER) {
+                    ShaderEditorApp.preferences.getWallpaperShader()
+                } else {
+                    ShaderEditorApp.preferences.getDefaultNewShader()
+                }
+                preference.summary = getShaderSummary(id)
+            }
 
-	@Override
-	public void onSharedPreferenceChanged(
-			SharedPreferences sharedPreferences,
-			@NonNull String key) {
-		Preference preference = findPreference(key);
-		if (preference == null) {
-			return;
-		}
+            is ListPreference -> preference.summary = preference.entry
+            is PreferenceGroup -> setSummaries(preference)
+        }
+    }
 
-		ShaderEditorApp.preferences.update(getContext());
-		setSummary(preference);
+    private fun getShaderSummary(id: Long): String {
+        val cursor = ShaderEditorApp.db.getShader(id)
+        if (Database.closeIfEmpty(cursor)) {
+            return getString(R.string.no_shader_selected)
+        }
 
-		if (Preferences.SAVE_BATTERY.equals(key) &&
-				ShaderEditorApp.preferences.isBatteryLow()) {
-			BatteryLevelReceiver.setLowPowerMode(
-					ShaderEditorApp.preferences.saveBattery());
-		}
-	}
+        val summary = Database.getString(cursor, Database.SHADERS_NAME)
+            ?: Database.getString(cursor, Database.SHADERS_MODIFIED)
 
-	@Override
-	public void onDisplayPreferenceDialog(@NonNull Preference preference) {
-		if (preference instanceof ShaderListPreference listPreference) {
-			String key = listPreference.getKey();
-			DialogFragment f = ShaderListPreferenceDialogFragment.newInstance(key);
-			// FIXME: Periodically check whether androidx.preference still uses TargetFragment
-			// noinspection deprecation
-			f.setTargetFragment(this, 0);
+        cursor.close()
+        return summary ?: getString(R.string.no_shader_selected)
+    }
 
-			f.show(getParentFragmentManager(), "ShaderListPreferenceDialogFragment");
+    private fun checkExternalStoragePermission(permission: String): Boolean {
+        val activity = activity ?: return false
+        if (ContextCompat.checkSelfPermission(
+                activity,
+                permission
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            when (permission) {
+                Manifest.permission.WRITE_EXTERNAL_STORAGE -> {
+                    requestWritePermissionLauncher.launch(permission)
+                }
 
-			return;
-		}
+                Manifest.permission.READ_EXTERNAL_STORAGE -> {
+                    requestReadPermissionLauncher.launch(permission)
+                }
+            }
+            return false
+        }
+        return true
+    }
 
-		super.onDisplayPreferenceDialog(preference);
-	}
+    private fun wireImportExport() {
+        val importFromDirectory = findPreference<Preference>(Preferences.IMPORT_FROM_DIRECTORY)
+        val exportToDirectory = findPreference<Preference>(Preferences.EXPORT_TO_DIRECTORY)
 
-	private void setSummaries(@NonNull PreferenceGroup screen) {
-		for (int i = screen.getPreferenceCount(); i-- > 0; ) {
-			setSummary(screen.getPreference(i));
-		}
-	}
+        if (importFromDirectory != null && exportToDirectory != null) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                importFromDirectory.setOnPreferenceClickListener {
+                    if (checkExternalStoragePermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                        ImportExportAsFiles.importFromDirectory(requireContext())
+                    }
+                    true
+                }
+                exportToDirectory.setOnPreferenceClickListener {
+                    if (checkExternalStoragePermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                        ImportExportAsFiles.exportToDirectory(requireContext())
+                    }
+                    true
+                }
+            } else {
+                findPreference<PreferenceCategory>("import_export")?.apply {
+                    removePreference(importFromDirectory)
+                    removePreference(exportToDirectory)
+                }
+            }
+        }
 
-	private void setSummary(Preference preference) {
-		if (preference instanceof ShaderListPreference) {
-			long id = Preferences.WALLPAPER_SHADER.equals(preference.getKey())
-					? ShaderEditorApp.preferences.getWallpaperShader()
-					: ShaderEditorApp.preferences.getDefaultNewShader();
-			preference.setSummary(getShaderSummary(id));
-		} else if (preference instanceof ListPreference) {
-			preference.setSummary(((ListPreference) preference).getEntry());
-		} else if (preference instanceof PreferenceGroup) {
-			setSummaries((PreferenceGroup) preference);
-		}
-	}
+        findPreference<Preference>(Preferences.IMPORT_DATABASE)?.setOnPreferenceClickListener {
+            val chooseFile = Intent(Intent.ACTION_GET_CONTENT).apply {
+                type = "application/octet-stream"
+            }
+            pickFileLauncher.launch(
+                Intent.createChooser(chooseFile, getString(R.string.import_database))
+            )
+            true
+        }
 
-	private String getShaderSummary(long id) {
-		Cursor cursor = ShaderEditorApp.db.getShader(id);
-
-		if (Database.closeIfEmpty(cursor)) {
-			return getString(R.string.no_shader_selected);
-		}
-
-		String summary = Database.getString(
-				cursor, Database.SHADERS_NAME);
-
-		if (summary == null || summary.isEmpty()) {
-			summary = Database.getString(
-					cursor, Database.SHADERS_MODIFIED);
-		}
-
-		cursor.close();
-
-		return summary;
-	}
-
-	private boolean checkExternalStoragePermission(@NonNull String permission) {
-		FragmentActivity activity = getActivity();
-		if (activity != null &&
-				ContextCompat.checkSelfPermission(activity, permission)
-						!= PackageManager.PERMISSION_GRANTED) {
-
-			if (permission.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-				requestWritePermissionLauncher.launch(permission);
-			} else if (permission.equals(Manifest.permission.READ_EXTERNAL_STORAGE)) {
-				requestReadPermissionLauncher.launch(permission);
-			}
-			return false;
-		}
-
-		return true;
-	}
-
-	private void wireImportExport() {
-		Preference importFromDirectory = findPreference(
-				Preferences.IMPORT_FROM_DIRECTORY);
-		Preference exportToDirectory = findPreference(
-				Preferences.EXPORT_TO_DIRECTORY);
-		if (importFromDirectory != null && exportToDirectory != null) {
-			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-				importFromDirectory.setOnPreferenceClickListener(preference -> {
-					if (checkExternalStoragePermission(
-							Manifest.permission.READ_EXTERNAL_STORAGE)) {
-						ImportExportAsFiles.importFromDirectory(getContext());
-					}
-					return true;
-				});
-				exportToDirectory.setOnPreferenceClickListener(preference -> {
-					if (checkExternalStoragePermission(
-							Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-						ImportExportAsFiles.exportToDirectory(getContext());
-					}
-					return true;
-				});
-			} else {
-				PreferenceCategory cat = findPreference("import_export");
-				if (cat != null) {
-					cat.removePreference(importFromDirectory);
-					cat.removePreference(exportToDirectory);
-				}
-			}
-		}
-		Preference importDatabase = findPreference(Preferences.IMPORT_DATABASE);
-		Preference exportDatabase = findPreference(Preferences.EXPORT_DATABASE);
-		if (importDatabase != null && exportDatabase != null) {
-			importDatabase.setOnPreferenceClickListener(preference -> {
-				Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
-				// In theory, it should be "application/x-sqlite3"
-				// or the newer "application/vnd.sqlite3" but
-				// only "application/octet-stream" works.
-				chooseFile.setType("application/octet-stream");
-				pickFileLauncher.launch(
-						Intent.createChooser(
-								chooseFile,
-								getString(R.string.import_database)));
-				return true;
-			});
-			exportDatabase.setOnPreferenceClickListener(preference -> {
-				Context context = getContext();
-				if (context != null) {
-					Toast.makeText(context,
-							DatabaseExporter.exportDatabase(context),
-							Toast.LENGTH_LONG).show();
-				}
-				return true;
-			});
-		}
-	}
+        findPreference<Preference>(Preferences.EXPORT_DATABASE)?.setOnPreferenceClickListener {
+            context?.let {
+                Toast.makeText(it, DatabaseExporter.exportDatabase(it), Toast.LENGTH_LONG).show()
+            }
+            true
+        }
+    }
 }

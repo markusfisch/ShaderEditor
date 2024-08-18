@@ -1,126 +1,80 @@
-package de.markusfisch.android.shadereditor.fragment;
+package de.markusfisch.android.shadereditor.fragment
 
-import android.app.Activity;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.RectF;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.RectF
+import android.net.Uri
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.os.BundleCompat
+import androidx.fragment.app.Fragment
+import de.markusfisch.android.shadereditor.R
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+class Sampler2dPropertiesFragment : AbstractSamplerPropertiesFragment() {
 
-import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
+    private lateinit var imageUri: Uri
+    private lateinit var cropRect: RectF
+    private var imageRotation: Float = 0f
 
-public class Sampler2dPropertiesFragment extends AbstractSamplerPropertiesFragment {
-	private static final String IMAGE_URI = "image_uri";
-	private static final String CROP_RECT = "crop_rect";
-	private static final String ROTATION = "rotation";
+    companion object {
+        private const val IMAGE_URI = "image_uri"
+        private const val CROP_RECT = "crop_rect"
+        private const val ROTATION = "rotation"
 
-	@Nullable
-	private Uri imageUri;
-	@Nullable
-	private RectF cropRect;
-	private float imageRotation;
+        @JvmStatic
+        fun newInstance(uri: Uri, rect: RectF, rotation: Float): Fragment {
+            return Sampler2dPropertiesFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(IMAGE_URI, uri)
+                    putParcelable(CROP_RECT, rect)
+                    putFloat(ROTATION, rotation)
+                }
+            }
+        }
+    }
 
-	@NonNull
-	public static Fragment newInstance(
-			Uri uri,
-			RectF rect,
-			float rotation) {
-		Bundle args = new Bundle();
-		args.putParcelable(IMAGE_URI, uri);
-		args.putParcelable(CROP_RECT, rect);
-		args.putFloat(ROTATION, rotation);
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? {
+        val activity = requireActivity()
+        activity.title = getString(R.string.texture_properties)
 
-		Sampler2dPropertiesFragment fragment =
-				new Sampler2dPropertiesFragment();
-		fragment.setArguments(args);
+        arguments?.let { args ->
+            imageUri =
+                BundleCompat.getParcelable(args, IMAGE_URI, Uri::class.java) ?: return abort()
+            cropRect =
+                BundleCompat.getParcelable(args, CROP_RECT, RectF::class.java) ?: return abort()
+            imageRotation = args.getFloat(ROTATION)
+        }
 
-		return fragment;
-	}
+        return initView(activity, inflater, container)
+    }
 
-	@Override
-	public View onCreateView(
-			@NonNull LayoutInflater inflater,
-			ViewGroup container,
-			Bundle state) {
-		Activity activity = getActivity();
-		if (activity == null) {
-			return null;
-		}
-		activity.setTitle(R.string.texture_properties);
+    private fun abort(): View? {
+        requireActivity().finish()
+        return null
+    }
 
-		Bundle args;
-		View view;
+    override fun saveSampler(context: Context, name: String, size: Int): Int {
+        val bitmap = BitmapEditor.getBitmapFromUri(context, imageUri, 1024)
+        return saveTexture(bitmap, cropRect, imageRotation, name, size)
+    }
 
-		if ((args = getArguments()) == null ||
-				(imageUri = args.getParcelable(
-						IMAGE_URI)) == null ||
-				(cropRect = args.getParcelable(
-						CROP_RECT)) == null ||
-				(view = initView(
-						activity,
-						inflater,
-						container)) == null) {
-			activity.finish();
-			return null;
-		}
+    private fun saveTexture(
+        bitmap: Bitmap?, rect: RectF, rotation: Float, name: String, size: Int
+    ): Int {
+        val croppedBitmap =
+            BitmapEditor.crop(bitmap, rect, rotation) ?: return R.string.illegal_rectangle
 
-		imageRotation = args.getFloat(ROTATION);
-
-		return view;
-	}
-
-	@Override
-	protected int saveSampler(
-			@NonNull Context context,
-			String name,
-			int size) {
-		return saveTexture(
-				// Try to get a bigger source image in
-				// case the cut out is quite small.
-				BitmapEditor.getBitmapFromUri(
-						context,
-						imageUri,
-						// Which doesn't work for some devices.
-						// 2048 is too much => out of memory.
-						1024),
-				cropRect,
-				imageRotation,
-				name,
-				size);
-	}
-
-	private static int saveTexture(
-			Bitmap bitmap,
-			RectF rect,
-			float rotation,
-			String name,
-			int size) {
-		if ((bitmap = BitmapEditor.crop(
-				bitmap,
-				rect,
-				rotation)) == null) {
-			return R.string.illegal_rectangle;
-		}
-
-		if (ShaderEditorApp.db.insertTexture(
-				name,
-				Bitmap.createScaledBitmap(
-						bitmap,
-						size,
-						size,
-						true)) < 1) {
-			return R.string.name_already_taken;
-		}
-
-		return 0;
-	}
+        val scaledBitmap = Bitmap.createScaledBitmap(croppedBitmap, size, size, true)
+        return if (ShaderEditorApp.db.insertTexture(name, scaledBitmap) < 1) {
+            R.string.name_already_taken
+        } else {
+            0
+        }
+    }
 }

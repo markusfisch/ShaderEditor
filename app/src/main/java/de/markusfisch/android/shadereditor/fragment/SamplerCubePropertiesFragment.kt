@@ -1,126 +1,96 @@
-package de.markusfisch.android.shadereditor.fragment;
+package de.markusfisch.android.shadereditor.fragment
 
-import android.app.Activity;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.RectF;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.core.os.BundleCompat
+import androidx.fragment.app.Fragment
+import de.markusfisch.android.shadereditor.R
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor
+import de.markusfisch.android.shadereditor.widget.CubeMapView
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+class SamplerCubePropertiesFragment : AbstractSamplerPropertiesFragment() {
 
-import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
-import de.markusfisch.android.shadereditor.widget.CubeMapView;
+    private var faces: ArrayList<CubeMapView.Face>? = null
 
-public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFragment {
-	private static final String FACES = "faces";
+    companion object {
+        private const val FACES = "faces"
 
-	@Nullable
-	private CubeMapView.Face[] faces;
+        @JvmStatic
+        fun newInstance(faces: Array<CubeMapView.Face>): Fragment {
+            return SamplerCubePropertiesFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelableArray(FACES, faces)
+                }
+            }
+        }
+    }
 
-	@NonNull
-	public static Fragment newInstance(CubeMapView.Face[] faces) {
-		Bundle args = new Bundle();
-		args.putParcelableArray(FACES, faces);
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? {
+        val activity = requireActivity()
+        activity.title = getString(R.string.texture_properties)
 
-		SamplerCubePropertiesFragment fragment =
-				new SamplerCubePropertiesFragment();
-		fragment.setArguments(args);
+        arguments?.let { args ->
+            faces = BundleCompat.getParcelableArrayList(args, FACES, CubeMapView.Face::class.java)
+                ?: run {
+                    activity.finish()
+                    return null
+                }
+        }
 
-		return fragment;
-	}
+        val view = initView(activity, inflater, container)
+        setSizeCaption(getString(R.string.face_size))
+        setMaxValue(7)
+        setSamplerType(SAMPLER_CUBE)
 
-	@Override
-	public View onCreateView(
-			@NonNull LayoutInflater inflater,
-			ViewGroup container,
-			Bundle state) {
-		Activity activity = getActivity();
-		if (activity == null) {
-			return null;
-		}
-		activity.setTitle(R.string.texture_properties);
+        return view
+    }
 
-		Bundle args;
-		View view;
+    override fun saveSampler(context: Context, name: String, size: Int): Int {
+        val width = size * 2
+        val height = size * 3
+        val mapBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(mapBitmap)
 
-		if ((args = getArguments()) == null ||
-				(faces = (CubeMapView.Face[]) args.getParcelableArray(
-						FACES)) == null ||
-				(view = initView(
-						activity,
-						inflater,
-						container)) == null) {
-			activity.finish();
-			return null;
-		}
+        var x = 0
+        var y = 0
 
-		setSizeCaption(getString(R.string.face_size));
-		setMaxValue(7);
-		setSamplerType(SAMPLER_CUBE);
+        faces?.forEach { face ->
+            val faceUri = face.uri ?: return R.string.cannot_pick_image
 
-		return view;
-	}
+            val clip = face.clip
+            val rotation = face.rotation
 
-	@Override
-	protected int saveSampler(
-			@NonNull Context context,
-			String name,
-			int size) {
-		int width = size * 2;
-		int height = size * 3;
-		Bitmap mapBitmap = Bitmap.createBitmap(
-				width,
-				height,
-				Bitmap.Config.ARGB_8888);
-		Canvas canvas = new Canvas(mapBitmap);
-		int x = 0;
-		int y = 0;
+            val nw = clip.width()
+            val max = (size + size / nw * (1f - nw)).toInt()
 
-		for (int i = 0, l = 6; i < l; ++i) {
-			if (faces[i].getUri() == null) {
-				return R.string.cannot_pick_image;
-			}
+            var bitmap = BitmapEditor.getBitmapFromUri(context, faceUri, max)
+                ?: return R.string.cannot_pick_image
 
-			RectF clip = faces[i].getClip();
-			float rotation = faces[i].getRotation();
+            bitmap = BitmapEditor.crop(bitmap, clip, rotation) ?: return R.string.cannot_pick_image
 
-			float nw = clip.width();
-			int max = Math.round(size + size / nw * (1f - nw));
+            val scaledBitmap = Bitmap.createScaledBitmap(bitmap, size, size, true)
+            canvas.drawBitmap(scaledBitmap, x.toFloat(), y.toFloat(), null)
+            scaledBitmap.recycle()
 
-			Bitmap bitmap = BitmapEditor.getBitmapFromUri(
-					context,
-					faces[i].getUri(),
-					max);
+            x += size
+            if (x >= width) {
+                y += size
+                x = 0
+            }
+        }
 
-			if (bitmap == null ||
-					(bitmap = BitmapEditor.crop(
-							bitmap, clip, rotation)) == null) {
-				return R.string.cannot_pick_image;
-			}
-
-			bitmap = Bitmap.createScaledBitmap(
-					bitmap, size, size, true);
-			canvas.drawBitmap(bitmap, x, y, null);
-			bitmap.recycle();
-
-			x += size;
-
-			if (x >= width) {
-				y += size;
-				x = 0;
-			}
-		}
-
-		return ShaderEditorApp.db.insertTexture(name, mapBitmap) < 1
-				? R.string.name_already_taken
-				: 0;
-	}
+        return if (ShaderEditorApp.db.insertTexture(name, mapBitmap) < 1) {
+            R.string.name_already_taken
+        } else {
+            0
+        }
+    }
 }
