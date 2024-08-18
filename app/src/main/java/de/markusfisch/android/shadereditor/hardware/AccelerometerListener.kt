@@ -1,43 +1,32 @@
-package de.markusfisch.android.shadereditor.hardware;
+package de.markusfisch.android.shadereditor.hardware
 
-import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
 
-import androidx.annotation.NonNull;
+class AccelerometerListener(context: Context) : AbstractListener(context) {
 
-public class AccelerometerListener extends AbstractListener {
-	public final float[] gravity = new float[]{0, 0, 0};
-	public final float[] linear = new float[]{0, 0, 0};
-	public final float[] values = new float[]{0, 0, 0};
+    val gravity = FloatArray(3) { 0f }
+    val linear = FloatArray(3) { 0f }
+    val values = FloatArray(3) { 0f }
 
-	public AccelerometerListener(@NonNull Context context) {
-		super(context);
-	}
+    fun register(): Boolean = register(Sensor.TYPE_ACCELEROMETER)
 
-	public boolean register() {
-		return register(Sensor.TYPE_ACCELEROMETER);
-	}
+    override fun onSensorChanged(event: SensorEvent) {
+        if (last > 0) {
+            val a = 0.8f
+            val b = 1f - a
 
-	@Override
-	public void onSensorChanged(@NonNull SensorEvent event) {
-		if (last > 0) {
-			final float a = .8f;
-			final float b = 1f - a;
+            event.values.copyInto(values)
+            event.values.forEachIndexed { index, _ ->
+                gravity[index] = a * gravity[index] + b * values[index]
+            }
 
-			gravity[0] = a * gravity[0] + b * event.values[0];
-			gravity[1] = a * gravity[1] + b * event.values[1];
-			gravity[2] = a * gravity[2] + b * event.values[2];
+            event.values.copyInto(linear)
+                .forEachIndexed { index, _ -> linear[index] = values[index] - gravity[index] }
 
-			linear[0] = event.values[0] - gravity[0];
-			linear[1] = event.values[1] - gravity[1];
-			linear[2] = event.values[2] - gravity[2];
+        }
 
-			values[0] = event.values[0];
-			values[1] = event.values[1];
-			values[2] = event.values[2];
-		}
-
-		last = event.timestamp;
-	}
+        last = event.timestamp
+    }
 }

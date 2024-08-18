@@ -485,10 +485,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			GLES20.glUniform3fv(linearLoc, 1, linearValues, 0);
 		}
 		if (gyroscopeLoc > -1 && gyroscopeListener != null) {
-			GLES20.glUniform3fv(gyroscopeLoc, 1, gyroscopeListener.rotation, 0);
+			GLES20.glUniform3fv(gyroscopeLoc, 1, gyroscopeListener.getRotation(), 0);
 		}
 		if (magneticLoc > -1 && magneticFieldListener != null) {
-			GLES20.glUniform3fv(magneticLoc, 1, magneticFieldListener.values, 0);
+			GLES20.glUniform3fv(magneticLoc, 1, magneticFieldListener.getValues(), 0);
 		}
 		if ((rotationMatrixLoc > -1 || orientationLoc > -1 ||
 				inclinationMatrixLoc > -1 || inclinationLoc > -1) &&
@@ -587,7 +587,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			}
 			if (cameraAddentLoc > -1) {
 				GLES20.glUniform2fv(cameraAddentLoc, 1,
-						cameraListener.addent, 0);
+						cameraListener.getAddent(), 0);
 			}
 			cameraListener.update();
 		}
@@ -891,7 +891,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			if (!gravityListener.register()) {
 				gravityListener = null;
 				AccelerometerListener l = getAccelerometerListener();
-				gravityValues = l != null ? l.gravity : null;
+				gravityValues = l != null ? l.getGravity() : null;
 			} else {
 				gravityValues = gravityListener.values;
 			}
@@ -905,7 +905,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			if (!linearAccelerationListener.register()) {
 				linearAccelerationListener = null;
 				AccelerometerListener l = getAccelerometerListener();
-				linearValues = l != null ? l.linear : null;
+				linearValues = l != null ? l.getLinear() : null;
 			} else {
 				linearValues = linearAccelerationListener.values;
 			}
@@ -1050,7 +1050,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 						rotationMatrix,
 						inclinationMatrix,
 						gravityValues,
-						magneticFieldListener.filtered)) {
+						magneticFieldListener.getFiltered())) {
 			haveInclination = true;
 		} else if (rotationVectorListener != null) {
 			SensorManager.getRotationMatrixFromVector(
@@ -1320,7 +1320,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				: CameraSelector.LENS_FACING_FRONT;
 
 		if (cameraListener == null ||
-				cameraListener.facing != lensFacing) {
+				cameraListener.getFacing() != lensFacing) {
 			unregisterCameraListener();
 			requestCameraPermission();
 			setCameraTextureProperties(id, tp);

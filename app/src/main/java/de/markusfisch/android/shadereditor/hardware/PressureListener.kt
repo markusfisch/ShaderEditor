@@ -1,30 +1,18 @@
-package de.markusfisch.android.shadereditor.hardware;
+package de.markusfisch.android.shadereditor.hardware
 
-import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
 
-import androidx.annotation.NonNull;
+class PressureListener(context: Context) : AbstractListener(context) {
+    var pressure: Float = 0f
+        private set
 
-public class PressureListener extends AbstractListener {
-	private float pressure = 0f;
+    fun register(): Boolean = register(Sensor.TYPE_PRESSURE)
 
-	public PressureListener(@NonNull Context context) {
-		super(context);
-	}
-
-	public boolean register() {
-		return register(Sensor.TYPE_PRESSURE);
-	}
-
-	@Override
-	public void onSensorChanged(@NonNull SensorEvent event) {
-		pressure = event.values[0];
-	}
-
-	public float getPressure() {
-		return pressure;
-	}
+    override fun onSensorChanged(event: SensorEvent) {
+        pressure = event.values[0]
+    }
 }
 
 

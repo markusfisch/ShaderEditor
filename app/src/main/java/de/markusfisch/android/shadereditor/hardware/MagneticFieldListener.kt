@@ -1,35 +1,24 @@
-package de.markusfisch.android.shadereditor.hardware;
+package de.markusfisch.android.shadereditor.hardware
 
-import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
 
-import androidx.annotation.NonNull;
+class MagneticFieldListener(context: Context) : AbstractListener(context) {
+    val values: FloatArray = FloatArray(3) { 0f }
+    val filtered: FloatArray = FloatArray(3) { 0f }
 
-public class MagneticFieldListener extends AbstractListener {
-	public final float[] values = new float[]{0, 0, 0};
-	public final float[] filtered = new float[]{0, 0, 0};
+    fun register(): Boolean =  register(Sensor.TYPE_MAGNETIC_FIELD)
 
-	public MagneticFieldListener(@NonNull Context context) {
-		super(context);
-	}
+    override fun onSensorChanged(event: SensorEvent) {
+        val a = .8f
+        val b = 1f - a
 
-	public boolean register() {
-		return register(Sensor.TYPE_MAGNETIC_FIELD);
-	}
+        event.values.copyInto(values)
 
-	@Override
-	public void onSensorChanged(@NonNull SensorEvent event) {
-		final float a = .8f;
-		final float b = 1f - a;
-
-		filtered[0] = a * filtered[0] + b * event.values[0];
-		filtered[1] = a * filtered[1] + b * event.values[1];
-		filtered[2] = a * filtered[2] + b * event.values[2];
-
-		values[0] = event.values[0];
-		values[1] = event.values[1];
-		values[2] = event.values[2];
-	}
+        filtered.forEachIndexed { index, _ ->
+            filtered[index] = a * filtered[index] + b * values[index]
+        }
+    }
 }
 

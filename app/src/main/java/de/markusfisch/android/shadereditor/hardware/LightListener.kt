@@ -1,30 +1,18 @@
-package de.markusfisch.android.shadereditor.hardware;
+package de.markusfisch.android.shadereditor.hardware
 
-import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
 
-import androidx.annotation.NonNull;
+class LightListener(context: Context) : AbstractListener(context) {
+    var ambient: Float = 0f
+        private set
 
-public class LightListener extends AbstractListener {
-	private float ambient = 0f;
+    fun register(): Boolean = register(Sensor.TYPE_LIGHT)
 
-	public LightListener(@NonNull Context context) {
-		super(context);
-	}
-
-	public boolean register() {
-		return register(Sensor.TYPE_LIGHT);
-	}
-
-	@Override
-	public void onSensorChanged(@NonNull SensorEvent event) {
-		ambient = event.values[0];
-	}
-
-	public float getAmbient() {
-		return ambient;
-	}
+    override fun onSensorChanged(event: SensorEvent) {
+        ambient = event.values[0]
+    }
 }
 
 

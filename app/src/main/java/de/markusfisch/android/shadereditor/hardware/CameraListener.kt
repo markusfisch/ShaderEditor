@@ -1,163 +1,131 @@
-package de.markusfisch.android.shadereditor.hardware;
+package de.markusfisch.android.shadereditor.hardware
 
-import android.content.Context;
-import android.graphics.SurfaceTexture;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Size;
-import android.view.Surface;
+import android.content.Context
+import android.graphics.SurfaceTexture
+import android.os.Handler
+import android.os.Looper
+import android.util.Size
+import android.view.Surface
+import androidx.camera.core.Camera
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import com.google.common.util.concurrent.ListenableFuture
+import java.nio.FloatBuffer
+import java.util.concurrent.ExecutionException
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.camera.core.Camera;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.Preview;
-import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
+class CameraListener(
+    private val cameraTextureId: Int,
+    val facing: Int,
+    width: Int,
+    height: Int,
+    deviceRotation: Int,
+    private val context: Context
+) {
+    val addent = floatArrayOf(0f, 0f)
 
-import com.google.common.util.concurrent.ListenableFuture;
+    private var surfaceTexture: SurfaceTexture? = null
+    private val orientationMatrix: FloatBuffer = FloatBuffer.allocate(4)
+    private val frameSize: Size = Size(width, height)
+    private var camera: Camera? = null
 
-import java.nio.FloatBuffer;
-import java.util.concurrent.ExecutionException;
+    init {
+        setOrientationAndFlip(deviceRotation)
+    }
 
-public class CameraListener {
-	public final int facing;
-	public final float[] addent = new float[]{0, 0};
+    fun getOrientationMatrix(): FloatBuffer = orientationMatrix
 
-	private final int cameraTextureId;
+    fun register(lifecycleOwner: LifecycleOwner): Boolean = Handler(Looper.getMainLooper()).post {
+        if (!lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)) return@post
 
-	@Nullable
-	private SurfaceTexture surfaceTexture;
-	@NonNull
-	private final FloatBuffer orientationMatrix = FloatBuffer.allocate(4);
+        val cameraProviderFuture: ListenableFuture<ProcessCameraProvider> =
+            ProcessCameraProvider.getInstance(context)
 
-	@NonNull
-	private final Context context;
-	@NonNull
-	private final Size frameSize;
-	@Nullable
-	private Camera camera;
+        cameraProviderFuture.addListener({
+            try {
+                val cameraProvider = cameraProviderFuture.get()
+                cameraProvider.unbindAll()
 
-	public CameraListener(
-			int cameraTextureId,
-			int facing,
-			int width,
-			int height,
-			int deviceRotation,
-			@NonNull Context context) {
-		this.cameraTextureId = cameraTextureId;
-		this.facing = facing;
-		this.context = context;
-		this.frameSize = new Size(width, height);
-		setOrientationAndFlip(deviceRotation);
-	}
+                val preview = Preview.Builder().setTargetResolution(frameSize).build()
 
-	@NonNull
-	public FloatBuffer getOrientationMatrix() {
-		return orientationMatrix;
-	}
+                preview.setSurfaceProvider { surfaceRequest ->
+                    surfaceTexture = SurfaceTexture(cameraTextureId).apply {
+                        setDefaultBufferSize(
+                            surfaceRequest.resolution.width,
+                            surfaceRequest.resolution.height
+                        )
+                    }
 
-	public void register(@NonNull LifecycleOwner lifecycleOwner) {
-		Handler mainHandler = new Handler(Looper.getMainLooper());
-		mainHandler.post(() -> {
-			if (!lifecycleOwner.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
-				return;
-			}
-			ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
-					ProcessCameraProvider.getInstance(context);
-			cameraProviderFuture.addListener(() -> {
-				try {
-					ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-					cameraProvider.unbindAll();
-					Preview preview = new Preview.Builder()
-							.setTargetResolution(frameSize)
-							.build();
-					preview.setSurfaceProvider(surfaceRequest -> {
-						surfaceTexture = new SurfaceTexture(cameraTextureId);
-						Size size = surfaceRequest.getResolution();
-						surfaceTexture.setDefaultBufferSize(size.getWidth(), size.getHeight());
-						Surface surface = new Surface(surfaceTexture);
-						surfaceRequest.provideSurface(surface,
-								ContextCompat.getMainExecutor(context),
-								result -> surface.release());
-					});
-					CameraSelector cameraSelector = new CameraSelector.Builder()
-							.requireLensFacing(facing)
-							.build();
-					camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector,
-							preview);
-				} catch (ExecutionException | InterruptedException e) {
-					// Handle exceptions
-				}
-			}, ContextCompat.getMainExecutor(context));
-		});
-	}
+                    val surface = Surface(surfaceTexture)
+                    surfaceRequest.provideSurface(
+                        surface, ContextCompat.getMainExecutor(context)
+                    ) { surface.release() }
+                }
 
-	public void unregister() {
-		Handler mainHandler = new Handler(Looper.getMainLooper());
-		mainHandler.post(() -> {
-			if (camera != null) {
-				ProcessCameraProvider cameraProvider;
-				try {
-					cameraProvider = ProcessCameraProvider.getInstance(context).get();
-				} catch (ExecutionException | InterruptedException ignored) {
-					return;
-				}
-				cameraProvider.unbindAll();
-				camera = null;
+                val cameraSelector = CameraSelector.Builder().requireLensFacing(facing).build()
 
-				if (surfaceTexture != null) {
-					surfaceTexture.release();
-					surfaceTexture = null;
-				}
-			}
-		});
-	}
+                camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
 
-	public synchronized void update() {
-		if (surfaceTexture != null) {
-			surfaceTexture.updateTexImage();
-		}
-	}
+            } catch (e: ExecutionException) {
+                // Handle exception
+            } catch (e: InterruptedException) {
+                // Handle exception
+            }
+        }, ContextCompat.getMainExecutor(context))
+    }
 
-	private void setOrientationAndFlip(int deviceRotation) {
-		switch (deviceRotation) {
-			default:
-			case Surface.ROTATION_0:
-				orientationMatrix.put(new float[]{
-						0f, -1f,
-						-1f, 0f,
-				});
-				addent[0] = 1f;
-				addent[1] = 1f;
-				break;
-			case Surface.ROTATION_90:
-				orientationMatrix.put(new float[]{
-						1f, 0f,
-						0f, -1f,
-				});
-				addent[0] = 0f;
-				addent[1] = 1f;
-				break;
-			case Surface.ROTATION_180:
-				orientationMatrix.put(new float[]{
-						0f, 1f,
-						1f, 0f,
-				});
-				addent[0] = 0f;
-				addent[1] = 0f;
-				break;
-			case Surface.ROTATION_270:
-				orientationMatrix.put(new float[]{
-						-1f, 0f,
-						0f, 1f,
-				});
-				addent[0] = 1f;
-				addent[1] = 0f;
-				break;
-		}
-		orientationMatrix.rewind();
-	}
+    fun unregister(): Boolean = Handler(Looper.getMainLooper()).post {
+        camera?.let {
+            try {
+                val cameraProvider = ProcessCameraProvider.getInstance(context).get()
+                cameraProvider.unbindAll()
+                camera = null
+            } catch (e: ExecutionException) {
+                // Handle exception
+            } catch (e: InterruptedException) {
+                // Handle exception
+            }
+
+            surfaceTexture?.release()
+            surfaceTexture = null
+        }
+    }
+
+    @Synchronized
+    fun update() {
+        surfaceTexture?.updateTexImage()
+    }
+
+    private fun setOrientationAndFlip(deviceRotation: Int) {
+        val orientationValues = when (deviceRotation) {
+            Surface.ROTATION_0 -> floatArrayOf(0f, -1f, -1f, 0f).also {
+                addent[0] = 1f
+                addent[1] = 1f
+            }
+
+            Surface.ROTATION_90 -> floatArrayOf(1f, 0f, 0f, -1f).also {
+                addent[0] = 0f
+                addent[1] = 1f
+            }
+
+            Surface.ROTATION_180 -> floatArrayOf(0f, 1f, 1f, 0f).also {
+                addent[0] = 0f
+                addent[1] = 0f
+            }
+
+            Surface.ROTATION_270 -> floatArrayOf(-1f, 0f, 0f, 1f).also {
+                addent[0] = 1f
+                addent[1] = 0f
+            }
+
+            else -> floatArrayOf(0f, -1f, -1f, 0f).also {
+                addent[0] = 1f
+                addent[1] = 1f
+            }
+        }
+        orientationMatrix.put(orientationValues).rewind()
+    }
 }

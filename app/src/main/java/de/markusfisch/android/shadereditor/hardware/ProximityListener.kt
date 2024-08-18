@@ -1,30 +1,18 @@
-package de.markusfisch.android.shadereditor.hardware;
+package de.markusfisch.android.shadereditor.hardware
 
-import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
 
-import androidx.annotation.NonNull;
+class ProximityListener(context: Context) : AbstractListener(context) {
+    var centimeters: Float = 0f
+        private set
 
-public class ProximityListener extends AbstractListener {
-	private float centimeters = 0f;
+    fun register(): Boolean = register(Sensor.TYPE_PROXIMITY)
 
-	public ProximityListener(@NonNull Context context) {
-		super(context);
-	}
-
-	public boolean register() {
-		return register(Sensor.TYPE_PROXIMITY);
-	}
-
-	@Override
-	public void onSensorChanged(@NonNull SensorEvent event) {
-		centimeters = event.values[0];
-	}
-
-	public float getCentimeters() {
-		return centimeters;
-	}
+    override fun onSensorChanged(event: SensorEvent) {
+        centimeters = event.values[0]
+    }
 }
 
 

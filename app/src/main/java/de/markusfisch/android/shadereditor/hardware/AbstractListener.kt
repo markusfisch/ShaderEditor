@@ -1,58 +1,48 @@
-package de.markusfisch.android.shadereditor.hardware;
+package de.markusfisch.android.shadereditor.hardware
 
-import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
+import android.content.Context
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import de.markusfisch.android.shadereditor.app.ShaderEditorApp
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+abstract class AbstractListener(context: Context) : SensorEventListener {
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+    var last: Long = 0
+        protected set
 
-public abstract class AbstractListener implements SensorEventListener {
-	long last = 0;
+    private val sensorManager: SensorManager? =
+        context.getSystemService(Context.SENSOR_SERVICE) as SensorManager?
 
-	private final SensorManager sensorManager;
+    private var listening = false
 
-	private boolean listening = false;
-	@Nullable
-	private Sensor sensor;
+    private var sensor: Sensor? = null
 
-	AbstractListener(@NonNull Context context) {
-		sensorManager = (SensorManager) context.getSystemService(
-				Context.SENSOR_SERVICE);
-	}
+    fun unregister() {
+        if (sensor != null && listening) {
+            sensorManager?.unregisterListener(this)
+            listening = false
+        }
+    }
 
-	public void unregister() {
-		if (sensor == null || !listening) {
-			return;
-		}
+    override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
+        // No implementation required
+    }
 
-		sensorManager.unregisterListener(this);
-		listening = false;
-	}
+    override fun onSensorChanged(event: SensorEvent) {
+        last = event.timestamp
+    }
 
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-	}
+    fun register(type: Int): Boolean {
+        if (listening) return false
+        sensor = sensor ?: sensorManager?.getDefaultSensor(type) ?: return false
 
-	@Override
-	public void onSensorChanged(@NonNull SensorEvent event) {
-		last = event.timestamp;
-	}
+        last = 0
+        listening = sensorManager?.registerListener(
+            this, sensor, ShaderEditorApp.preferences.sensorDelay
+        ) ?: false
 
-	boolean register(int type) {
-		if (listening || sensorManager == null || (sensor == null &&
-				(sensor = sensorManager.getDefaultSensor(type)) == null)) {
-			return false;
-		}
-
-		last = 0;
-		listening = sensorManager.registerListener(this, sensor,
-				ShaderEditorApp.preferences.getSensorDelay());
-
-		return listening;
-	}
+        return listening
+    }
 }
