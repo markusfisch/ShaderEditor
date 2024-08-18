@@ -1,118 +1,98 @@
-package de.markusfisch.android.shadereditor.graphics;
+package de.markusfisch.android.shadereditor.graphics
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.graphics.RectF;
-import android.net.Uri;
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.graphics.RectF
+import android.net.Uri
+import java.io.IOException
+import java.io.InputStream
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+object BitmapEditor {
 
-import java.io.IOException;
-import java.io.InputStream;
+    @JvmStatic
+    fun getBitmapFromUri(
+        context: Context, uri: Uri, maxSize: Int
+    ): Bitmap? {
+        return try {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                val options = BitmapFactory.Options().apply {
+                    setSampleSize(this, inputStream, maxSize, maxSize)
+                }
+                context.contentResolver.openInputStream(uri)?.use {
+                    BitmapFactory.decodeStream(it, null, options)
+                }
+            }
+        } catch (e: OutOfMemoryError) {
+            null
+        } catch (e: SecurityException) {
+            null
+        } catch (e: IOException) {
+            null
+        }
+    }
 
-public class BitmapEditor {
-	@Nullable
-	public static Bitmap getBitmapFromUri(
-			@NonNull Context context,
-			@NonNull Uri uri,
-			int maxSize) {
-		InputStream in = null;
-		try {
-			in = context.getContentResolver().openInputStream(uri);
-			if (in == null) {
-				return null;
-			}
-			BitmapFactory.Options options = new BitmapFactory.Options();
-			setSampleSize(options, in, maxSize, maxSize);
+    @JvmStatic
+    fun crop(
+        bitmap: Bitmap?, rect: RectF, rotation: Float
+    ): Bitmap? {
+        if (bitmap == null) return null
 
-			in.close();
-			in = context.getContentResolver().openInputStream(uri);
+        return try {
+            val rotatedBitmap = if (rotation % 360f != 0f) {
+                val matrix = Matrix().apply {
+                    setRotate(rotation)
+                }
+                Bitmap.createBitmap(
+                    bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true
+                )
+            } else {
+                bitmap
+            }
 
-			return BitmapFactory.decodeStream(in, null, options);
-		} catch (OutOfMemoryError | SecurityException | IOException e) {
-			return null;
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					// Ignore.
-				}
-			}
-		}
-	}
+            val w = rotatedBitmap.width
+            val h = rotatedBitmap.height
 
-	public static Bitmap crop(
-			@Nullable Bitmap bitmap,
-			@NonNull RectF rect,
-			float rotation) {
-		if (bitmap == null) {
-			return null;
-		}
+            Bitmap.createBitmap(
+                rotatedBitmap,
+                (rect.left * w).toInt(),
+                (rect.top * h).toInt(),
+                (rect.width() * w).toInt(),
+                (rect.height() * h).toInt()
+            )
+        } catch (e: OutOfMemoryError) {
+            null
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+    }
 
-		try {
-			if (rotation % 360f != 0) {
-				Matrix matrix = new Matrix();
-				matrix.setRotate(rotation);
+    private fun setSampleSize(
+        options: BitmapFactory.Options, inputStream: InputStream, maxWidth: Int, maxHeight: Int
+    ) {
+        options.inJustDecodeBounds = true
+        BitmapFactory.decodeStream(inputStream, null, options)
+        options.inJustDecodeBounds = false
+        options.inSampleSize = calculateSampleSize(
+            options.outWidth, options.outHeight, maxWidth, maxHeight
+        )
+    }
 
-				bitmap = Bitmap.createBitmap(
-						bitmap,
-						0,
-						0,
-						bitmap.getWidth(),
-						bitmap.getHeight(),
-						matrix,
-						true);
-			}
+    private fun calculateSampleSize(
+        width: Int, height: Int, maxWidth: Int, maxHeight: Int
+    ): Int {
+        var size = 1
 
-			float w = bitmap.getWidth();
-			float h = bitmap.getHeight();
+        if (width > maxWidth || height > maxHeight) {
+            val hw = width / 2
+            val hh = height / 2
 
-			return Bitmap.createBitmap(
-					bitmap,
-					Math.round(rect.left * w),
-					Math.round(rect.top * h),
-					Math.round(rect.width() * w),
-					Math.round(rect.height() * h));
-		} catch (OutOfMemoryError | IllegalArgumentException e) {
-			return null;
-		}
-	}
+            while (hw / size > maxWidth && hh / size > maxHeight) {
+                size *= 2
+            }
+        }
 
-	private static void setSampleSize(
-			@NonNull BitmapFactory.Options options,
-			InputStream in,
-			int maxWidth,
-			int maxHeight) {
-		options.inJustDecodeBounds = true;
-		BitmapFactory.decodeStream(in, null, options);
-		options.inJustDecodeBounds = false;
-		options.inSampleSize = calculateSampleSize(
-				options.outWidth,
-				options.outHeight,
-				maxWidth,
-				maxHeight);
-	}
-
-	private static int calculateSampleSize(
-			int width,
-			int height,
-			int maxWidth,
-			int maxHeight) {
-		int size = 1;
-
-		if (width > maxWidth || height > maxHeight) {
-			final int hw = width / 2;
-			final int hh = height / 2;
-
-			while (hw / size > maxWidth && hh / size > maxHeight) {
-				size *= 2;
-			}
-		}
-
-		return size;
-	}
+        return size
+    }
 }
