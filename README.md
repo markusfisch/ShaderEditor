@@ -31,7 +31,7 @@ send some Bitcoin decimals to `bc1q2guk2rpll587aymrfadkdtpq32448x5khk5j8z`.
 
 ## Features
 
-* Live preview in background or on an extra screen
+* Live preview in the background or on an extra screen
 * Syntax highlighting
 * Error highlighting
 * Use any shader as live wallpaper
@@ -41,9 +41,9 @@ send some Bitcoin decimals to `bc1q2guk2rpll587aymrfadkdtpq32448x5khk5j8z`.
 * Supports wallpaper offset
 * Supports multiple touches
 * Supports multiple render resolutions
-* Previous rendered frame in backbuffer texture
+* Previously rendered frame in backbuffer texture
 * Import and use arbitrary textures
 * Create and use cube maps
-* Disables rendering when battery is low
+* Disables rendering when the battery is low
 
 See [FAQ.md](FAQ.md) for frequently asked questions.
