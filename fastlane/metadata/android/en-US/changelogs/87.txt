@@ -1,0 +1,6 @@
+* Improve option menus
+* Improve code completions
+* Show all errors in a bottom sheet
+* Support GLES30 with camera uniform
+* Use CameraX for camera uniform
+

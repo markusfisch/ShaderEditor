@@ -1,5 +1,12 @@
 # Change Log
 
+## 2.35.0
+* Improve option menus
+* Improve code completions
+* Show all errors in a bottom sheet
+* Support GLES30 with camera uniform
+* Use CameraX for camera uniform
+
 ## 2.34.3
 * Use a Snackbar for GLSL error messages
 * Update Ukrainian translation
