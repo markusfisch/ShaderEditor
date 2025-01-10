@@ -173,10 +173,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private static final Pattern PATTERN_FTIME = Pattern.compile(
 			"^#define[ \\t]+FTIME_PERIOD[ \\t]+([0-9\\.]+)[ \\t]*$",
 			Pattern.MULTILINE);
-	private static final Pattern PATTERN_VERSION = Pattern.compile(
+	private static final Pattern PATTERN_GLES3_VERSION = Pattern.compile(
 			"^#version 3[0-9]{2} es$", Pattern.MULTILINE);
 	private static final String OES_EXTERNAL =
 			"#extension GL_OES_EGL_image_external : require\n";
+	private static final String OES_EXTERNAL_ESS3 =
+			"#extension GL_OES_EGL_image_external_essl3 : require\n";
 	private static final String SHADER_EDITOR =
 			"#define SHADER_EDITOR 1\n";
 	private static final String VERTEX_SHADER =
@@ -762,12 +764,15 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private String getVertexShader() {
-		Matcher m = PATTERN_VERSION.matcher(fragmentShader);
-		if (version == 3 && m.find()) {
-			return m.group(0) + "\n" + VERTEX_SHADER_3;
-		} else {
-			return VERTEX_SHADER;
-		}
+		String version = getGLES3Version(fragmentShader);
+		return version != null
+				? version + "\n" + VERTEX_SHADER_3
+				: VERTEX_SHADER;
+	}
+
+	private String getGLES3Version(String source) {
+		Matcher m = PATTERN_GLES3_VERSION.matcher(source);
+		return version == 3 && m.find() ? m.group(0) : null;
 	}
 
 	private void indexLocations() {
@@ -1390,15 +1395,16 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				case SAMPLER_CUBE:
 					target = GLES20.GL_TEXTURE_CUBE_MAP;
 					break;
-				case SAMPLER_EXTERNAL_OES:
-					// Needs to be done here or lint won't recognize
-					// we're checking SDK version.
+				case SAMPLER_EXTERNAL_OES: {
 					target = GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
-					if (!source.contains(OES_EXTERNAL)) {
-						source = addPreprocessorDirective(source,
-								OES_EXTERNAL);
+					String pattern = getGLES3Version(source) != null
+							? OES_EXTERNAL_ESS3
+							: OES_EXTERNAL;
+					if (!source.contains(pattern)) {
+						source = addPreprocessorDirective(source, pattern);
 					}
 					break;
+				}
 				default:
 					continue;
 			}
