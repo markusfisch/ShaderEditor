@@ -50,6 +50,7 @@ import de.markusfisch.android.shadereditor.hardware.MagneticFieldListener;
 import de.markusfisch.android.shadereditor.hardware.PressureListener;
 import de.markusfisch.android.shadereditor.hardware.ProximityListener;
 import de.markusfisch.android.shadereditor.hardware.RotationVectorListener;
+import de.markusfisch.android.shadereditor.hardware.MicInputListener;
 import de.markusfisch.android.shadereditor.service.NotificationService;
 
 public class ShaderRenderer implements GLSurfaceView.Renderer {
@@ -96,6 +97,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public static final String UNIFORM_SUB_SECOND = "subsecond";
 	public static final String UNIFORM_TIME = "time";
 	public static final String UNIFORM_MEDIA_VOLUME = "mediaVolume";
+	public static final String UNIFORM_MIC_AMPLITUDE = "micAmplitude";
 	public static final String UNIFORM_TOUCH = "touch";
 	public static final String UNIFORM_TOUCH_START = "touchStart";
 
@@ -235,6 +237,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private GravityListener gravityListener;
 	private GyroscopeListener gyroscopeListener;
 	private MagneticFieldListener magneticFieldListener;
+	private MicInputListener micInputListener;
 	private LightListener lightListener;
 	private LinearAccelerationListener linearAccelerationListener;
 	private PressureListener pressureListener;
@@ -286,6 +289,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private int cameraOrientationLoc;
 	private int cameraAddentLoc;
 	private int mediaVolumeLoc;
+	private int micAmplitudeLoc;
 	private int nightMode;
 	private int numberOfTextures;
 	private int pointerCount;
@@ -553,6 +557,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		if (mediaVolumeLoc > -1) {
 			GLES20.glUniform1f(mediaVolumeLoc, getMediaVolumeLevel(context));
 		}
+		if (micAmplitudeLoc > -1 && micInputListener != null) {
+			GLES20.glUniform1f(micAmplitudeLoc, micInputListener.getAmplitude());
+		}
 
 		if (fb[0] == 0) {
 			createTargets((int) resolution[0], (int) resolution[1]);
@@ -666,6 +673,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 
 		unregisterCameraListener();
+		if (micInputListener != null) {
+			micInputListener.unregister();
+			micInputListener = null;
+		}
 	}
 
 	public void touchAt(MotionEvent e) {
@@ -857,6 +868,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				program, UNIFORM_CAMERA_ADDENT);
 		mediaVolumeLoc = GLES20.glGetUniformLocation(
 				program, UNIFORM_MEDIA_VOLUME);
+		micAmplitudeLoc = GLES20.glGetUniformLocation(
+				program, UNIFORM_MIC_AMPLITUDE);
 
 		for (int i = numberOfTextures; i-- > 0; ) {
 			textureLocs[i] = GLES20.glGetUniformLocation(
@@ -964,6 +977,16 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			}
 			if (!rotationVectorListener.register()) {
 				rotationVectorListener = null;
+			}
+		}
+
+		if (micAmplitudeLoc > -1) {
+			if (micInputListener == null) {
+				micInputListener = new MicInputListener(context);
+			}
+			if (!micInputListener.register()) {
+				micInputListener = null;
+				requestRecordAudioPermission();
 			}
 		}
 	}
@@ -1326,6 +1349,23 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 	private void requestCameraPermission() {
 		String permission = android.Manifest.permission.CAMERA;
+		if (ContextCompat.checkSelfPermission(context, permission) !=
+				PackageManager.PERMISSION_GRANTED) {
+			Activity activity;
+			try {
+				activity = (Activity) context;
+			} catch (ClassCastException e) {
+				return;
+			}
+			ActivityCompat.requestPermissions(
+					activity,
+					new String[]{permission},
+					1);
+		}
+	}
+
+	private void requestRecordAudioPermission() {
+		String permission = android.Manifest.permission.RECORD_AUDIO;
 		if (ContextCompat.checkSelfPermission(context, permission) !=
 				PackageManager.PERMISSION_GRANTED) {
 			Activity activity;
