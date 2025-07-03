@@ -208,6 +208,10 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 						ShaderRenderer.UNIFORM_MEDIA_VOLUME,
 						context.getString(R.string.media_volume_level)),
 				new Uniform(
+						"float",
+						ShaderRenderer.UNIFORM_MIC_AMPLITUDE,
+						context.getString(R.string.microphone_amplitude)),
+				new Uniform(
 						"vec2",
 						ShaderRenderer.UNIFORM_TOUCH,
 						context.getString(R.string.touch_position_in_pixels)),
