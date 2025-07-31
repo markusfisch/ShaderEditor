@@ -1,0 +1,283 @@
+<resources>
+	<string name="app_name">Редактор Шейдеров</string>
+	<string name="cannot_open_database">Не удалось открыть базу данных!</string>
+
+	<!-- MainActivity -->
+	<string name="drawer_open">Открыть меню</string>
+	<string name="drawer_close">Закрыть меню</string>
+	<string name="no_shaders">Нет шейдеров</string>
+	<string name="unsuitable_text">Извините, this text is unsuitable.</string>
+	<string name="cannot_open_content">Извините, there is no app that can open URLs</string>
+	<string name="insert_tab">Вставить табуляцию</string>
+	<string name="run_code">Запустить код</string>
+	<string name="toggle_code">Скрыть/Показать код</string>
+	<string name="undo">Вернуть</string>
+	<string name="redo">Повторить</string>
+	<string name="save_shader">Сохранить шейдер</string>
+	<string name="add_shader">Новый шейдер</string>
+	<string name="duplicate_shader">Сохранить как новый шейдер</string>
+	<string name="delete_shader">Удалить шейдер</string>
+	<string name="share_shader">Поделиться шейдером</string>
+	<string name="update_wallpaper">Обновить обою</string>
+	<string name="set_as_wallpaper">Установить новую обою</string>
+	<string name="faq">ЧаВо</string>
+	<string name="show_extra_keys">Дополнительные клавиши</string>
+	<string name="settings">Настройки</string>
+	<string name="sure_remove_shader">Вы уверены, что хотите удалить этот шейдер?</string>
+	<string name="rename_shader">Переименовать шейдер</string>
+	<string name="enter_name">Введите имя</string>
+	<string name="wallpaper_set">Обоя обновлена</string>
+	<string name="cannot_set_wallpaper">Не удалось обновить обою</string>
+	<string name="pick_live_wallpaper">Пожалуйста, выберите эту программу как живые обои, для того чтобы использовать эту обою</string>
+	<string name="pick_live_wallpaper_manually">Для начала вам требуется выбрать эту программу как живые обои</string>
+	<string name="menu_btn">Больше опций</string>
+	<string name="show_errors">Показать ошибки</string>
+
+	<!-- EditorFragment -->
+	<string name="details">Детали</string>
+
+	<!-- PreferencesFragment -->
+	<string name="preferences">Настройки</string>
+	<string name="wallpaper">Обоя</string>
+	<string name="save_battery">Экономить батарею</string>
+	<string name="save_battery_summary">Прекратить отрисовку при низком заряде аккамулятора</string>
+	<string name="sort_by_last_modification">Сортировать по недавним изменениям</string>
+	<string name="sort_by_last_modification_summary">Сортировать шейдеры по недавним изменениям</string>
+	<string name="sensors">Сенсоры</string>
+	<string name="sensor_delay">Задержка сенсоров</string>
+	<string name="no_shader_selected">Шейдер не выбран</string>
+	<string name="shader">Шейдер</string>
+	<string name="editor">Редактор</string>
+	<string name="run_mode">Режим исполнения</string>
+	<string name="update_delay">Задержка в обновлении</string>
+	<string name="text_size">Размер шрифта</string>
+	<string name="font">Шрифт</string>
+	<string name="use_ligatures">Использовать лигатуры</string>
+	<string name="use_ligatures_summary">Преобразовывает комбинации символов по типу &lt;= в ≤</string>
+	<string name="tab_width">Ширина табуляции</string>
+	<string name="use_tab_for_indent">Использовать табуляцию</string>
+	<string name="use_tab_for_indent_summary">Использовать клавишу таб для отступов вместо переключения фокуса.</string>
+	<string name="export_tabs">Экспортировать с табуляцией</string>
+	<string name="export_tabs_summary">При делении файла, не преобразовывать табуляцию в пробелы.</string>
+	<string name="show_insert_tab">Показывать вставку табуляции</string>
+	<string name="show_insert_tab_summary">Показывать пункт в меню "Вставить табуляцию"</string>
+	<string name="save_on_run">Сохранять при запуске</string>
+	<string name="save_on_run_summary">Сохранять изменения при ручном запуске</string>
+	<string name="disable_highlighting">Выключить выделение</string>
+	<string name="disable_highlighting_summary">Выключить выделение для больших шейдеров</string>
+	<string name="auto_save">Авто сохранение</string>
+	<string name="auto_save_summary">Автоматическое сохранение шейдеров</string>
+	<string name="auto_hide_extra_keys">Автоматически скрывать дополнительные клавиши</string>
+	<string name="auto_hide_extra_keys_summary">Автоматически скрывать дополнительный ряд клавиш над клавиатурой</string>
+	<string name="default_new_shader">Шейдер "по-умолчанию"</string>
+	<string name="import_export">Импортирование &amp; Экспортирование</string>
+	<string name="import_shaders_files">Импорт шейдеров из файлов</string>
+	<string name="import_shaders_files_summary">Импортировать шейдеры из *.glsl файлов в папке Download/ShaderEditor</string>
+	<string name="export_shaders_files">Экспорт шейдеров в файлы</string>
+	<string name="export_shaders_files_summary">Экспортировать все шейдеры в папку Download/ShaderEditor</string>
+	<string name="import_database">Импорт базы данных</string>
+	<string name="import_database_summary">Импортировать ранее использованную SQLite базу данных</string>
+	<string name="export_database">Экспорт базы данных</string>
+	<string name="export_database_summary">Экспортировать все шейдеры в SQLite базу данных</string>
+	<string name="show_line_numbers">Показывать номера строк</string>
+	<string name="show_line_numbers_summary">Показывать номер строки в начале каждой строки.</string>
+	<string name="enable_notification_listener">Для использования переменных "notificationCount" и "lastNotificationTime" требуется включить прослушивание уведомлений в настройках.</string>
+	<string name="go_to_settings">Перейти в Настройки</string>
+	<string name="enable_notification_listener_title">Включить прослушивание уведомлений</string>
+	<string name="hide_native_suggestions">Скрыть подсказки клавиатуры</string>
+	<string name="hide_native_suggestions_summary">Скрывает подсказки клавиатуры. При появлении проблем пожалуйста выключите эту настройку.</string>
+
+	<!-- Preferences -->
+	<string name="run_auto">Авто запуск при изменении</string>
+	<string name="run_manually">Запустить вручную</string>
+	<string name="run_manually_extra">Run in extra activity</string>
+	<string name="run_manually_new">Запустить как новую задачу</string>
+	<string name="monospace">Monospace</string>
+	<string name="fira_code">Fira Code</string>
+	<string name="ibm_plex_mono">IBM Plex Mono</string>
+	<string name="jetbrains_mono">JetBrains Mono</string>
+	<string name="roboto_mono">Roboto Mono</string>
+	<string name="source_code_pro">Source Code Pro</string>
+	<string name="fastest">Быстрейшая</string>
+	<string name="game">Игровая</string>
+	<string name="normal">Нормальная</string>
+	<string name="ui">Интерфейс</string>
+	<string name="small">Малый</string>
+	<string name="medium">Средний</string>
+	<string name="big">Большой</string>
+
+	<!-- WallpaperService -->
+	<string name="wallpaper_description">Напишите собственные живые обои.</string>
+
+	<!-- PreviewActivity -->
+	<string name="preview">Предпросмотр</string>
+
+	<!-- UniformPagesFragment -->
+	<string name="add_uniform">Добавить переменную/текстуру</string>
+	<string name="sampler_2d">sampler2D</string>
+	<string name="sampler_cube">samplerCube</string>
+	<string name="preset">Переменные</string>
+	<string name="search">Поиск</string>
+
+	<!-- UniformPresetPageFragment -->
+	<string name="uniform_format">%1$s (%2$s)</string>
+	<string name="resolution_in_pixels">Размер поверхности в пикселях</string>
+	<string name="time_in_seconds_since_load">Время с начала исполнения (в секундах)</string>
+	<string name="int_seconds_since_load">Время с начала исполнения (целочисленное)</string>
+	<string name="fractional_part_of_seconds_since_load">Fractional part of seconds since load</string>
+	<string name="frame_number">Текущий номер кадра, начинающийся с нуля</string>
+	<string name="time_in_cycle">Time within a cycle of #define FTIME_PERIOD seconds from -1.0 to +1.0</string>
+	<string name="touch_position_in_pixels">Position of the first touching finger in pixels</string>
+	<string name="touch_start_position_in_pixels">Position of the initial touch in pixels</string>
+	<string name="number_of_touches">Количество касаний</string>
+	<string name="positions_of_touches">Позиции касаний в пикселях</string>
+	<string name="linear_acceleration_vector">Linear acceleration in m/s^2</string>
+	<string name="gravity_vector">Gravity vector in m/s^2</string>
+	<string name="gyroscope">Rate of rotation in rad/s around the device\'s x, y, and z axis integrated over time</string>
+	<string name="last_notification_time">Time since the last notification. Is NaN if no notifications have happened yet.</string>
+	<string name="device_orientation">Azimuth (-π to π), pitch (-π to π) and roll (-π/2 to π/2) of the device</string>
+	<string name="device_inclination">Geomagnetic inclination angle of the device in radians</string>
+	<string name="device_rotation_matrix">Rotation matrix around the world\'s coordinate system, that is, when the device\'s X axis points toward East, the Y axis points to the North Pole and the device is facing the sky</string>
+	<string name="device_rotation_vector">The rotation vector represents the orientation of the device as a combination of an angle and an axis, in which the device has rotated through an angle θ around an axis of x, y, z</string>
+	<string name="device_inclination_matrix">Rotation matrix transforming the geomagnetic vector into the same coordinate space as gravity</string>
+	<string name="magnetic_field">Geomagnetic field strength along the x, y and z axis in μT</string>
+	<string name="night_mode">Night mode, 1 if set, 0 if not</string>
+	<string name="notification_count">Count of active notifications</string>
+	<string name="light">Ambient light level in SI lux units</string>
+	<string name="pressure">Atmospheric pressure in hPa (millibar)</string>
+	<string name="proximity">Proximity sensor distance measured in centimeters</string>
+	<string name="battery_level">Уровень заряда аккамулятора с 0.0 до 1.0</string>
+	<string name="power_connected">1 при вставленном кабеле питание, иначе 0</string>
+	<string name="wallpaper_offset">Смещение обой с 0.0 до 1.0</string>
+	<string name="previous_frame">Предыдущий отрисованный кадр</string>
+	<string name="camera_back">Задняя камера (работает с Android Ice Cream Sandwich и новее)</string>
+	<string name="camera_front">Передняя камера (работает с Android Ice Cream Sandwich и новее)</string>
+	<string name="camera_addent">Addent to camera texture coordinate, see also cameraOrientation (only on Ice Cream Sandwich or better)</string>
+	<string name="camera_orientation">Multiply with texture coordinate with this matrix to rotate camera frame to device orientation (cameraAddent + uv * cameraOrientation; only on Ice Cream Sandwich or better)</string>
+	<string name="date_time">Год, месяц, день и время в секундах</string>
+	<string name="daytime">Часы, минуты и секунды</string>
+	<string name="start_random">Random value from 0.0 to 1.0, initialized at load</string>
+	<string name="media_volume_level">Уровень громкости с 0.0 до 1.0</string>
+	<string name="microphone_amplitude">Громкость звука, входящего в микрофон с 0.0 до 1.0</string>
+
+	<!-- UniformSampler2dPageFragment -->
+	<string name="texture_preview">Предпросмотр текстуры</string>
+	<string name="texture_name_noise">шум</string>
+	<string name="choose_image">Выбрать изображение</string>
+	<string name="no_textures">Нет доступных изображений</string>
+	<string name="texture_size_format" formatted="false">%d x %d</string>
+
+	<!-- CropImageFragment -->
+	<string name="crop_image">Обрезать изображение</string>
+	<string name="cannot_pick_image">Не удалось открыть изображение. Пожалуйста, попробуйте выбрать другое изображение.</string>
+	<string name="rotate_clockwise">Повернуть по часовой стрелке</string>
+
+	<!-- CubeMapFragment -->
+	<string name="compose_sampler_cube">Создать кубическую текстуру</string>
+	<string name="not_enough_faces">Недостаточно граней</string>
+	<string name="add_texture">Добавить текстуру</string>
+
+	<!-- CubeMapView -->
+	<string name="cube_map_negative_x">-X Слева</string>
+	<string name="cube_map_positive_x">+X Справа</string>
+	<string name="cube_map_negative_y">-Y Вниз</string>
+	<string name="cube_map_positive_y">+Y Вверх</string>
+	<string name="cube_map_negative_z">-Z Вперёд</string>
+	<string name="cube_map_positive_z">+Z Назад</string>
+
+	<!-- AbstractSamplerPropertiesFragment -->
+	<string name="texture_properties">Параметры текстур</string>
+	<string name="texture_size">Размер текстуры в пикселях</string>
+	<string name="face_size">Размер грани в пикселях</string>
+	<string name="texture_name">Unique texture name</string>
+	<string name="input_texture_name">Дайте название текстуре</string>
+	<string name="should_add_uniform">Add uniform sampler2D statement to source?</string>
+	<string name="save_texture">Сохранить текстуру</string>
+	<string name="missing_name">You need to give a name</string>
+	<string name="invalid_texture_name">Invalid name, please choose a name you can use in a GLSL source</string>
+	<string name="illegal_rectangle">Illegal rectangle</string>
+	<string name="name_already_taken">Name already taken</string>
+	<string name="insert_uniform_sampler">Вставить переменную sampler2D</string>
+
+	<!-- TextureViewFragment -->
+	<string name="view_texture">View texture</string>
+	<string name="remove_texture">Remove texture</string>
+	<string name="sure_remove_texture">Вы уверены, что хотите удалить эту текстуру?</string>
+	<string name="image_too_big">Image too big</string>
+	<string name="removed_invalid_texture">Texture was too big to handle</string>
+
+	<!-- TextureParametersFragment -->
+	<string name="texture_parameters">Texture parameters</string>
+	<string name="texture_minifying">Texture minifying function</string>
+	<string name="texture_magnification">Texture magnification function</string>
+	<string name="texture_wrap_s">Wrap parameter for texture coordinate s</string>
+	<string name="texture_wrap_t">Wrap parameter for texture coordinate t</string>
+
+	<!-- BackBufferParametersFragment -->
+	<string name="backbuffer_preset">Preset texture</string>
+	<string name="no_preset">(no preset)</string>
+	<string name="insert_code">Вставить код</string>
+
+	<!-- LoadSampleFragment -->
+	<string name="load_sample">Загрузить пример</string>
+	<string name="sample_battery_name">Баттарея</string>
+	<string name="sample_battery_rationale">Горизонтальный показатель заряда аккамулятора</string>
+	<string name="sample_camera_back_name">Задняя камера</string>
+	<string name="sample_camera_back_rationale">How to use the back camera (only on Ice Cream Sandwich or better)</string>
+	<string name="sample_circles_name">Кружки</string>
+	<string name="sample_circles_rationale">Данный шейдер отрисовывает пару-тройку кружков</string>
+	<string name="sample_cloudy_conway_name">Cloudy Conway</string>
+	<string name="sample_cloudy_conway_rationale">A variation on Conway\'s Game of Life.</string>
+	<string name="sample_electric_fade_name">Electric Fade</string>
+	<string name="sample_electric_fade_rationale">Like Cloudy Conway but with a preset backbuffer.</string>
+	<string name="sample_game_of_life_name">Игра "Жизнь"</string>
+	<string name="sample_game_of_life_rationale">Игра "Жизнь" Конвэя. Коснитесь, чтобы создать новую жизнь.</string>
+	<string name="sample_gles_300_name">GLES 300</string>
+	<string name="sample_gles_300_rationale">Данный шейдер использует GLES версии 3.00</string>
+	<string name="sample_gravity_name">Гравитационный сенсор</string>
+	<string name="sample_gravity_rationale">Демонстрация использования переменной для гравитации</string>
+	<string name="sample_orientation_name">Ориентация</string>
+	<string name="sample_orientation_rationale">Демонстрация использования uniform-переменной для ориентации</string>
+	<string name="sample_swirl_name">Водоворот</string>
+	<string name="sample_swirl_rationale">Демонстрация искажения текстур путём закручивания</string>
+	<string name="sample_texture_name">Текстуры</string>
+	<string name="sample_texture_rationale">Демонстрация отрисовки текстур</string>
+	<string name="sample_touch_name">Касание</string>
+	<string name="sample_touch_rationale">Демонстрация обработки ввода касанием</string>
+
+	<!-- Database -->
+	<string name="default_shader">По умолчанию</string>
+
+	<!-- ImportExport -->
+	<string name="write_access_required">Для экспортирования на внешний носитель требуется доступ к записи.</string>
+	<string name="read_access_required">Для импортирования из внешнего носителя требуется доступ к чтению.</string>
+	<plurals name="n_shaders_successfully_exported">
+		<item quantity="one">%1$d шейдер успешно экспортирован</item>
+		<item quantity="few">%1$d шейдера успешно экспортированы</item>
+		<item quantity="many">%1$d шейдеров успешно экспортированы</item>
+	</plurals>
+	<plurals name="n_shaders_successfully_exported_m_failed">
+		<item quantity="one">%1$d шейдер успешно экспортирован, %2$d не удалось</item>
+		<item quantity="few">%1$d шейдера успешно экспортированы, %2$d не удалось</item>
+		<item quantity="many">%1$d шейдеров успешно экспортированы, %2$d не удалось</item>
+	</plurals>
+	<string name="n_shaders_export_failed">Ошибка при экспортировании: %1$s</string>
+	<plurals name="n_shaders_successfully_imported">
+		<item quantity="one">%1$d шейдер успешно экспортирован</item>
+		<item quantity="few">%1$d шейдера успешно экспортированы, %2$d не удалось</item>
+		<item quantity="many">%1$d шейдеров успешно экспортированы, %2$d не удалось</item>
+	</plurals>
+	<plurals name="n_shaders_successfully_imported_m_failed">
+		<item quantity="one">%1$d шейдер успешно экспортирован, %2$d не удалось</item>
+		<item quantity="few">%1$d шейдера успешно экспортированы, %2$d не удалось</item>
+		<item quantity="many">%1$d шейдеров успешно экспортированы, %2$d не удалось</item>
+	</plurals>
+	<string name="import_failed">Ошибка при импортировании: %1$s</string>
+	<string name="no_shaders_found">Шейдеры не найдены</string>
+	<string name="no_shaders_could_be_written">Не удалось записать шейдеры в каталог</string>
+	<string name="path_is_no_directory">Путь %1$s не является директорией</string>
+	<string name="cant_find_db">Не удалось найти базу данных</string>
+	<string name="storage_not_writeable">Не удалось записать в базу данных</string>
+	<string name="successfully_exported">Экспортированно в загрузки</string>
+	<string name="successfully_imported">База данных импортирована</string>
+</resources>
