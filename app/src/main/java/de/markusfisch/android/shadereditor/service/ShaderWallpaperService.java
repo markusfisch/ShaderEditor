@@ -3,14 +3,14 @@ package de.markusfisch.android.shadereditor.service;
 import android.content.ComponentName;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.opengl.GLSurfaceView;
-import android.os.Handler;
 import android.service.wallpaper.WallpaperService;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.DataRecords;
+import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
@@ -55,8 +55,6 @@ public class ShaderWallpaperService extends WallpaperService {
 	private class ShaderWallpaperEngine
 			extends Engine
 			implements SharedPreferences.OnSharedPreferenceChangeListener {
-		private final Handler handler = new Handler();
-
 		private ShaderWallpaperView view;
 
 		@Override
@@ -78,14 +76,19 @@ public class ShaderWallpaperService extends WallpaperService {
 		@Override
 		public void onDestroy() {
 			super.onDestroy();
-			view.destroy();
-			view = null;
+			// Unregister listener to prevent memory leaks.
+			ShaderEditorApp.preferences.getSharedPreferences()
+					.unregisterOnSharedPreferenceChangeListener(this);
+			if (view != null) {
+				view.destroy();
+				view = null;
+			}
 		}
 
 		@Override
 		public void onVisibilityChanged(boolean visible) {
 			super.onVisibilityChanged(visible);
-
+			if (view == null) return;
 			if (visible) {
 				view.onResume();
 			} else {
@@ -96,7 +99,9 @@ public class ShaderWallpaperService extends WallpaperService {
 		@Override
 		public void onTouchEvent(MotionEvent e) {
 			super.onTouchEvent(e);
-			view.getRenderer().touchAt(e);
+			if (view != null) {
+				view.getRenderer().touchAt(e);
+			}
 		}
 
 		@Override
@@ -107,63 +112,49 @@ public class ShaderWallpaperService extends WallpaperService {
 				float yStep,
 				int xPixels,
 				int yPixels) {
-			view.getRenderer().setOffset(xOffset, yOffset);
+			if (view != null) {
+				view.getRenderer().setOffset(xOffset, yOffset);
+			}
 		}
 
 		private ShaderWallpaperEngine() {
 			super();
-
 			ShaderEditorApp.preferences.getSharedPreferences()
 					.registerOnSharedPreferenceChangeListener(this);
-
 			setTouchEventsEnabled(true);
 		}
 
 		private void setRenderMode(int renderMode) {
-			if (view == null) {
-				return;
+			if (view != null) {
+				view.setRenderMode(renderMode);
 			}
-
-			view.setRenderMode(renderMode);
 		}
 
 		private void setShader() {
-			if (ShaderEditorApp.db.isClosed()) {
-				handler.postDelayed(this::setShader, 100);
+			DataSource dataSource = Database.getInstance(
+					ShaderWallpaperService.this).getDataSource();
 
-				return;
-			}
+			long shaderId = ShaderEditorApp.preferences.getWallpaperShader();
+			DataRecords.Shader shader = dataSource.getShader(shaderId);
 
-			Cursor cursor = ShaderEditorApp.db.getShader(
-					ShaderEditorApp.preferences.getWallpaperShader());
+			// If the saved shader doesn't exist, pick a random one.
+			if (shader == null) {
+				shader = dataSource.getRandomShader();
 
-			boolean randomShader = false;
-
-			while (cursor == null || !cursor.moveToFirst()) {
-				if (cursor != null) {
-					cursor.close();
-				}
-
-				if (randomShader) {
+				// If there are no shaders at all, we can't do anything.
+				if (shader == null) {
 					return;
 				}
 
-				randomShader = true;
-				cursor = ShaderEditorApp.db.getRandomShader();
-			}
-
-			if (randomShader) {
-				ShaderEditorApp.preferences.setWallpaperShader(
-						Database.getLong(cursor, Database.SHADERS_ID));
+				// Update the preferences to store the new random shader ID.
+				ShaderEditorApp.preferences.setWallpaperShader(shader.id());
 			}
 
 			if (view != null) {
 				view.getRenderer().setFragmentShader(
-						Database.getString(cursor, Database.SHADERS_FRAGMENT_SHADER),
-						Database.getFloat(cursor, Database.SHADERS_QUALITY));
+						shader.fragmentShader(),
+						shader.quality());
 			}
-
-			cursor.close();
 		}
 
 		private class ShaderWallpaperView extends ShaderView {

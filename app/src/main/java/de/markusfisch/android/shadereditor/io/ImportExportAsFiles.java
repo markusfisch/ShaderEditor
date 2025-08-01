@@ -2,18 +2,24 @@ package de.markusfisch.android.shadereditor.io;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.os.Environment;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Locale;
 
 import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.DataRecords;
+import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.database.Database;
 
 public class ImportExportAsFiles {
@@ -23,6 +29,7 @@ public class ImportExportAsFiles {
 
 	public static void importFromDirectory(Context context) {
 		try {
+			DataSource dataSource = Database.getInstance(context).getDataSource();
 			File importDirectory = getImportExportDirectory(context, false);
 			File[] files = importDirectory.listFiles();
 			if (files == null) {
@@ -39,7 +46,8 @@ public class ImportExportAsFiles {
 						shaderName = shaderName.substring(0, shaderName.length()
 								- SHADER_FILE_EXTENSION.length());
 						String fragmentShader = readFile(file);
-						ShaderEditorApp.db.insertShader(context, fragmentShader, shaderName);
+						// Use the modern DataSource to insert the shader.
+						dataSource.insertShader(fragmentShader, shaderName, null, 1f);
 						successCount++;
 					} catch (IOException e) {
 						failCount++;
@@ -69,31 +77,31 @@ public class ImportExportAsFiles {
 
 	public static void exportToDirectory(Context context) {
 		try {
+			DataSource dataSource = Database.getInstance(context).getDataSource();
 			File exportDirectory = getImportExportDirectory(context, true);
 
-			Cursor shadersCursor = ShaderEditorApp.db.getShaders();
-			if (Database.closeIfEmpty(shadersCursor)) {
+			// Get a list of shader info objects instead of a cursor.
+			List<DataRecords.ShaderInfo> shaderInfos = dataSource.getShaders(false);
+			if (shaderInfos.isEmpty()) {
 				throw new IOException(context.getString(R.string.no_shaders_found));
 			}
 
 			int successCount = 0;
 			int failCount = 0;
 
-			do {
-				long shaderId = Database.getLong(shadersCursor, Database.SHADERS_ID);
-				Cursor shaderCursor = ShaderEditorApp.db.getShader(shaderId);
-				if (Database.closeIfEmpty(shaderCursor)) {
+			for (DataRecords.ShaderInfo info : shaderInfos) {
+				// Get the full shader object to access the fragment shader text.
+				DataRecords.Shader fullShader = dataSource.getShader(info.id());
+				if (fullShader == null) {
+					failCount++;
 					continue;
 				}
-				String shaderName = Database.getString(shaderCursor,
-						Database.SHADERS_NAME);
-				if (shaderName == null) {
-					shaderName = Database.getString(shaderCursor,
-							Database.SHADERS_MODIFIED);
+
+				String shaderName = info.name();
+				if (shaderName == null || shaderName.isEmpty()) {
+					shaderName = info.modified(); // Fallback to modified date.
 				}
-				String fragmentShader = Database.getString(shaderCursor,
-						Database.SHADERS_FRAGMENT_SHADER);
-				shaderCursor.close();
+				String fragmentShader = fullShader.fragmentShader();
 
 				try {
 					writeShaderToDirectory(exportDirectory, shaderName, fragmentShader);
@@ -101,8 +109,7 @@ public class ImportExportAsFiles {
 				} catch (IOException e) {
 					failCount++;
 				}
-			} while (shadersCursor.moveToNext());
-			shadersCursor.close();
+			}
 
 			if (successCount == 0) {
 				throw new IOException(context.getString(R.string.no_shaders_could_be_written));
@@ -137,17 +144,12 @@ public class ImportExportAsFiles {
 					filename, fileCounter++, SHADER_FILE_EXTENSION));
 		}
 
-		FileOutputStream os = null;
-		try {
-			os = new FileOutputStream(shaderFile);
-			os.write(fragmentShader.getBytes("UTF-8"));
-		} finally {
-			if (os != null) {
-				os.close();
-			}
+		try (OutputStream os = new FileOutputStream(shaderFile)) {
+			os.write(fragmentShader.getBytes(StandardCharsets.UTF_8));
 		}
 	}
 
+	@NonNull
 	private static File getImportExportDirectory(
 			Context context,
 			boolean create) throws IOException {
@@ -155,34 +157,33 @@ public class ImportExportAsFiles {
 				Environment.DIRECTORY_DOWNLOADS);
 		File file = new File(downloadsDirectory, IMPORT_EXPORT_DIRECTORY);
 
-		if (create && !file.mkdirs()) {
-			// Throws in next block. Just to make FindBugs happy.
+		// A path is valid if it's already a directory.
+		boolean isValid = file.isDirectory();
+
+		// If it's not valid, but we're allowed to, try to create it.
+		if (!isValid && create) {
+			// Attempt creation. The path becomes valid if mkdirs succeeds.
+			isValid = file.mkdirs();
 		}
 
-		if (!file.isDirectory()) {
+		// If the path is still not a valid directory after all checks, throw.
+		if (!isValid) {
 			throw new IOException(context.getString(
-					R.string.path_is_no_directory, downloadsDirectory));
+					R.string.path_is_no_directory, file.getAbsolutePath()));
 		}
 
 		return file;
 	}
 
 	private static String readFile(File file) throws IOException {
-		FileInputStream fis = null;
-		try {
-			fis = new FileInputStream(file);
+		try (InputStream fis = new FileInputStream(file)) {
 			StringBuilder sb = new StringBuilder();
 			byte[] buffer = new byte[1024];
 			int n;
 			while ((n = fis.read(buffer)) != -1) {
-				// StandardCharsets.UTF_8 would require API level 19.
-				sb.append(new String(buffer, 0, n, "UTF-8"));
+				sb.append(new String(buffer, 0, n, StandardCharsets.UTF_8));
 			}
 			return sb.toString();
-		} finally {
-			if (fis != null) {
-				fis.close();
-			}
 		}
 	}
 }

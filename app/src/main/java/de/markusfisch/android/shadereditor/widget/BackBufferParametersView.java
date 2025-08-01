@@ -1,16 +1,15 @@
 package de.markusfisch.android.shadereditor.widget;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.database.MatrixCursor;
-import android.database.MergeCursor;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
+import java.util.List;
+
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.adapter.TextureSpinnerAdapter;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.DataRecords.TextureInfo;
 import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.opengl.BackBufferParameters;
 
@@ -31,28 +30,29 @@ public class BackBufferParametersView extends LinearLayout {
 		super.onAttachedToWindow();
 
 		Context context = getContext();
-		MatrixCursor matrixCursor = new MatrixCursor(new String[]{
-				Database.TEXTURES_ID,
-				Database.TEXTURES_NAME,
-				Database.TEXTURES_WIDTH,
-				Database.TEXTURES_HEIGHT,
-				Database.TEXTURES_THUMB
-		});
-		matrixCursor.addRow(new Object[]{
-				-1,
+
+		// 1. Get the list of textures from the modern DataSource.
+		List<TextureInfo> textures = Database
+				.getInstance(context)
+				.getDataSource()
+				.getTextures(null);
+
+		// 2. Create a "dummy" record for the "(no preset)" option.
+		TextureInfo noPreset = new TextureInfo(
+				-1, // Use a negative ID to signify it's not a real texture.
 				context.getString(R.string.no_preset),
 				0,
 				0,
-				null
-		});
+				null);
 
-		MergeCursor mergeCursor = new MergeCursor(new Cursor[]{
-				matrixCursor,
-				ShaderEditorApp.db.getTextures(null)
-		});
+		// 3. Add the "no preset" option to the beginning of the list.
+		textures.add(0, noPreset);
 
-		adapter = new TextureSpinnerAdapter(context, mergeCursor);
+		// 4. Create the adapter and set its data.
+		adapter = new TextureSpinnerAdapter(context);
+		adapter.setData(textures);
 
+		// 5. Find the Spinner and attach the adapter.
 		presetView = findViewById(R.id.backbuffer_preset);
 		presetView.setAdapter(adapter);
 	}
@@ -60,17 +60,35 @@ public class BackBufferParametersView extends LinearLayout {
 	@Override
 	protected void onDetachedFromWindow() {
 		super.onDetachedFromWindow();
-		adapter.changeCursor(null);
+		// Clear the adapter's data to release references.
+		if (adapter != null) {
+			adapter.setData(null);
+		}
 	}
 
-	public void setParameters(BackBufferParameters tp) {
-		Cursor cursor = (Cursor) presetView.getSelectedItem();
-		if (cursor == null) {
+	/**
+	 * Updates the given BackBufferParameters object with the preset ID
+	 * selected in the spinner.
+	 */
+	public void getParameters(BackBufferParameters tp) {
+		if (tp == null) {
 			return;
 		}
-		long id = Database.getLong(cursor, Database.TEXTURES_ID);
-		if (id > 0 && tp != null) {
-			tp.setPreset(Database.getString(cursor, Database.TEXTURES_NAME));
+
+		Object item = presetView.getSelectedItem();
+		if (!(item instanceof TextureInfo textureInfo)) {
+			return;
+		}
+
+		long id = textureInfo.id();
+
+		// The preset is stored as a stringified ID.
+		if (id > 0) {
+			tp.setPreset(String.valueOf(id));
+		} else {
+			// If "(no preset)" is selected, clear the preset.
+			tp.setPreset(null);
 		}
 	}
+
 }

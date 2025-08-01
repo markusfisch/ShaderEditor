@@ -1,7 +1,8 @@
 package de.markusfisch.android.shadereditor.fragment;
 
 import android.app.Activity;
-import android.database.Cursor;
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -23,7 +24,8 @@ import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.DataRecords.TextureInfo;
+import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.widget.ScalingImageView;
 
@@ -34,25 +36,19 @@ public class TextureViewFragment extends Fragment {
 
 	public static final String TEXTURE_ID = "texture_id";
 	public static final String SAMPLER_TYPE = "sampler_type";
+
 	private ScalingImageView imageView;
 	private long textureId;
 	private String textureName;
 	private String samplerType;
 
 	@Override
-	public void onCreate(Bundle state) {
-		super.onCreate(state);
-	}
-
-	@Override
 	public View onCreateView(
 			@NonNull LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
-		Activity activity = getActivity();
-		if (activity == null) {
-			return null;
-		}
+		Activity activity = requireActivity();
+		DataSource dataSource = Database.getInstance(activity).getDataSource();
 
 		try {
 			imageView = ((ScalingImageViewProvider) activity)
@@ -63,40 +59,37 @@ public class TextureViewFragment extends Fragment {
 					"TextureViewFragment.ScalingImageViewProvider");
 		}
 
-		Bundle args;
-		Cursor cursor = null;
-
-		if (imageView == null ||
-				(args = getArguments()) == null ||
-				(textureId = args.getLong(TEXTURE_ID)) < 1 ||
-				(samplerType = args.getString(SAMPLER_TYPE)) == null ||
-				(cursor = ShaderEditorApp.db.getTexture(textureId)) == null ||
-				Database.closeIfEmpty(cursor)) {
-			if (cursor != null && textureId > 0) {
-				// Automatically remove defect textures.
-				ShaderEditorApp.db.removeTexture(textureId);
-				Toast.makeText(activity, R.string.removed_invalid_texture,
-						Toast.LENGTH_LONG).show();
-			}
+		Bundle args = getArguments();
+		if (imageView == null || args == null) {
 			activity.finish();
 			return null;
 		}
 
-		imageView.setVisibility(View.VISIBLE);
-
-		try {
-			textureName = Database.getString(cursor,
-					Database.TEXTURES_NAME);
-			imageView.setImageBitmap(
-					ShaderEditorApp.db.getTextureBitmap(cursor));
-		} catch (IllegalStateException e) {
-			if (textureName == null) {
-				textureName = getString(R.string.image_too_big);
-			}
+		textureId = args.getLong(TEXTURE_ID);
+		samplerType = args.getString(SAMPLER_TYPE);
+		if (textureId < 1 || samplerType == null) {
+			activity.finish();
+			return null;
 		}
 
+		// Fetch texture info and bitmap using the modern DataSource.
+		Bitmap textureBitmap = dataSource.getTextureBitmap(textureId);
+		TextureInfo textureInfo = dataSource.getTextureInfo(textureId);
+
+		if (textureBitmap == null || textureInfo == null) {
+			// Automatically remove defective textures.
+			dataSource.removeTexture(textureId);
+			Toast.makeText(activity, R.string.removed_invalid_texture,
+					Toast.LENGTH_LONG).show();
+			activity.finish();
+			return null;
+		}
+
+		textureName = textureInfo.name();
 		activity.setTitle(textureName);
-		cursor.close();
+
+		imageView.setVisibility(View.VISIBLE);
+		imageView.setImageBitmap(textureBitmap);
 
 		View view = inflater.inflate(
 				R.layout.fragment_view_texture,
@@ -105,6 +98,11 @@ public class TextureViewFragment extends Fragment {
 		view.findViewById(R.id.insert_code).setOnClickListener(
 				v -> insertUniformSamplerStatement());
 
+		addMenuProvider();
+		return view;
+	}
+
+	private void addMenuProvider() {
 		requireActivity().addMenuProvider(new MenuProvider() {
 			@Override
 			public void onCreateMenu(@NonNull android.view.Menu menu,
@@ -121,8 +119,6 @@ public class TextureViewFragment extends Fragment {
 				return false;
 			}
 		}, getViewLifecycleOwner(), Lifecycle.State.RESUMED);
-
-		return view;
 	}
 
 	private void askToRemoveTexture(final long id) {
@@ -142,15 +138,21 @@ public class TextureViewFragment extends Fragment {
 	}
 
 	private void removeTextureAsync(final long id) {
+		Context context = getContext();
+		if (context == null) {
+			return;
+		}
+		// Use application context for safety in background tasks.
+		Context appContext = context.getApplicationContext();
 		Handler handler = new Handler(Looper.getMainLooper());
+
 		Executors.newSingleThreadExecutor().execute(() -> {
-			ShaderEditorApp.db.removeTexture(id);
+			Database.getInstance(appContext).getDataSource().removeTexture(id);
 			handler.post(() -> {
 				Activity activity = getActivity();
-				if (activity == null) {
-					return;
+				if (activity != null) {
+					activity.finish();
 				}
-				activity.finish();
 			});
 		});
 	}

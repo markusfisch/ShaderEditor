@@ -1,15 +1,17 @@
 package de.markusfisch.android.shadereditor.opengl;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.opengl.GLES20;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.Database;
 
 public class BackBufferParameters extends TextureParameters {
 	private static final String PRESET = "p";
@@ -48,12 +50,25 @@ public class BackBufferParameters extends TextureParameters {
 		preset = null;
 	}
 
-	Bitmap getPresetBitmap(int width, int height) {
+	Bitmap getPresetBitmap(@NonNull Context context, int width, int height) {
 		if (preset == null) {
 			return null;
 		}
 
-		Bitmap tile = ShaderEditorApp.db.getTextureBitmap(preset);
+		long presetId;
+		try {
+			presetId = Long.parseLong(preset);
+		} catch (NumberFormatException e) {
+			Log.e("BackBufferParameters", "Invalid preset ID format", e);
+			return null;
+		}
+
+		// Use the modern singleton to get the DataSource and fetch the bitmap.
+		Bitmap tile = Database
+				.getInstance(context)
+				.getDataSource()
+				.getTextureBitmap(presetId);
+
 		if (tile == null) {
 			return null;
 		}
@@ -67,11 +82,19 @@ public class BackBufferParameters extends TextureParameters {
 		int tw = tile.getWidth();
 		int th = tile.getHeight();
 		int scaledHeight = Math.round((float) width / tw * th);
-		tile = Bitmap.createScaledBitmap(
-				tile,
-				width,
-				scaledHeight,
-				true);
+
+		// Use a try-catch block for bitmap operations that can fail.
+		try {
+			tile = Bitmap.createScaledBitmap(
+					tile,
+					width,
+					scaledHeight,
+					true);
+		} catch (IllegalArgumentException e) {
+			Log.e("BackBufferParameters", "Failed to scale bitmap", e);
+			background.recycle();
+			return null;
+		}
 
 		Paint paint = new Paint();
 		paint.setAntiAlias(true);

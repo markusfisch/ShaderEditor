@@ -9,7 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.Database;
 
 public class DatabaseImporter {
 	public static String importDatabase(Context context, Uri uri) {
@@ -17,19 +17,20 @@ public class DatabaseImporter {
 		if (uri == null) {
 			return cantFindDb;
 		}
+
 		ContentResolver cr = context.getContentResolver();
 		if (cr == null) {
 			return cantFindDb;
 		}
+
 		final String fileName = "import.db";
-		InputStream in = null;
-		OutputStream out = null;
-		try {
-			in = cr.openInputStream(uri);
+
+		// Use try-with-resources to ensure streams are always closed.
+		try (InputStream in = cr.openInputStream(uri);
+				OutputStream out = context.openFileOutput(fileName, Context.MODE_PRIVATE)) {
 			if (in == null) {
 				return cantFindDb;
 			}
-			out = context.openFileOutput(fileName, Context.MODE_PRIVATE);
 			byte[] buffer = new byte[4096];
 			int len;
 			while ((len = in.read(buffer)) != -1) {
@@ -37,20 +38,12 @@ public class DatabaseImporter {
 			}
 		} catch (IOException e) {
 			return context.getString(R.string.import_failed, e.getMessage());
-		} finally {
-			try {
-				if (in != null) {
-					in.close();
-				}
-				if (out != null) {
-					out.close();
-				}
-			} catch (IOException e) {
-				// Ignore, can't do anything about it.
-			}
 		}
-		String error = ShaderEditorApp.db.importDatabase(context, fileName);
+
+		// Call the new import method on the Database singleton.
+		String error = Database.getInstance(context).importDatabase(fileName);
 		context.deleteFile(fileName);
+
 		return error == null
 				? context.getString(R.string.successfully_imported)
 				: error;

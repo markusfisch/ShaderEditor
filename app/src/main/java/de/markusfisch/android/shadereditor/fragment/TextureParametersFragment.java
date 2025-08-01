@@ -93,7 +93,7 @@ public class TextureParametersFragment extends Fragment {
 
 		textureParameterView.setParameters(textureParameters);
 		if (isBackBuffer) {
-			backBufferParametersView.setParameters(
+			backBufferParametersView.getParameters(
 					(BackBufferParameters) textureParameters);
 		}
 
