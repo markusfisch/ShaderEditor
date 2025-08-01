@@ -1,6 +1,5 @@
 package de.markusfisch.android.shadereditor.fragment;
 
-import android.app.Activity;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -9,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import java.util.Collections;
@@ -30,34 +30,39 @@ public class EditorFragment extends Fragment {
 	private ShaderEditor shaderEditor;
 	private UndoRedo undoRedo;
 
+	@Nullable
+	private ShaderEditor.OnTextChangedListener textChangedListener;
+	@Nullable
+	private ShaderEditor.CodeCompletionListener codeCompletionListener;
+
 	@Override
-	public View onCreateView(
-			LayoutInflater inflater,
-			ViewGroup container,
-			Bundle state) {
-		View view = inflater.inflate(
-				R.layout.fragment_editor,
-				container,
-				false);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle state) {
+		View view = inflater.inflate(R.layout.fragment_editor, container, false);
 
 		editorContainer = view.findViewById(R.id.editor_container);
 		shaderEditor = view.findViewById(R.id.editor);
+		shaderEditor.setOnTextChangedListener((text) -> {
+			if (textChangedListener != null) {
+				textChangedListener.onTextChanged(text);
+			}
+		});
+		shaderEditor.setOnCompletionsListener((completions, position) -> {
+			if (codeCompletionListener != null) {
+				codeCompletionListener.onCodeCompletions(completions, position);
+			}
+		});
 		setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
 		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
 
-		Activity activity = requireActivity();
-		if (activity instanceof ShaderEditor.OnTextChangedListener) {
-			shaderEditor.setOnTextChangedListener(
-					(ShaderEditor.OnTextChangedListener) activity);
-			shaderEditor.setOnCompletionsListener(
-					(ShaderEditor.CodeCompletionListener) activity);
-		} else {
-			throw new ClassCastException(activity +
-					" must implement " +
-					"ShaderEditor.OnTextChangedListener");
-		}
-
 		return view;
+	}
+
+	public void setOnTextChangedListener(@Nullable ShaderEditor.OnTextChangedListener listener) {
+		textChangedListener = listener;
+	}
+
+	public void setCodeCompletionListener(@Nullable ShaderEditor.CodeCompletionListener listener) {
+		codeCompletionListener = listener;
 	}
 
 	@Override
@@ -107,14 +112,14 @@ public class EditorFragment extends Fragment {
 		shaderEditor.updateErrorHighlighting();
 	}
 
-	public void setErrors(@NonNull List<ShaderError> errors) {
-		shaderEditor.setErrors(errors);
-		highlightErrors();
-	}
-
 	@NonNull
 	public List<ShaderError> getErrors() {
 		return shaderEditor.getErrors();
+	}
+
+	public void setErrors(@NonNull List<ShaderError> errors) {
+		shaderEditor.setErrors(errors);
+		highlightErrors();
 	}
 
 	public void showErrors() {
@@ -167,9 +172,7 @@ public class EditorFragment extends Fragment {
 	private void updateToPreferences() {
 		Preferences preferences = ShaderEditorApp.preferences;
 		shaderEditor.setUpdateDelay(preferences.getUpdateDelay());
-		shaderEditor.setTextSize(
-				TypedValue.COMPLEX_UNIT_SP,
-				preferences.getTextSize());
+		shaderEditor.setTextSize(TypedValue.COMPLEX_UNIT_SP, preferences.getTextSize());
 		Typeface font = preferences.getFont();
 		shaderEditor.setTypeface(font);
 		String features = shaderEditor.getFontFeatureSettings();
@@ -177,9 +180,8 @@ public class EditorFragment extends Fragment {
 		// Don't touch font features for the default MONOSPACE font as
 		// this can impact performance.
 		if (!isMono || features != null) {
-			shaderEditor.setFontFeatureSettings(isMono
-					? null
-					: preferences.useLigatures() ? "normal" : "calt off");
+			shaderEditor.setFontFeatureSettings(isMono ? null : preferences.useLigatures() ?
+					"normal" : "calt off");
 		}
 	}
 

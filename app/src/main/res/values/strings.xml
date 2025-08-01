@@ -32,8 +32,9 @@
 	<string name="pick_live_wallpaper_manually">You need to pick this app as Live Wallpaper first</string>
 	<string name="menu_btn">More options</string>
 	<string name="show_errors">Show errors</string>
+	<string name="shader_saved">Shader saved</string>
 
-	<!-- EditorFragment -->
+	<string name="new_shader_template" translatable="false">#ifdef GL_ES\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\nuniform float time;\n\nvoid main(void)\n{\n\tvec2 p = gl_FragCoord.xy / resolution.xy;\n\tgl_FragColor = vec4(p.x, p.y, 0.0, 1.0);\n}</string>
 	<string name="details">Details</string>
 
 	<!-- PreferencesFragment -->

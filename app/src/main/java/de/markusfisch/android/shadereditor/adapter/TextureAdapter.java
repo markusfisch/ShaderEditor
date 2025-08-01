@@ -1,89 +1,88 @@
 package de.markusfisch.android.shadereditor.adapter;
 
 import android.content.Context;
-import android.database.Cursor;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.database.Database;
+import de.markusfisch.android.shadereditor.database.DataRecords.TextureInfo;
 
-public class TextureAdapter extends CursorAdapter {
+public class TextureAdapter extends BaseAdapter {
 	private final String sizeFormat;
+	private List<TextureInfo> textures = new ArrayList<>();
 
-	private int nameIndex;
-	private int widthIndex;
-	private int heightIndex;
-	private int thumbIndex;
-
-	public TextureAdapter(Context context, Cursor cursor) {
-		super(context, cursor, false);
-
-		indexColumns(cursor);
+	public TextureAdapter(Context context) {
 		sizeFormat = context.getString(R.string.texture_size_format);
 	}
 
 	@Override
-	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-		return inflater.inflate(R.layout.row_texture, parent, false);
+	public int getCount() {
+		return textures.size();
 	}
 
 	@Override
-	public void bindView(View view, Context context, Cursor cursor) {
-		ViewHolder holder = getViewHolder(view);
-		setData(holder, cursor);
+	public Object getItem(int position) {
+		return textures.get(position);
 	}
 
-	ViewHolder getViewHolder(View view) {
+	@Override
+	public long getItemId(int position) {
+		return textures.get(position).id();
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
 		ViewHolder holder;
-		if ((holder = (ViewHolder) view.getTag()) == null) {
-			holder = new ViewHolder();
-			holder.preview = view.findViewById(R.id.texture_preview);
-			holder.name = view.findViewById(R.id.texture_name);
-			holder.size = view.findViewById(R.id.texture_size);
-			view.setTag(holder);
+		if (convertView == null) {
+			convertView = LayoutInflater.from(parent.getContext()).inflate(
+					R.layout.row_texture, parent, false);
+			holder = new ViewHolder(convertView);
+			convertView.setTag(holder);
+		} else {
+			holder = (ViewHolder) convertView.getTag();
+		}
+		holder.bindTo(textures.get(position));
+		return convertView;
+	}
+
+	public void setData(List<TextureInfo> newTextures) {
+		this.textures.clear();
+		if (newTextures != null) {
+			this.textures.addAll(newTextures);
+		}
+		notifyDataSetChanged();
+	}
+
+	private class ViewHolder {
+		private final ImageView preview;
+		private final TextView name;
+		private final TextView size;
+
+		ViewHolder(View itemView) {
+			preview = itemView.findViewById(R.id.texture_preview);
+			name = itemView.findViewById(R.id.texture_name);
+			size = itemView.findViewById(R.id.texture_size);
 		}
 
-		return holder;
-	}
+		void bindTo(TextureInfo texture) {
+			byte[] bytes = texture.thumb();
+			if (bytes != null && bytes.length > 0) {
+				preview.setImageBitmap(BitmapFactory.decodeByteArray(
+						bytes, 0, bytes.length));
+			} else {
+				preview.setImageBitmap(null);
+			}
 
-	void setData(ViewHolder holder, Cursor cursor) {
-		byte[] bytes = cursor.getBlob(thumbIndex);
-
-		if (bytes != null && bytes.length > 0) {
-			holder.preview.setImageBitmap(BitmapFactory.decodeByteArray(
-					bytes,
-					0,
-					bytes.length));
+			name.setText(texture.name());
+			size.setText(String.format(sizeFormat, texture.width(), texture.height()));
 		}
-
-		holder.name.setText(cursor.getString(nameIndex));
-		holder.size.setText(String.format(
-				sizeFormat,
-				cursor.getInt(widthIndex),
-				cursor.getInt(heightIndex)));
-	}
-
-	private void indexColumns(Cursor cursor) {
-		nameIndex = cursor.getColumnIndex(
-				Database.TEXTURES_NAME);
-		widthIndex = cursor.getColumnIndex(
-				Database.TEXTURES_WIDTH);
-		heightIndex = cursor.getColumnIndex(
-				Database.TEXTURES_HEIGHT);
-		thumbIndex = cursor.getColumnIndex(
-				Database.TEXTURES_THUMB);
-	}
-
-	private static final class ViewHolder {
-		private ImageView preview;
-		private TextView name;
-		private TextView size;
 	}
 }

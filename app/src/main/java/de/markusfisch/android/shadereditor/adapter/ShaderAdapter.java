@@ -1,123 +1,111 @@
 package de.markusfisch.android.shadereditor.adapter;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.database.Database;
+import de.markusfisch.android.shadereditor.database.DataRecords.ShaderInfo;
 
-public class ShaderAdapter extends CursorAdapter {
-	private int idIndex;
-	private int thumbIndex;
-	private int nameIndex;
-	private int modifiedIndex;
-	private int textColorSelected;
-	private int textColorUnselected;
-	private long selectedShaderId;
+public class ShaderAdapter extends BaseAdapter {
+	private final int textColorSelected;
+	private final int textColorUnselected;
+	private List<ShaderInfo> shaders = new ArrayList<>();
+	private long selectedShaderId = 0;
 
-	public ShaderAdapter(Context context, Cursor cursor) {
-		super(context, cursor, false);
+	public ShaderAdapter(Context context) {
+		this.textColorSelected = ContextCompat.getColor(context, R.color.accent);
+		this.textColorUnselected = ContextCompat.getColor(context, R.color.drawer_text_unselected);
+	}
 
-		indexColumns(cursor);
-		initTextColors(context);
+	@Override
+	public int getCount() {
+		return shaders.size();
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return shaders.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return shaders.get(position).id();
+	}
+
+	public String getName(int position) {
+		return shaders.get(position).name();
+	}
+
+	public String getTitle(int position) {
+		ShaderInfo shader = shaders.get(position);
+		String title = shader.name();
+		return title != null && !title.isEmpty()
+				? title
+				: shader.modified();
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		ViewHolder holder;
+		if (convertView == null) {
+			convertView = LayoutInflater.from(parent.getContext()).inflate(
+					R.layout.row_shader,
+					parent,
+					false);
+			holder = new ViewHolder(convertView);
+			convertView.setTag(holder);
+		} else {
+			holder = (ViewHolder) convertView.getTag();
+		}
+		holder.bindTo(shaders.get(position));
+		return convertView;
 	}
 
 	public void setSelectedId(long id) {
 		selectedShaderId = id;
+		notifyDataSetChanged();
 	}
 
-	public String getName(int position) {
-		Cursor cursor = (Cursor) getItem(position);
-		return cursor != null ? cursor.getString(nameIndex) : null;
+	public void setData(List<ShaderInfo> newShaders) {
+		this.shaders.clear();
+		if (newShaders != null) {
+			this.shaders.addAll(newShaders);
+		}
+		notifyDataSetChanged();
 	}
 
-	public String getTitle(Cursor cursor) {
-		String title = cursor.getString(nameIndex);
-		return title != null && !title.isEmpty()
-				? title
-				: cursor.getString(modifiedIndex);
-	}
+	private class ViewHolder {
+		private final ImageView icon;
+		private final TextView title;
 
-	@Override
-	public View newView(Context context, Cursor cursor, ViewGroup parent) {
-		LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-		return inflater.inflate(
-				R.layout.row_shader,
-				parent,
-				false);
-	}
-
-	@Override
-	public void bindView(View view, Context context, Cursor cursor) {
-		ViewHolder holder = getViewHolder(view);
-		setData(holder, cursor);
-
-		holder.title.setTextColor(
-				cursor.getLong(idIndex) == selectedShaderId
-						? textColorSelected
-						: textColorUnselected);
-	}
-
-	ViewHolder getViewHolder(View view) {
-		ViewHolder holder;
-
-		if ((holder = (ViewHolder) view.getTag()) == null) {
-			holder = new ViewHolder();
-			holder.icon = view.findViewById(R.id.shader_icon);
-			holder.title = view.findViewById(R.id.shader_title);
-			view.setTag(holder);
+		ViewHolder(View itemView) {
+			icon = itemView.findViewById(R.id.shader_icon);
+			title = itemView.findViewById(R.id.shader_title);
 		}
 
-		return holder;
-	}
+		void bindTo(final ShaderInfo shader) {
+			byte[] bytes = shader.thumb();
+			if (bytes != null && bytes.length > 0) {
+				icon.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+			} else {
+				icon.setImageResource(R.drawable.thumbnail_new_shader);
+			}
 
-	void setData(ViewHolder holder, Cursor cursor) {
-		byte[] bytes = cursor.getBlob(thumbIndex);
-		Bitmap bitmap = null;
-
-		if (bytes != null && bytes.length > 0) {
-			bitmap = BitmapFactory.decodeByteArray(
-					bytes,
-					0,
-					bytes.length);
+			String name = shader.name();
+			title.setText(name != null && !name.isEmpty() ? name : shader.modified());
+			title.setTextColor(shader.id() == selectedShaderId ? textColorSelected :
+                    textColorUnselected);
 		}
-
-		holder.icon.setImageBitmap(bitmap);
-		holder.title.setText(getTitle(cursor));
-	}
-
-	private void indexColumns(Cursor cursor) {
-		idIndex = cursor.getColumnIndex(
-				Database.SHADERS_ID);
-		thumbIndex = cursor.getColumnIndex(
-				Database.SHADERS_THUMB);
-		nameIndex = cursor.getColumnIndex(
-				Database.SHADERS_NAME);
-		modifiedIndex = cursor.getColumnIndex(
-				Database.SHADERS_MODIFIED);
-	}
-
-	private static final class ViewHolder {
-		private ImageView icon;
-		private TextView title;
-	}
-
-	private void initTextColors(Context context) {
-		textColorSelected = ContextCompat.getColor(
-				context,
-				R.color.accent);
-		textColorUnselected = ContextCompat.getColor(
-				context,
-				R.color.drawer_text_unselected);
 	}
 }

@@ -128,7 +128,7 @@ public class ShaderWallpaperService extends WallpaperService {
 		}
 
 		private void setShader() {
-			if (!ShaderEditorApp.db.isOpen()) {
+			if (ShaderEditorApp.db.isClosed()) {
 				handler.postDelayed(this::setShader, 100);
 
 				return;

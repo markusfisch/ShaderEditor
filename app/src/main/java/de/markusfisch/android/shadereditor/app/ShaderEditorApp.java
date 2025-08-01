@@ -14,12 +14,9 @@ import de.markusfisch.android.shadereditor.view.UndoRedo;
 
 public class ShaderEditorApp extends Application {
 	public static final Preferences preferences = new Preferences();
-	public static final Database db = new Database();
-	public static final UndoRedo.EditHistory editHistory =
-			new UndoRedo.EditHistory();
+	public static final UndoRedo.EditHistory editHistory = new UndoRedo.EditHistory();
 
-	private static final BatteryLevelReceiver batteryLevelReceiver =
-			new BatteryLevelReceiver();
+	private static final BatteryLevelReceiver batteryLevelReceiver = new BatteryLevelReceiver();
 
 	@Override
 	public void onCreate() {
@@ -41,7 +38,9 @@ public class ShaderEditorApp extends Application {
 		}
 
 		preferences.init(this);
-		db.open(this);
+		// Initialize the singleton instance for the application lifecycle.
+		// Other components will get this instance via Database.getInstance().
+		Database.getInstance(this);
 
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 			registerBatteryReceiver();
