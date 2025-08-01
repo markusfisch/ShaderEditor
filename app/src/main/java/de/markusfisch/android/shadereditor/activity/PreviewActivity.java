@@ -15,18 +15,30 @@ import de.markusfisch.android.shadereditor.widget.ShaderView;
 
 public class PreviewActivity extends AppCompatActivity {
 	public static class RenderStatus {
-		volatile int fps;
-		volatile List<ShaderError> infoLog;
-		byte[] thumbnail;
+		private volatile int fps;
+		private volatile List<ShaderError> infoLog;
+		private byte[] thumbnail;
 
 		RenderStatus() {
 			reset();
 		}
 
-		void reset() {
+		public void reset() {
 			fps = 0;
 			infoLog = null;
 			thumbnail = null;
+		}
+
+		public int getFps() {
+			return fps;
+		}
+
+		public List<ShaderError> getInfoLog() {
+			return infoLog;
+		}
+
+		public byte[] getThumbnail() {
+			return thumbnail;
 		}
 	}
 

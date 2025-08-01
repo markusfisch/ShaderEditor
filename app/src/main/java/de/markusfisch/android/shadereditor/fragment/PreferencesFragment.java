@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -26,6 +25,8 @@ import androidx.preference.PreferenceGroup;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.DataRecords;
+import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.io.DatabaseExporter;
 import de.markusfisch.android.shadereditor.io.DatabaseImporter;
@@ -40,10 +41,12 @@ public class PreferencesFragment
 	private ActivityResultLauncher<Intent> pickFileLauncher;
 	private ActivityResultLauncher<String> requestReadPermissionLauncher;
 	private ActivityResultLauncher<String> requestWritePermissionLauncher;
+	private DataSource dataSource;
 
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
+		dataSource = Database.getInstance(requireContext()).getDataSource();
 
 		// Register ActivityResultLaunchers
 		pickFileLauncher = registerForActivityResult(
@@ -83,6 +86,7 @@ public class PreferencesFragment
 					}
 				});
 
+		// TODO: Is this needed given that `onCreatePreferences` does this too?
 		addPreferencesFromResource(R.xml.preferences);
 		wireImportExport();
 	}
@@ -170,22 +174,18 @@ public class PreferencesFragment
 	}
 
 	private String getShaderSummary(long id) {
-		Cursor cursor = ShaderEditorApp.db.getShader(id);
-
-		if (Database.closeIfEmpty(cursor)) {
+		if (id <= 0) {
 			return getString(R.string.no_shader_selected);
 		}
-
-		String summary = Database.getString(
-				cursor, Database.SHADERS_NAME);
-
-		if (summary == null || summary.isEmpty()) {
-			summary = Database.getString(
-					cursor, Database.SHADERS_MODIFIED);
+		DataRecords.Shader shader = dataSource.getShader(id);
+		if (shader == null) {
+			return getString(R.string.no_shader_selected);
 		}
-
-		cursor.close();
-
+		String summary = shader.name();
+		if (summary == null || summary.isEmpty()) {
+			// Fallback to modification date if name is missing.
+			summary = shader.modified();
+		}
 		return summary;
 	}
 
