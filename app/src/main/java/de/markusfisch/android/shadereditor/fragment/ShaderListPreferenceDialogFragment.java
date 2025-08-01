@@ -1,17 +1,20 @@
 package de.markusfisch.android.shadereditor.fragment;
 
+import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
-import android.database.MatrixCursor;
-import android.database.MergeCursor;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.adapter.ShaderSpinnerAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.DataRecords;
+import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.preference.Preferences;
 
@@ -36,37 +39,56 @@ public class ShaderListPreferenceDialogFragment
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		closeCursor();
+		clearAdapter();
 	}
 
 	@Override
 	public void onMaterialDialogClosed(boolean positiveResult) {
-		closeCursor();
+		clearAdapter();
 	}
 
 	@Override
 	protected void onPrepareDialogBuilder(@NonNull AlertDialog.Builder builder) {
-		// Don't call super.onPrepareDialogBuilder() because it'll check
-		// for Entries and set up a setSingleChoiceItems() for them that
-		// will never be used.
-
+		// Do not call super.onPrepareDialogBuilder().
+		Context context = requireContext();
+		DataSource dataSource = Database.getInstance(context).getDataSource();
 		final String key = getPreference().getKey();
-		Cursor cursor = ShaderEditorApp.db.getShaders();
-		if (Preferences.DEFAULT_NEW_SHADER.equals(key)) {
-			cursor = addEmptyItem(cursor);
-		}
-		adapter = new ShaderSpinnerAdapter(getContext(), cursor);
 
+		// 1. Get the list of shaders from the DataSource.
+		List<DataRecords.ShaderInfo> shaders = dataSource.getShaders(
+				ShaderEditorApp.preferences.sortByLastModification());
+
+		// 2. Add an empty "(no shader selected)" item if required.
+		if (Preferences.DEFAULT_NEW_SHADER.equals(key)) {
+			shaders = addEmptyItem(shaders);
+		}
+
+		// 3. Create the adapter and set its data.
+		adapter = new ShaderSpinnerAdapter(context);
+		adapter.setData(shaders);
+
+		// 4. Find the index of the currently selected shader.
+		long currentId = Preferences.WALLPAPER_SHADER.equals(key)
+				? ShaderEditorApp.preferences.getWallpaperShader()
+				: ShaderEditorApp.preferences.getDefaultNewShader();
+		int selectedIndex = 0;
+		for (int i = 0; i < shaders.size(); ++i) {
+			if (shaders.get(i).id() == currentId) {
+				selectedIndex = i;
+				break;
+			}
+		}
+
+		// 5. Build the dialog with the list-based adapter.
 		builder.setSingleChoiceItems(
 				adapter,
-				0,
+				selectedIndex,
 				(dialog, which) -> {
+					long selectedId = adapter.getItemId(which);
 					if (Preferences.WALLPAPER_SHADER.equals(key)) {
-						ShaderEditorApp.preferences.setWallpaperShader(
-								adapter.getItemId(which));
+						ShaderEditorApp.preferences.setWallpaperShader(selectedId);
 					} else {
-						ShaderEditorApp.preferences.setDefaultNewShader(
-								adapter.getItemId(which));
+						ShaderEditorApp.preferences.setDefaultNewShader(selectedId);
 					}
 
 					ShaderListPreferenceDialogFragment.this.onClick(
@@ -79,31 +101,24 @@ public class ShaderListPreferenceDialogFragment
 		builder.setPositiveButton(null, null);
 	}
 
-	private void closeCursor() {
+	private void clearAdapter() {
 		if (adapter != null) {
-			adapter.changeCursor(null);
+			adapter.setData(null);
 			adapter = null;
 		}
 	}
 
-	private Cursor addEmptyItem(Cursor cursor) {
-		try (MatrixCursor matrixCursor = new MatrixCursor(new String[]{
-				Database.SHADERS_ID,
-				Database.SHADERS_THUMB,
-				Database.SHADERS_NAME,
-				Database.SHADERS_MODIFIED
-		})) {
-			matrixCursor.addRow(new Object[]{
-					0,
-					null,
-					getString(R.string.no_shader_selected),
-					null
-			});
-
-			return new MergeCursor(new Cursor[]{
-					matrixCursor,
-					cursor
-			});
-		}
+	@NonNull
+	private List<DataRecords.ShaderInfo> addEmptyItem(List<DataRecords.ShaderInfo> shaders) {
+		// Create a new list to add the empty item to the beginning.
+		List<DataRecords.ShaderInfo> listWithEmpty = new ArrayList<>();
+		listWithEmpty.add(new DataRecords.ShaderInfo(
+				0, // Use 0 as the ID for "no shader".
+				getString(R.string.no_shader_selected),
+				null,
+				null
+		));
+		listWithEmpty.addAll(shaders);
+		return listWithEmpty;
 	}
 }

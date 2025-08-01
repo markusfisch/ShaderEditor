@@ -7,7 +7,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.database.DatabaseContract.ShaderColumns;
@@ -21,10 +28,11 @@ public final class Database {
 	private static volatile Database instance;
 	private final OpenHelper dbHelper;
 	private final DataSource dataSource;
+	private final Context appContext;
 
-	private Database(Context context) {
+	private Database(@NonNull Context context) {
 		// Use application context to avoid memory leaks.
-		Context appContext = context.getApplicationContext();
+		this.appContext = context.getApplicationContext();
 		this.dbHelper = new OpenHelper(appContext);
 		this.dataSource = new DataSource(dbHelper, appContext);
 	}
@@ -49,6 +57,29 @@ public final class Database {
 	 */
 	public DataSource getDataSource() {
 		return dataSource;
+	}
+
+	public String importDatabase(String tempFileName) {
+		// Close the DB to release the lock on the file.
+		dbHelper.close();
+
+		File dbFile = appContext.getDatabasePath(DatabaseContract.FILE_NAME);
+		File newDb = new File(appContext.getFilesDir(), tempFileName);
+
+		try (InputStream in = new FileInputStream(newDb);
+				OutputStream out = new FileOutputStream(dbFile)) {
+			byte[] buf = new byte[4096];
+			int len;
+			while ((len = in.read(buf)) > 0) {
+				out.write(buf, 0, len);
+			}
+		} catch (IOException e) {
+			// Try to restore the original file if copy fails.
+			// This is complex, for now we just report the error.
+			return e.getMessage();
+		}
+
+		return null; // Success
 	}
 
 	/**

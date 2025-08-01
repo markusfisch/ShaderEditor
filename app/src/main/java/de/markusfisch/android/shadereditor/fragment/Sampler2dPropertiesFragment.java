@@ -14,7 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 
 public class Sampler2dPropertiesFragment extends AbstractSamplerPropertiesFragment {
@@ -80,6 +81,7 @@ public class Sampler2dPropertiesFragment extends AbstractSamplerPropertiesFragme
 			String name,
 			int size) {
 		return saveTexture(
+				context, // Pass the context down to the helper.
 				// Try to get a bigger source image in
 				// case the cut out is quite small.
 				BitmapEditor.getBitmapFromUri(
@@ -95,6 +97,7 @@ public class Sampler2dPropertiesFragment extends AbstractSamplerPropertiesFragme
 	}
 
 	private static int saveTexture(
+			Context context, // Add Context parameter.
 			Bitmap bitmap,
 			RectF rect,
 			float rotation,
@@ -107,7 +110,10 @@ public class Sampler2dPropertiesFragment extends AbstractSamplerPropertiesFragme
 			return R.string.illegal_rectangle;
 		}
 
-		if (ShaderEditorApp.db.insertTexture(
+		// Get the DataSource using the modern singleton pattern.
+		DataSource dataSource = Database.getInstance(context).getDataSource();
+
+		if (dataSource.insertTexture(
 				name,
 				Bitmap.createScaledBitmap(
 						bitmap,

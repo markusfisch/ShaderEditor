@@ -14,7 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 import de.markusfisch.android.shadereditor.widget.CubeMapView;
 
@@ -71,6 +72,7 @@ public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFrag
 			Context context,
 			String name,
 			int size) {
+		DataSource dataSource = Database.getInstance(context).getDataSource();
 		int width = size * 2;
 		int height = size * 3;
 		Bitmap mapBitmap = Bitmap.createBitmap(
@@ -116,7 +118,7 @@ public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFrag
 			}
 		}
 
-		return ShaderEditorApp.db.insertTexture(name, mapBitmap) < 1
+		return dataSource.insertTexture(name, mapBitmap) < 1
 				? R.string.name_already_taken
 				: 0;
 	}

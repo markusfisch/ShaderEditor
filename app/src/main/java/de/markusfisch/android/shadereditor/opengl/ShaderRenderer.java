@@ -39,6 +39,8 @@ import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11ExtensionPack;
 
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.fragment.AbstractSamplerPropertiesFragment;
 import de.markusfisch.android.shadereditor.hardware.AccelerometerListener;
 import de.markusfisch.android.shadereditor.hardware.CameraListener;
@@ -173,7 +175,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 							")+[ \t]+(%s);[ \t]*(.*)",
 					AbstractSamplerPropertiesFragment.TEXTURE_NAME_PATTERN));
 	private static final Pattern PATTERN_FTIME = Pattern.compile(
-			"^#define[ \\t]+FTIME_PERIOD[ \\t]+([0-9\\.]+)[ \\t]*$",
+			"^#define[ \\t]+FTIME_PERIOD[ \\t]+([0-9.]+)[ \\t]*$",
 			Pattern.MULTILINE);
 	private static final Pattern PATTERN_GLES3_VERSION = Pattern.compile(
 			"^#version 3[0-9]{2} es$", Pattern.MULTILINE);
@@ -183,28 +185,31 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			"#extension GL_OES_EGL_image_external_essl3 : require\n";
 	private static final String SHADER_EDITOR =
 			"#define SHADER_EDITOR 1\n";
-	private static final String VERTEX_SHADER =
-			"attribute vec2 position;" +
-					"void main() {" +
-					"gl_Position = vec4(position, 0., 1.);" +
-					"}";
-	private static final String VERTEX_SHADER_3 =
-			"in vec2 position;" +
-					"void main() {" +
-					"gl_Position = vec4(position, 0., 1.);" +
-					"}";
-	private static final String FRAGMENT_SHADER =
-			"#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
-					"precision highp float;\n" +
-					"#else\n" +
-					"precision mediump float;\n" +
-					"#endif\n" +
-					"uniform vec2 resolution;" +
-					"uniform sampler2D frame;" +
-					"void main(void) {" +
-					"gl_FragColor = texture2D(frame," +
-					"gl_FragCoord.xy / resolution.xy).rgba;" +
-					"}";
+	private static final String VERTEX_SHADER = """
+			attribute vec2 position;
+			void main() {
+				gl_Position = vec4(position, 0., 1.);
+			}
+			""";
+	private static final String VERTEX_SHADER_3 = """
+			in vec2 position;
+			void main() {
+				gl_Position = vec4(position, 0., 1.);
+			}
+			""";
+	private static final String FRAGMENT_SHADER = """
+			#ifdef GL_FRAGMENT_PRECISION_HIGH
+			precision highp float;
+			#else
+			precision mediump float;
+			#endif
+			
+			uniform vec2 resolution;
+			uniform sampler2D frame;
+			void main(void) {
+				gl_FragColor = texture2D(frame,gl_FragCoord.xy / resolution.xy).rgba;
+			}
+			""";
 
 	private final TextureBinder textureBinder = new TextureBinder();
 	private final ArrayList<String> textureNames = new ArrayList<>();
@@ -1071,16 +1076,23 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			return;
 		}
 		if (deviceRotation != Surface.ROTATION_0) {
-			int x = SensorManager.AXIS_Y;
-			int y = SensorManager.AXIS_MINUS_X;
-			if (deviceRotation == Surface.ROTATION_270) {
-				x = SensorManager.AXIS_MINUS_Y;
-				y = SensorManager.AXIS_X;
+			// Suppress the warning for this block, because the logic is intentional.
+			record AxisPair(int x, int y) {
 			}
+			@SuppressWarnings("SuspiciousNameCombination")
+			var rotation = switch (deviceRotation) {
+				case Surface.ROTATION_90 ->
+						new AxisPair(SensorManager.AXIS_Y, SensorManager.AXIS_MINUS_X);
+				case Surface.ROTATION_180 ->
+						new AxisPair(SensorManager.AXIS_MINUS_X, SensorManager.AXIS_MINUS_Y);
+				case Surface.ROTATION_270 ->
+						new AxisPair(SensorManager.AXIS_MINUS_Y, SensorManager.AXIS_X);
+				default -> new AxisPair(SensorManager.AXIS_X, SensorManager.AXIS_Y);
+			};
 			SensorManager.remapCoordinateSystem(
 					rotationMatrix,
-					x,
-					y,
+					rotation.x(),
+					rotation.y(),
 					rotationMatrix);
 		}
 		if (rotationMatrixLoc > -1) {
@@ -1158,7 +1170,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			BackBufferParameters tp) {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, tx[idx]);
 
-		Bitmap bitmap = tp.getPresetBitmap(width, height);
+		Bitmap bitmap = tp.getPresetBitmap(context, width, height);
 		if (bitmap != null) {
 			setTexture(bitmap);
 		} else {
@@ -1204,6 +1216,9 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		deleteTextures();
 		GLES20.glGenTextures(numberOfTextures, textureIds, 0);
 
+		// Get the DataSource instance.
+		DataSource dataSource = Database.getInstance(context).getDataSource();
+
 		for (int i = 0; i < numberOfTextures; ++i) {
 			String name = textureNames.get(i);
 			if (UNIFORM_CAMERA_BACK.equals(name) ||
@@ -1214,14 +1229,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				continue;
 			}
 
-			Bitmap bitmap = ShaderEditorApp.db.getTextureBitmap(name);
+			Bitmap bitmap = dataSource.getTextureBitmap(name);
 			if (bitmap == null) {
 				continue;
 			}
 
 			switch (textureTargets[i]) {
-				default:
-					continue;
 				case GLES20.GL_TEXTURE_2D:
 					createTexture(textureIds[i], bitmap,
 							textureParameters.get(i));
@@ -1230,6 +1243,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					createCubeTexture(textureIds[i], bitmap,
 							textureParameters.get(i));
 					break;
+				default:
+					continue;
 			}
 
 			bitmap.recycle();

@@ -2,7 +2,6 @@ package de.markusfisch.android.shadereditor.fragment;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,13 +13,16 @@ import android.widget.ListView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
 import de.markusfisch.android.shadereditor.adapter.TextureAdapter;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.DataRecords;
+import de.markusfisch.android.shadereditor.database.DataSource;
+import de.markusfisch.android.shadereditor.database.Database;
 
 public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 	protected String searchQuery;
@@ -32,13 +34,8 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 	private String samplerType = AbstractSamplerPropertiesFragment.SAMPLER_2D;
 
 	@Override
-	public void onCreate(Bundle state) {
-		super.onCreate(state);
-	}
-
-	@Override
 	public View onCreateView(
-			LayoutInflater inflater,
+			@NonNull LayoutInflater inflater,
 			ViewGroup container,
 			Bundle state) {
 		View view = inflater.inflate(
@@ -49,11 +46,13 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 		View fab = view.findViewById(R.id.add_texture);
 		fab.setOnClickListener(v -> addTexture());
 
-		listView = view.findViewById(R.id.textures);
-		initListView(view);
-
 		progressBar = view.findViewById(R.id.progress_bar);
 		noTexturesMessage = view.findViewById(R.id.no_textures_message);
+
+		listView = view.findViewById(R.id.textures);
+		texturesAdapter = new TextureAdapter(requireActivity());
+		listView.setAdapter(texturesAdapter);
+		initListView(view);
 
 		return view;
 	}
@@ -61,18 +60,20 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 	@Override
 	public void onResume() {
 		super.onResume();
+		if (texturesAdapter.getCount() == 0) {
+			progressBar.setVisibility(View.VISIBLE);
+			noTexturesMessage.setVisibility(View.GONE);
+		}
 		loadTexturesAsync(getActivity());
 	}
 
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-
 		if (texturesAdapter != null) {
-			texturesAdapter.changeCursor(null);
+			texturesAdapter.setData(null);
 			texturesAdapter = null;
 		}
-
 		listView = null;
 		progressBar = null;
 		noTexturesMessage = null;
@@ -102,33 +103,30 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 		}
 		Handler handler = new Handler(Looper.getMainLooper());
 		Executors.newSingleThreadExecutor().execute(() -> {
-			//noinspection resource
-			Cursor cursor = loadTextures();
+			DataSource dataSource = Database.getInstance(context).getDataSource();
+			// Call the new overridable method to get the textures.
+			final List<DataRecords.TextureInfo> textures = getTextures(dataSource, searchQuery);
+
 			handler.post(() -> {
-				if (!isAdded() || cursor == null) {
-					return;
+				if (isAdded()) {
+					updateAdapter(textures);
 				}
-				updateAdapter(context, cursor);
 			});
 		});
 	}
 
-	protected Cursor loadTextures() {
-		return ShaderEditorApp.db.getTextures(searchQuery);
+	/**
+	 * This method can be overridden by subclasses to load different
+	 * types of textures (e.g., samplerCube).
+	 */
+	protected List<DataRecords.TextureInfo> getTextures(DataSource dataSource, String query) {
+		return dataSource.getTextures(query);
 	}
 
-	private void updateAdapter(Context context, Cursor cursor) {
+	private void updateAdapter(List<DataRecords.TextureInfo> textures) {
+		progressBar.setVisibility(View.GONE);
 		if (texturesAdapter != null) {
-			texturesAdapter.changeCursor(cursor);
-			texturesAdapter.notifyDataSetChanged();
-		} else {
-			texturesAdapter = new TextureAdapter(context, cursor);
-			listView.setAdapter(texturesAdapter);
-		}
-
-		if (cursor.getCount() < 1) {
-			progressBar.setVisibility(View.GONE);
-			noTexturesMessage.setVisibility(View.VISIBLE);
+			texturesAdapter.setData(textures);
 		}
 	}
 
@@ -143,6 +141,8 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 				? null
 				: query.toLowerCase(Locale.getDefault());
 
+		progressBar.setVisibility(View.VISIBLE);
+		noTexturesMessage.setVisibility(View.GONE);
 		loadTexturesAsync(getActivity());
 	}
 }

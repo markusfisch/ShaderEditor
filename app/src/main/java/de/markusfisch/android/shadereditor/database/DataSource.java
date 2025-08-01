@@ -10,11 +10,15 @@ import android.graphics.BitmapFactory;
 import android.graphics.ColorSpace;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import org.jetbrains.annotations.Contract;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,7 +38,7 @@ public class DataSource {
 	private final Context appContext;
 	private final int textureThumbnailSize;
 
-	DataSource(SQLiteOpenHelper dbHelper, Context context) {
+	DataSource(SQLiteOpenHelper dbHelper, @NonNull Context context) {
 		this.dbHelper = dbHelper;
 		this.appContext = context;
 		this.textureThumbnailSize =
@@ -42,7 +46,8 @@ public class DataSource {
 	}
 
 	// region Static package-private helpers
-	static long insertShader(SQLiteDatabase db, String shader, String name, byte[] thumbnail,
+	static long insertShader(@NonNull SQLiteDatabase db, String shader, String name,
+			byte[] thumbnail,
 			float quality) {
 		String now = currentTime();
 		ContentValues cv = new ContentValues();
@@ -68,7 +73,8 @@ public class DataSource {
 		}
 	}
 
-	private static long insertTexture(SQLiteDatabase db, String name, int width, int height,
+	private static long insertTexture(@NonNull SQLiteDatabase db, String name, int width,
+			int height,
 			float ratio, byte[] thumb, byte[] matrix) {
 		ContentValues cv = new ContentValues();
 		cv.put(TextureColumns.NAME, name);
@@ -80,25 +86,27 @@ public class DataSource {
 		return db.insert(TextureColumns.TABLE_NAME, null, cv);
 	}
 
+	@NonNull
 	static String loadRawResource(Context context, int id) throws IOException {
 		try (InputStream in = context.getResources().openRawResource(id)) {
 			byte[] b = new byte[in.available()];
-			if (in.read(b) > 0) return new String(b, "UTF-8");
+			if (in.read(b) > 0) return new String(b, StandardCharsets.UTF_8);
 			return "";
 		}
 	}
 
-	static byte[] loadBitmapResource(Context context, int id) {
+	@NonNull
+	static byte[] loadBitmapResource(@NonNull Context context, int id) {
 		return bitmapToPng(BitmapFactory.decodeResource(context.getResources(), id));
 	}
 
-	static void addShadersQuality(SQLiteDatabase db) {
+	static void addShadersQuality(@NonNull SQLiteDatabase db) {
 		db.execSQL("ALTER TABLE " + ShaderColumns.TABLE_NAME + " ADD COLUMN " + ShaderColumns.QUALITY + " REAL;");
 		db.execSQL("UPDATE " + ShaderColumns.TABLE_NAME + " SET " + ShaderColumns.QUALITY + " = " +
 				"1;");
 	}
 
-	static void addTexturesWidthHeightRatio(SQLiteDatabase db) {
+	static void addTexturesWidthHeightRatio(@NonNull SQLiteDatabase db) {
 		db.execSQL("ALTER TABLE " + TextureColumns.TABLE_NAME + " ADD COLUMN " + TextureColumns.WIDTH + " INTEGER;");
 		db.execSQL("ALTER TABLE " + TextureColumns.TABLE_NAME + " ADD COLUMN " + TextureColumns.HEIGHT + " INTEGER;");
 		db.execSQL("ALTER TABLE " + TextureColumns.TABLE_NAME + " ADD COLUMN " + TextureColumns.RATIO + " REAL;");
@@ -126,11 +134,12 @@ public class DataSource {
 		}
 	}
 
-	static void addShaderNames(SQLiteDatabase db) {
+	static void addShaderNames(@NonNull SQLiteDatabase db) {
 		db.execSQL("ALTER TABLE " + ShaderColumns.TABLE_NAME + " ADD COLUMN " + ShaderColumns.NAME + " TEXT;");
 	}
 
 	// region Private Helpers
+	@NonNull
 	private static String currentTime() {
 		return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US).format(new Date());
 	}
@@ -141,6 +150,8 @@ public class DataSource {
 	}
 	// endregion
 
+	@NonNull
+	@Contract("null -> new")
 	private static byte[] bitmapToPng(Bitmap bitmap) {
 		if (bitmap == null) return new byte[0];
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && bitmap.getColorSpace() != null &&
@@ -152,27 +163,28 @@ public class DataSource {
 		return out.toByteArray();
 	}
 
-	private static int getInt(Cursor c, String col) {
+	private static int getInt(@NonNull Cursor c, String col) {
 		int i = c.getColumnIndex(col);
 		return i > -1 ? c.getInt(i) : 0;
 	}
 
-	private static long getLong(Cursor c, String col) {
+	private static long getLong(@NonNull Cursor c, String col) {
 		int i = c.getColumnIndex(col);
 		return i > -1 ? c.getLong(i) : 0L;
 	}
 
-	private static float getFloat(Cursor c, String col) {
+	private static float getFloat(@NonNull Cursor c, String col) {
 		int i = c.getColumnIndex(col);
 		return i > -1 ? c.getFloat(i) : 0f;
 	}
 
-	private static String getString(Cursor c, String col) {
+	private static String getString(@NonNull Cursor c, String col) {
 		int i = c.getColumnIndex(col);
 		return i > -1 ? c.getString(i) : "";
 	}
 
-	private static byte[] getBlob(Cursor c, String col) {
+	@Nullable
+	private static byte[] getBlob(@NonNull Cursor c, String col) {
 		int i = c.getColumnIndex(col);
 		return i > -1 ? c.getBlob(i) : null;
 	}
@@ -209,6 +221,27 @@ public class DataSource {
 
 		try (SQLiteDatabase db = dbHelper.getReadableDatabase();
 				Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
+			if (cursor.moveToFirst()) {
+				return new Shader(
+						getLong(cursor, ShaderColumns._ID),
+						getString(cursor, ShaderColumns.FRAGMENT_SHADER),
+						getString(cursor, ShaderColumns.NAME),
+						getString(cursor, ShaderColumns.MODIFIED),
+						getFloat(cursor, ShaderColumns.QUALITY));
+			}
+		}
+		return null;
+	}
+
+	@Nullable
+	public Shader getRandomShader() {
+		String query =
+				"SELECT " + ShaderColumns._ID + "," + ShaderColumns.FRAGMENT_SHADER + "," + ShaderColumns.NAME + "," +
+						ShaderColumns.MODIFIED + "," + ShaderColumns.QUALITY + " FROM " + ShaderColumns.TABLE_NAME +
+						" ORDER BY RANDOM() LIMIT 1";
+
+		try (SQLiteDatabase db = dbHelper.getReadableDatabase();
+				Cursor cursor = db.rawQuery(query, null)) {
 			if (cursor.moveToFirst()) {
 				return new Shader(
 						getLong(cursor, ShaderColumns._ID),
@@ -269,10 +302,6 @@ public class DataSource {
 				R.drawable.thumbnail_new_shader, 1f);
 	}
 
-	public long insertShader(String shader, byte[] thumbnail, float quality) {
-		return insertShader(shader, null, thumbnail, quality);
-	}
-
 	public long insertShader(String shader, String name, byte[] thumbnail, float quality) {
 		try (SQLiteDatabase db = dbHelper.getWritableDatabase()) {
 			return insertShader(db, shader, name, thumbnail, quality);
@@ -322,6 +351,7 @@ public class DataSource {
 		return getTextures(substring, true);
 	}
 
+	@NonNull
 	private List<TextureInfo> getTextures(String substring, boolean isCubeMap) {
 		List<TextureInfo> textures = new ArrayList<>();
 		String where = TextureColumns.RATIO + (isCubeMap ? " = 1.5" : " = 1") +
@@ -350,11 +380,38 @@ public class DataSource {
 	}
 
 	@Nullable
-	public Bitmap getTextureBitmap(long id) {
-		String query = "SELECT " + TextureColumns.MATRIX + " FROM " + TextureColumns.TABLE_NAME +
-				" WHERE " + TextureColumns._ID + " = ?";
+	public TextureInfo getTextureInfo(long id) {
+		String query =
+				"SELECT " + TextureColumns._ID + "," + TextureColumns.NAME + "," + TextureColumns.WIDTH +
+						"," + TextureColumns.HEIGHT + "," + TextureColumns.THUMB + " FROM " + TextureColumns.TABLE_NAME +
+						" WHERE " + TextureColumns._ID + " = ?";
+
 		try (SQLiteDatabase db = dbHelper.getReadableDatabase();
 				Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
+			if (cursor.moveToFirst()) {
+				return new TextureInfo(
+						getLong(cursor, TextureColumns._ID),
+						getString(cursor, TextureColumns.NAME),
+						getInt(cursor, TextureColumns.WIDTH),
+						getInt(cursor, TextureColumns.HEIGHT),
+						getBlob(cursor, TextureColumns.THUMB));
+			}
+		}
+		return null;
+	}
+
+
+	@Nullable
+	public Bitmap getTextureBitmap(long id) {
+		return getTextureBitmap(String.valueOf(id));
+	}
+
+	@Nullable
+	public Bitmap getTextureBitmap(String name) {
+		String query = "SELECT " + TextureColumns.MATRIX + " FROM " + TextureColumns.TABLE_NAME +
+				" WHERE " + TextureColumns.NAME + " = ?";
+		try (SQLiteDatabase db = dbHelper.getReadableDatabase();
+				Cursor cursor = db.rawQuery(query, new String[]{name})) {
 			if (cursor.moveToFirst()) {
 				byte[] data = getBlob(cursor, TextureColumns.MATRIX);
 				if (data != null) {
