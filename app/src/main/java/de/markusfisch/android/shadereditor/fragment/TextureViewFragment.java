@@ -73,12 +73,12 @@ public class TextureViewFragment extends Fragment {
 		}
 
 		// Fetch texture info and bitmap using the modern DataSource.
-		Bitmap textureBitmap = dataSource.getTextureBitmap(textureId);
-		TextureInfo textureInfo = dataSource.getTextureInfo(textureId);
+		Bitmap textureBitmap = dataSource.texture.getTextureBitmap(textureId);
+		TextureInfo textureInfo = dataSource.texture.getTextureInfo(textureId);
 
 		if (textureBitmap == null || textureInfo == null) {
 			// Automatically remove defective textures.
-			dataSource.removeTexture(textureId);
+			dataSource.texture.removeTexture(textureId);
 			Toast.makeText(activity, R.string.removed_invalid_texture,
 					Toast.LENGTH_LONG).show();
 			activity.finish();
@@ -147,7 +147,7 @@ public class TextureViewFragment extends Fragment {
 		Handler handler = new Handler(Looper.getMainLooper());
 
 		Executors.newSingleThreadExecutor().execute(() -> {
-			Database.getInstance(appContext).getDataSource().removeTexture(id);
+			Database.getInstance(appContext).getDataSource().texture.removeTexture(id);
 			handler.post(() -> {
 				Activity activity = getActivity();
 				if (activity != null) {

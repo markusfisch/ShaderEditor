@@ -55,7 +55,7 @@ public class ShaderListPreferenceDialogFragment
 		final String key = getPreference().getKey();
 
 		// 1. Get the list of shaders from the DataSource.
-		List<DataRecords.ShaderInfo> shaders = dataSource.getShaders(
+		List<DataRecords.ShaderInfo> shaders = dataSource.shader.getShaders(
 				ShaderEditorApp.preferences.sortByLastModification());
 
 		// 2. Add an empty "(no shader selected)" item if required.

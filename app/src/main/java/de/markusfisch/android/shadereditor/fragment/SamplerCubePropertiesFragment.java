@@ -118,7 +118,7 @@ public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFrag
 			}
 		}
 
-		return dataSource.insertTexture(name, mapBitmap) < 1
+		return dataSource.texture.insertTexture(name, mapBitmap) < 1
 				? R.string.name_already_taken
 				: 0;
 	}

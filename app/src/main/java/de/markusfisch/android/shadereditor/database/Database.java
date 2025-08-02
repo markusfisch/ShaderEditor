@@ -1,24 +1,21 @@
 package de.markusfisch.android.shadereditor.database;
 
 import android.content.Context;
+import android.content.ContextWrapper;
+import android.database.DatabaseErrorHandler;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.widget.Toast;
+import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.List;
 
 import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.database.DatabaseContract.ShaderColumns;
-import de.markusfisch.android.shadereditor.database.DatabaseContract.TextureColumns;
+
 
 /**
  * Manages the SQLiteOpenHelper lifecycle and provides a single access point
@@ -33,7 +30,8 @@ public final class Database {
 	private Database(@NonNull Context context) {
 		// Use application context to avoid memory leaks.
 		this.appContext = context.getApplicationContext();
-		this.dbHelper = new OpenHelper(appContext);
+		var tables = DataSource.buildSchema(appContext);
+		this.dbHelper = new OpenHelper(appContext, tables);
 		this.dataSource = new DataSource(dbHelper, appContext);
 	}
 
@@ -59,27 +57,30 @@ public final class Database {
 		return dataSource;
 	}
 
-	public String importDatabase(String tempFileName) {
-		// Close the DB to release the lock on the file.
-		dbHelper.close();
-
-		File dbFile = appContext.getDatabasePath(DatabaseContract.FILE_NAME);
-		File newDb = new File(appContext.getFilesDir(), tempFileName);
-
-		try (InputStream in = new FileInputStream(newDb);
-				OutputStream out = new FileOutputStream(dbFile)) {
-			byte[] buf = new byte[4096];
-			int len;
-			while ((len = in.read(buf)) > 0) {
-				out.write(buf, 0, len);
+	@Nullable
+	public String importDatabase(String tempFileName, @NonNull Uri originalUri) {
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		var tables = dbHelper.getTables();
+		try (var helper = new ImportHelper(new ExternalDatabaseContext(appContext), tempFileName);
+				var edb = helper.getReadableDatabase()) {
+			db.beginTransaction();
+			boolean success = true;
+			for (var table : tables) {
+				success &= table.onImport(db, edb);
 			}
-		} catch (IOException e) {
-			// Try to restore the original file if copy fails.
-			// This is complex, for now we just report the error.
+			if (success) {
+				db.setTransactionSuccessful();
+				return null;
+			} else {
+				return appContext.getString(R.string.import_failed, originalUri.toString());
+			}
+		} catch (SQLException e) {
 			return e.getMessage();
+		} finally {
+			if (db.inTransaction()) {
+				db.endTransaction();
+			}
 		}
-
-		return null; // Success
 	}
 
 	/**
@@ -87,91 +88,87 @@ public final class Database {
 	 * This is kept private to encapsulate the database management.
 	 */
 	private static class OpenHelper extends SQLiteOpenHelper {
-		private final Context context;
+		public List<DatabaseTable> getTables() {
+			return tables;
+		}
 
-		private OpenHelper(Context context) {
+		private final List<DatabaseTable> tables;
+
+		private OpenHelper(Context context, List<DatabaseTable> tables) {
 			super(context, DatabaseContract.FILE_NAME, null, 5);
-			this.context = context;
+			this.tables = tables;
 		}
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			createShadersTable(db);
-			createTexturesTable(db);
+			for (var table : tables) {
+				table.onCreate(db);
+			}
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			if (oldVersion < 2) {
-				createTexturesTable(db);
-				insertInitialShaders(db);
+			for (var table : tables) {
+				table.onUpgrade(db, oldVersion, newVersion);
 			}
-			if (oldVersion < 3) {
-				DataSource.addShadersQuality(db);
-			}
-			if (oldVersion < 4) {
-				DataSource.addTexturesWidthHeightRatio(db);
-			}
-			if (oldVersion < 5) {
-				DataSource.addShaderNames(db);
-			}
+		}
+	}
+
+	/**
+	 * SQLite OpenHelper for importing the database. It does not modify the
+	 * imported database.
+	 */
+	private static class ImportHelper extends SQLiteOpenHelper {
+		private ImportHelper(Context context, String path) {
+			super(context, path, null, 1);
 		}
 
 		@Override
-		public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			// To support downgrading, you might want to drop and recreate tables.
-			// For now, we do nothing to prevent data loss.
+		public void onCreate(SQLiteDatabase db) {
+			// Do nothing.
 		}
 
-		private void createShadersTable(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + ShaderColumns.TABLE_NAME + " (" +
-					ShaderColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-					ShaderColumns.FRAGMENT_SHADER + " TEXT NOT NULL," +
-					ShaderColumns.THUMB + " BLOB," +
-					ShaderColumns.NAME + " TEXT," +
-					ShaderColumns.CREATED + " DATETIME," +
-					ShaderColumns.MODIFIED + " DATETIME," +
-					ShaderColumns.QUALITY + " REAL);");
-			insertInitialShaders(db);
+		@Override
+		public void onDowngrade(
+				SQLiteDatabase db,
+				int oldVersion,
+				int newVersion) {
+			// Do nothing, but without that method we cannot open
+			// different versions.
 		}
 
-		private void createTexturesTable(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + TextureColumns.TABLE_NAME + " (" +
-					TextureColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-					TextureColumns.NAME + " TEXT NOT NULL UNIQUE," +
-					TextureColumns.WIDTH + " INTEGER," +
-					TextureColumns.HEIGHT + " INTEGER," +
-					TextureColumns.RATIO + " REAL," +
-					TextureColumns.THUMB + " BLOB," +
-					TextureColumns.MATRIX + " BLOB);");
-			insertInitialTextures(db);
+		@Override
+		public void onUpgrade(
+				SQLiteDatabase db,
+				int oldVersion,
+				int newVersion) {
+			// Do nothing, but without that method we cannot open
+			// different versions.
+		}
+	}
+
+	public static class ExternalDatabaseContext extends ContextWrapper {
+		public ExternalDatabaseContext(Context base) {
+			super(base);
 		}
 
-		private void insertInitialShaders(SQLiteDatabase db) {
-			try {
-				String defaultShader = DataSource.loadRawResource(context, R.raw.default_shader);
-				byte[] defaultThumb = DataSource.loadBitmapResource(context,
-						R.drawable.thumbnail_default);
-				DataSource.insertShader(db,
-						defaultShader,
-						context.getString(R.string.default_shader),
-						defaultThumb,
-						1f);
-			} catch (IOException e) {
-				// This should not happen with packaged resources.
-				Toast.makeText(context, "Failed to load initial shaders", Toast.LENGTH_SHORT).show();
-			}
+		@Override
+		public File getDatabasePath(String name) {
+			return new File(getFilesDir(), name);
 		}
 
-		private void insertInitialTextures(SQLiteDatabase db) {
-			Bitmap noiseBitmap = BitmapFactory.decodeResource(context.getResources(),
-					R.drawable.texture_noise);
-			int thumbnailSize =
-					Math.round(context.getResources().getDisplayMetrics().density * 48f);
-			DataSource.insertTexture(db,
-					context.getString(R.string.texture_name_noise),
-					noiseBitmap,
-					thumbnailSize);
+		@Override
+		public SQLiteDatabase openOrCreateDatabase(String name, int mode,
+				SQLiteDatabase.CursorFactory factory,
+				DatabaseErrorHandler errorHandler) {
+			return openOrCreateDatabase(name, mode, factory);
+		}
+
+		@Override
+		public SQLiteDatabase openOrCreateDatabase(String name, int mode,
+				SQLiteDatabase.CursorFactory factory) {
+			return SQLiteDatabase.openOrCreateDatabase(
+					getDatabasePath(name), null);
 		}
 	}
 }

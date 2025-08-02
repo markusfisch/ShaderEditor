@@ -177,7 +177,7 @@ public class PreferencesFragment
 		if (id <= 0) {
 			return getString(R.string.no_shader_selected);
 		}
-		DataRecords.Shader shader = dataSource.getShader(id);
+		DataRecords.Shader shader = dataSource.shader.getShader(id);
 		if (shader == null) {
 			return getString(R.string.no_shader_selected);
 		}
