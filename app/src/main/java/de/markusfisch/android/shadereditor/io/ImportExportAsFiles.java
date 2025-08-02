@@ -47,7 +47,7 @@ public class ImportExportAsFiles {
 								- SHADER_FILE_EXTENSION.length());
 						String fragmentShader = readFile(file);
 						// Use the modern DataSource to insert the shader.
-						dataSource.insertShader(fragmentShader, shaderName, null, 1f);
+						dataSource.shader.insertShader(fragmentShader, shaderName, null, 1f);
 						successCount++;
 					} catch (IOException e) {
 						failCount++;
@@ -81,7 +81,7 @@ public class ImportExportAsFiles {
 			File exportDirectory = getImportExportDirectory(context, true);
 
 			// Get a list of shader info objects instead of a cursor.
-			List<DataRecords.ShaderInfo> shaderInfos = dataSource.getShaders(false);
+			List<DataRecords.ShaderInfo> shaderInfos = dataSource.shader.getShaders(false);
 			if (shaderInfos.isEmpty()) {
 				throw new IOException(context.getString(R.string.no_shaders_found));
 			}
@@ -91,7 +91,7 @@ public class ImportExportAsFiles {
 
 			for (DataRecords.ShaderInfo info : shaderInfos) {
 				// Get the full shader object to access the fragment shader text.
-				DataRecords.Shader fullShader = dataSource.getShader(info.id());
+				DataRecords.Shader fullShader = dataSource.shader.getShader(info.id());
 				if (fullShader == null) {
 					failCount++;
 					continue;

@@ -35,6 +35,7 @@ public class BackBufferParametersView extends LinearLayout {
 		List<TextureInfo> textures = Database
 				.getInstance(context)
 				.getDataSource()
+				.texture
 				.getTextures(null);
 
 		// 2. Create a "dummy" record for the "(no preset)" option.

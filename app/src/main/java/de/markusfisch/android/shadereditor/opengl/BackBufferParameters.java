@@ -67,6 +67,7 @@ public class BackBufferParameters extends TextureParameters {
 		Bitmap tile = Database
 				.getInstance(context)
 				.getDataSource()
+				.texture
 				.getTextureBitmap(presetId);
 
 		if (tile == null) {

@@ -15,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
 
+import org.jetbrains.annotations.Contract;
+
 import java.util.List;
 
 import de.markusfisch.android.shadereditor.R;
@@ -26,6 +28,7 @@ import de.markusfisch.android.shadereditor.activity.managers.ShaderViewManager;
 import de.markusfisch.android.shadereditor.activity.managers.UIManager;
 import de.markusfisch.android.shadereditor.activity.util.NavigationManager;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.database.DataRecords;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements ShaderManager.Pro
 	private ShaderViewManager shaderViewManager;
 	private NavigationManager navigationManager;
 	private DataSource dataSource;
+	private boolean isInitialLoad = false;
 
 	@Override
 	public ShaderManager getShaderManager() {
@@ -60,7 +64,8 @@ public class MainActivity extends AppCompatActivity implements ShaderManager.Pro
 
 		editorFragment = state == null
 				? new EditorFragment()
-				: (EditorFragment) getSupportFragmentManager().findFragmentByTag(EditorFragment.TAG);
+				:
+				(EditorFragment) getSupportFragmentManager().findFragmentByTag(EditorFragment.TAG);
 
 		if (state == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -87,6 +92,14 @@ public class MainActivity extends AppCompatActivity implements ShaderManager.Pro
 
 
 		shaderManager.handleSendText(getIntent());
+
+		if (state == null) {
+			Intent intent = getIntent();
+			String action = intent != null ? intent.getAction() : null;
+			if (!Intent.ACTION_SEND.equals(action) && !Intent.ACTION_VIEW.equals(action)) {
+				isInitialLoad = true;
+			}
+		}
 
 		editorFragment.setOnTextChangedListener(text -> {
 			shaderManager.setModified(true);
@@ -148,10 +161,13 @@ public class MainActivity extends AppCompatActivity implements ShaderManager.Pro
 		}
 	}
 
+	@NonNull
+	@Contract(" -> new")
 	private ShaderListManager.Listener createShaderListListener() {
 		return new ShaderListManager.Listener() {
 			@Override
 			public void onShaderSelected(long id) {
+				isInitialLoad = false;
 				if (ShaderEditorApp.preferences.autoSave()) {
 					shaderManager.saveShader();
 				}
@@ -169,11 +185,22 @@ public class MainActivity extends AppCompatActivity implements ShaderManager.Pro
 
 			@Override
 			public void onAllShadersDeleted() {
+				isInitialLoad = false;
 				shaderManager.selectShader(0);
+			}
+
+			@Override
+			public void onShadersLoaded(@NonNull List<DataRecords.ShaderInfo> shaders) {
+				if (isInitialLoad && !shaders.isEmpty()) {
+					shaderManager.selectShader(shaders.get(0).id());
+				}
+				isInitialLoad = false;
 			}
 		};
 	}
 
+	@NonNull
+	@Contract(" -> new")
 	private ShaderViewManager.Listener createShaderViewListener() {
 		return new ShaderViewManager.Listener() {
 			@Override
@@ -202,14 +229,12 @@ public class MainActivity extends AppCompatActivity implements ShaderManager.Pro
 			@Override
 			public void onQualityChanged(float quality) {
 				shaderManager.setQuality(quality);
-				if (shaderManager.getSelectedShaderId() > 0) {
-					dataSource.updateShader(shaderManager.getSelectedShaderId(), null,
-							null, quality);
-				}
 			}
 		};
 	}
 
+	@NonNull
+	@Contract(" -> new")
 	private MainMenuManager.EditorActions createEditorActions() {
 		return new MainMenuManager.EditorActions() {
 			@Override
@@ -234,15 +259,19 @@ public class MainActivity extends AppCompatActivity implements ShaderManager.Pro
 		};
 	}
 
+	@NonNull
+	@Contract("_ -> new")
 	private MainMenuManager.ShaderActions createShaderActions(ExtraKeysManager extraKeysManager) {
 		return new MainMenuManager.ShaderActions() {
 			@Override
 			public void onAddShader() {
 				long defaultId = ShaderEditorApp.preferences.getDefaultNewShader();
-				if (defaultId > 0 && dataSource.getShader(defaultId) != null) {
+				if (defaultId > 0 && dataSource.shader.getShader(defaultId) != null) {
 					duplicateShader(defaultId);
 				} else {
-					shaderManager.selectShader(dataSource.insertNewShader());
+					long newId = dataSource.shader.insertNewShader();
+					shaderManager.selectShader(newId);
+					shaderListManager.loadShadersAsync();
 				}
 			}
 
@@ -265,7 +294,8 @@ public class MainActivity extends AppCompatActivity implements ShaderManager.Pro
 						.setMessage(R.string.sure_remove_shader)
 						.setPositiveButton(android.R.string.ok, (dialog, which) -> {
 							shaderManager.deleteShader(shaderManager.getSelectedShaderId());
-							shaderManager.selectShader(dataSource.getFirstShaderId());
+							shaderManager.selectShader(dataSource.shader.getFirstShaderId());
+							shaderListManager.loadShadersAsync();
 						})
 						.setNegativeButton(android.R.string.cancel, null)
 						.show();
@@ -294,6 +324,8 @@ public class MainActivity extends AppCompatActivity implements ShaderManager.Pro
 		};
 	}
 
+	@NonNull
+	@Contract(" -> new")
 	private MainMenuManager.NavigationActions createNavigationActions() {
 		return new MainMenuManager.NavigationActions() {
 			@Override
@@ -324,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements ShaderManager.Pro
 		long newId = shaderManager.duplicateShader(id);
 		if (newId > 0) {
 			shaderManager.selectShader(newId);
+			shaderListManager.loadShadersAsync();
 		}
 	}
 

@@ -15,13 +15,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
 import de.markusfisch.android.shadereditor.activity.LoadSampleActivity;
 import de.markusfisch.android.shadereditor.activity.PreviewActivity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.database.DataRecords;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
 
@@ -44,7 +44,7 @@ public class ShaderManager {
 	private float quality = 1f;
 	private boolean isModified = false;
 
-	public ShaderManager(AppCompatActivity activity, EditorFragment editorFragment,
+	public ShaderManager(@NonNull AppCompatActivity activity, EditorFragment editorFragment,
 			ShaderViewManager shaderViewManager, ShaderListManager shaderListManager,
 			UIManager uiManager, DataSource dataSource,
 			ShaderViewManager.Listener shaderViewManagerListener) {
@@ -57,43 +57,43 @@ public class ShaderManager {
 
 		addUniformLauncher =
 				activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-			if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-				editorFragment.addUniform(result.getData().getStringExtra(AddUniformActivity.STATEMENT));
-			}
-		});
+					if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+						editorFragment.addUniform(result.getData().getStringExtra(AddUniformActivity.STATEMENT));
+					}
+				});
 
 		loadSampleLauncher =
 				activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-			if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-				if (isModified()) {
-					saveShader();
-				}
-				long newId = dataSource.insertShaderFromResource(activity,
-						result.getData().getStringExtra(LoadSampleActivity.NAME),
-						result.getData().getIntExtra(LoadSampleActivity.RESOURCE_ID,
-								R.raw.new_shader),
-						result.getData().getIntExtra(LoadSampleActivity.THUMBNAIL_ID,
-								R.drawable.thumbnail_new_shader),
-						result.getData().getFloatExtra(LoadSampleActivity.QUALITY, 1f));
-				selectShader(newId);
-			}
-		});
+					if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+						if (isModified()) {
+							saveShader();
+						}
+						long newId = dataSource.shader.insertShaderFromResource(activity,
+								Objects.requireNonNull(result.getData().getStringExtra(LoadSampleActivity.NAME)),
+								result.getData().getIntExtra(LoadSampleActivity.RESOURCE_ID,
+										R.raw.new_shader),
+								result.getData().getIntExtra(LoadSampleActivity.THUMBNAIL_ID,
+										R.drawable.thumbnail_new_shader),
+								result.getData().getFloatExtra(LoadSampleActivity.QUALITY, 1f));
+						selectShader(newId);
+					}
+				});
 
 		previewShaderLauncher =
 				activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-			if (result.getResultCode() == Activity.RESULT_OK) {
-				PreviewActivity.RenderStatus status = PreviewActivity.renderStatus;
-				if (status.getFps() > 0) {
-					shaderViewManagerListener.onFramesPerSecond(status.getFps());
-				}
-				if (status.getInfoLog() != null) {
-					shaderViewManagerListener.onInfoLog(status.getInfoLog());
-				}
-				if (getSelectedShaderId() > 0 && status.getThumbnail() != null && ShaderEditorApp.preferences.doesSaveOnRun()) {
-					saveShader();
-				}
-			}
-		});
+					if (result.getResultCode() == Activity.RESULT_OK) {
+						PreviewActivity.RenderStatus status = PreviewActivity.renderStatus;
+						if (status.getFps() > 0) {
+							shaderViewManagerListener.onFramesPerSecond(status.getFps());
+						}
+						if (status.getInfoLog() != null) {
+							shaderViewManagerListener.onInfoLog(status.getInfoLog());
+						}
+						if (getSelectedShaderId() > 0 && status.getThumbnail() != null && ShaderEditorApp.preferences.doesSaveOnRun()) {
+							saveShader();
+						}
+					}
+				});
 	}
 
 	public long getSelectedShaderId() {
@@ -135,7 +135,7 @@ public class ShaderManager {
 		}
 
 		PreviewActivity.renderStatus.reset();
-		DataRecords.Shader shader = dataSource.getShader(id);
+		var shader = dataSource.shader.getShader(id);
 
 		if (shader == null) {
 			selectedShaderId = NO_SHADER;
@@ -169,9 +169,9 @@ public class ShaderManager {
 		byte[] thumbnail = getThumbnail();
 
 		if (selectedShaderId > 0) {
-			dataSource.updateShader(selectedShaderId, src, thumbnail, quality);
+			dataSource.shader.updateShader(selectedShaderId, src, thumbnail, quality);
 		} else {
-			selectedShaderId = dataSource.insertShader(src, null, thumbnail, quality);
+			selectedShaderId = dataSource.shader.insertShader(src, null, thumbnail, quality);
 			shaderListManager.setSelectedShaderId(selectedShaderId);
 		}
 
@@ -198,7 +198,7 @@ public class ShaderManager {
 			if (in == null) return;
 			byte[] buffer = new byte[4096];
 			int len;
-			StringBuilder sb = new StringBuilder();
+			var sb = new StringBuilder();
 			while ((len = in.read(buffer)) != -1) {
 				sb.append(new String(buffer, 0, len));
 			}
@@ -214,10 +214,10 @@ public class ShaderManager {
 	}
 
 	public long duplicateShader(long shaderId) {
-		DataRecords.Shader shader = dataSource.getShader(shaderId);
+		var shader = dataSource.shader.getShader(shaderId);
 		if (shader == null) return NO_SHADER;
-		byte[] thumbnail = dataSource.getThumbnail(shaderId);
-		return dataSource.insertShader(
+		var thumbnail = dataSource.shader.getThumbnail(shaderId);
+		return dataSource.shader.insertShader(
 				shader.fragmentShader(),
 				null,
 				thumbnail,
@@ -225,7 +225,7 @@ public class ShaderManager {
 	}
 
 	public void deleteShader(long shaderId) {
-		dataSource.removeShader(shaderId);
+		dataSource.shader.removeShader(shaderId);
 		if (shaderId == selectedShaderId) {
 			selectedShaderId = NO_SHADER;
 		}

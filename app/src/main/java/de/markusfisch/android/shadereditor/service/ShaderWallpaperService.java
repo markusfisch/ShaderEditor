@@ -135,11 +135,11 @@ public class ShaderWallpaperService extends WallpaperService {
 					ShaderWallpaperService.this).getDataSource();
 
 			long shaderId = ShaderEditorApp.preferences.getWallpaperShader();
-			DataRecords.Shader shader = dataSource.getShader(shaderId);
+			DataRecords.Shader shader = dataSource.shader.getShader(shaderId);
 
 			// If the saved shader doesn't exist, pick a random one.
 			if (shader == null) {
-				shader = dataSource.getRandomShader();
+				shader = dataSource.shader.getRandomShader();
 
 				// If there are no shaders at all, we can't do anything.
 				if (shader == null) {

@@ -120,7 +120,7 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 	 * types of textures (e.g., samplerCube).
 	 */
 	protected List<DataRecords.TextureInfo> getTextures(DataSource dataSource, String query) {
-		return dataSource.getTextures(query);
+		return dataSource.texture.getTextures(query);
 	}
 
 	private void updateAdapter(List<DataRecords.TextureInfo> textures) {

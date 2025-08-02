@@ -30,6 +30,6 @@ public class UniformSamplerCubePageFragment
 	@Override
 	protected List<DataRecords.TextureInfo> getTextures(DataSource dataSource, String query) {
 		// Override the parent method to return cube maps instead of regular textures.
-		return dataSource.getSamplerCubeTextures(query);
+		return dataSource.texture.getSamplerCubeTextures(query);
 	}
 }

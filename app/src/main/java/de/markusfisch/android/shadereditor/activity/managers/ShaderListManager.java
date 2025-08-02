@@ -116,7 +116,7 @@ public class ShaderListManager {
 				.setView(view)
 				.setPositiveButton(android.R.string.ok, (dialog, which) -> {
 					String newName = nameView.getText().toString();
-					dataSource.updateShaderName(id, newName);
+					dataSource.shader.updateShaderName(id, newName);
 					listener.onShaderRenamed(id, newName);
 					SoftKeyboard.hide(activity, nameView);
 				})
@@ -130,6 +130,8 @@ public class ShaderListManager {
 		void onShaderRenamed(long id, @NonNull String name);
 
 		void onAllShadersDeleted();
+
+		void onShadersLoaded(@NonNull List<ShaderInfo> shaders);
 	}
 
 	private static class LoadShadersTask extends AsyncTask<Void, Void, List<ShaderInfo>> {
@@ -147,14 +149,16 @@ public class ShaderListManager {
 			}
 			// Read preference when the task executes to get the latest setting.
 			boolean sortByModification = ShaderEditorApp.preferences.sortByLastModification();
-			return manager.dataSource.getShaders(sortByModification);
+			return manager.dataSource.shader.getShaders(sortByModification);
 		}
 
 		@Override
 		protected void onPostExecute(List<ShaderInfo> shaders) {
 			ShaderListManager manager = managerRef.get();
 			if (manager != null) {
-				manager.updateAdapter(shaders);
+				List<ShaderInfo> shaderList = shaders != null ? shaders : new ArrayList<>();
+				manager.listener.onShadersLoaded(shaderList);
+				manager.updateAdapter(shaderList);
 			}
 		}
 	}

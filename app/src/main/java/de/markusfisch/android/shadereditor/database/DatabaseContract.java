@@ -19,26 +19,26 @@ public final class DatabaseContract {
 	 * Defines the contents of the 'shaders' table.
 	 * Implementing BaseColumns adds the standard _ID and _COUNT columns.
 	 */
-	public static class ShaderColumns implements BaseColumns {
-		public static final String TABLE_NAME = "shaders";
-		public static final String FRAGMENT_SHADER = "shader";
-		public static final String THUMB = "thumb";
-		public static final String NAME = "name";
-		public static final String CREATED = "created";
-		public static final String MODIFIED = "modified";
-		public static final String QUALITY = "quality";
+	public interface ShaderColumns extends BaseColumns {
+		String TABLE_NAME = "shaders";
+		String FRAGMENT_SHADER = "shader";
+		String THUMB = "thumb";
+		String NAME = "name";
+		String CREATED = "created";
+		String MODIFIED = "modified";
+		String QUALITY = "quality";
 	}
 
 	/**
 	 * Defines the contents of the 'textures' table.
 	 */
-	public static class TextureColumns implements BaseColumns {
-		public static final String TABLE_NAME = "textures";
-		public static final String NAME = "name";
-		public static final String WIDTH = "width";
-		public static final String HEIGHT = "height";
-		public static final String RATIO = "ratio";
-		public static final String THUMB = "thumb";
-		public static final String MATRIX = "matrix";
+	public interface TextureColumns extends BaseColumns {
+		String TABLE_NAME = "textures";
+		String NAME = "name";
+		String WIDTH = "width";
+		String HEIGHT = "height";
+		String RATIO = "ratio";
+		String THUMB = "thumb";
+		String MATRIX = "matrix";
 	}
 }

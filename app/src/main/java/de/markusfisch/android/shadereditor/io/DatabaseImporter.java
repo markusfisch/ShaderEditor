@@ -4,15 +4,16 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.database.Database;
 
 public class DatabaseImporter {
-	public static String importDatabase(Context context, Uri uri) {
+	public static String importDatabase(@NonNull Context context, @Nullable Uri uri) {
 		String cantFindDb = context.getString(R.string.cant_find_db);
 		if (uri == null) {
 			return cantFindDb;
@@ -26,12 +27,12 @@ public class DatabaseImporter {
 		final String fileName = "import.db";
 
 		// Use try-with-resources to ensure streams are always closed.
-		try (InputStream in = cr.openInputStream(uri);
-				OutputStream out = context.openFileOutput(fileName, Context.MODE_PRIVATE)) {
+		try (var in = cr.openInputStream(uri);
+				var out = context.openFileOutput(fileName, Context.MODE_PRIVATE)) {
 			if (in == null) {
 				return cantFindDb;
 			}
-			byte[] buffer = new byte[4096];
+			var buffer = new byte[4096];
 			int len;
 			while ((len = in.read(buffer)) != -1) {
 				out.write(buffer, 0, len);
@@ -41,7 +42,7 @@ public class DatabaseImporter {
 		}
 
 		// Call the new import method on the Database singleton.
-		String error = Database.getInstance(context).importDatabase(fileName);
+		String error = Database.getInstance(context).importDatabase(fileName, uri);
 		context.deleteFile(fileName);
 
 		return error == null
