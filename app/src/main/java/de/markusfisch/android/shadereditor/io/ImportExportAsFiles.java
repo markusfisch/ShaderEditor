@@ -89,7 +89,7 @@ public class ImportExportAsFiles {
 			int successCount = 0;
 			int failCount = 0;
 
-			for (DataRecords.ShaderInfo info : shaderInfos) {
+			for (var info : shaderInfos) {
 				// Get the full shader object to access the fragment shader text.
 				DataRecords.Shader fullShader = dataSource.shader.getShader(info.id());
 				if (fullShader == null) {
@@ -97,9 +97,10 @@ public class ImportExportAsFiles {
 					continue;
 				}
 
-				String shaderName = info.name();
-				if (shaderName == null || shaderName.isEmpty()) {
-					shaderName = info.modified(); // Fallback to modified date.
+				String shaderName = info.getTitle();
+				if (shaderName == null) {
+					failCount++;
+					continue;
 				}
 				String fragmentShader = fullShader.fragmentShader();
 
@@ -133,7 +134,7 @@ public class ImportExportAsFiles {
 
 	private static void writeShaderToDirectory(
 			File directory,
-			String shaderName,
+			@NonNull String shaderName,
 			String fragmentShader) throws IOException {
 		String filename = shaderName.replaceAll("[^a-zA-Z0-9 \\-_,()]",
 				ILLEGAL_CHARACTER_REPLACEMENT);

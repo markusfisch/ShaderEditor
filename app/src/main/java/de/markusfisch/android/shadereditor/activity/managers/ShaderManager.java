@@ -145,8 +145,7 @@ public class ShaderManager {
 		} else {
 			selectedShaderId = id;
 			editorFragment.setText(shader.fragmentShader());
-			uiManager.setToolbarTitle(shader.name() != null && !shader.name().isEmpty() ?
-					shader.name() : shader.modified());
+			uiManager.setToolbarTitle(shader.getTitle());
 			quality = shader.quality();
 		}
 
@@ -231,7 +230,4 @@ public class ShaderManager {
 		}
 	}
 
-	public interface Provider {
-		ShaderManager getShaderManager();
-	}
 }

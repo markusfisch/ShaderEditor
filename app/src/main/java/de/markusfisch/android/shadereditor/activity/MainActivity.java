@@ -36,7 +36,7 @@ import de.markusfisch.android.shadereditor.opengl.ShaderError;
 import de.markusfisch.android.shadereditor.service.ShaderWallpaperService;
 import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 
-public class MainActivity extends AppCompatActivity implements ShaderManager.Provider {
+public class MainActivity extends AppCompatActivity {
 
 	private static final String CODE_VISIBLE = "code_visible";
 
@@ -48,11 +48,6 @@ public class MainActivity extends AppCompatActivity implements ShaderManager.Pro
 	private NavigationManager navigationManager;
 	private DataSource dataSource;
 	private boolean isInitialLoad = false;
-
-	@Override
-	public ShaderManager getShaderManager() {
-		return shaderManager;
-	}
 
 	@Override
 	protected void onCreate(@Nullable Bundle state) {
@@ -140,11 +135,11 @@ public class MainActivity extends AppCompatActivity implements ShaderManager.Pro
 
 	@Override
 	protected void onPause() {
-		super.onPause();
-		shaderViewManager.onPause();
 		if (ShaderEditorApp.preferences.autoSave()) {
 			shaderManager.saveShader();
 		}
+		super.onPause();
+		shaderViewManager.onPause();
 	}
 
 	@Override

@@ -19,12 +19,14 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -49,10 +51,10 @@ import de.markusfisch.android.shadereditor.hardware.GyroscopeListener;
 import de.markusfisch.android.shadereditor.hardware.LightListener;
 import de.markusfisch.android.shadereditor.hardware.LinearAccelerationListener;
 import de.markusfisch.android.shadereditor.hardware.MagneticFieldListener;
+import de.markusfisch.android.shadereditor.hardware.MicInputListener;
 import de.markusfisch.android.shadereditor.hardware.PressureListener;
 import de.markusfisch.android.shadereditor.hardware.ProximityListener;
 import de.markusfisch.android.shadereditor.hardware.RotationVectorListener;
-import de.markusfisch.android.shadereditor.hardware.MicInputListener;
 import de.markusfisch.android.shadereditor.service.NotificationService;
 
 public class ShaderRenderer implements GLSurfaceView.Renderer {
@@ -312,7 +314,14 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private float[] gravityValues;
 	private float[] linearValues;
 
-	private volatile byte[] thumbnail = new byte[1];
+	private static final int THUMBNAIL_WIDTH = 144;
+	private static final int THUMBNAIL_HEIGHT = 144;
+	private final int[] thumbnailFb = new int[1];
+	private final int[] thumbnailTx = new int[1];
+	private final Object thumbnailLock = new Object();
+	private boolean captureThumbnail = false;
+
+	private byte[] thumbnail = new byte[1];
 	private volatile long nextFpsUpdate = 0;
 	private volatile float sum;
 	private volatile float samples;
@@ -367,6 +376,31 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 
 		GLES20.glClearColor(0f, 0f, 0f, 1f);
+
+		// Re-create thumbnail framebuffer on each surface creation to ensure a clean state.
+		GLES20.glDeleteFramebuffers(1, thumbnailFb, 0);
+		GLES20.glDeleteTextures(1, thumbnailTx, 0);
+		GLES20.glGenFramebuffers(1, thumbnailFb, 0);
+		GLES20.glGenTextures(1, thumbnailTx, 0);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, thumbnailTx[0]);
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_RGBA,
+				THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT, 0, GLES20.GL_RGBA,
+				GLES20.GL_UNSIGNED_BYTE, null);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
+				GLES20.GL_LINEAR);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
+				GLES20.GL_LINEAR);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S,
+				GLES20.GL_CLAMP_TO_EDGE);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,
+				GLES20.GL_CLAMP_TO_EDGE);
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, thumbnailFb[0]);
+		GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
+				GLES20.GL_TEXTURE_2D, thumbnailTx[0], 0);
+
+		// Unbind to be safe.
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
 		if (surfaceProgram != 0) {
 			// Don't glDeleteProgram(surfaceProgram) because
@@ -423,7 +457,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		if (surfaceProgram == 0 || program == 0) {
 			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT |
 					GLES20.GL_DEPTH_BUFFER_BIT);
-
+			captureThumbnail();
 			return;
 		}
 
@@ -626,15 +660,24 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		frontTarget = backTarget;
 		backTarget = t;
 
-		if (thumbnail == null) {
-			thumbnail = saveThumbnail();
-		}
+		captureThumbnail();
 
 		if (onRendererListener != null) {
 			updateFps(now);
 		}
 
 		++frameNum;
+	}
+
+	private void captureThumbnail() {
+		// Check if a capture is requested and notify the waiting thread.
+		synchronized (thumbnailLock) {
+			if (captureThumbnail) {
+				thumbnail = saveThumbnail();
+				captureThumbnail = false;
+				thumbnailLock.notifyAll();
+			}
+		}
 	}
 
 	public void unregisterListeners() {
@@ -723,24 +766,19 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public byte[] getThumbnail() {
-		// Settings thumbnail to null triggers
-		// the capture on the OpenGL thread in
-		// onDrawFrame().
-		thumbnail = null;
-
-		try {
-			for (int trys = 10;
-					trys-- > 0 && program > 0 && thumbnail == null; ) {
-				Thread.sleep(100);
+		synchronized (thumbnailLock) {
+			captureThumbnail = true;
+			try {
+				// Wait for the GL thread to capture and notify.
+				thumbnailLock.wait(1000);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				// Explicitly set the flag to false to avoid a stray capture later.
+				captureThumbnail = false;
+				return null;
 			}
-		} catch (InterruptedException e) {
-			Thread.currentThread().interrupt();
+			return thumbnail;
 		}
-
-		// Don't clone() because the data doesn't need to be
-		// protected from modification what means copying would
-		// only mean using more memory than necessary.
-		return thumbnail;
 	}
 
 	private void resetFps() {
@@ -1006,55 +1044,71 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		return accelerometerListener;
 	}
 
+	@Nullable
 	private byte[] saveThumbnail() {
-		final int min = (int) Math.min(
-				surfaceResolution[0],
-				surfaceResolution[1]);
-		final int pixels = min * min;
+		// 1. Bind the thumbnail FBO and set the viewport.
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, thumbnailFb[0]);
+		GLES20.glViewport(0, 0, THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT);
+
+		// 2. Use the surface program to draw the main scene texture (downsampling it).
+		GLES20.glUseProgram(surfaceProgram);
+		GLES20.glVertexAttribPointer(surfacePositionLoc, 2, GLES20.GL_BYTE,
+				false, 0, vertexBuffer);
+
+		// Use a dedicated resolution vector for the thumbnail size.
+		float[] thumbnailResolution = {THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT};
+		GLES20.glUniform2fv(surfaceResolutionLoc, 1, thumbnailResolution, 0);
+
+		GLES20.glUniform1i(surfaceFrameLoc, 0);
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, tx[frontTarget]);
+
+		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+
+		// 3. Read the much smaller buffer of pixels.
+		final int pixels = THUMBNAIL_WIDTH * THUMBNAIL_HEIGHT;
 		final int[] rgba = new int[pixels];
-		final int[] bgra = new int[pixels];
-		final IntBuffer colorBuffer = IntBuffer.wrap(rgba);
-
+		final IntBuffer buffer = IntBuffer.wrap(rgba);
 		GLES20.glReadPixels(
-				0,
-				0,
-				min,
-				min,
-				GLES20.GL_RGBA,
-				GLES20.GL_UNSIGNED_BYTE,
-				colorBuffer);
+				0, 0,
+				THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT,
+				GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE,
+				buffer);
 
-		for (int i = 0, e = pixels; i < pixels; ) {
-			e -= min;
+		// 4. Restore the default framebuffer to not affect main rendering.
+		// The viewport will be reset in the next onDrawFrame anyway.
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 
-			for (int x = min, b = e; x-- > 0; ++i, ++b) {
-				final int c = rgba[i];
-
-				bgra[b] = ((c >> 16) & 0xff) |
-						((c << 16) & 0xff0000) |
-						(c & 0xff00ff00);
+		// 5. Vertically flip the image and swap R/B channels on the CPU.
+		// This is much faster now because it's only a 144x144 image.
+		var argb = new int[pixels];
+		for (int y = 0; y < THUMBNAIL_HEIGHT; ++y) {
+			for (int x = 0; x < THUMBNAIL_WIDTH; ++x) {
+				int srcIdx = y * THUMBNAIL_WIDTH + x;
+				int destIdx = (THUMBNAIL_HEIGHT - y - 1) * THUMBNAIL_WIDTH + x;
+				int pixel = rgba[srcIdx]; // AABBGGRR from OpenGL
+				// Swap R and B to get AARRGGBB for Android Bitmap
+				argb[destIdx] = (pixel & 0xff00ff00)
+						| ((pixel << 16) & 0x00ff0000)
+						| ((pixel >> 16) & 0x000000ff);
 			}
 		}
 
-		try {
-			ByteArrayOutputStream out = new ByteArrayOutputStream();
-			Bitmap.createScaledBitmap(
-					Bitmap.createBitmap(
-							bgra,
-							min,
-							min,
-							Bitmap.Config.ARGB_8888),
-					144,
-					144,
-					true).compress(
+		// 6. Create Bitmap from processed pixels and compress to PNG.
+		try (var out = new ByteArrayOutputStream()) {
+			Bitmap.createBitmap(
+					argb,
+					THUMBNAIL_WIDTH,
+					THUMBNAIL_HEIGHT,
+					Bitmap.Config.ARGB_8888).compress(
 					Bitmap.CompressFormat.PNG,
 					100,
 					out);
-
 			return out.toByteArray();
-		} catch (IllegalArgumentException e) {
-			// Will never happen because neither
-			// width nor height <= 0.
+			// Has to catch IOException because ByteArrayOutputStream#close's
+			// signature includes it.
+		} catch (OutOfMemoryError | IllegalArgumentException | IOException e) {
 			return null;
 		}
 	}
