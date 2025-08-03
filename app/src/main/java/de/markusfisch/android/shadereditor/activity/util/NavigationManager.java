@@ -8,6 +8,7 @@ import android.os.Build;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.annotation.NonNull;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
@@ -17,17 +18,18 @@ import de.markusfisch.android.shadereditor.activity.PreviewActivity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public class NavigationManager {
+	@NonNull
 	private final Activity activity;
 
-	public NavigationManager(Activity activity) {
+	public NavigationManager(@NonNull Activity activity) {
 		this.activity = activity;
 	}
 
-	public void goToAddUniform(ActivityResultLauncher<Intent> launcher) {
+	public void goToAddUniform(@NonNull ActivityResultLauncher<Intent> launcher) {
 		launcher.launch(new Intent(activity, AddUniformActivity.class));
 	}
 
-	public void goToLoadSample(ActivityResultLauncher<Intent> launcher) {
+	public void goToLoadSample(@NonNull ActivityResultLauncher<Intent> launcher) {
 		launcher.launch(new Intent(activity, LoadSampleActivity.class));
 	}
 
@@ -54,6 +56,11 @@ public class NavigationManager {
 	}
 
 	public void shareShader(String shader) {
+		final var prefs = ShaderEditorApp.preferences;
+		if (!prefs.exportTabs() && shader.contains("\t")) {
+			String spaces = " ".repeat(prefs.getTabWidth());
+			shader = shader.replace("\t", spaces);
+		}
 		Intent intent = new Intent();
 		intent.setType("text/plain");
 		intent.setAction(Intent.ACTION_SEND);
@@ -62,13 +69,11 @@ public class NavigationManager {
 				activity.getString(R.string.share_shader)));
 	}
 
-	private boolean tryStartActivity(Intent intent) {
+	private void tryStartActivity(Intent intent) {
 		try {
 			activity.startActivity(intent);
-			return true;
 		} catch (ActivityNotFoundException e) {
 			Toast.makeText(activity, R.string.cannot_open_content, Toast.LENGTH_SHORT).show();
-			return false;
 		}
 	}
 }
