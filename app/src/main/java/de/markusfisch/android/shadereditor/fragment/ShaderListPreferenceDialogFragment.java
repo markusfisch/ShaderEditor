@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.adapter.ShaderSpinnerAdapter;
+import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.DataRecords;
 import de.markusfisch.android.shadereditor.database.DataSource;
@@ -21,7 +21,7 @@ import de.markusfisch.android.shadereditor.preference.Preferences;
 public class ShaderListPreferenceDialogFragment
 		extends MaterialPreferenceDialogFragmentCompat {
 
-	private ShaderSpinnerAdapter adapter;
+	private ShaderAdapter adapter;
 
 	@NonNull
 	public static ShaderListPreferenceDialogFragment newInstance(
@@ -64,7 +64,7 @@ public class ShaderListPreferenceDialogFragment
 		}
 
 		// 3. Create the adapter and set its data.
-		adapter = new ShaderSpinnerAdapter(context);
+		adapter = new ShaderAdapter(context);
 		adapter.setData(shaders);
 
 		// 4. Find the index of the currently selected shader.
