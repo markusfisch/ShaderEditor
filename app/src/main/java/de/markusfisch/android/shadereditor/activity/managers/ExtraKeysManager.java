@@ -22,23 +22,28 @@ public class ExtraKeysManager implements ViewTreeObserver.OnGlobalLayoutListener
 	@NonNull
 	private final View extraKeysView;
 	@NonNull
+	private final View insertTabView;
+	@NonNull
 	private final CompletionsAdapter completionsAdapter;
+
 
 	public ExtraKeysManager(@NonNull Activity activity, @NonNull View rootView,
 			@NonNull Editor editor) {
 		this.extraKeysView = rootView.findViewById(R.id.extra_keys);
 
-		extraKeysView.findViewById(R.id.insert_tab).setOnClickListener(v -> editor.insert("\t"));
+		insertTabView = extraKeysView.findViewById(R.id.insert_tab);
+		insertTabView.setOnClickListener(v -> editor.insert("\t"));
+
 		RecyclerView completions = extraKeysView.findViewById(R.id.completions);
-		completions.setLayoutManager(new LinearLayoutManager(activity, RecyclerView.HORIZONTAL,
-				false));
+		completions.setLayoutManager(
+				new LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false));
 		completionsAdapter = new CompletionsAdapter(editor::insert);
 		completions.setAdapter(completionsAdapter);
 
-		DividerItemDecoration divider = new DividerItemDecoration(completions.getContext(),
-				DividerItemDecoration.HORIZONTAL);
-		divider.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(activity,
-				R.drawable.divider_with_padding_vertical)));
+		var divider = new DividerItemDecoration(
+				completions.getContext(), DividerItemDecoration.HORIZONTAL);
+		divider.setDrawable(Objects.requireNonNull(
+				ContextCompat.getDrawable(activity, R.drawable.divider_with_padding_vertical)));
 		completions.addItemDecoration(divider);
 		completions.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
@@ -51,33 +56,38 @@ public class ExtraKeysManager implements ViewTreeObserver.OnGlobalLayoutListener
 	}
 
 	public void updateVisibility() {
-		extraKeysView.setVisibility(ShaderEditorApp.preferences.showExtraKeys() ? View.VISIBLE :
-				View.GONE);
-		extraKeysView.findViewById(R.id.insert_tab).setVisibility(ShaderEditorApp.preferences.doesShowInsertTab() ? View.VISIBLE : View.GONE);
+		var preferences = ShaderEditorApp.preferences;
+		extraKeysView.setVisibility(getVisibility(preferences.showExtraKeys()));
+		insertTabView.setVisibility(getVisibility(preferences.doesShowInsertTab()));
 	}
 
 	public void setVisible(boolean visible) {
-		extraKeysView.setVisibility(visible ? View.VISIBLE : View.GONE);
+		extraKeysView.setVisibility(getVisibility(visible));
 	}
 
 	@Override
 	public void onGlobalLayout() {
-		if (!ShaderEditorApp.preferences.autoHideExtraKeys()) return;
+		var preferences = ShaderEditorApp.preferences;
+		if (!preferences.autoHideExtraKeys()) return;
+		if (!preferences.showExtraKeys()) {
+			extraKeysView.setVisibility(View.GONE);
+			return;
+		}
+
 
 		Rect r = new Rect();
 		extraKeysView.getWindowVisibleDisplayFrame(r);
 		int screenHeight = extraKeysView.getRootView().getHeight();
-		int keypadHeight = screenHeight - r.bottom;
 
-		if (keypadHeight > screenHeight * 0.15) {
-			// Keyboard is showing
-			if (ShaderEditorApp.preferences.showExtraKeys()) {
-				extraKeysView.setVisibility(View.VISIBLE);
-			}
-		} else {
-			// Keyboard is hidden
-			extraKeysView.setVisibility(View.GONE);
-		}
+		// r.bottom is the position above soft keypad or device button.
+		// if keypad is shown, the r.bottom is smaller than that before.
+		int keypadHeight = screenHeight - r.bottom;
+		// 0.15 ratio is perhaps enough to determine keypad height.
+		extraKeysView.setVisibility(getVisibility(keypadHeight > screenHeight * 0.15));
+	}
+
+	private static int getVisibility(boolean isVisible) {
+		return isVisible ? View.VISIBLE : View.GONE;
 	}
 
 	public interface Editor {
