@@ -112,11 +112,6 @@ public class EditorFragment extends Fragment {
 		shaderEditor.updateErrorHighlighting();
 	}
 
-	@NonNull
-	public List<ShaderError> getErrors() {
-		return shaderEditor.getErrors();
-	}
-
 	public void setErrors(@NonNull List<ShaderError> errors) {
 		shaderEditor.setErrors(errors);
 		highlightErrors();

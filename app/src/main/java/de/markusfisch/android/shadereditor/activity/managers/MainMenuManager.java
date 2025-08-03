@@ -5,6 +5,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.PopupWindow;
@@ -23,8 +24,6 @@ public class MainMenuManager {
 	@NonNull
 	private final ShaderActions shaderActions;
 	@NonNull
-	private final NavigationActions navigationActions;
-	@NonNull
 	private final Activity activity;
 
 	public MainMenuManager(@NonNull Activity activity, @NonNull EditorActions editorActions,
@@ -32,8 +31,8 @@ public class MainMenuManager {
 		this.activity = activity;
 		this.editorActions = editorActions;
 		this.shaderActions = shaderActions;
-		this.navigationActions = navigationActions;
-		View view = activity.getLayoutInflater().inflate(R.layout.main_menu, null);
+		ViewGroup root = activity.findViewById(android.R.id.content);
+		View view = activity.getLayoutInflater().inflate(R.layout.main_menu, root, false);
 		view.setClipToOutline(true);
 
 		popupWindow = new PopupWindow(view, android.view.ViewGroup.LayoutParams.WRAP_CONTENT,

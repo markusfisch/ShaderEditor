@@ -128,18 +128,6 @@ public class ShaderDao {
 		return 0;
 	}
 
-	public boolean isShaderAvailable(long id) {
-		try (var db = dbHelper.getReadableDatabase();
-				var cursor = db.query(
-						DatabaseContract.ShaderColumns.TABLE_NAME,
-						new String[]{DatabaseContract.ShaderColumns._ID},
-						DatabaseContract.ShaderColumns._ID + " = ?",
-						new String[]{String.valueOf(id)},
-						null, null, null, "1")) {
-			return cursor != null && cursor.moveToFirst();
-		}
-	}
-
 	public long insertShaderFromResource(@NonNull Context context, @Nullable String name,
 			int sourceId, int thumbId,
 			float quality) {
@@ -182,16 +170,6 @@ public class ShaderDao {
 			if (thumbnail != null) {
 				cv.put(DatabaseContract.ShaderColumns.THUMB, thumbnail);
 			}
-			db.update(DatabaseContract.ShaderColumns.TABLE_NAME, cv,
-					DatabaseContract.ShaderColumns._ID + " = ?",
-					new String[]{String.valueOf(id)});
-		}
-	}
-
-	public void updateShaderQuality(long id, float quality) {
-		try (var db = dbHelper.getWritableDatabase()) {
-			var cv = new ContentValues();
-			cv.put(DatabaseContract.ShaderColumns.QUALITY, quality);
 			db.update(DatabaseContract.ShaderColumns.TABLE_NAME, cv,
 					DatabaseContract.ShaderColumns._ID + " = ?",
 					new String[]{String.valueOf(id)});
@@ -340,8 +318,6 @@ public class ShaderDao {
 					cursor.getColumnIndex(DatabaseContract.ShaderColumns.FRAGMENT_SHADER);
 			int thumbIndex = cursor.getColumnIndex(DatabaseContract.ShaderColumns.THUMB);
 			int nameIndex = cursor.getColumnIndex(DatabaseContract.ShaderColumns.NAME);
-			int createdIndex = cursor.getColumnIndex(DatabaseContract.ShaderColumns.CREATED);
-			int modifiedIndex = cursor.getColumnIndex(DatabaseContract.ShaderColumns.MODIFIED);
 			int qualityIndex = cursor.getColumnIndex(DatabaseContract.ShaderColumns.QUALITY);
 			boolean success = true;
 			if (cursor.moveToFirst()) {
