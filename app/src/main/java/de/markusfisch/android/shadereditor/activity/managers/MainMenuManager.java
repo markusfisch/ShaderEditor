@@ -43,8 +43,14 @@ public class MainMenuManager {
 		popupWindow.setInputMethodMode(PopupWindow.INPUT_METHOD_NOT_NEEDED);
 
 		// Wire up listeners
-		setClickListener(R.id.undo, editorActions::onUndo);
-		setClickListener(R.id.redo, editorActions::onRedo);
+		setClickListener(R.id.undo, () -> {
+			editorActions.onUndo();
+			updateUndoRedoMenu(popupWindow.getContentView());
+		}, false);
+		setClickListener(R.id.redo, () -> {
+			editorActions.onRedo();
+			updateUndoRedoMenu(popupWindow.getContentView());
+		}, false);
 		setClickListener(R.id.add_shader, shaderActions::onAddShader);
 		setClickListener(R.id.save_shader, shaderActions::onSaveShader);
 		setClickListener(R.id.duplicate_shader, shaderActions::onDuplicateShader);
@@ -72,10 +78,16 @@ public class MainMenuManager {
 		resizeAndShow(anchor);
 	}
 
+	private void updateUndoRedoMenu(@NonNull View menuView) {
+		View undo = menuView.findViewById(R.id.undo);
+		undo.setEnabled(editorActions.canUndo());
+		View redo = menuView.findViewById(R.id.redo);
+		redo.setEnabled(editorActions.canRedo());
+	}
+
 	private void prepareMenu() {
 		View menuView = popupWindow.getContentView();
-		menuView.findViewById(R.id.undo).setEnabled(editorActions.canUndo());
-		menuView.findViewById(R.id.redo).setEnabled(editorActions.canRedo());
+		updateUndoRedoMenu(menuView);
 
 		long selectedShaderId = shaderActions.getSelectedShaderId();
 		((Button) menuView.findViewById(R.id.update_wallpaper)).setText(ShaderEditorApp.preferences.getWallpaperShader() == selectedShaderId ? R.string.update_wallpaper : R.string.set_as_wallpaper);
@@ -109,11 +121,17 @@ public class MainMenuManager {
 				-anchor.getHeight());
 	}
 
-	private void setClickListener(int id, @NonNull Runnable action) {
+	private void setClickListener(int id, @NonNull Runnable action, boolean dismiss) {
 		popupWindow.getContentView().findViewById(id).setOnClickListener(v -> {
 			action.run();
-			popupWindow.dismiss();
+			if (dismiss) {
+				popupWindow.dismiss();
+			}
 		});
+	}
+
+	private void setClickListener(int id, @NonNull Runnable action) {
+		setClickListener(id, action, true);
 	}
 
 	public interface EditorActions {
