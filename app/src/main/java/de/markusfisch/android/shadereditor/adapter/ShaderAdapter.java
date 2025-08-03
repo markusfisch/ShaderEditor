@@ -9,18 +9,20 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.database.DataRecords;
 import de.markusfisch.android.shadereditor.database.DataRecords.ShaderInfo;
 
 public class ShaderAdapter extends BaseAdapter {
 	private final int textColorSelected;
 	private final int textColorUnselected;
-	private List<ShaderInfo> shaders = new ArrayList<>();
+	private final List<ShaderInfo> shaders = new ArrayList<>();
 	private long selectedShaderId = 0;
 
 	public ShaderAdapter(Context context) {
@@ -34,25 +36,13 @@ public class ShaderAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public Object getItem(int position) {
+	public DataRecords.ShaderInfo getItem(int position) {
 		return shaders.get(position);
 	}
 
 	@Override
 	public long getItemId(int position) {
 		return shaders.get(position).id();
-	}
-
-	public String getName(int position) {
-		return shaders.get(position).name();
-	}
-
-	public String getTitle(int position) {
-		ShaderInfo shader = shaders.get(position);
-		String title = shader.name();
-		return title != null && !title.isEmpty()
-				? title
-				: shader.modified();
 	}
 
 	@Override
@@ -89,12 +79,12 @@ public class ShaderAdapter extends BaseAdapter {
 		private final ImageView icon;
 		private final TextView title;
 
-		ViewHolder(View itemView) {
+		ViewHolder(@NonNull View itemView) {
 			icon = itemView.findViewById(R.id.shader_icon);
 			title = itemView.findViewById(R.id.shader_title);
 		}
 
-		void bindTo(final ShaderInfo shader) {
+		void bindTo(@NonNull final ShaderInfo shader) {
 			byte[] bytes = shader.thumb();
 			if (bytes != null && bytes.length > 0) {
 				icon.setImageBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
@@ -102,10 +92,9 @@ public class ShaderAdapter extends BaseAdapter {
 				icon.setImageResource(R.drawable.thumbnail_new_shader);
 			}
 
-			String name = shader.name();
-			title.setText(name != null && !name.isEmpty() ? name : shader.modified());
+			title.setText(shader.getTitle());
 			title.setTextColor(shader.id() == selectedShaderId ? textColorSelected :
-                    textColorUnselected);
+					textColorUnselected);
 		}
 	}
 }

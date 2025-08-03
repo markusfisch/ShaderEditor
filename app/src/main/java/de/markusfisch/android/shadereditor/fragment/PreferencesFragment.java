@@ -181,12 +181,7 @@ public class PreferencesFragment
 		if (shader == null) {
 			return getString(R.string.no_shader_selected);
 		}
-		String summary = shader.name();
-		if (summary == null || summary.isEmpty()) {
-			// Fallback to modification date if name is missing.
-			summary = shader.modified();
-		}
-		return summary;
+		return shader.getTitle();
 	}
 
 	private boolean checkExternalStoragePermission(@NonNull String permission) {

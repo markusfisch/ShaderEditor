@@ -33,6 +33,7 @@ public class DbUtils {
 		return i > -1 ? c.getFloat(i) : 0f;
 	}
 
+	@Nullable
 	public static String getString(@NonNull Cursor c, @NonNull String col) {
 		int i = c.getColumnIndex(col);
 		return i > -1 ? c.getString(i) : "";

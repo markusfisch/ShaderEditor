@@ -1,7 +1,8 @@
 package de.markusfisch.android.shadereditor.activity.managers;
 
 import android.app.Activity;
-import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -13,6 +14,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
@@ -26,25 +29,23 @@ public class ShaderListManager {
 	private final Activity activity;
 	private final DataSource dataSource;
 	private final Listener listener;
-	private final ListView listView;
 	private final ShaderAdapter shaderAdapter;
+
+	// Use an ExecutorService for background tasks and a Handler for the main thread.
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	private final Handler handler = new Handler(Looper.getMainLooper());
 
 	public ShaderListManager(@NonNull Activity activity, @NonNull ListView listView,
 			@NonNull DataSource dataSource, @NonNull Listener listener) {
 		this.activity = activity;
 		this.dataSource = dataSource;
 		this.listener = listener;
-		this.listView = listView;
 
 		listView.setEmptyView(activity.findViewById(R.id.no_shaders));
 		listView.setOnItemClickListener((parent, view, position, id) -> listener.onShaderSelected(id));
 		listView.setOnItemLongClickListener((parent, view, position, id) -> {
-			Object item = parent.getAdapter().getItem(position);
-			if (item instanceof ShaderInfo) {
-				// Use the name from the data record, or an empty string as a fallback.
-				String name = ((ShaderInfo) item).name() != null ? ((ShaderInfo) item).name() : "";
-				editShaderName(id, name);
-			}
+			var title = ((ShaderAdapter) parent.getAdapter()).getItem(position).getTitle();
+			editShaderName(id, title != null ? title : "");
 			return true;
 		});
 
@@ -52,26 +53,38 @@ public class ShaderListManager {
 		listView.setAdapter(shaderAdapter);
 	}
 
+	/**
+	 * Loads shaders from the database asynchronously.
+	 */
 	public void loadShadersAsync() {
-		new LoadShadersTask(this).execute();
-	}
+		// Use a WeakReference to avoid leaking the context if the activity is destroyed.
+		WeakReference<ShaderListManager> managerRef = new WeakReference<>(this);
 
-	public String getShaderTitle(long id) {
-		for (int i = 0; i < shaderAdapter.getCount(); ++i) {
-			if (shaderAdapter.getItemId(i) == id) {
-				Object item = shaderAdapter.getItem(i);
-				if (item instanceof ShaderInfo info) {
-					// Return the shader name, or its modification date as a fallback.
-					return info.name() != null && !info.name().isEmpty()
-							? info.name()
-							: info.modified();
-				}
+		executor.execute(() -> {
+			ShaderListManager manager = managerRef.get();
+			if (manager == null) {
+				return;
 			}
-		}
-		return "";
+
+			// Perform the long-running database query on a background thread.
+			boolean sortByModification = ShaderEditorApp.preferences.sortByLastModification();
+			List<ShaderInfo> shaders = manager.dataSource.shader.getShaders(sortByModification);
+
+			// Post the result back to the main thread.
+			manager.handler.post(() -> {
+				ShaderListManager finalManager = managerRef.get();
+				// Ensure the manager and its activity are still valid.
+				if (finalManager != null && !finalManager.activity.isFinishing()) {
+					List<ShaderInfo> shaderList = shaders != null ? shaders : new ArrayList<>();
+					finalManager.listener.onShadersLoaded(shaderList);
+					finalManager.updateAdapter(shaderList);
+				}
+			});
+		});
 	}
 
 	private void updateAdapter(List<ShaderInfo> shaders) {
+		// The isFinishing() check is already here, making it robust.
 		if (activity.isFinishing()) {
 			return;
 		}
@@ -94,10 +107,6 @@ public class ShaderListManager {
 			noShadersMessage.setVisibility(View.GONE);
 		}
 		shaderAdapter.setData(data);
-	}
-
-	private long getSelectedShaderId() {
-		return ((ShaderManager.Provider) activity).getShaderManager().getSelectedShaderId();
 	}
 
 	public void setSelectedShaderId(long id) {
@@ -134,32 +143,4 @@ public class ShaderListManager {
 		void onShadersLoaded(@NonNull List<ShaderInfo> shaders);
 	}
 
-	private static class LoadShadersTask extends AsyncTask<Void, Void, List<ShaderInfo>> {
-		private final WeakReference<ShaderListManager> managerRef;
-
-		LoadShadersTask(ShaderListManager manager) {
-			this.managerRef = new WeakReference<>(manager);
-		}
-
-		@Override
-		protected List<ShaderInfo> doInBackground(Void... params) {
-			ShaderListManager manager = managerRef.get();
-			if (manager == null) {
-				return null;
-			}
-			// Read preference when the task executes to get the latest setting.
-			boolean sortByModification = ShaderEditorApp.preferences.sortByLastModification();
-			return manager.dataSource.shader.getShaders(sortByModification);
-		}
-
-		@Override
-		protected void onPostExecute(List<ShaderInfo> shaders) {
-			ShaderListManager manager = managerRef.get();
-			if (manager != null) {
-				List<ShaderInfo> shaderList = shaders != null ? shaders : new ArrayList<>();
-				manager.listener.onShadersLoaded(shaderList);
-				manager.updateAdapter(shaderList);
-			}
-		}
-	}
 }

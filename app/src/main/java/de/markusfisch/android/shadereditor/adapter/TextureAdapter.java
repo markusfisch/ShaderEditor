@@ -9,6 +9,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,9 +19,9 @@ import de.markusfisch.android.shadereditor.database.DataRecords.TextureInfo;
 
 public class TextureAdapter extends BaseAdapter {
 	private final String sizeFormat;
-	private List<TextureInfo> textures = new ArrayList<>();
+	private final List<TextureInfo> textures = new ArrayList<>();
 
-	public TextureAdapter(Context context) {
+	public TextureAdapter(@NonNull Context context) {
 		sizeFormat = context.getString(R.string.texture_size_format);
 	}
 
@@ -29,7 +31,7 @@ public class TextureAdapter extends BaseAdapter {
 	}
 
 	@Override
-	public Object getItem(int position) {
+	public TextureInfo getItem(int position) {
 		return textures.get(position);
 	}
 
