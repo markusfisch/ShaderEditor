@@ -41,6 +41,7 @@ public class Preferences {
 	public static final String SHOW_EXTRA_KEYS = "show_extra_keys";
 	public static final String AUTO_HIDE_EXTRA_KEYS = "auto_hide_extra_keys";
 	public static final String HIDE_NATIVE_SUGGESTIONS = "hide_native_suggestions";
+	public static final String LAST_OPENED_SHADER = "last_opened_shader";
 
 	private static final int RUN_AUTO = 1;
 	private static final int RUN_MANUALLY = 2;
@@ -75,6 +76,7 @@ public class Preferences {
 	private boolean powerConnected = false;
 	private int systemBarColor;
 	private long defaultNewShaderId = 0;
+	private long lastOpenedShaderId = 0;
 	private boolean disableHighlighting = false;
 	private boolean autoSave = true;
 	private boolean showLineNumbers = true;
@@ -167,6 +169,10 @@ public class Preferences {
 		hideNativeSuggestions = preferences.getBoolean(
 				HIDE_NATIVE_SUGGESTIONS,
 				hideNativeSuggestions);
+		lastOpenedShaderId = preferences.getLong(
+				LAST_OPENED_SHADER,
+				lastOpenedShaderId
+		);
 	}
 
 	public boolean autoHideExtraKeys() {
@@ -229,6 +235,7 @@ public class Preferences {
 		return textSize;
 	}
 
+	@NonNull
 	public Typeface getFont() {
 		return font;
 	}
@@ -274,6 +281,16 @@ public class Preferences {
 		defaultNewShaderId = id;
 		putString(DEFAULT_NEW_SHADER, String.valueOf(defaultNewShaderId));
 	}
+
+	public long getLastOpenedShader() {
+		return lastOpenedShaderId;
+	}
+
+	public void setLastOpenedShader(long id) {
+		lastOpenedShaderId = id;
+		preferences.edit().putLong(LAST_OPENED_SHADER, id).apply();
+	}
+
 
 	public boolean isBatteryLow() {
 		return batteryLow;
@@ -352,17 +369,13 @@ public class Preferences {
 			return preset;
 		}
 
-		switch (s) {
-			case "Fastest":
-				return SensorManager.SENSOR_DELAY_FASTEST;
-			case "Game":
-				return SensorManager.SENSOR_DELAY_GAME;
-			case "Normal":
-				return SensorManager.SENSOR_DELAY_NORMAL;
-			case "UI":
-				return SensorManager.SENSOR_DELAY_UI;
-		}
+		return switch (s) {
+			case "Fastest" -> SensorManager.SENSOR_DELAY_FASTEST;
+			case "Game" -> SensorManager.SENSOR_DELAY_GAME;
+			case "Normal" -> SensorManager.SENSOR_DELAY_NORMAL;
+			case "UI" -> SensorManager.SENSOR_DELAY_UI;
+			default -> preset;
+		};
 
-		return preset;
 	}
 }

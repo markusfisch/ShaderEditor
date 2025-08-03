@@ -144,6 +144,7 @@ public class ShaderManager {
 			quality = 1f;
 		} else {
 			selectedShaderId = id;
+			ShaderEditorApp.preferences.setLastOpenedShader(id);
 			editorFragment.setText(shader.fragmentShader());
 			uiManager.setToolbarTitle(shader.getTitle());
 			quality = shader.quality();

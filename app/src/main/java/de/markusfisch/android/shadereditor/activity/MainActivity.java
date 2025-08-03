@@ -187,7 +187,29 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onShadersLoaded(@NonNull List<DataRecords.ShaderInfo> shaders) {
 				if (isInitialLoad && !shaders.isEmpty()) {
-					shaderManager.selectShader(shaders.get(0).id());
+					// Try to load the last opened shader.
+					// NOTE: This assumes a method like `getLastOpenedShader()` exists
+					// in your SharedPreferences helper class.
+					long lastOpenedId = ShaderEditorApp.preferences.getLastOpenedShader();
+					long idToLoad = 0;
+
+					// Check if the last opened shader still exists in the list.
+					if (lastOpenedId > 0) {
+						for (DataRecords.ShaderInfo shader : shaders) {
+							if (shader.id() == lastOpenedId) {
+								idToLoad = lastOpenedId;
+								break;
+							}
+						}
+					}
+
+					// If no last-opened shader was found (or it was deleted),
+					// fall back to the first shader in the list.
+					if (idToLoad == 0) {
+						idToLoad = shaders.get(0).id();
+					}
+
+					shaderManager.selectShader(idToLoad);
 				}
 				isInitialLoad = false;
 			}
