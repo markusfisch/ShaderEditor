@@ -457,7 +457,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		if (surfaceProgram == 0 || program == 0) {
 			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT |
 					GLES20.GL_DEPTH_BUFFER_BIT);
-			captureThumbnail();
+			cancelCaptureThumbnail();
 			return;
 		}
 
@@ -674,6 +674,15 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		synchronized (thumbnailLock) {
 			if (captureThumbnail) {
 				thumbnail = saveThumbnail();
+				captureThumbnail = false;
+				thumbnailLock.notifyAll();
+			}
+		}
+	}
+
+	private void cancelCaptureThumbnail() {
+		synchronized (thumbnailLock) {
+			if (captureThumbnail) {
 				captureThumbnail = false;
 				thumbnailLock.notifyAll();
 			}
