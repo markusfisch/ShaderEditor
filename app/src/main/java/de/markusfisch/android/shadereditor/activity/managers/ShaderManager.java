@@ -110,7 +110,7 @@ public class ShaderManager {
 	}
 
 	public boolean isModified() {
-		return isModified || editorFragment.isModified();
+		return isModified;
 	}
 
 	public void setModified(boolean modified) {
