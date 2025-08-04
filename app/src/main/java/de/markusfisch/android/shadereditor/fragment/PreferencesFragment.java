@@ -239,6 +239,14 @@ public class PreferencesFragment
 				// or the newer "application/vnd.sqlite3" but
 				// only "application/octet-stream" works.
 				chooseFile.setType("application/octet-stream");
+				// Some devices don't allow selecting sqlite files with just
+				// "application/octet-stream". Therefore, we also allow
+				// "application/x-sqlite3" and "application/vnd.sqlite3".
+				chooseFile.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{
+						"application/x-sqlite3",
+						"application/vnd.sqlite3",
+						"application/octet-stream"
+				});
 				pickFileLauncher.launch(
 						Intent.createChooser(
 								chooseFile,
