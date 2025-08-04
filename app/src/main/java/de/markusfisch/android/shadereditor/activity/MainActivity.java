@@ -294,7 +294,7 @@ public class MainActivity extends AppCompatActivity {
 
 			@Override
 			public void onSaveShader() {
-				shaderManager.saveShader();
+				shaderManager.saveShader(true);
 			}
 
 			@Override
