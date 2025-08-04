@@ -85,15 +85,11 @@ public class PreferencesFragment
 								Toast.LENGTH_LONG).show();
 					}
 				});
-
-		// TODO: Is this needed given that `onCreatePreferences` does this too?
-		addPreferencesFromResource(R.xml.preferences);
-		wireImportExport();
 	}
 
 	@Override
 	public void onCreatePreferences(Bundle state, String rootKey) {
-		addPreferencesFromResource(R.xml.preferences);
+		setPreferencesFromResource(R.xml.preferences, rootKey);
 		wireImportExport();
 	}
 
