@@ -10,6 +10,7 @@ import android.opengl.GLES20;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import de.markusfisch.android.shadereditor.database.Database;
 
@@ -50,16 +51,9 @@ public class BackBufferParameters extends TextureParameters {
 		preset = null;
 	}
 
+	@Nullable
 	Bitmap getPresetBitmap(@NonNull Context context, int width, int height) {
 		if (preset == null) {
-			return null;
-		}
-
-		long presetId;
-		try {
-			presetId = Long.parseLong(preset);
-		} catch (NumberFormatException e) {
-			Log.e("BackBufferParameters", "Invalid preset ID format", e);
 			return null;
 		}
 
@@ -68,7 +62,7 @@ public class BackBufferParameters extends TextureParameters {
 				.getInstance(context)
 				.getDataSource()
 				.texture
-				.getTextureBitmap(presetId);
+				.getTextureBitmap(preset);
 
 		if (tile == null) {
 			return null;
