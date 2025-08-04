@@ -49,16 +49,6 @@ import de.markusfisch.android.shadereditor.highlighter.Token;
 import de.markusfisch.android.shadereditor.opengl.ShaderError;
 
 public class ShaderEditor extends LineNumberEditText {
-	@FunctionalInterface
-	public interface OnTextChangedListener {
-		void onTextChanged(String text);
-	}
-
-	@FunctionalInterface
-	public interface CodeCompletionListener {
-		void onCodeCompletions(@NonNull List<String> completions, int position);
-	}
-
 	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
 			"[\\t ]+$",
 			Pattern.MULTILINE);
@@ -85,14 +75,33 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	private final Handler updateHandler = new Handler();
+	private final int[] colors = new int[Highlight.values().length];
+	@Nullable
+	private OnTextModifiedListener onTextModifiedListener;
+	@Nullable
+	private OnEditPausedListener onEditPausedListener;
+	@Nullable
+	private CodeCompletionListener codeCompletionListener;
+	private final TokenListUpdater tokenListUpdater =
+			new TokenListUpdater(this::provideCompletions);
+	private int updateDelay = 1000;
+	@NonNull
+	private List<ShaderError> shaderErrors = Collections.emptyList();
+	private boolean isUserInteraction = true;
+	private int colorError;
+	private int textColor;
+	private int tabWidthInCharacters = 0;
+	private int tabWidth = 0;
+	private List<Token> tokens = new ArrayList<>();
+	private int revision = 0;
 	private final Runnable updateRunnable = new Runnable() {
 		@Override
 		public void run() {
 			Editable e = getText();
 
 			if (e != null) {
-				if (onTextChangedListener != null) {
-					onTextChangedListener.onTextChanged(e.toString());
+				if (onEditPausedListener != null) {
+					onEditPausedListener.onEditPaused(e.toString());
 				}
 
 				highlightWithoutChange(e);
@@ -100,25 +109,7 @@ public class ShaderEditor extends LineNumberEditText {
 
 		}
 	};
-	private final int[] colors = new int[Highlight.values().length];
-
-	private OnTextChangedListener onTextChangedListener;
-	@Nullable
-	private CodeCompletionListener codeCompletionListener;
-	private int updateDelay = 1000;
-	@NonNull
-	private List<ShaderError> shaderErrors = Collections.emptyList();
-	private boolean dirty = false;
-	private boolean modified = true;
-	private int colorError;
-	private int textColor;
-	private int tabWidthInCharacters = 0;
-	private int tabWidth = 0;
-	private List<Token> tokens = new ArrayList<>();
-	private int revision = 0;
-	private final TokenListUpdater tokenListUpdater =
-			new TokenListUpdater(this::provideCompletions);
-	private boolean editing = false;
+	private boolean isApplyingEdit = false;
 
 	public ShaderEditor(Context context) {
 		super(context);
@@ -130,11 +121,52 @@ public class ShaderEditor extends LineNumberEditText {
 		init(context);
 	}
 
-	public void setOnTextChangedListener(OnTextChangedListener listener) {
-		onTextChangedListener = listener;
+	private static <T> void clearSpans(Spannable e, int start, int end, Class<T> clazz) {
+		// Remove foreground color spans.
+		T[] spans = e.getSpans(
+				start,
+				end,
+				clazz);
+		for (T span : spans) {
+			e.removeSpan(span);
+		}
 	}
 
-	public void setOnCompletionsListener(@NonNull CodeCompletionListener listener) {
+	private static String convertShaderToySource(String src) {
+		if (!PATTERN_SHADER_TOY.matcher(src).find() ||
+				PATTERN_MAIN.matcher(src).find()) {
+			return null;
+		}
+		// Only include and translate uniforms that have an equivalent.
+		return "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
+				"precision highp float;\n" +
+				"#else\n" +
+				"precision mediump float;\n" +
+				"#endif\n\n" +
+				"uniform vec2 resolution;\n" +
+				"uniform float time;\n" +
+				"uniform vec4 mouse;\n" +
+				"uniform vec4 date;\n\n" +
+				src.replaceAll("iResolution", "resolution")
+						.replaceAll("iGlobalTime", "time")
+						.replaceAll("iMouse", "mouse")
+						.replaceAll("iDate", "date") +
+				"\n\nvoid main() {\n" +
+				"\tvec4 fragment_color;\n" +
+				"\tmainImage(fragment_color, gl_FragCoord.xy);\n" +
+				"\tgl_FragColor = fragment_color;\n" +
+				"}\n";
+	}
+
+	public void setOnEditPausedListener(@Nullable OnEditPausedListener listener) {
+		onEditPausedListener = listener;
+	}
+
+	public void setOnTextModifiedListener(@Nullable OnTextModifiedListener listener) {
+		onTextModifiedListener = listener;
+	}
+
+	public void setOnCompletionsListener(@Nullable CodeCompletionListener listener) {
 		codeCompletionListener = listener;
 	}
 
@@ -155,12 +187,12 @@ public class ShaderEditor extends LineNumberEditText {
 		return !shaderErrors.isEmpty();
 	}
 
-	public void setErrors(@NonNull List<ShaderError> errorLines) {
-		this.shaderErrors = errorLines;
-	}
-
 	public List<ShaderError> getErrors() {
 		return shaderErrors;
+	}
+
+	public void setErrors(@NonNull List<ShaderError> errorLines) {
+		this.shaderErrors = errorLines;
 	}
 
 	public void updateHighlighting() {
@@ -203,10 +235,6 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 	}
 
-	public boolean isModified() {
-		return dirty;
-	}
-
 	public void setTextHighlighted(CharSequence text) {
 		if (text == null) {
 			text = "";
@@ -215,17 +243,22 @@ public class ShaderEditor extends LineNumberEditText {
 		cancelUpdate();
 
 		shaderErrors = Collections.emptyList();
-		dirty = false;
 
-		modified = false;
+		isUserInteraction = false;
 
 		tokenListUpdater.update(text, ++revision); // `setText` can't be overridden
 		setText(highlight(new SpannableStringBuilder(text), true));
-		modified = true;
+		isUserInteraction = true;
 
 		Editable e = getText();
-		if (e != null && onTextChangedListener != null) {
-			onTextChangedListener.onTextChanged(e.toString());
+		if (e != null) {
+			var str = e.toString();
+			if (onTextModifiedListener != null) {
+				onTextModifiedListener.onTextModified();
+			}
+			if (onEditPausedListener != null) {
+				onEditPausedListener.onEditPaused(str);
+			}
 		}
 	}
 
@@ -335,7 +368,7 @@ public class ShaderEditor extends LineNumberEditText {
 		if (start != end) {
 			return;
 		}
-		if (!editing && tokenListUpdater.isDone()) {
+		if (!isApplyingEdit && tokenListUpdater.isDone()) {
 			provideCompletions(tokens, text);
 		}
 	}
@@ -374,7 +407,7 @@ public class ShaderEditor extends LineNumberEditText {
 		setHorizontallyScrolling(true);
 
 		setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
-			if (modified &&
+			if (isUserInteraction &&
 					end - start == 1 &&
 					start < source.length() &&
 					dstart < dest.length()) {
@@ -408,7 +441,7 @@ public class ShaderEditor extends LineNumberEditText {
 					int start,
 					int count,
 					int after) {
-				editing = true;
+				isApplyingEdit = true;
 			}
 
 			@Override
@@ -421,13 +454,16 @@ public class ShaderEditor extends LineNumberEditText {
 					setTextHighlighted(converted);
 				}
 
-				if (!modified) {
-					editing = false;
+				if (!isUserInteraction) {
+					isApplyingEdit = false;
 					return;
 				}
 
-				editing = false;
-				dirty = true;
+				if (onTextModifiedListener != null) {
+					onTextModifiedListener.onTextModified();
+				}
+
+				isApplyingEdit = false;
 				tokenListUpdater.update(e, ++revision);
 				updateHandler.postDelayed(updateRunnable, updateDelay);
 			}
@@ -465,9 +501,9 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	private void highlightWithoutChange(@NonNull Editable e) {
-		modified = false;
+		isUserInteraction = false;
 		highlight(e, false);
-		modified = true;
+		isUserInteraction = true;
 	}
 
 	private Editable highlight(@NonNull Editable e, boolean complete) {
@@ -552,17 +588,6 @@ public class ShaderEditor extends LineNumberEditText {
 		listener.onCodeCompletions(
 				completions,
 				positionInToken);
-	}
-
-	private static <T> void clearSpans(Spannable e, int start, int end, Class<T> clazz) {
-		// Remove foreground color spans.
-		T[] spans = e.getSpans(
-				start,
-				end,
-				clazz);
-		for (T span : spans) {
-			e.removeSpan(span);
-		}
 	}
 
 	private CharSequence autoIndent(
@@ -663,30 +688,24 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 	}
 
-	private static String convertShaderToySource(String src) {
-		if (!PATTERN_SHADER_TOY.matcher(src).find() ||
-				PATTERN_MAIN.matcher(src).find()) {
-			return null;
-		}
-		// Only include and translate uniforms that have an equivalent.
-		return "#ifdef GL_FRAGMENT_PRECISION_HIGH\n" +
-				"precision highp float;\n" +
-				"#else\n" +
-				"precision mediump float;\n" +
-				"#endif\n\n" +
-				"uniform vec2 resolution;\n" +
-				"uniform float time;\n" +
-				"uniform vec4 mouse;\n" +
-				"uniform vec4 date;\n\n" +
-				src.replaceAll("iResolution", "resolution")
-						.replaceAll("iGlobalTime", "time")
-						.replaceAll("iMouse", "mouse")
-						.replaceAll("iDate", "date") +
-				"\n\nvoid main() {\n" +
-				"\tvec4 fragment_color;\n" +
-				"\tmainImage(fragment_color, gl_FragCoord.xy);\n" +
-				"\tgl_FragColor = fragment_color;\n" +
-				"}\n";
+	@FunctionalInterface
+	public interface OnEditPausedListener {
+		void onEditPaused(@NonNull String text);
+	}
+
+	@FunctionalInterface
+	public interface OnTextModifiedListener {
+		void onTextModified();
+	}
+
+	@FunctionalInterface
+	public interface CodeCompletionListener {
+		void onCodeCompletions(@NonNull List<String> completions, int position);
+	}
+
+	@FunctionalInterface
+	interface OnTokenized {
+		void onTokens(@NonNull List<Token> tokens, @NonNull CharSequence text);
 	}
 
 	private static class TabWidthSpan
@@ -732,11 +751,6 @@ public class ShaderEditor extends LineNumberEditText {
 		public void chooseHeight(CharSequence text, int start, int end,
 				int spanstartv, int lineHeight, Paint.FontMetricsInt fm) {
 		}
-	}
-
-	@FunctionalInterface
-	interface OnTokenized {
-		void onTokens(@NonNull List<Token> tokens, @NonNull CharSequence text);
 	}
 
 	static class TokenizeCalculation implements Callable<List<Token>> {

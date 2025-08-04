@@ -96,8 +96,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 		}
 
-		editorFragment.setOnTextChangedListener(text -> {
-			shaderManager.setModified(true);
+		editorFragment.setOnEditPausedListener(text -> {
 			if (ShaderEditorApp.preferences.doesRunOnChange()) {
 				if (editorFragment.hasErrors()) {
 					editorFragment.clearError();
@@ -106,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
 				shaderViewManager.setFragmentShader(text);
 			}
 		});
+		editorFragment.setOnTextModifiedListener(() -> shaderManager.setModified(true));
 		editorFragment.setCodeCompletionListener(extraKeysManager::setCompletions);
 	}
 

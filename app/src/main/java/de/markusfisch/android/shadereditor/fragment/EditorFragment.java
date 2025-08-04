@@ -31,7 +31,9 @@ public class EditorFragment extends Fragment {
 	private UndoRedo undoRedo;
 
 	@Nullable
-	private ShaderEditor.OnTextChangedListener textChangedListener;
+	private ShaderEditor.OnEditPausedListener editPausedListener;
+	@Nullable
+	private ShaderEditor.OnTextModifiedListener textModifiedListener;
 	@Nullable
 	private ShaderEditor.CodeCompletionListener codeCompletionListener;
 
@@ -41,9 +43,14 @@ public class EditorFragment extends Fragment {
 
 		editorContainer = view.findViewById(R.id.editor_container);
 		shaderEditor = view.findViewById(R.id.editor);
-		shaderEditor.setOnTextChangedListener((text) -> {
-			if (textChangedListener != null) {
-				textChangedListener.onTextChanged(text);
+		shaderEditor.setOnEditPausedListener((text) -> {
+			if (editPausedListener != null) {
+				editPausedListener.onEditPaused(text);
+			}
+		});
+		shaderEditor.setOnTextModifiedListener(() -> {
+			if (textModifiedListener != null) {
+				textModifiedListener.onTextModified();
 			}
 		});
 		shaderEditor.setOnCompletionsListener((completions, position) -> {
@@ -57,8 +64,12 @@ public class EditorFragment extends Fragment {
 		return view;
 	}
 
-	public void setOnTextChangedListener(@Nullable ShaderEditor.OnTextChangedListener listener) {
-		textChangedListener = listener;
+	public void setOnTextModifiedListener(@Nullable ShaderEditor.OnTextModifiedListener listener) {
+		textModifiedListener = listener;
+	}
+
+	public void setOnEditPausedListener(@Nullable ShaderEditor.OnEditPausedListener listener) {
+		editPausedListener = listener;
 	}
 
 	public void setCodeCompletionListener(@Nullable ShaderEditor.CodeCompletionListener listener) {
@@ -127,9 +138,6 @@ public class EditorFragment extends Fragment {
 		shaderEditor.navigateToLine(lineNumber);
 	}
 
-	public boolean isModified() {
-		return shaderEditor.isModified();
-	}
 
 	public String getText() {
 		return shaderEditor.getCleanText();
