@@ -1098,8 +1098,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				int destIdx = (THUMBNAIL_HEIGHT - y - 1) * THUMBNAIL_WIDTH + x;
 				int pixel = rgba[srcIdx]; // AABBGGRR from OpenGL
 				// Swap R and B to get AARRGGBB for Android Bitmap
-				argb[destIdx] = (pixel & 0xff00ff00)
+				// Additionally, set alpha to 100%.
+				argb[destIdx] = 0xff000000
 						| ((pixel << 16) & 0x00ff0000)
+						| (pixel & 0x0000ff00)
 						| ((pixel >> 16) & 0x000000ff);
 			}
 		}
