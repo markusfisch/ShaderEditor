@@ -157,7 +157,11 @@ public class ShaderManager {
 	}
 
 	public void saveShader() {
-		if (!isModified()) {
+		saveShader(false);
+	}
+
+	public void saveShader(boolean force) {
+		if (!force && !isModified()) {
 			return;
 		}
 
