@@ -29,10 +29,6 @@ public class ShaderError {
 		return new ShaderError(0, -1, message);
 	}
 
-	public int getSourceStringNumber() {
-		return sourceStringNumber;
-	}
-
 	public boolean hasLine() {
 		return errorLine > 0;
 	}
