@@ -166,7 +166,9 @@ public class TextureDao {
 	}
 
 	private static float calculateRatio(int width, int height) {
-		if (width == 0) return 0;
+		if (width == 0) {
+			return 0;
+		}
 		return Math.round(((float) height / width) * 100f) / 100f;
 	}
 
@@ -276,9 +278,6 @@ public class TextureDao {
 								" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 								" WHERE " + DatabaseContract.TextureColumns._ID + " = ?",
 						new String[]{String.valueOf(srcId)})) {
-					if (cursor == null) {
-						return false;
-					}
 					boolean success = true;
 					if (moveToFirstAndCatchOutOfMemory(cursor)) {
 						long textureId = TextureDao.insertTexture(dst,

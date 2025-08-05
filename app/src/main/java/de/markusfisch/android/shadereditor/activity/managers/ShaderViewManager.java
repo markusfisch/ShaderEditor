@@ -107,7 +107,9 @@ public class ShaderViewManager {
 			public void onItemSelected(AdapterView<?> parent, View view,
 					int position, long id) {
 				float q = qualityValues[position];
-				if (q == quality) return;
+				if (q == quality) {
+					return;
+				}
 				quality = q;
 				listener.onQualityChanged(quality);
 				// Refresh renderer with new quality

@@ -110,9 +110,12 @@ public final class CharIterator {
 		char ch = CharIterator.INVALID;
 		do {
 			position = next(position);
-			if (position < length)
+			if (position < length) {
 				ch = source.charAt(position);
-			if (ch != '\\') break;
+			}
+			if (ch != '\\') {
+				break;
+			}
 			positionBeforeNewline = position;
 			position = nextNewline(position, source);
 		} while (hasMoved(positionBeforeNewline, position));
@@ -131,9 +134,12 @@ public final class CharIterator {
 		char ch = CharIterator.INVALID;
 		do {
 			position = next(position);
-			if (position < length)
+			if (position < length) {
 				ch = source.charAt(position);
-			if (ch != '\\') break;
+			}
+			if (ch != '\\') {
+				break;
+			}
 			positionBeforeNewline = position;
 			position = nextNewline(position, source);
 		} while (hasMoved(positionBeforeNewline, position));

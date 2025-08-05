@@ -300,14 +300,20 @@ public class MainActivity extends AppCompatActivity {
 
 			@Override
 			public void onDuplicateShader() {
-				if (editorFragment == null || shaderManager.getSelectedShaderId() < 1) return;
-				if (shaderManager.isModified()) shaderManager.saveShader();
+				if (editorFragment == null || shaderManager.getSelectedShaderId() < 1) {
+					return;
+				}
+				if (shaderManager.isModified()) {
+					shaderManager.saveShader();
+				}
 				duplicateShader(shaderManager.getSelectedShaderId());
 			}
 
 			@Override
 			public void onDeleteShader() {
-				if (shaderManager.getSelectedShaderId() < 1) return;
+				if (shaderManager.getSelectedShaderId() < 1) {
+					return;
+				}
 				new MaterialAlertDialogBuilder(MainActivity.this)
 						.setMessage(R.string.sure_remove_shader)
 						.setPositiveButton(android.R.string.ok, (dialog, which) -> {
@@ -379,8 +385,12 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void updateWallpaper() {
-		if (shaderManager.getSelectedShaderId() < 1) return;
-		if (shaderManager.isModified()) shaderManager.saveShader();
+		if (shaderManager.getSelectedShaderId() < 1) {
+			return;
+		}
+		if (shaderManager.isModified()) {
+			shaderManager.saveShader();
+		}
 
 		ShaderEditorApp.preferences.setWallpaperShader(0); // Force change
 		ShaderEditorApp.preferences.setWallpaperShader(shaderManager.getSelectedShaderId());

@@ -70,12 +70,18 @@ public class Lexer implements Iterable<Token> {
 
 		@Override
 		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
+			if (this == o) {
+				return true;
+			}
+			if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
 
 			Identifier that = (Identifier) o;
 
-			if (length != that.length) return false;
+			if (length != that.length) {
+				return false;
+			}
 			int end = start + length;
 			int thatEnd = that.start + that.length;
 			for (
@@ -557,7 +563,9 @@ public class Lexer implements Iterable<Token> {
 		}
 		// Read integer part
 		while (Character.isDigit(getCurrentChar())) {
-			if (getCurrentChar() > '7') incorrectOctal = true;
+			if (getCurrentChar() > '7') {
+				incorrectOctal = true;
+			}
 			readNext();
 		}
 
@@ -580,14 +588,18 @@ public class Lexer implements Iterable<Token> {
 			if (getCurrentChar() == '+' || getCurrentChar() == '-') {
 				readNext();
 			}
-			if (!Character.isDigit(getCurrentChar())) return TokenType.INVALID;
+			if (!Character.isDigit(getCurrentChar())) {
+				return TokenType.INVALID;
+			}
 			// Read exponent part
 			do {
 				readNext();
 			} while ((Character.isDigit(getCurrentChar())));
 		}
 		if (type == TokenType.FLOATCONSTANT) {
-			if (getCurrentChar() == 'f' || getCurrentChar() == 'F') readNext();
+			if (getCurrentChar() == 'f' || getCurrentChar() == 'F') {
+				readNext();
+			}
 			return TokenType.FLOATCONSTANT;
 		}
 		// Check for unsigned suffix

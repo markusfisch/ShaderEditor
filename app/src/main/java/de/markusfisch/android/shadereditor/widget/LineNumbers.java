@@ -40,7 +40,9 @@ public class LineNumbers extends AppCompatTextView implements TextWatcher {
 	}
 
 	public void setSource(@NonNull TextView source) {
-		if (this.source != null) source.removeTextChangedListener(this);
+		if (this.source != null) {
+			source.removeTextChangedListener(this);
+		}
 		this.source = source;
 		setTypeface(source.getTypeface());
 		source.addTextChangedListener(this);

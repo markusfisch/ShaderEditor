@@ -34,8 +34,9 @@ public final class TrieNode {
 			if (currentNode.children == null) {
 				currentNode.children = new TrieNode[Byte.MAX_VALUE];
 			}
-			if (currentNode.children[childIndex] == null)
+			if (currentNode.children[childIndex] == null) {
 				currentNode.children[childIndex] = new TrieNode();
+			}
 			currentNode = currentNode.children[childIndex];
 		}
 		currentNode.value = value;
@@ -64,8 +65,10 @@ public final class TrieNode {
 				i = keyPosition - keyStart, ch = CharIterator.ch(keyPosition, keySource)
 		) {
 			int index = charToIndex(ch);
-
-			if (currentNode.children == null || currentNode.children[index] == null) return 0;
+			if (currentNode.children == null ||
+					currentNode.children[index] == null) {
+				return 0;
+			}
 			currentNode = currentNode.children[index];
 			keyPosition = CharIterator.nextC(keyPosition, keySource);
 		}

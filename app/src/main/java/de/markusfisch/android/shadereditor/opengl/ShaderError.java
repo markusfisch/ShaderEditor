@@ -79,11 +79,17 @@ public class ShaderError {
 
 	@Override
 	public final boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof ShaderError)) return false;
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof ShaderError)) {
+			return false;
+		}
 
 		ShaderError that = (ShaderError) o;
-		return sourceStringNumber == that.sourceStringNumber && errorLine == that.errorLine && message.equals(that.message);
+		return sourceStringNumber == that.sourceStringNumber &&
+				errorLine == that.errorLine &&
+				message.equals(that.message);
 	}
 
 	@Override

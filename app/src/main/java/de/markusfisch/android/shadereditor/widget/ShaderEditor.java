@@ -203,7 +203,9 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	private void clearError(@Nullable Spannable e) {
-		if (e == null) return;
+		if (e == null) {
+			return;
+		}
 		clearSpans(e, 0, e.length(), BackgroundColorSpan.class);
 	}
 

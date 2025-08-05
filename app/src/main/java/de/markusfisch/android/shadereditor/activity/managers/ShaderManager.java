@@ -210,15 +210,23 @@ public class ShaderManager {
 	}
 
 	public void handleSendText(@Nullable Intent intent) {
-		if (intent == null || intent.getAction() == null) return;
-		if (!Intent.ACTION_SEND.equals(intent.getAction()) && !Intent.ACTION_VIEW.equals(intent.getAction()))
+		if (intent == null || intent.getAction() == null) {
 			return;
+		}
+		if (!Intent.ACTION_SEND.equals(intent.getAction()) &&
+				!Intent.ACTION_VIEW.equals(intent.getAction())) {
+			return;
+		}
 
 		Uri uri = intent.getData();
-		if (uri == null) return;
+		if (uri == null) {
+			return;
+		}
 
 		try (InputStream in = activity.getContentResolver().openInputStream(uri)) {
-			if (in == null) return;
+			if (in == null) {
+				return;
+			}
 			byte[] buffer = new byte[4096];
 			int len;
 			var sb = new StringBuilder();
@@ -239,7 +247,9 @@ public class ShaderManager {
 
 	public long duplicateShader(long shaderId) {
 		var shader = dataSource.shader.getShader(shaderId);
-		if (shader == null) return NO_SHADER;
+		if (shader == null) {
+			return NO_SHADER;
+		}
 		var thumbnail = dataSource.shader.getThumbnail(shaderId);
 		return dataSource.shader.insertShader(
 				shader.fragmentShader(),

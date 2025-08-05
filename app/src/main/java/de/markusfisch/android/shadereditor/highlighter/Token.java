@@ -105,14 +105,24 @@ public class Token {
 
 	@Override
 	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
 		Token token = (Token) o;
 
-		if (end - start != token.end - token.start) return false;
-		if (endOffset - startOffset != token.endOffset - token.startOffset) return false;
-		if (type != token.type) return false;
+		if (end - start != token.end - token.start) {
+			return false;
+		}
+		if (endOffset - startOffset != token.endOffset - token.startOffset) {
+			return false;
+		}
+		if (type != token.type) {
+			return false;
+		}
 		return category == token.category;
 	}
 

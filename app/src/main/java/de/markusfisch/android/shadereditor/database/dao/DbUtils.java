@@ -49,7 +49,9 @@ public class DbUtils {
 	public static String loadRawResource(@NonNull Context context, @RawRes int id) throws IOException {
 		try (var in = context.getResources().openRawResource(id)) {
 			var b = new byte[in.available()];
-			if (in.read(b) > 0) return new String(b, StandardCharsets.UTF_8);
+			if (in.read(b) > 0) {
+				return new String(b, StandardCharsets.UTF_8);
+			}
 			return "";
 		}
 	}
@@ -62,8 +64,11 @@ public class DbUtils {
 	@NonNull
 	@Contract("null -> new")
 	public static byte[] bitmapToPng(Bitmap bitmap) {
-		if (bitmap == null) return new byte[0];
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && bitmap.getColorSpace() != null &&
+		if (bitmap == null) {
+			return new byte[0];
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+				bitmap.getColorSpace() != null &&
 				!bitmap.getColorSpace().equals(ColorSpace.get(ColorSpace.Named.SRGB))) {
 			bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
 		}
