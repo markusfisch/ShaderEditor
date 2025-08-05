@@ -58,8 +58,16 @@ public class ShaderError {
 		if (!matcher.matches()) {
 			return ShaderError.createGeneral(message);
 		}
-		int sourceStringNumber = Integer.parseInt(matcher.group(1));
-		int errorLine = Integer.parseInt(matcher.group(2));
+		String sourceString = matcher.group(1);
+		if (sourceString == null) {
+			return ShaderError.createGeneral(message);
+		}
+		int sourceStringNumber = Integer.parseInt(sourceString);
+		String errorLineString = matcher.group(2);
+		if (errorLineString == null) {
+			return ShaderError.createGeneral(message);
+		}
+		int errorLine = Integer.parseInt(errorLineString);
 		String infoLog = Objects.requireNonNull(matcher.group(3));
 		return new ShaderError(sourceStringNumber, errorLine, infoLog);
 
