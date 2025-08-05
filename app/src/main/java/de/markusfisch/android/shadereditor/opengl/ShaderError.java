@@ -86,11 +86,10 @@ public class ShaderError {
 		if (this == o) {
 			return true;
 		}
-		if (!(o instanceof ShaderError)) {
+		if (!(o instanceof ShaderError that)) {
 			return false;
 		}
 
-		ShaderError that = (ShaderError) o;
 		return sourceStringNumber == that.sourceStringNumber &&
 				errorLine == that.errorLine &&
 				message.equals(that.message);
