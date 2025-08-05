@@ -26,7 +26,7 @@ import de.markusfisch.android.shadereditor.activity.managers.ShaderListManager;
 import de.markusfisch.android.shadereditor.activity.managers.ShaderManager;
 import de.markusfisch.android.shadereditor.activity.managers.ShaderViewManager;
 import de.markusfisch.android.shadereditor.activity.managers.UIManager;
-import de.markusfisch.android.shadereditor.activity.util.NavigationManager;
+import de.markusfisch.android.shadereditor.activity.managers.NavigationManager;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.DataRecords;
 import de.markusfisch.android.shadereditor.database.DataSource;
