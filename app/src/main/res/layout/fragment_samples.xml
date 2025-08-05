@@ -1,4 +1,5 @@
-<ListView xmlns:android="http://schemas.android.com/apk/res/android"
+<ListView
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/samples"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
