@@ -56,10 +56,8 @@ public class MainActivity extends AppCompatActivity {
 		dataSource = Database.getInstance(this).getDataSource();
 		SystemBarMetrics.initSystemBars(this);
 
-		editorFragment = state == null
-				? new EditorFragment()
-				:
-				(EditorFragment) getSupportFragmentManager().findFragmentByTag(EditorFragment.TAG);
+		editorFragment = state == null ? new EditorFragment() : (EditorFragment)
+				getSupportFragmentManager().findFragmentByTag(EditorFragment.TAG);
 
 		if (state == null) {
 			getSupportFragmentManager().beginTransaction()
@@ -78,12 +76,16 @@ public class MainActivity extends AppCompatActivity {
 		shaderManager = new ShaderManager(this, editorFragment, shaderViewManager,
 				shaderListManager, uiManager, dataSource, createShaderViewListener());
 
-		MainMenuManager mainMenuManager = new MainMenuManager(this, createEditorActions(),
-				createShaderActions(extraKeysManager), createNavigationActions());
+		MainMenuManager mainMenuManager = new MainMenuManager(
+				this,
+				createEditorActions(),
+				createShaderActions(extraKeysManager),
+				createNavigationActions());
 
-		uiManager.setupToolbar(mainMenuManager::show, v -> this.runShader(),
-				v -> uiManager.toggleCodeVisibility(), v -> editorFragment.showErrors());
-
+		uiManager.setupToolbar(mainMenuManager::show,
+				v -> this.runShader(),
+				v -> uiManager.toggleCodeVisibility(),
+				v -> editorFragment.showErrors());
 
 		shaderManager.handleSendText(getIntent());
 
@@ -230,8 +232,8 @@ public class MainActivity extends AppCompatActivity {
 			public void onInfoLog(@NonNull List<ShaderError> infoLog) {
 				runOnUiThread(() -> {
 					editorFragment.setErrors(infoLog);
-					findViewById(R.id.show_errors).setVisibility(editorFragment.hasErrors() ?
-							View.VISIBLE : View.GONE);
+					findViewById(R.id.show_errors).setVisibility(
+							editorFragment.hasErrors() ? View.VISIBLE : View.GONE);
 					if (editorFragment.hasErrors()) {
 						Snackbar.make(findViewById(R.id.main_coordinator),
 										infoLog.get(0).toString(), Snackbar.LENGTH_LONG)

@@ -44,9 +44,12 @@ public class ShaderManager {
 	private float quality = 1f;
 	private boolean isModified = false;
 
-	public ShaderManager(@NonNull AppCompatActivity activity, EditorFragment editorFragment,
-			ShaderViewManager shaderViewManager, ShaderListManager shaderListManager,
-			UIManager uiManager, DataSource dataSource,
+	public ShaderManager(@NonNull AppCompatActivity activity,
+			EditorFragment editorFragment,
+			ShaderViewManager shaderViewManager,
+			ShaderListManager shaderListManager,
+			UIManager uiManager,
+			DataSource dataSource,
 			ShaderViewManager.Listener shaderViewManagerListener) {
 		this.activity = activity;
 		this.editorFragment = editorFragment;
@@ -55,21 +58,26 @@ public class ShaderManager {
 		this.uiManager = uiManager;
 		this.dataSource = dataSource;
 
-		addUniformLauncher =
-				activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-					if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-						editorFragment.addUniform(result.getData().getStringExtra(AddUniformActivity.STATEMENT));
+		addUniformLauncher = activity.registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(), result -> {
+					if (result.getResultCode() == Activity.RESULT_OK &&
+							result.getData() != null) {
+						editorFragment.addUniform(
+								result.getData().getStringExtra(
+										AddUniformActivity.STATEMENT));
 					}
 				});
 
-		loadSampleLauncher =
-				activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-					if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+		loadSampleLauncher = activity.registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(), result -> {
+					if (result.getResultCode() == Activity.RESULT_OK &&
+							result.getData() != null) {
 						if (isModified()) {
 							saveShader();
 						}
 						long newId = dataSource.shader.insertShaderFromResource(activity,
-								Objects.requireNonNull(result.getData().getStringExtra(LoadSampleActivity.NAME)),
+								Objects.requireNonNull(result.getData().getStringExtra(
+										LoadSampleActivity.NAME)),
 								result.getData().getIntExtra(LoadSampleActivity.RESOURCE_ID,
 										R.raw.new_shader),
 								result.getData().getIntExtra(LoadSampleActivity.THUMBNAIL_ID,
@@ -81,17 +89,22 @@ public class ShaderManager {
 
 		previewShaderLauncher =
 				activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-					if (result.getResultCode() == Activity.RESULT_OK) {
-						PreviewActivity.RenderStatus status = PreviewActivity.renderStatus;
-						if (status.getFps() > 0) {
-							shaderViewManagerListener.onFramesPerSecond(status.getFps());
-						}
-						if (status.getInfoLog() != null) {
-							shaderViewManagerListener.onInfoLog(status.getInfoLog());
-						}
-						if (getSelectedShaderId() > 0 && status.getThumbnail() != null && ShaderEditorApp.preferences.doesSaveOnRun()) {
-							saveShader();
-						}
+					if (result.getResultCode() != Activity.RESULT_OK) {
+						return;
+					}
+					PreviewActivity.RenderStatus status =
+							PreviewActivity.renderStatus;
+					if (status.getFps() > 0) {
+						shaderViewManagerListener.onFramesPerSecond(
+								status.getFps());
+					}
+					if (status.getInfoLog() != null) {
+						shaderViewManagerListener.onInfoLog(status.getInfoLog());
+					}
+					if (getSelectedShaderId() > 0 &&
+							status.getThumbnail() != null &&
+							ShaderEditorApp.preferences.doesSaveOnRun()) {
+						saveShader();
 					}
 				});
 	}
@@ -115,10 +128,11 @@ public class ShaderManager {
 
 	public void setModified(boolean modified) {
 		this.isModified = modified;
-		// The EditorFragment's modified state is managed internally by its UndoRedo
-		// helper. It cannot and should not be set from the outside. When a shader is
-		// loaded via `selectShader`, `editorFragment.setText()` is called, which
-		// clears the history and resets the modified state.
+		// The EditorFragment's modified state is managed internally by its
+		// UndoRedo helper. It cannot and should not be set from the outside.
+		// When a shader is loaded via `selectShader`,
+		// `editorFragment.setText()` is called, which clears the history
+		// and resets the modified state.
 	}
 
 	public void saveState(@NonNull Bundle outState) {
@@ -126,7 +140,8 @@ public class ShaderManager {
 	}
 
 	public void restoreState(@NonNull Bundle savedInstanceState) {
-		selectedShaderId = savedInstanceState.getLong(SELECTED_SHADER_ID, NO_SHADER);
+		selectedShaderId = savedInstanceState.getLong(
+				SELECTED_SHADER_ID, NO_SHADER);
 	}
 
 	public void selectShader(long id) {
@@ -139,7 +154,8 @@ public class ShaderManager {
 
 		if (shader == null) {
 			selectedShaderId = NO_SHADER;
-			editorFragment.setText(activity.getString(R.string.new_shader_template));
+			editorFragment.setText(activity.getString(
+					R.string.new_shader_template));
 			uiManager.setToolbarTitle(activity.getString(R.string.add_shader));
 			quality = 1f;
 		} else {
@@ -173,15 +189,18 @@ public class ShaderManager {
 		byte[] thumbnail = getThumbnail();
 
 		if (selectedShaderId > 0) {
-			dataSource.shader.updateShader(selectedShaderId, src, thumbnail, quality);
+			dataSource.shader.updateShader(
+					selectedShaderId, src, thumbnail, quality);
 		} else {
-			selectedShaderId = dataSource.shader.insertShader(src, null, thumbnail, quality);
+			selectedShaderId = dataSource.shader.insertShader(
+					src, null, thumbnail, quality);
 			shaderListManager.setSelectedShaderId(selectedShaderId);
 		}
 
 		setModified(false);
 		shaderListManager.loadShadersAsync();
-		Toast.makeText(activity, R.string.shader_saved, Toast.LENGTH_SHORT).show();
+		Toast.makeText(activity, R.string.shader_saved,
+				Toast.LENGTH_SHORT).show();
 	}
 
 	private byte[] getThumbnail() {
@@ -213,7 +232,8 @@ public class ShaderManager {
 			setModified(true);
 		} catch (IOException e) {
 			Log.e("ShaderManager", "Error reading from URI", e);
-			Toast.makeText(activity, R.string.unsuitable_text, Toast.LENGTH_SHORT).show();
+			Toast.makeText(activity, R.string.unsuitable_text,
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 

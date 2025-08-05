@@ -98,7 +98,8 @@ public class ShaderError {
 	@Override
 	public String toString() {
 		if (hasLine()) {
-			return String.format(Locale.getDefault(), "%d: %s", errorLine, message);
+			return String.format(Locale.getDefault(),
+					"%d: %s", errorLine, message);
 		} else {
 			return message;
 		}

@@ -26,17 +26,22 @@ public class MainMenuManager {
 	@NonNull
 	private final Activity activity;
 
-	public MainMenuManager(@NonNull Activity activity, @NonNull EditorActions editorActions,
-			@NonNull ShaderActions shaderActions, @NonNull NavigationActions navigationActions) {
+	public MainMenuManager(@NonNull Activity activity,
+			@NonNull EditorActions editorActions,
+			@NonNull ShaderActions shaderActions,
+			@NonNull NavigationActions navigationActions) {
 		this.activity = activity;
 		this.editorActions = editorActions;
 		this.shaderActions = shaderActions;
 		ViewGroup root = activity.findViewById(android.R.id.content);
-		View view = activity.getLayoutInflater().inflate(R.layout.main_menu, root, false);
+		View view = activity.getLayoutInflater().inflate(
+				R.layout.main_menu, root, false);
 		view.setClipToOutline(true);
 
-		popupWindow = new PopupWindow(view, android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-				android.view.ViewGroup.LayoutParams.WRAP_CONTENT, true);
+		popupWindow = new PopupWindow(view,
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+				android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+				true);
 		popupWindow.setOutsideTouchable(true);
 		popupWindow.setFocusable(true);
 		popupWindow.setElevation(16f);
@@ -62,10 +67,12 @@ public class MainMenuManager {
 		setClickListener(R.id.settings, navigationActions::onShowSettings);
 		setClickListener(R.id.faq, navigationActions::onShowFaq);
 
-		CompoundButton extraKeysToggle = view.findViewById(R.id.show_extra_keys_box);
+		CompoundButton extraKeysToggle = view.findViewById(
+				R.id.show_extra_keys_box);
 		extraKeysToggle.setOnClickListener(v -> {
 			shaderActions.onToggleExtraKeys();
-			updateExtraKeysToggle(extraKeysToggle, ShaderEditorApp.preferences.showExtraKeys());
+			updateExtraKeysToggle(extraKeysToggle,
+					ShaderEditorApp.preferences.showExtraKeys());
 		});
 	}
 
@@ -90,19 +97,24 @@ public class MainMenuManager {
 		updateUndoRedoMenu(menuView);
 
 		long selectedShaderId = shaderActions.getSelectedShaderId();
-		((Button) menuView.findViewById(R.id.update_wallpaper)).setText(ShaderEditorApp.preferences.getWallpaperShader() == selectedShaderId ? R.string.update_wallpaper : R.string.set_as_wallpaper);
+		((Button) menuView.findViewById(R.id.update_wallpaper)).setText(
+				ShaderEditorApp.preferences.getWallpaperShader() == selectedShaderId
+						? R.string.update_wallpaper
+						: R.string.set_as_wallpaper);
 
 		updateExtraKeysToggle(menuView.findViewById(R.id.show_extra_keys_box),
 				ShaderEditorApp.preferences.showExtraKeys());
 	}
 
-	public void updateExtraKeysToggle(@NonNull CompoundButton extraKeysToggle, boolean visible) {
+	public void updateExtraKeysToggle(@NonNull CompoundButton extraKeysToggle,
+			boolean visible) {
 		extraKeysToggle.setChecked(visible);
-		Drawable drawable = ContextCompat.getDrawable(activity, visible ?
-				R.drawable.ic_bottom_panel_close : R.drawable.ic_bottom_panel_open);
+		Drawable drawable = ContextCompat.getDrawable(activity, visible
+				? R.drawable.ic_bottom_panel_close
+				: R.drawable.ic_bottom_panel_open);
 		Drawable[] drawables = extraKeysToggle.getCompoundDrawablesRelative();
-		extraKeysToggle.setCompoundDrawablesRelativeWithIntrinsicBounds(drawable, drawables[1],
-				drawables[2], drawables[3]);
+		extraKeysToggle.setCompoundDrawablesRelativeWithIntrinsicBounds(
+				drawable, drawables[1], drawables[2], drawables[3]);
 	}
 
 	private void resizeAndShow(@NonNull View anchor) {
@@ -110,18 +122,23 @@ public class MainMenuManager {
 		anchor.getWindowVisibleDisplayFrame(screenRect);
 		int screenHeight = screenRect.height();
 
-		DisplayMetrics displayMetrics = activity.getResources().getDisplayMetrics();
+		DisplayMetrics displayMetrics =
+				activity.getResources().getDisplayMetrics();
 		int padding = (int) (100 * displayMetrics.density);
 		int maxHeight = screenHeight - padding;
 
 		View contentView = popupWindow.getContentView();
-		contentView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-		popupWindow.setHeight(Math.min(maxHeight, contentView.getMeasuredHeight()));
-		popupWindow.showAsDropDown(anchor, anchor.getWidth() - contentView.getMeasuredWidth(),
+		contentView.measure(View.MeasureSpec.UNSPECIFIED,
+				View.MeasureSpec.UNSPECIFIED);
+		popupWindow.setHeight(Math.min(maxHeight,
+				contentView.getMeasuredHeight()));
+		popupWindow.showAsDropDown(anchor,
+				anchor.getWidth() - contentView.getMeasuredWidth(),
 				-anchor.getHeight());
 	}
 
-	private void setClickListener(int id, @NonNull Runnable action, boolean dismiss) {
+	private void setClickListener(int id, @NonNull Runnable action,
+			boolean dismiss) {
 		popupWindow.getContentView().findViewById(id).setOnClickListener(v -> {
 			action.run();
 			if (dismiss) {

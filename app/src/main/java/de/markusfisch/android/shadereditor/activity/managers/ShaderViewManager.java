@@ -27,8 +27,10 @@ public class ShaderViewManager {
 	private float[] qualityValues;
 	private float quality = 1f;
 
-	public ShaderViewManager(@NonNull Activity activity, @NonNull ShaderView shaderView,
-			@NonNull Spinner qualitySpinner, @NonNull Listener listener) {
+	public ShaderViewManager(@NonNull Activity activity,
+			@NonNull ShaderView shaderView,
+			@NonNull Spinner qualitySpinner,
+			@NonNull Listener listener) {
 		this.shaderView = shaderView;
 		this.qualitySpinner = qualitySpinner;
 		this.listener = listener;
@@ -93,13 +95,17 @@ public class ShaderViewManager {
 			qualityValues[i] = Float.parseFloat(qualityStringValues[i]);
 		}
 
-		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(activity,
-				R.array.quality_names, android.R.layout.simple_spinner_item);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+				activity,
+				R.array.quality_names,
+				android.R.layout.simple_spinner_item);
+		adapter.setDropDownViewResource(
+				android.R.layout.simple_spinner_dropdown_item);
 		qualitySpinner.setAdapter(adapter);
 		qualitySpinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
 			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+			public void onItemSelected(AdapterView<?> parent, View view,
+					int position, long id) {
 				float q = qualityValues[position];
 				if (q == quality) return;
 				quality = q;

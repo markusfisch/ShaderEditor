@@ -34,19 +34,25 @@ public class ShaderListManager {
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private final Handler handler = new Handler(Looper.getMainLooper());
 
-	public ShaderListManager(@NonNull Activity activity, @NonNull ListView listView,
-			@NonNull DataSource dataSource, @NonNull Listener listener) {
+	public ShaderListManager(@NonNull Activity activity,
+			@NonNull ListView listView,
+			@NonNull DataSource dataSource,
+			@NonNull Listener listener) {
 		this.activity = activity;
 		this.dataSource = dataSource;
 		this.listener = listener;
 
 		listView.setEmptyView(activity.findViewById(R.id.no_shaders));
-		listView.setOnItemClickListener((parent, view, position, id) -> listener.onShaderSelected(id));
-		listView.setOnItemLongClickListener((parent, view, position, id) -> {
-			var title = ((ShaderAdapter) parent.getAdapter()).getItem(position).getTitle();
-			editShaderName(id, title != null ? title : "");
-			return true;
-		});
+		listView.setOnItemClickListener(
+				(parent, view, position, id) ->
+						listener.onShaderSelected(id));
+		listView.setOnItemLongClickListener(
+				(parent, view, position, id) -> {
+					var title = ((ShaderAdapter) parent.getAdapter()).getItem(
+							position).getTitle();
+					editShaderName(id, title != null ? title : "");
+					return true;
+				});
 
 		shaderAdapter = new ShaderAdapter(activity);
 		listView.setAdapter(shaderAdapter);
@@ -56,7 +62,8 @@ public class ShaderListManager {
 	 * Loads shaders from the database asynchronously.
 	 */
 	public void loadShadersAsync() {
-		// Use a WeakReference to avoid leaking the context if the activity is destroyed.
+		// Use a WeakReference to avoid leaking the context if the activity
+		// is destroyed.
 		WeakReference<ShaderListManager> managerRef = new WeakReference<>(this);
 
 		executor.execute(() -> {
@@ -66,15 +73,17 @@ public class ShaderListManager {
 			}
 
 			// Perform the long-running database query on a background thread.
-			boolean sortByModification = ShaderEditorApp.preferences.sortByLastModification();
-			List<ShaderInfo> shaders = manager.dataSource.shader.getShaders(sortByModification);
+			List<ShaderInfo> shaders = manager.dataSource.shader.getShaders(
+					ShaderEditorApp.preferences.sortByLastModification());
 
 			// Post the result back to the main thread.
 			manager.handler.post(() -> {
 				ShaderListManager finalManager = managerRef.get();
 				// Ensure the manager and its activity are still valid.
 				if (finalManager != null && !finalManager.activity.isFinishing()) {
-					List<ShaderInfo> shaderList = shaders != null ? shaders : new ArrayList<>();
+					List<ShaderInfo> shaderList = shaders != null
+							? shaders
+							: new ArrayList<>();
 					finalManager.listener.onShadersLoaded(shaderList);
 					finalManager.updateAdapter(shaderList);
 				}
@@ -115,7 +124,8 @@ public class ShaderListManager {
 	}
 
 	private void editShaderName(final long id, @NonNull String name) {
-		View view = activity.getLayoutInflater().inflate(R.layout.dialog_rename_shader, null);
+		View view = activity.getLayoutInflater().inflate(
+				R.layout.dialog_rename_shader, null);
 		final EditText nameView = view.findViewById(R.id.name);
 		nameView.setText(name);
 
