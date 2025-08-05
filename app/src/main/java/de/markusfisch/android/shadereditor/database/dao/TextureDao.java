@@ -38,8 +38,13 @@ public class TextureDao {
 	@Nullable
 	public DataRecords.TextureInfo getTextureInfo(long id) {
 		var query =
-				"SELECT " + DatabaseContract.TextureColumns._ID + "," + DatabaseContract.TextureColumns.NAME + "," + DatabaseContract.TextureColumns.WIDTH +
-						"," + DatabaseContract.TextureColumns.HEIGHT + "," + DatabaseContract.TextureColumns.THUMB + " FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
+				"SELECT " +
+						DatabaseContract.TextureColumns._ID + "," +
+						DatabaseContract.TextureColumns.NAME + "," +
+						DatabaseContract.TextureColumns.WIDTH + "," +
+						DatabaseContract.TextureColumns.HEIGHT + "," +
+						DatabaseContract.TextureColumns.THUMB +
+						" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 						" WHERE " + DatabaseContract.TextureColumns._ID + " = ?";
 
 		try (var db = dbHelper.getReadableDatabase();
@@ -67,7 +72,8 @@ public class TextureDao {
 	@Nullable
 	public Bitmap getTextureBitmap(long id) {
 		String query =
-				"SELECT " + DatabaseContract.TextureColumns.MATRIX + " FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
+				"SELECT " + DatabaseContract.TextureColumns.MATRIX +
+						" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 						" WHERE " + DatabaseContract.TextureColumns._ID + " = ?";
 		try (var db = dbHelper.getReadableDatabase();
 				var cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
@@ -86,7 +92,8 @@ public class TextureDao {
 	@Nullable
 	public Bitmap getTextureBitmap(@NonNull String name) {
 		String query =
-				"SELECT " + DatabaseContract.TextureColumns.MATRIX + " FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
+				"SELECT " + DatabaseContract.TextureColumns.MATRIX +
+						" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 						" WHERE " + DatabaseContract.TextureColumns.NAME + " = ?";
 		try (var db = dbHelper.getReadableDatabase();
 				var cursor = db.rawQuery(query, new String[]{name})) {
@@ -145,9 +152,15 @@ public class TextureDao {
 		var args = substring != null ? new String[]{"%" + substring + "%"} : null;
 
 		String query =
-				"SELECT " + DatabaseContract.TextureColumns._ID + "," + DatabaseContract.TextureColumns.NAME + "," + DatabaseContract.TextureColumns.WIDTH +
-						"," + DatabaseContract.TextureColumns.HEIGHT + "," + DatabaseContract.TextureColumns.THUMB + " FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
-						" WHERE " + where + " ORDER BY " + DatabaseContract.TextureColumns._ID;
+				"SELECT " +
+						DatabaseContract.TextureColumns._ID + "," +
+						DatabaseContract.TextureColumns.NAME + "," +
+						DatabaseContract.TextureColumns.WIDTH + "," +
+						DatabaseContract.TextureColumns.HEIGHT + "," +
+						DatabaseContract.TextureColumns.THUMB +
+						" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
+						" WHERE " + where +
+						" ORDER BY " + DatabaseContract.TextureColumns._ID;
 
 		try (var db = dbHelper.getReadableDatabase();
 				var cursor = db.rawQuery(query, args)) {
@@ -233,37 +246,47 @@ public class TextureDao {
 			}
 
 			private void addTexturesWidthHeightRatio(@NonNull SQLiteDatabase db) {
-				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME + " ADD " +
-						"COLUMN " + DatabaseContract.TextureColumns.WIDTH + " INTEGER;");
-				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME + " ADD " +
-						"COLUMN " + DatabaseContract.TextureColumns.HEIGHT + " INTEGER;");
-				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME + " ADD " +
-						"COLUMN " + DatabaseContract.TextureColumns.RATIO + " REAL;");
+				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME +
+						" ADD COLUMN " + DatabaseContract.TextureColumns.WIDTH + " INTEGER;");
+				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME +
+						" ADD COLUMN " + DatabaseContract.TextureColumns.HEIGHT + " INTEGER;");
+				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME +
+						" ADD COLUMN" + DatabaseContract.TextureColumns.RATIO + "REAL;");
 
 				try (var cursor =
-						db.rawQuery("SELECT " + DatabaseContract.TextureColumns._ID + "," + DatabaseContract.TextureColumns.MATRIX + " FROM "
-								+ DatabaseContract.TextureColumns.TABLE_NAME, null)) {
-					if (cursor == null || !cursor.moveToFirst()) return;
+						db.rawQuery("SELECT " +
+										DatabaseContract.TextureColumns._ID + "," +
+										DatabaseContract.TextureColumns.MATRIX +
+										" FROM " + DatabaseContract.TextureColumns.TABLE_NAME,
+								null)) {
+					if (!cursor.moveToFirst()) {
+						return;
+					}
 					do {
 						var data = DbUtils.getBlob(cursor,
 								DatabaseContract.TextureColumns.MATRIX);
-						if (data == null) continue;
+						if (data == null) {
+							continue;
+						}
 
 						var bm = BitmapFactory.decodeByteArray(data, 0, data.length);
-						if (bm == null) continue;
+						if (bm == null) {
+							continue;
+						}
 
-						db.execSQL("UPDATE " + DatabaseContract.TextureColumns.TABLE_NAME + " " +
-								"SET" +
-								" " +
-								DatabaseContract.TextureColumns.WIDTH + " = " + bm.getWidth() +
-								"," +
-								" " +
-								DatabaseContract.TextureColumns.HEIGHT + " = " + bm.getHeight() +
-								", " +
-								DatabaseContract.TextureColumns.RATIO + " = " + calculateRatio(bm.getWidth(),
-								bm.getHeight()) +
-								" WHERE " + DatabaseContract.TextureColumns._ID + " = " + DbUtils.getLong(cursor,
-								DatabaseContract.TextureColumns._ID) + ";");
+						db.execSQL("UPDATE " + DatabaseContract.TextureColumns.TABLE_NAME +
+								" SET " +
+								DatabaseContract.TextureColumns.WIDTH + "=" +
+								bm.getWidth() + "," +
+								DatabaseContract.TextureColumns.HEIGHT + "=" +
+								bm.getHeight() + "," +
+								DatabaseContract.TextureColumns.RATIO + "=" +
+								calculateRatio(bm.getWidth(), bm.getHeight()) +
+								" WHERE " +
+								DatabaseContract.TextureColumns._ID + "=" +
+								DbUtils.getLong(cursor, DatabaseContract.TextureColumns._ID) +
+								";");
+
 						bm.recycle();
 					} while (cursor.moveToNext());
 				}
