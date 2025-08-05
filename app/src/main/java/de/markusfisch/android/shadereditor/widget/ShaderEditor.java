@@ -19,7 +19,6 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.LineHeightSpan;
 import android.text.style.ReplacementSpan;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -812,12 +811,10 @@ public class ShaderEditor extends LineNumberEditText {
 
 		public void update(@NonNull CharSequence text, int revision) {
 			if (revision == this.revision) {
-				Log.d("TEST", "Same revision: " + revision);
 				return;
 			} else if (task != null) {
 				task.cancel(false);
 			}
-			Log.d("TEST", "Different revision: " + revision + " != " + this.revision);
 
 			this.revision = revision;
 			task = new FutureTask<>(new TokenizeCalculation(text.toString(), onTokenized));

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -239,7 +238,6 @@ public class ShaderManager {
 			editorFragment.setText(sb.toString());
 			setModified(true);
 		} catch (IOException e) {
-			Log.e("ShaderManager", "Error reading from URI", e);
 			Toast.makeText(activity, R.string.unsuitable_text,
 					Toast.LENGTH_SHORT).show();
 		}
