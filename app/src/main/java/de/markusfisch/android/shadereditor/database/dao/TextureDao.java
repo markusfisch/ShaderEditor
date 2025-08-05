@@ -338,7 +338,7 @@ public class TextureDao {
 								" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 								" WHERE " + DatabaseContract.TextureColumns.NAME + " = ?",
 						new String[]{name})) {
-					return cursor != null && cursor.moveToFirst() && cursor.getCount() > 0;
+					return cursor.moveToFirst() && cursor.getCount() > 0;
 				}
 			}
 
@@ -352,9 +352,6 @@ public class TextureDao {
 								" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 								" ORDER BY " + DatabaseContract.TextureColumns._ID,
 						null)) {
-					if (cursor == null) {
-						return false;
-					}
 					boolean success = true;
 					if (cursor.moveToFirst()) {
 						do {
