@@ -5,7 +5,7 @@ plugins {
 android {
 	namespace = "de.markusfisch.android.shadereditor"
 
-	compileSdk = 34
+	compileSdk = 36
 
 	defaultConfig {
 		minSdk = 21
