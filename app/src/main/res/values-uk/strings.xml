@@ -32,6 +32,7 @@
 	<string name="pick_live_wallpaper_manually">Спершу вам потрібно вибрати цю програму як живі шпалери</string>
 	<string name="menu_btn">Додаткові параметри</string>
 	<string name="show_errors">Показати помилки</string>
+	<string name="shader_saved">Шейдер збережено</string>
 
 	<!-- EditorFragment -->
 	<string name="details">деталі</string>
@@ -158,6 +159,7 @@
 	<string name="daytime">Година, хвилина і секунди</string>
 	<string name="start_random">Випадкове значення від 0,0 до 1,0, ініціалізується під час завантаження</string>
 	<string name="media_volume_level">Рівень гучності медіа від 0,0 до 1,0</string>
+	<string name="microphone_amplitude">Амплітуда вхідного сигналу мікрофона від 0,0 до 1,0</string>
 
 	<!-- UniformSampler2dPageFragment -->
 	<string name="texture_preview">Попередній перегляд текстури</string>

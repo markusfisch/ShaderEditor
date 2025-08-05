@@ -32,6 +32,7 @@
 	<string name="pick_live_wallpaper_manually">Для начала вам требуется выбрать эту программу как живые обои</string>
 	<string name="menu_btn">Больше опций</string>
 	<string name="show_errors">Показать ошибки</string>
+	<string name="shader_saved">Шейдер сохранен</string>
 
 	<!-- EditorFragment -->
 	<string name="details">Детали</string>
