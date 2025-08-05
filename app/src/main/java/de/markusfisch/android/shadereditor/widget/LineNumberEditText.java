@@ -111,12 +111,6 @@ public class LineNumberEditText extends AppCompatEditText {
 					lineNumberPaint);
 			++lineNumber;
 		}
-		canvas.drawLine(
-				editTextPaddingLeft + lineNumberSpacing * .5f,
-				0,
-				editTextPaddingLeft + lineNumberSpacing * .5f,
-				getHeight(),
-				lineNumberPaint);
 	}
 
 	private void measureBigChar() {
