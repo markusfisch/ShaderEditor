@@ -24,7 +24,6 @@ import de.markusfisch.android.shadereditor.database.DatabaseContract;
 import de.markusfisch.android.shadereditor.database.DatabaseTable;
 
 public class TextureDao {
-
 	@NonNull
 	private final SQLiteOpenHelper dbHelper;
 	private final int textureThumbnailSize;

@@ -22,11 +22,11 @@ import java.util.List;
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.activity.managers.ExtraKeysManager;
 import de.markusfisch.android.shadereditor.activity.managers.MainMenuManager;
+import de.markusfisch.android.shadereditor.activity.managers.NavigationManager;
 import de.markusfisch.android.shadereditor.activity.managers.ShaderListManager;
 import de.markusfisch.android.shadereditor.activity.managers.ShaderManager;
 import de.markusfisch.android.shadereditor.activity.managers.ShaderViewManager;
 import de.markusfisch.android.shadereditor.activity.managers.UIManager;
-import de.markusfisch.android.shadereditor.activity.managers.NavigationManager;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.DataRecords;
 import de.markusfisch.android.shadereditor.database.DataSource;
@@ -37,7 +37,6 @@ import de.markusfisch.android.shadereditor.service.ShaderWallpaperService;
 import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 
 public class MainActivity extends AppCompatActivity {
-
 	private static final String CODE_VISIBLE = "code_visible";
 
 	private EditorFragment editorFragment;

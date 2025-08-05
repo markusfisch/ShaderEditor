@@ -26,7 +26,6 @@ public class ExtraKeysManager implements ViewTreeObserver.OnGlobalLayoutListener
 	@NonNull
 	private final CompletionsAdapter completionsAdapter;
 
-
 	public ExtraKeysManager(@NonNull Activity activity, @NonNull View rootView,
 			@NonNull Editor editor) {
 		this.extraKeysView = rootView.findViewById(R.id.extra_keys);
@@ -68,12 +67,13 @@ public class ExtraKeysManager implements ViewTreeObserver.OnGlobalLayoutListener
 	@Override
 	public void onGlobalLayout() {
 		var preferences = ShaderEditorApp.preferences;
-		if (!preferences.autoHideExtraKeys()) return;
+		if (!preferences.autoHideExtraKeys()) {
+			return;
+		}
 		if (!preferences.showExtraKeys()) {
 			extraKeysView.setVisibility(View.GONE);
 			return;
 		}
-
 
 		Rect r = new Rect();
 		extraKeysView.getWindowVisibleDisplayFrame(r);

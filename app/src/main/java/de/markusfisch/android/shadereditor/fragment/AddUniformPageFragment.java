@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment;
 import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
 
 public abstract class AddUniformPageFragment extends Fragment {
-
 	@Override
 	public void onResume() {
 		super.onResume();

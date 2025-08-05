@@ -20,7 +20,6 @@ import de.markusfisch.android.shadereditor.preference.Preferences;
 
 public class ShaderListPreferenceDialogFragment
 		extends MaterialPreferenceDialogFragmentCompat {
-
 	private ShaderAdapter adapter;
 
 	@NonNull

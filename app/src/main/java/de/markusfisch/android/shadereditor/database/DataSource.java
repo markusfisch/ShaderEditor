@@ -13,7 +13,6 @@ import de.markusfisch.android.shadereditor.database.dao.ShaderDao;
 import de.markusfisch.android.shadereditor.database.dao.TextureDao;
 
 public class DataSource {
-
 	public final ShaderDao shader;
 	public final TextureDao texture;
 

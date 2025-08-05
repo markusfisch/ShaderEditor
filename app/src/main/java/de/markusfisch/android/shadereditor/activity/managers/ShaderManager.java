@@ -234,5 +234,4 @@ public class ShaderManager {
 			selectedShaderId = NO_SHADER;
 		}
 	}
-
 }

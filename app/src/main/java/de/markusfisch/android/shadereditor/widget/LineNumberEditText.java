@@ -37,8 +37,10 @@ public class LineNumberEditText extends AppCompatEditText {
 		try {
 			showLineNumbers = a.getBoolean(R.styleable.LineNumberEditText_showLineNumbers, true);
 			lineColor = a.getColor(R.styleable.LineNumberEditText_lineNumberColor, 0x88888888);
-			lineNumberSpacing = a.getDimension(R.styleable.LineNumberEditText_lineNumberSpacing, 16);
-			lineNumberPadding = a.getDimension(R.styleable.LineNumberEditText_lineNumberPadding, 8);
+			lineNumberSpacing = a.getDimension(R.styleable.LineNumberEditText_lineNumberSpacing,
+					16);
+			lineNumberPadding = a.getDimension(R.styleable.LineNumberEditText_lineNumberPadding,
+					8);
 		} finally {
 			a.recycle();
 		}
@@ -116,7 +118,8 @@ public class LineNumberEditText extends AppCompatEditText {
 	}
 
 	/**
-	 * Taken from <a href="https://www.baeldung.com/java-number-of-digits-in-int#5-divide-and-conquer">Baeldung (Number of Digits in an Integer in Java)</a>
+	 * Taken from
+	 * <a href="https://www.baeldung.com/java-number-of-digits-in-int#5-divide-and-conquer">Baeldung (Number of Digits in an Integer in Java)</a>
 	 *
 	 * @param number the number of which you want to get the number of digits.
 	 * @return the number of decimal digits of the given {@code number}

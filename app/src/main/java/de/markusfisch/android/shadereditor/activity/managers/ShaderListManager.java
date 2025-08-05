@@ -25,7 +25,6 @@ import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 
 public class ShaderListManager {
-
 	private final Activity activity;
 	private final DataSource dataSource;
 	private final Listener listener;
@@ -142,5 +141,4 @@ public class ShaderListManager {
 
 		void onShadersLoaded(@NonNull List<ShaderInfo> shaders);
 	}
-
 }

@@ -16,7 +16,6 @@ import java.util.List;
 
 import de.markusfisch.android.shadereditor.R;
 
-
 /**
  * Manages the SQLiteOpenHelper lifecycle and provides a single access point
  * to the database via the DataSource. This class is a singleton.
