@@ -1,4 +1,4 @@
-package de.markusfisch.android.shadereditor.activity.util;
+package de.markusfisch.android.shadereditor.activity.managers;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
