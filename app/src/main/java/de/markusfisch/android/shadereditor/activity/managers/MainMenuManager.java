@@ -17,6 +17,44 @@ import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public class MainMenuManager {
+	public interface EditorActions {
+		void onUndo();
+
+		void onRedo();
+
+		boolean canUndo();
+
+		boolean canRedo();
+	}
+
+	public interface ShaderActions {
+		void onAddShader();
+
+		void onSaveShader();
+
+		void onDuplicateShader();
+
+		void onDeleteShader();
+
+		void onShareShader();
+
+		void onUpdateWallpaper();
+
+		void onToggleExtraKeys();
+
+		long getSelectedShaderId();
+	}
+
+	public interface NavigationActions {
+		void onAddUniform();
+
+		void onLoadSample();
+
+		void onShowSettings();
+
+		void onShowFaq();
+	}
+
 	@NonNull
 	private final PopupWindow popupWindow;
 	@NonNull
@@ -149,43 +187,5 @@ public class MainMenuManager {
 
 	private void setClickListener(int id, @NonNull Runnable action) {
 		setClickListener(id, action, true);
-	}
-
-	public interface EditorActions {
-		void onUndo();
-
-		void onRedo();
-
-		boolean canUndo();
-
-		boolean canRedo();
-	}
-
-	public interface ShaderActions {
-		void onAddShader();
-
-		void onSaveShader();
-
-		void onDuplicateShader();
-
-		void onDeleteShader();
-
-		void onShareShader();
-
-		void onUpdateWallpaper();
-
-		void onToggleExtraKeys();
-
-		long getSelectedShaderId();
-	}
-
-	public interface NavigationActions {
-		void onAddUniform();
-
-		void onLoadSample();
-
-		void onShowSettings();
-
-		void onShowFaq();
 	}
 }

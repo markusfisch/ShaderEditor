@@ -25,6 +25,16 @@ import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 
 public class ShaderListManager {
+	public interface Listener {
+		void onShaderSelected(long id);
+
+		void onShaderRenamed(long id, @NonNull String name);
+
+		void onAllShadersDeleted();
+
+		void onShadersLoaded(@NonNull List<ShaderInfo> shaders);
+	}
+
 	private final Activity activity;
 	private final DataSource dataSource;
 	private final Listener listener;
@@ -140,15 +150,5 @@ public class ShaderListManager {
 				})
 				.setNegativeButton(android.R.string.cancel, null)
 				.show();
-	}
-
-	public interface Listener {
-		void onShaderSelected(long id);
-
-		void onShaderRenamed(long id, @NonNull String name);
-
-		void onAllShadersDeleted();
-
-		void onShadersLoaded(@NonNull List<ShaderInfo> shaders);
 	}
 }

@@ -19,6 +19,10 @@ import de.markusfisch.android.shadereditor.adapter.CompletionsAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public class ExtraKeysManager implements ViewTreeObserver.OnGlobalLayoutListener {
+	public interface Editor {
+		void insert(@NonNull CharSequence text);
+	}
+
 	@NonNull
 	private final View extraKeysView;
 	@NonNull
@@ -91,9 +95,5 @@ public class ExtraKeysManager implements ViewTreeObserver.OnGlobalLayoutListener
 
 	private static int getVisibility(boolean isVisible) {
 		return isVisible ? View.VISIBLE : View.GONE;
-	}
-
-	public interface Editor {
-		void insert(@NonNull CharSequence text);
 	}
 }

@@ -13,13 +13,14 @@ import de.markusfisch.android.shadereditor.fragment.EditorFragment;
 import de.markusfisch.android.shadereditor.widget.TouchThruDrawerLayout;
 
 public class UIManager {
-	public final ActionBarDrawerToggle drawerToggle;
 	private final AppCompatActivity activity;
 	private final EditorFragment editorFragment;
 	private final ExtraKeysManager extraKeysManager;
 	private final ShaderViewManager shaderViewManager;
 	private final Toolbar toolbar;
 	private final TouchThruDrawerLayout drawerLayout;
+
+	public final ActionBarDrawerToggle drawerToggle;
 
 	public UIManager(@NonNull AppCompatActivity activity,
 			@NonNull EditorFragment editorFragment,

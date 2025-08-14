@@ -17,6 +17,14 @@ import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 
 public class ShaderViewManager {
+	public interface Listener {
+		void onFramesPerSecond(int fps);
+
+		void onInfoLog(@NonNull List<ShaderError> infoLog);
+
+		void onQualityChanged(float quality);
+	}
+
 	@NonNull
 	private final ShaderView shaderView;
 	@NonNull
@@ -122,13 +130,5 @@ public class ShaderViewManager {
 			public void onNothingSelected(AdapterView<?> parent) {
 			}
 		});
-	}
-
-	public interface Listener {
-		void onFramesPerSecond(int fps);
-
-		void onInfoLog(@NonNull List<ShaderError> infoLog);
-
-		void onQualityChanged(float quality);
 	}
 }

@@ -25,12 +25,12 @@ import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
 
 public class ShaderManager {
-	private static final String SELECTED_SHADER_ID = "selected_shader_id";
-	private static final long NO_SHADER = 0;
-
 	public final ActivityResultLauncher<Intent> addUniformLauncher;
 	public final ActivityResultLauncher<Intent> loadSampleLauncher;
 	public final ActivityResultLauncher<Intent> previewShaderLauncher;
+
+	private static final String SELECTED_SHADER_ID = "selected_shader_id";
+	private static final long NO_SHADER = 0;
 
 	private final AppCompatActivity activity;
 	private final EditorFragment editorFragment;
