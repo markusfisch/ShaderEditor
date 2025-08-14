@@ -22,6 +22,7 @@ import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.database.DataRecords;
 import de.markusfisch.android.shadereditor.database.DatabaseContract;
 import de.markusfisch.android.shadereditor.database.DatabaseTable;
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 
 public class TextureDao {
 	@NonNull
@@ -51,11 +52,11 @@ public class TextureDao {
 				var cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
 			if (cursor.moveToFirst()) {
 				return new DataRecords.TextureInfo(
-						DbUtils.getLong(cursor, DatabaseContract.TextureColumns._ID),
-						DbUtils.getString(cursor, DatabaseContract.TextureColumns.NAME),
-						DbUtils.getInt(cursor, DatabaseContract.TextureColumns.WIDTH),
-						DbUtils.getInt(cursor, DatabaseContract.TextureColumns.HEIGHT),
-						DbUtils.getBlob(cursor, DatabaseContract.TextureColumns.THUMB));
+						CursorHelpers.getLong(cursor, DatabaseContract.TextureColumns._ID),
+						CursorHelpers.getString(cursor, DatabaseContract.TextureColumns.NAME),
+						CursorHelpers.getInt(cursor, DatabaseContract.TextureColumns.WIDTH),
+						CursorHelpers.getInt(cursor, DatabaseContract.TextureColumns.HEIGHT),
+						CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.THUMB));
 			}
 		}
 		return null;
@@ -78,7 +79,7 @@ public class TextureDao {
 		try (var db = dbHelper.getReadableDatabase();
 				var cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
 			if (cursor.moveToFirst()) {
-				var data = DbUtils.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
+				var data = CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
 				if (data != null) {
 					return BitmapFactory.decodeByteArray(data, 0, data.length);
 				}
@@ -98,7 +99,7 @@ public class TextureDao {
 		try (var db = dbHelper.getReadableDatabase();
 				var cursor = db.rawQuery(query, new String[]{name})) {
 			if (cursor.moveToFirst()) {
-				var data = DbUtils.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
+				var data = CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
 				if (data != null) {
 					return BitmapFactory.decodeByteArray(data, 0, data.length);
 				}
@@ -133,8 +134,8 @@ public class TextureDao {
 			int w = bitmap.getWidth();
 			int h = bitmap.getHeight();
 			return insertTexture(db, name, w, h, calculateRatio(w, h),
-					DbUtils.bitmapToPng(thumbnail),
-					DbUtils.bitmapToPng(bitmap));
+					BitmapEditor.encodeAsPng(thumbnail),
+					BitmapEditor.encodeAsPng(bitmap));
 		} catch (IllegalArgumentException e) {
 			return 0;
 		}
@@ -167,11 +168,11 @@ public class TextureDao {
 			if (cursor.moveToFirst()) {
 				do {
 					textures.add(new DataRecords.TextureInfo(
-							DbUtils.getLong(cursor, DatabaseContract.TextureColumns._ID),
-							DbUtils.getString(cursor, DatabaseContract.TextureColumns.NAME),
-							DbUtils.getInt(cursor, DatabaseContract.TextureColumns.WIDTH),
-							DbUtils.getInt(cursor, DatabaseContract.TextureColumns.HEIGHT),
-							DbUtils.getBlob(cursor, DatabaseContract.TextureColumns.THUMB)));
+							CursorHelpers.getLong(cursor, DatabaseContract.TextureColumns._ID),
+							CursorHelpers.getString(cursor, DatabaseContract.TextureColumns.NAME),
+							CursorHelpers.getInt(cursor, DatabaseContract.TextureColumns.WIDTH),
+							CursorHelpers.getInt(cursor, DatabaseContract.TextureColumns.HEIGHT),
+							CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.THUMB)));
 				} while (cursor.moveToNext());
 			}
 		}
@@ -263,7 +264,7 @@ public class TextureDao {
 						return;
 					}
 					do {
-						var data = DbUtils.getBlob(cursor,
+						var data = CursorHelpers.getBlob(cursor,
 								DatabaseContract.TextureColumns.MATRIX);
 						if (data == null) {
 							continue;
@@ -284,7 +285,7 @@ public class TextureDao {
 								calculateRatio(bm.getWidth(), bm.getHeight()) +
 								" WHERE " +
 								DatabaseContract.TextureColumns._ID + "=" +
-								DbUtils.getLong(cursor, DatabaseContract.TextureColumns._ID) +
+								CursorHelpers.getLong(cursor, DatabaseContract.TextureColumns._ID) +
 								";");
 
 						bm.recycle();
@@ -304,17 +305,17 @@ public class TextureDao {
 					boolean success = true;
 					if (moveToFirstAndCatchOutOfMemory(cursor)) {
 						long textureId = TextureDao.insertTexture(dst,
-								DbUtils.getString(cursor,
+								CursorHelpers.getString(cursor,
 										DatabaseContract.TextureColumns.NAME),
-								DbUtils.getInt(cursor,
+								CursorHelpers.getInt(cursor,
 										DatabaseContract.TextureColumns.WIDTH),
-								DbUtils.getInt(cursor,
+								CursorHelpers.getInt(cursor,
 										DatabaseContract.TextureColumns.HEIGHT),
-								DbUtils.getFloat(cursor,
+								CursorHelpers.getFloat(cursor,
 										DatabaseContract.TextureColumns.RATIO),
-								Objects.requireNonNull(DbUtils.getBlob(cursor,
+								Objects.requireNonNull(CursorHelpers.getBlob(cursor,
 										DatabaseContract.TextureColumns.THUMB)),
-								Objects.requireNonNull(DbUtils.getBlob(cursor,
+								Objects.requireNonNull(CursorHelpers.getBlob(cursor,
 										DatabaseContract.TextureColumns.MATRIX)));
 						if (textureId < 1) {
 							success = false;
@@ -355,12 +356,12 @@ public class TextureDao {
 					boolean success = true;
 					if (cursor.moveToFirst()) {
 						do {
-							String name = DbUtils.getString(cursor,
+							String name = CursorHelpers.getString(cursor,
 									DatabaseContract.TextureColumns.NAME);
 							if (name == null || textureExists(dst, name)) {
 								continue;
 							}
-							if (!importTexture(dst, src, DbUtils.getLong(cursor,
+							if (!importTexture(dst, src, CursorHelpers.getLong(cursor,
 									DatabaseContract.TextureColumns._ID))) {
 								success = false;
 								break;

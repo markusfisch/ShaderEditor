@@ -23,6 +23,7 @@ import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.database.DataRecords;
 import de.markusfisch.android.shadereditor.database.DatabaseContract;
 import de.markusfisch.android.shadereditor.database.DatabaseTable;
+import de.markusfisch.android.shadereditor.resource.Resources;
 
 public class ShaderDao {
 	@NonNull
@@ -46,11 +47,11 @@ public class ShaderDao {
 				var cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
 			if (cursor.moveToFirst()) {
 				return new DataRecords.Shader(
-						DbUtils.getLong(cursor, DatabaseContract.ShaderColumns._ID),
-						DbUtils.getString(cursor, DatabaseContract.ShaderColumns.FRAGMENT_SHADER),
-						DbUtils.getString(cursor, DatabaseContract.ShaderColumns.NAME),
-						DbUtils.getString(cursor, DatabaseContract.ShaderColumns.MODIFIED),
-						DbUtils.getFloat(cursor, DatabaseContract.ShaderColumns.QUALITY));
+						CursorHelpers.getLong(cursor, DatabaseContract.ShaderColumns._ID),
+						CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.FRAGMENT_SHADER),
+						CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.NAME),
+						CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.MODIFIED),
+						CursorHelpers.getFloat(cursor, DatabaseContract.ShaderColumns.QUALITY));
 			}
 		}
 		return null;
@@ -69,10 +70,10 @@ public class ShaderDao {
 			if (cursor.moveToFirst()) {
 				do {
 					shaders.add(new DataRecords.ShaderInfo(
-							DbUtils.getLong(cursor, DatabaseContract.ShaderColumns._ID),
-							DbUtils.getString(cursor, DatabaseContract.ShaderColumns.NAME),
-							DbUtils.getString(cursor, DatabaseContract.ShaderColumns.MODIFIED),
-							DbUtils.getBlob(cursor, DatabaseContract.ShaderColumns.THUMB)));
+							CursorHelpers.getLong(cursor, DatabaseContract.ShaderColumns._ID),
+							CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.NAME),
+							CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.MODIFIED),
+							CursorHelpers.getBlob(cursor, DatabaseContract.ShaderColumns.THUMB)));
 				} while (cursor.moveToNext());
 			}
 		}
@@ -90,11 +91,11 @@ public class ShaderDao {
 				var cursor = db.rawQuery(query, null)) {
 			if (cursor.moveToFirst()) {
 				return new DataRecords.Shader(
-						DbUtils.getLong(cursor, DatabaseContract.ShaderColumns._ID),
-						DbUtils.getString(cursor, DatabaseContract.ShaderColumns.FRAGMENT_SHADER),
-						DbUtils.getString(cursor, DatabaseContract.ShaderColumns.NAME),
-						DbUtils.getString(cursor, DatabaseContract.ShaderColumns.MODIFIED),
-						DbUtils.getFloat(cursor, DatabaseContract.ShaderColumns.QUALITY));
+						CursorHelpers.getLong(cursor, DatabaseContract.ShaderColumns._ID),
+						CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.FRAGMENT_SHADER),
+						CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.NAME),
+						CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.MODIFIED),
+						CursorHelpers.getFloat(cursor, DatabaseContract.ShaderColumns.QUALITY));
 			}
 		}
 		return null;
@@ -110,7 +111,7 @@ public class ShaderDao {
 						new String[]{String.valueOf(id)},
 						null, null, null)) {
 			if (cursor != null && cursor.moveToFirst()) {
-				return DbUtils.getBlob(cursor, DatabaseContract.ShaderColumns.THUMB);
+				return CursorHelpers.getBlob(cursor, DatabaseContract.ShaderColumns.THUMB);
 			}
 		}
 		return null;
@@ -122,7 +123,7 @@ public class ShaderDao {
 						db.rawQuery("SELECT " + DatabaseContract.ShaderColumns._ID + " FROM " + DatabaseContract.ShaderColumns.TABLE_NAME + " ORDER BY "
 								+ DatabaseContract.ShaderColumns._ID + " LIMIT 1", null)) {
 			if (cursor != null && cursor.moveToFirst()) {
-				return DbUtils.getLong(cursor, DatabaseContract.ShaderColumns._ID);
+				return CursorHelpers.getLong(cursor, DatabaseContract.ShaderColumns._ID);
 			}
 		}
 		return 0;
@@ -133,9 +134,9 @@ public class ShaderDao {
 			float quality) {
 		try {
 			return insertShader(
-					DbUtils.loadRawResource(context, sourceId),
+					Resources.loadRawResource(context, sourceId),
 					name,
-					DbUtils.loadBitmapResource(context, thumbId),
+					Resources.loadBitmapResource(context, thumbId),
 					quality);
 		} catch (IOException e) {
 			return 0;
@@ -287,8 +288,8 @@ public class ShaderDao {
 
 			private void insertInitialShaders(SQLiteDatabase db) {
 				try {
-					String defaultShader = DbUtils.loadRawResource(context, R.raw.default_shader);
-					var defaultThumb = DbUtils.loadBitmapResource(context,
+					String defaultShader = Resources.loadRawResource(context, R.raw.default_shader);
+					var defaultThumb = Resources.loadBitmapResource(context,
 							R.drawable.thumbnail_default);
 					insertShader(db,
 							defaultShader,
@@ -322,9 +323,9 @@ public class ShaderDao {
 			boolean success = true;
 			if (cursor.moveToFirst()) {
 				do {
-					String createdDate = DbUtils.getString(cursor,
+					String createdDate = CursorHelpers.getString(cursor,
 							DatabaseContract.ShaderColumns.CREATED);
-					String modifiedDate = DbUtils.getString(cursor,
+					String modifiedDate = CursorHelpers.getString(cursor,
 							DatabaseContract.ShaderColumns.MODIFIED);
 					if (createdDate == null || modifiedDate == null ||
 							shaderExists(dst, createdDate, modifiedDate)) {
