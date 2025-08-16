@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.ViewCompat;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
@@ -46,10 +47,21 @@ public class UIManager {
 			View.OnClickListener runClickListener,
 			View.OnClickListener toggleCodeClickListener,
 			View.OnClickListener showErrorClickListener) {
-		toolbar.findViewById(R.id.menu_btn).setOnClickListener(menuClickListener);
-		toolbar.findViewById(R.id.run_code).setOnClickListener(runClickListener);
-		toolbar.findViewById(R.id.toggle_code).setOnClickListener(toggleCodeClickListener);
-		toolbar.findViewById(R.id.show_errors).setOnClickListener(showErrorClickListener);
+		View menuBtn = toolbar.findViewById(R.id.menu_btn);
+		ViewCompat.setTooltipText(menuBtn, activity.getText(R.string.menu_btn));
+		menuBtn.setOnClickListener(menuClickListener);
+
+		View runCode = toolbar.findViewById(R.id.run_code);
+		ViewCompat.setTooltipText(runCode, activity.getText(R.string.run_code));
+		runCode.setOnClickListener(runClickListener);
+
+		View toggleCode = toolbar.findViewById(R.id.toggle_code);
+		ViewCompat.setTooltipText(toggleCode, activity.getText(R.string.toggle_code));
+		toggleCode.setOnClickListener(toggleCodeClickListener);
+
+		View showErrors = toolbar.findViewById(R.id.show_errors);
+		ViewCompat.setTooltipText(showErrors, activity.getText(R.string.show_errors));
+		showErrors.setOnClickListener(showErrorClickListener);
 	}
 
 	public void updateUiToPreferences() {
