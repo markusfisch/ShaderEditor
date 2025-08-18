@@ -1,6 +1,5 @@
 <resources>
 	<string name="app_name">Редактор шейдерів</string>
-	<string name="cannot_open_database">Неможливо відкрити базу даних!</string>
 
 	<!-- MainActivity -->
 	<string name="drawer_open">Відкрити меню</string>
@@ -28,7 +27,6 @@
 	<string name="enter_name">Введіть назву</string>
 	<string name="wallpaper_set">Шпалери встановлено</string>
 	<string name="cannot_set_wallpaper">Неможливо встановити шпалери</string>
-	<string name="pick_live_wallpaper">Будь ласка, виберіть цю програму як живі шпалери, щоб встановити ці шпалери</string>
 	<string name="pick_live_wallpaper_manually">Спершу вам потрібно вибрати цю програму як живі шпалери</string>
 	<string name="menu_btn">Додаткові параметри</string>
 	<string name="show_errors">Показати помилки</string>
@@ -204,7 +202,6 @@
 	<string name="view_texture">Переглянути текстуру</string>
 	<string name="remove_texture">Видалити текстуру</string>
 	<string name="sure_remove_texture">Ви хочете видалити цю текстуру?</string>
-	<string name="image_too_big">Зображення завелике</string>
 	<string name="removed_invalid_texture">Текстура була занадто великою для обробки</string>
 
 	<!-- TextureParametersFragment -->

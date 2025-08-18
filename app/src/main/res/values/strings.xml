@@ -1,6 +1,5 @@
 <resources>
 	<string name="app_name">Shader Editor</string>
-	<string name="cannot_open_database">Cannot open database!</string>
 
 	<!-- MainActivity -->
 	<string name="drawer_open">Open drawer</string>
@@ -28,7 +27,6 @@
 	<string name="enter_name">Enter a name</string>
 	<string name="wallpaper_set">Wallpaper set</string>
 	<string name="cannot_set_wallpaper">Cannot set a wallpaper</string>
-	<string name="pick_live_wallpaper">Please pick this app as Live Wallpaper to set this wallpaper</string>
 	<string name="pick_live_wallpaper_manually">You need to pick this app as Live Wallpaper first</string>
 	<string name="menu_btn">More options</string>
 	<string name="show_errors">Show errors</string>
@@ -204,7 +202,6 @@
 	<string name="view_texture">View texture</string>
 	<string name="remove_texture">Remove texture</string>
 	<string name="sure_remove_texture">Do you want to remove this texture?</string>
-	<string name="image_too_big">Image too big</string>
 	<string name="removed_invalid_texture">Texture was too big to handle</string>
 
 	<!-- TextureParametersFragment -->

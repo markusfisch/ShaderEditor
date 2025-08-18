@@ -1,6 +1,5 @@
 <resources>
 	<string name="app_name">Редактор Шейдеров</string>
-	<string name="cannot_open_database">Не удалось открыть базу данных!</string>
 
 	<!-- MainActivity -->
 	<string name="drawer_open">Открыть меню</string>
@@ -28,7 +27,6 @@
 	<string name="enter_name">Введите имя</string>
 	<string name="wallpaper_set">Обоя обновлена</string>
 	<string name="cannot_set_wallpaper">Не удалось обновить обою</string>
-	<string name="pick_live_wallpaper">Пожалуйста, выберите эту программу как живые обои, для того чтобы использовать эту обою</string>
 	<string name="pick_live_wallpaper_manually">Для начала вам требуется выбрать эту программу как живые обои</string>
 	<string name="menu_btn">Больше опций</string>
 	<string name="show_errors">Показать ошибки</string>
@@ -204,7 +202,6 @@
 	<string name="view_texture">View texture</string>
 	<string name="remove_texture">Remove texture</string>
 	<string name="sure_remove_texture">Вы уверены, что хотите удалить эту текстуру?</string>
-	<string name="image_too_big">Image too big</string>
 	<string name="removed_invalid_texture">Texture was too big to handle</string>
 
 	<!-- TextureParametersFragment -->
