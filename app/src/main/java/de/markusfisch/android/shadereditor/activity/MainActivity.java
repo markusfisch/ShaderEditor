@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
 		setContentView(R.layout.activity_main);
 
 		dataSource = Database.getInstance(this).getDataSource();
-		SystemBarMetrics.initSystemBars(this);
 
 		editorFragment = state == null ? new EditorFragment() : (EditorFragment)
 				getSupportFragmentManager().findFragmentByTag(EditorFragment.TAG);
