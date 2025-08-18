@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Shader;
 import android.opengl.GLES20;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -86,7 +85,6 @@ public class BackBufferParameters extends TextureParameters {
 					scaledHeight,
 					true);
 		} catch (IllegalArgumentException e) {
-			Log.e("BackBufferParameters", "Failed to scale bitmap", e);
 			background.recycle();
 			return null;
 		}

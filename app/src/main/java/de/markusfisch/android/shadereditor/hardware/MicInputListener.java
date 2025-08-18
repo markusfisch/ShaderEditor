@@ -6,12 +6,10 @@ import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.util.Log;
 
 import androidx.core.content.ContextCompat;
 
 public class MicInputListener extends AbstractListener {
-	private static final String TAG = "MicInputListener";
 	private static final int SAMPLE_RATE = 44100; // Hz
 	private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
 	private static final int AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
@@ -43,7 +41,7 @@ public class MicInputListener extends AbstractListener {
 			try {
 				recordingThread.join();
 			} catch (InterruptedException e) {
-				Log.e(TAG, "Error joining recording thread", e);
+				// Ignore.
 			}
 			recordingThread = null;
 		}
@@ -65,12 +63,10 @@ public class MicInputListener extends AbstractListener {
 
 		if (ContextCompat.checkSelfPermission(this.context, Manifest.permission.RECORD_AUDIO)
 				!= PackageManager.PERMISSION_GRANTED) {
-			Log.e(TAG, "RECORD_AUDIO permission not granted.");
 			return false;
 		}
 
 		if (BUFFER_SIZE == AudioRecord.ERROR_BAD_VALUE || BUFFER_SIZE == AudioRecord.ERROR) {
-			Log.e(TAG, "AudioRecord.getMinBufferSize returned an error.");
 			return false;
 		}
 
@@ -82,7 +78,6 @@ public class MicInputListener extends AbstractListener {
 				BUFFER_SIZE);
 
 		if (audioRecord.getState() != AudioRecord.STATE_INITIALIZED) {
-			Log.e(TAG, "AudioRecord initialization failed.");
 			audioRecord.release();
 			audioRecord = null;
 			return false;

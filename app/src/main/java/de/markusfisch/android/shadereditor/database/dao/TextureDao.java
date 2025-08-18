@@ -22,6 +22,7 @@ import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.database.DataRecords;
 import de.markusfisch.android.shadereditor.database.DatabaseContract;
 import de.markusfisch.android.shadereditor.database.DatabaseTable;
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 
 public class TextureDao {
 	@NonNull
@@ -38,19 +39,24 @@ public class TextureDao {
 	@Nullable
 	public DataRecords.TextureInfo getTextureInfo(long id) {
 		var query =
-				"SELECT " + DatabaseContract.TextureColumns._ID + "," + DatabaseContract.TextureColumns.NAME + "," + DatabaseContract.TextureColumns.WIDTH +
-						"," + DatabaseContract.TextureColumns.HEIGHT + "," + DatabaseContract.TextureColumns.THUMB + " FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
+				"SELECT " +
+						DatabaseContract.TextureColumns._ID + "," +
+						DatabaseContract.TextureColumns.NAME + "," +
+						DatabaseContract.TextureColumns.WIDTH + "," +
+						DatabaseContract.TextureColumns.HEIGHT + "," +
+						DatabaseContract.TextureColumns.THUMB +
+						" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 						" WHERE " + DatabaseContract.TextureColumns._ID + " = ?";
 
 		try (var db = dbHelper.getReadableDatabase();
 				var cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
 			if (cursor.moveToFirst()) {
 				return new DataRecords.TextureInfo(
-						DbUtils.getLong(cursor, DatabaseContract.TextureColumns._ID),
-						DbUtils.getString(cursor, DatabaseContract.TextureColumns.NAME),
-						DbUtils.getInt(cursor, DatabaseContract.TextureColumns.WIDTH),
-						DbUtils.getInt(cursor, DatabaseContract.TextureColumns.HEIGHT),
-						DbUtils.getBlob(cursor, DatabaseContract.TextureColumns.THUMB));
+						CursorHelpers.getLong(cursor, DatabaseContract.TextureColumns._ID),
+						CursorHelpers.getString(cursor, DatabaseContract.TextureColumns.NAME),
+						CursorHelpers.getInt(cursor, DatabaseContract.TextureColumns.WIDTH),
+						CursorHelpers.getInt(cursor, DatabaseContract.TextureColumns.HEIGHT),
+						CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.THUMB));
 			}
 		}
 		return null;
@@ -67,12 +73,13 @@ public class TextureDao {
 	@Nullable
 	public Bitmap getTextureBitmap(long id) {
 		String query =
-				"SELECT " + DatabaseContract.TextureColumns.MATRIX + " FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
+				"SELECT " + DatabaseContract.TextureColumns.MATRIX +
+						" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 						" WHERE " + DatabaseContract.TextureColumns._ID + " = ?";
 		try (var db = dbHelper.getReadableDatabase();
 				var cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
 			if (cursor.moveToFirst()) {
-				var data = DbUtils.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
+				var data = CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
 				if (data != null) {
 					return BitmapFactory.decodeByteArray(data, 0, data.length);
 				}
@@ -86,12 +93,13 @@ public class TextureDao {
 	@Nullable
 	public Bitmap getTextureBitmap(@NonNull String name) {
 		String query =
-				"SELECT " + DatabaseContract.TextureColumns.MATRIX + " FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
+				"SELECT " + DatabaseContract.TextureColumns.MATRIX +
+						" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 						" WHERE " + DatabaseContract.TextureColumns.NAME + " = ?";
 		try (var db = dbHelper.getReadableDatabase();
 				var cursor = db.rawQuery(query, new String[]{name})) {
 			if (cursor.moveToFirst()) {
-				var data = DbUtils.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
+				var data = CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
 				if (data != null) {
 					return BitmapFactory.decodeByteArray(data, 0, data.length);
 				}
@@ -126,8 +134,8 @@ public class TextureDao {
 			int w = bitmap.getWidth();
 			int h = bitmap.getHeight();
 			return insertTexture(db, name, w, h, calculateRatio(w, h),
-					DbUtils.bitmapToPng(thumbnail),
-					DbUtils.bitmapToPng(bitmap));
+					BitmapEditor.encodeAsPng(thumbnail),
+					BitmapEditor.encodeAsPng(bitmap));
 		} catch (IllegalArgumentException e) {
 			return 0;
 		}
@@ -145,20 +153,26 @@ public class TextureDao {
 		var args = substring != null ? new String[]{"%" + substring + "%"} : null;
 
 		String query =
-				"SELECT " + DatabaseContract.TextureColumns._ID + "," + DatabaseContract.TextureColumns.NAME + "," + DatabaseContract.TextureColumns.WIDTH +
-						"," + DatabaseContract.TextureColumns.HEIGHT + "," + DatabaseContract.TextureColumns.THUMB + " FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
-						" WHERE " + where + " ORDER BY " + DatabaseContract.TextureColumns._ID;
+				"SELECT " +
+						DatabaseContract.TextureColumns._ID + "," +
+						DatabaseContract.TextureColumns.NAME + "," +
+						DatabaseContract.TextureColumns.WIDTH + "," +
+						DatabaseContract.TextureColumns.HEIGHT + "," +
+						DatabaseContract.TextureColumns.THUMB +
+						" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
+						" WHERE " + where +
+						" ORDER BY " + DatabaseContract.TextureColumns._ID;
 
 		try (var db = dbHelper.getReadableDatabase();
 				var cursor = db.rawQuery(query, args)) {
 			if (cursor.moveToFirst()) {
 				do {
 					textures.add(new DataRecords.TextureInfo(
-							DbUtils.getLong(cursor, DatabaseContract.TextureColumns._ID),
-							DbUtils.getString(cursor, DatabaseContract.TextureColumns.NAME),
-							DbUtils.getInt(cursor, DatabaseContract.TextureColumns.WIDTH),
-							DbUtils.getInt(cursor, DatabaseContract.TextureColumns.HEIGHT),
-							DbUtils.getBlob(cursor, DatabaseContract.TextureColumns.THUMB)));
+							CursorHelpers.getLong(cursor, DatabaseContract.TextureColumns._ID),
+							CursorHelpers.getString(cursor, DatabaseContract.TextureColumns.NAME),
+							CursorHelpers.getInt(cursor, DatabaseContract.TextureColumns.WIDTH),
+							CursorHelpers.getInt(cursor, DatabaseContract.TextureColumns.HEIGHT),
+							CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.THUMB)));
 				} while (cursor.moveToNext());
 			}
 		}
@@ -166,7 +180,9 @@ public class TextureDao {
 	}
 
 	private static float calculateRatio(int width, int height) {
-		if (width == 0) return 0;
+		if (width == 0) {
+			return 0;
+		}
 		return Math.round(((float) height / width) * 100f) / 100f;
 	}
 
@@ -231,37 +247,47 @@ public class TextureDao {
 			}
 
 			private void addTexturesWidthHeightRatio(@NonNull SQLiteDatabase db) {
-				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME + " ADD " +
-						"COLUMN " + DatabaseContract.TextureColumns.WIDTH + " INTEGER;");
-				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME + " ADD " +
-						"COLUMN " + DatabaseContract.TextureColumns.HEIGHT + " INTEGER;");
-				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME + " ADD " +
-						"COLUMN " + DatabaseContract.TextureColumns.RATIO + " REAL;");
+				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME +
+						" ADD COLUMN " + DatabaseContract.TextureColumns.WIDTH + " INTEGER;");
+				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME +
+						" ADD COLUMN " + DatabaseContract.TextureColumns.HEIGHT + " INTEGER;");
+				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME +
+						" ADD COLUMN" + DatabaseContract.TextureColumns.RATIO + "REAL;");
 
 				try (var cursor =
-						db.rawQuery("SELECT " + DatabaseContract.TextureColumns._ID + "," + DatabaseContract.TextureColumns.MATRIX + " FROM "
-								+ DatabaseContract.TextureColumns.TABLE_NAME, null)) {
-					if (cursor == null || !cursor.moveToFirst()) return;
+						db.rawQuery("SELECT " +
+										DatabaseContract.TextureColumns._ID + "," +
+										DatabaseContract.TextureColumns.MATRIX +
+										" FROM " + DatabaseContract.TextureColumns.TABLE_NAME,
+								null)) {
+					if (!cursor.moveToFirst()) {
+						return;
+					}
 					do {
-						var data = DbUtils.getBlob(cursor,
+						var data = CursorHelpers.getBlob(cursor,
 								DatabaseContract.TextureColumns.MATRIX);
-						if (data == null) continue;
+						if (data == null) {
+							continue;
+						}
 
 						var bm = BitmapFactory.decodeByteArray(data, 0, data.length);
-						if (bm == null) continue;
+						if (bm == null) {
+							continue;
+						}
 
-						db.execSQL("UPDATE " + DatabaseContract.TextureColumns.TABLE_NAME + " " +
-								"SET" +
-								" " +
-								DatabaseContract.TextureColumns.WIDTH + " = " + bm.getWidth() +
-								"," +
-								" " +
-								DatabaseContract.TextureColumns.HEIGHT + " = " + bm.getHeight() +
-								", " +
-								DatabaseContract.TextureColumns.RATIO + " = " + calculateRatio(bm.getWidth(),
-								bm.getHeight()) +
-								" WHERE " + DatabaseContract.TextureColumns._ID + " = " + DbUtils.getLong(cursor,
-								DatabaseContract.TextureColumns._ID) + ";");
+						db.execSQL("UPDATE " + DatabaseContract.TextureColumns.TABLE_NAME +
+								" SET " +
+								DatabaseContract.TextureColumns.WIDTH + "=" +
+								bm.getWidth() + "," +
+								DatabaseContract.TextureColumns.HEIGHT + "=" +
+								bm.getHeight() + "," +
+								DatabaseContract.TextureColumns.RATIO + "=" +
+								calculateRatio(bm.getWidth(), bm.getHeight()) +
+								" WHERE " +
+								DatabaseContract.TextureColumns._ID + "=" +
+								CursorHelpers.getLong(cursor, DatabaseContract.TextureColumns._ID) +
+								";");
+
 						bm.recycle();
 					} while (cursor.moveToNext());
 				}
@@ -276,23 +302,20 @@ public class TextureDao {
 								" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 								" WHERE " + DatabaseContract.TextureColumns._ID + " = ?",
 						new String[]{String.valueOf(srcId)})) {
-					if (cursor == null) {
-						return false;
-					}
 					boolean success = true;
 					if (moveToFirstAndCatchOutOfMemory(cursor)) {
 						long textureId = TextureDao.insertTexture(dst,
-								DbUtils.getString(cursor,
+								CursorHelpers.getString(cursor,
 										DatabaseContract.TextureColumns.NAME),
-								DbUtils.getInt(cursor,
+								CursorHelpers.getInt(cursor,
 										DatabaseContract.TextureColumns.WIDTH),
-								DbUtils.getInt(cursor,
+								CursorHelpers.getInt(cursor,
 										DatabaseContract.TextureColumns.HEIGHT),
-								DbUtils.getFloat(cursor,
+								CursorHelpers.getFloat(cursor,
 										DatabaseContract.TextureColumns.RATIO),
-								Objects.requireNonNull(DbUtils.getBlob(cursor,
+								Objects.requireNonNull(CursorHelpers.getBlob(cursor,
 										DatabaseContract.TextureColumns.THUMB)),
-								Objects.requireNonNull(DbUtils.getBlob(cursor,
+								Objects.requireNonNull(CursorHelpers.getBlob(cursor,
 										DatabaseContract.TextureColumns.MATRIX)));
 						if (textureId < 1) {
 							success = false;
@@ -316,7 +339,7 @@ public class TextureDao {
 								" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 								" WHERE " + DatabaseContract.TextureColumns.NAME + " = ?",
 						new String[]{name})) {
-					return cursor != null && cursor.moveToFirst() && cursor.getCount() > 0;
+					return cursor.moveToFirst() && cursor.getCount() > 0;
 				}
 			}
 
@@ -330,18 +353,15 @@ public class TextureDao {
 								" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 								" ORDER BY " + DatabaseContract.TextureColumns._ID,
 						null)) {
-					if (cursor == null) {
-						return false;
-					}
 					boolean success = true;
 					if (cursor.moveToFirst()) {
 						do {
-							String name = DbUtils.getString(cursor,
+							String name = CursorHelpers.getString(cursor,
 									DatabaseContract.TextureColumns.NAME);
 							if (name == null || textureExists(dst, name)) {
 								continue;
 							}
-							if (!importTexture(dst, src, DbUtils.getLong(cursor,
+							if (!importTexture(dst, src, CursorHelpers.getLong(cursor,
 									DatabaseContract.TextureColumns._ID))) {
 								success = false;
 								break;

@@ -88,7 +88,9 @@ public class ShaderWallpaperService extends WallpaperService {
 		@Override
 		public void onVisibilityChanged(boolean visible) {
 			super.onVisibilityChanged(visible);
-			if (view == null) return;
+			if (view == null) {
+				return;
+			}
 			if (visible) {
 				view.onResume();
 			} else {

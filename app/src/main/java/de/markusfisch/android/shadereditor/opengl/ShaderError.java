@@ -29,10 +29,6 @@ public class ShaderError {
 		return new ShaderError(0, -1, message);
 	}
 
-	public int getSourceStringNumber() {
-		return sourceStringNumber;
-	}
-
 	public boolean hasLine() {
 		return errorLine > 0;
 	}
@@ -62,8 +58,16 @@ public class ShaderError {
 		if (!matcher.matches()) {
 			return ShaderError.createGeneral(message);
 		}
-		int sourceStringNumber = Integer.parseInt(matcher.group(1));
-		int errorLine = Integer.parseInt(matcher.group(2));
+		String sourceString = matcher.group(1);
+		if (sourceString == null) {
+			return ShaderError.createGeneral(message);
+		}
+		int sourceStringNumber = Integer.parseInt(sourceString);
+		String errorLineString = matcher.group(2);
+		if (errorLineString == null) {
+			return ShaderError.createGeneral(message);
+		}
+		int errorLine = Integer.parseInt(errorLineString);
 		String infoLog = Objects.requireNonNull(matcher.group(3));
 		return new ShaderError(sourceStringNumber, errorLine, infoLog);
 
@@ -79,11 +83,16 @@ public class ShaderError {
 
 	@Override
 	public final boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof ShaderError)) return false;
+		if (this == o) {
+			return true;
+		}
+		if (!(o instanceof ShaderError that)) {
+			return false;
+		}
 
-		ShaderError that = (ShaderError) o;
-		return sourceStringNumber == that.sourceStringNumber && errorLine == that.errorLine && message.equals(that.message);
+		return sourceStringNumber == that.sourceStringNumber &&
+				errorLine == that.errorLine &&
+				message.equals(that.message);
 	}
 
 	@Override
@@ -98,7 +107,8 @@ public class ShaderError {
 	@Override
 	public String toString() {
 		if (hasLine()) {
-			return String.format(Locale.getDefault(), "%d: %s", errorLine, message);
+			return String.format(Locale.getDefault(),
+					"%d: %s", errorLine, message);
 		} else {
 			return message;
 		}

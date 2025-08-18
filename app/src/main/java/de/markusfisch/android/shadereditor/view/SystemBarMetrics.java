@@ -22,17 +22,18 @@ public class SystemBarMetrics {
 	public static void initSystemBars(AppCompatActivity activity,
 			Rect insets) {
 		View mainLayout;
-		if (activity != null &&
-				(mainLayout = activity.findViewById(R.id.main_layout)) != null &&
-				setSystemBarColor(
-						activity.getWindow(),
-						ShaderEditorApp.preferences.getSystemBarColor(),
-						true)) {
-			setWindowInsets(mainLayout, insets);
+		if (activity == null ||
+				(mainLayout = activity.findViewById(R.id.main_layout)) == null) {
+			return;
 		}
+		setSystemBarColor(
+				activity.getWindow(),
+				ShaderEditorApp.preferences.getSystemBarColor(),
+				true);
+		setWindowInsets(mainLayout, insets);
 	}
 
-	public static boolean setSystemBarColor(
+	public static void setSystemBarColor(
 			Window window,
 			int color,
 			boolean expand) {
@@ -44,7 +45,6 @@ public class SystemBarMetrics {
 		}
 		window.setStatusBarColor(color);
 		window.setNavigationBarColor(color);
-		return true;
 	}
 
 	public static void hideNavigation(Window window) {

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -26,12 +25,12 @@ import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
 
 public class ShaderManager {
-	private static final String SELECTED_SHADER_ID = "selected_shader_id";
-	private static final long NO_SHADER = 0;
-
 	public final ActivityResultLauncher<Intent> addUniformLauncher;
 	public final ActivityResultLauncher<Intent> loadSampleLauncher;
 	public final ActivityResultLauncher<Intent> previewShaderLauncher;
+
+	private static final String SELECTED_SHADER_ID = "selected_shader_id";
+	private static final long NO_SHADER = 0;
 
 	private final AppCompatActivity activity;
 	private final EditorFragment editorFragment;
@@ -44,9 +43,12 @@ public class ShaderManager {
 	private float quality = 1f;
 	private boolean isModified = false;
 
-	public ShaderManager(@NonNull AppCompatActivity activity, EditorFragment editorFragment,
-			ShaderViewManager shaderViewManager, ShaderListManager shaderListManager,
-			UIManager uiManager, DataSource dataSource,
+	public ShaderManager(@NonNull AppCompatActivity activity,
+			EditorFragment editorFragment,
+			ShaderViewManager shaderViewManager,
+			ShaderListManager shaderListManager,
+			UIManager uiManager,
+			DataSource dataSource,
 			ShaderViewManager.Listener shaderViewManagerListener) {
 		this.activity = activity;
 		this.editorFragment = editorFragment;
@@ -55,21 +57,26 @@ public class ShaderManager {
 		this.uiManager = uiManager;
 		this.dataSource = dataSource;
 
-		addUniformLauncher =
-				activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-					if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-						editorFragment.addUniform(result.getData().getStringExtra(AddUniformActivity.STATEMENT));
+		addUniformLauncher = activity.registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(), result -> {
+					if (result.getResultCode() == Activity.RESULT_OK &&
+							result.getData() != null) {
+						editorFragment.addUniform(
+								result.getData().getStringExtra(
+										AddUniformActivity.STATEMENT));
 					}
 				});
 
-		loadSampleLauncher =
-				activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-					if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+		loadSampleLauncher = activity.registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(), result -> {
+					if (result.getResultCode() == Activity.RESULT_OK &&
+							result.getData() != null) {
 						if (isModified()) {
 							saveShader();
 						}
 						long newId = dataSource.shader.insertShaderFromResource(activity,
-								Objects.requireNonNull(result.getData().getStringExtra(LoadSampleActivity.NAME)),
+								Objects.requireNonNull(result.getData().getStringExtra(
+										LoadSampleActivity.NAME)),
 								result.getData().getIntExtra(LoadSampleActivity.RESOURCE_ID,
 										R.raw.new_shader),
 								result.getData().getIntExtra(LoadSampleActivity.THUMBNAIL_ID,
@@ -81,17 +88,22 @@ public class ShaderManager {
 
 		previewShaderLauncher =
 				activity.registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-					if (result.getResultCode() == Activity.RESULT_OK) {
-						PreviewActivity.RenderStatus status = PreviewActivity.renderStatus;
-						if (status.getFps() > 0) {
-							shaderViewManagerListener.onFramesPerSecond(status.getFps());
-						}
-						if (status.getInfoLog() != null) {
-							shaderViewManagerListener.onInfoLog(status.getInfoLog());
-						}
-						if (getSelectedShaderId() > 0 && status.getThumbnail() != null && ShaderEditorApp.preferences.doesSaveOnRun()) {
-							saveShader();
-						}
+					if (result.getResultCode() != Activity.RESULT_OK) {
+						return;
+					}
+					PreviewActivity.RenderStatus status =
+							PreviewActivity.renderStatus;
+					if (status.getFps() > 0) {
+						shaderViewManagerListener.onFramesPerSecond(
+								status.getFps());
+					}
+					if (status.getInfoLog() != null) {
+						shaderViewManagerListener.onInfoLog(status.getInfoLog());
+					}
+					if (getSelectedShaderId() > 0 &&
+							status.getThumbnail() != null &&
+							ShaderEditorApp.preferences.doesSaveOnRun()) {
+						saveShader();
 					}
 				});
 	}
@@ -115,10 +127,11 @@ public class ShaderManager {
 
 	public void setModified(boolean modified) {
 		this.isModified = modified;
-		// The EditorFragment's modified state is managed internally by its UndoRedo
-		// helper. It cannot and should not be set from the outside. When a shader is
-		// loaded via `selectShader`, `editorFragment.setText()` is called, which
-		// clears the history and resets the modified state.
+		// The EditorFragment's modified state is managed internally by its
+		// UndoRedo helper. It cannot and should not be set from the outside.
+		// When a shader is loaded via `selectShader`,
+		// `editorFragment.setText()` is called, which clears the history
+		// and resets the modified state.
 	}
 
 	public void saveState(@NonNull Bundle outState) {
@@ -126,7 +139,8 @@ public class ShaderManager {
 	}
 
 	public void restoreState(@NonNull Bundle savedInstanceState) {
-		selectedShaderId = savedInstanceState.getLong(SELECTED_SHADER_ID, NO_SHADER);
+		selectedShaderId = savedInstanceState.getLong(
+				SELECTED_SHADER_ID, NO_SHADER);
 	}
 
 	public void selectShader(long id) {
@@ -139,7 +153,8 @@ public class ShaderManager {
 
 		if (shader == null) {
 			selectedShaderId = NO_SHADER;
-			editorFragment.setText(activity.getString(R.string.new_shader_template));
+			editorFragment.setText(activity.getString(
+					R.string.new_shader_template));
 			uiManager.setToolbarTitle(activity.getString(R.string.add_shader));
 			quality = 1f;
 		} else {
@@ -173,15 +188,18 @@ public class ShaderManager {
 		byte[] thumbnail = getThumbnail();
 
 		if (selectedShaderId > 0) {
-			dataSource.shader.updateShader(selectedShaderId, src, thumbnail, quality);
+			dataSource.shader.updateShader(
+					selectedShaderId, src, thumbnail, quality);
 		} else {
-			selectedShaderId = dataSource.shader.insertShader(src, null, thumbnail, quality);
+			selectedShaderId = dataSource.shader.insertShader(
+					src, null, thumbnail, quality);
 			shaderListManager.setSelectedShaderId(selectedShaderId);
 		}
 
 		setModified(false);
 		shaderListManager.loadShadersAsync();
-		Toast.makeText(activity, R.string.shader_saved, Toast.LENGTH_SHORT).show();
+		Toast.makeText(activity, R.string.shader_saved,
+				Toast.LENGTH_SHORT).show();
 	}
 
 	private byte[] getThumbnail() {
@@ -191,15 +209,23 @@ public class ShaderManager {
 	}
 
 	public void handleSendText(@Nullable Intent intent) {
-		if (intent == null || intent.getAction() == null) return;
-		if (!Intent.ACTION_SEND.equals(intent.getAction()) && !Intent.ACTION_VIEW.equals(intent.getAction()))
+		if (intent == null || intent.getAction() == null) {
 			return;
+		}
+		if (!Intent.ACTION_SEND.equals(intent.getAction()) &&
+				!Intent.ACTION_VIEW.equals(intent.getAction())) {
+			return;
+		}
 
 		Uri uri = intent.getData();
-		if (uri == null) return;
+		if (uri == null) {
+			return;
+		}
 
 		try (InputStream in = activity.getContentResolver().openInputStream(uri)) {
-			if (in == null) return;
+			if (in == null) {
+				return;
+			}
 			byte[] buffer = new byte[4096];
 			int len;
 			var sb = new StringBuilder();
@@ -212,14 +238,16 @@ public class ShaderManager {
 			editorFragment.setText(sb.toString());
 			setModified(true);
 		} catch (IOException e) {
-			Log.e("ShaderManager", "Error reading from URI", e);
-			Toast.makeText(activity, R.string.unsuitable_text, Toast.LENGTH_SHORT).show();
+			Toast.makeText(activity, R.string.unsuitable_text,
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 
 	public long duplicateShader(long shaderId) {
 		var shader = dataSource.shader.getShader(shaderId);
-		if (shader == null) return NO_SHADER;
+		if (shader == null) {
+			return NO_SHADER;
+		}
 		var thumbnail = dataSource.shader.getThumbnail(shaderId);
 		return dataSource.shader.insertShader(
 				shader.fragmentShader(),

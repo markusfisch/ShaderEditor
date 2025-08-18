@@ -3,14 +3,37 @@ package de.markusfisch.android.shadereditor.graphics;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ColorSpace;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.net.Uri;
+import android.os.Build;
 
+import androidx.annotation.NonNull;
+
+import org.jetbrains.annotations.Contract;
+
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class BitmapEditor {
+	@NonNull
+	@Contract("null -> new")
+	public static byte[] encodeAsPng(Bitmap bitmap) {
+		if (bitmap == null) {
+			return new byte[0];
+		}
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+				bitmap.getColorSpace() != null &&
+				!bitmap.getColorSpace().equals(ColorSpace.get(ColorSpace.Named.SRGB))) {
+			bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+		}
+		var out = new ByteArrayOutputStream();
+		bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+		return out.toByteArray();
+	}
+
 	public static Bitmap getBitmapFromUri(
 			Context context,
 			Uri uri,

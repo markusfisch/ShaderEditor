@@ -38,17 +38,20 @@ public class NavigationManager {
 	}
 
 	public void goToFaq() {
-		tryStartActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github" + ".com" +
-				"/markusfisch/ShaderEditor/blob/master/FAQ.md")));
+		tryStartActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(
+				"https://github.com/markusfisch/ShaderEditor/blob/master/FAQ.md")));
 	}
 
-	public void showPreview(String src, float quality, ActivityResultLauncher<Intent> launcher) {
+	public void showPreview(String src, float quality,
+			ActivityResultLauncher<Intent> launcher) {
 		Intent intent = new Intent(activity, PreviewActivity.class);
 		intent.putExtra(PreviewActivity.QUALITY, quality);
 		intent.putExtra(PreviewActivity.FRAGMENT_SHADER, src);
 
-		if (ShaderEditorApp.preferences.doesRunInNewTask() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-			intent.setFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT | Intent.FLAG_ACTIVITY_NEW_TASK);
+		if (ShaderEditorApp.preferences.doesRunInNewTask() &&
+				Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+			intent.setFlags(Intent.FLAG_ACTIVITY_LAUNCH_ADJACENT |
+					Intent.FLAG_ACTIVITY_NEW_TASK);
 			activity.startActivity(intent);
 		} else {
 			launcher.launch(intent);
@@ -73,7 +76,8 @@ public class NavigationManager {
 		try {
 			activity.startActivity(intent);
 		} catch (ActivityNotFoundException e) {
-			Toast.makeText(activity, R.string.cannot_open_content, Toast.LENGTH_SHORT).show();
+			Toast.makeText(activity, R.string.cannot_open_content,
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 }

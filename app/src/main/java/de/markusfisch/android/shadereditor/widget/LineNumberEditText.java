@@ -35,11 +35,17 @@ public class LineNumberEditText extends AppCompatEditText {
 				0, 0);
 
 		try {
-			showLineNumbers = a.getBoolean(R.styleable.LineNumberEditText_showLineNumbers, true);
-			lineColor = a.getColor(R.styleable.LineNumberEditText_lineNumberColor, 0x88888888);
-			lineNumberSpacing = a.getDimension(R.styleable.LineNumberEditText_lineNumberSpacing,
+			showLineNumbers = a.getBoolean(
+					R.styleable.LineNumberEditText_showLineNumbers,
+					true);
+			lineColor = a.getColor(
+					R.styleable.LineNumberEditText_lineNumberColor,
+					0x88888888);
+			lineNumberSpacing = a.getDimension(
+					R.styleable.LineNumberEditText_lineNumberSpacing,
 					16);
-			lineNumberPadding = a.getDimension(R.styleable.LineNumberEditText_lineNumberPadding,
+			lineNumberPadding = a.getDimension(
+					R.styleable.LineNumberEditText_lineNumberPadding,
 					8);
 		} finally {
 			a.recycle();
@@ -105,12 +111,6 @@ public class LineNumberEditText extends AppCompatEditText {
 					lineNumberPaint);
 			++lineNumber;
 		}
-		canvas.drawLine(
-				editTextPaddingLeft + lineNumberSpacing * .5f,
-				0,
-				editTextPaddingLeft + lineNumberSpacing * .5f,
-				getHeight(),
-				lineNumberPaint);
 	}
 
 	private void measureBigChar() {

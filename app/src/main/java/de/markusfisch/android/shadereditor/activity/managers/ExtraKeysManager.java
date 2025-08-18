@@ -19,6 +19,10 @@ import de.markusfisch.android.shadereditor.adapter.CompletionsAdapter;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 
 public class ExtraKeysManager implements ViewTreeObserver.OnGlobalLayoutListener {
+	public interface Editor {
+		void insert(@NonNull CharSequence text);
+	}
+
 	@NonNull
 	private final View extraKeysView;
 	@NonNull
@@ -26,23 +30,23 @@ public class ExtraKeysManager implements ViewTreeObserver.OnGlobalLayoutListener
 	@NonNull
 	private final CompletionsAdapter completionsAdapter;
 
-	public ExtraKeysManager(@NonNull Activity activity, @NonNull View rootView,
-			@NonNull Editor editor) {
+	public ExtraKeysManager(@NonNull Activity activity,
+			@NonNull View rootView, @NonNull Editor editor) {
 		this.extraKeysView = rootView.findViewById(R.id.extra_keys);
 
 		insertTabView = extraKeysView.findViewById(R.id.insert_tab);
 		insertTabView.setOnClickListener(v -> editor.insert("\t"));
 
 		RecyclerView completions = extraKeysView.findViewById(R.id.completions);
-		completions.setLayoutManager(
-				new LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false));
+		completions.setLayoutManager(new LinearLayoutManager(
+				activity, RecyclerView.HORIZONTAL, false));
 		completionsAdapter = new CompletionsAdapter(editor::insert);
 		completions.setAdapter(completionsAdapter);
 
 		var divider = new DividerItemDecoration(
 				completions.getContext(), DividerItemDecoration.HORIZONTAL);
-		divider.setDrawable(Objects.requireNonNull(
-				ContextCompat.getDrawable(activity, R.drawable.divider_with_padding_vertical)));
+		divider.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(
+				activity, R.drawable.divider_with_padding_vertical)));
 		completions.addItemDecoration(divider);
 		completions.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
@@ -56,8 +60,10 @@ public class ExtraKeysManager implements ViewTreeObserver.OnGlobalLayoutListener
 
 	public void updateVisibility() {
 		var preferences = ShaderEditorApp.preferences;
-		extraKeysView.setVisibility(getVisibility(preferences.showExtraKeys()));
-		insertTabView.setVisibility(getVisibility(preferences.doesShowInsertTab()));
+		extraKeysView.setVisibility(
+				getVisibility(preferences.showExtraKeys()));
+		insertTabView.setVisibility(
+				getVisibility(preferences.doesShowInsertTab()));
 	}
 
 	public void setVisible(boolean visible) {
@@ -83,14 +89,11 @@ public class ExtraKeysManager implements ViewTreeObserver.OnGlobalLayoutListener
 		// if keypad is shown, the r.bottom is smaller than that before.
 		int keypadHeight = screenHeight - r.bottom;
 		// 0.15 ratio is perhaps enough to determine keypad height.
-		extraKeysView.setVisibility(getVisibility(keypadHeight > screenHeight * 0.15));
+		extraKeysView.setVisibility(getVisibility(
+				keypadHeight > screenHeight * 0.15));
 	}
 
 	private static int getVisibility(boolean isVisible) {
 		return isVisible ? View.VISIBLE : View.GONE;
-	}
-
-	public interface Editor {
-		void insert(@NonNull CharSequence text);
 	}
 }
