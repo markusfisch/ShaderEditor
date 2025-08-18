@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.view;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
@@ -43,8 +44,11 @@ public class SystemBarMetrics {
 							View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION |
 							View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 		}
-		window.setStatusBarColor(color);
-		window.setNavigationBarColor(color);
+		// System bars no longer have a background from SDK35+.
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+			window.setStatusBarColor(color);
+			window.setNavigationBarColor(color);
+		}
 	}
 
 	public static void hideNavigation(Window window) {
