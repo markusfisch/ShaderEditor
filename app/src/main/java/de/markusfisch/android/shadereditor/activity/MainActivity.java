@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_main);
+		SystemBarMetrics.initMainLayout(this, null);
 
 		dataSource = Database.getInstance(this).getDataSource();
 
@@ -65,15 +66,28 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		navigationManager = new NavigationManager(this);
-		shaderViewManager = new ShaderViewManager(this, findViewById(R.id.preview),
-				findViewById(R.id.quality), createShaderViewListener());
+		shaderViewManager = new ShaderViewManager(this,
+				findViewById(R.id.preview),
+				findViewById(R.id.quality),
+				createShaderViewListener());
 		ExtraKeysManager extraKeysManager = new ExtraKeysManager(this,
-				findViewById(android.R.id.content), editorFragment::insert);
-		uiManager = new UIManager(this, editorFragment, extraKeysManager, shaderViewManager);
-		shaderListManager = new ShaderListManager(this, findViewById(R.id.shaders),
-				dataSource, createShaderListListener());
-		shaderManager = new ShaderManager(this, editorFragment, shaderViewManager,
-				shaderListManager, uiManager, dataSource, createShaderViewListener());
+				findViewById(android.R.id.content),
+				editorFragment::insert);
+		uiManager = new UIManager(this,
+				editorFragment,
+				extraKeysManager,
+				shaderViewManager);
+		shaderListManager = new ShaderListManager(this,
+				findViewById(R.id.shaders),
+				dataSource,
+				createShaderListListener());
+		shaderManager = new ShaderManager(this,
+				editorFragment,
+				shaderViewManager,
+				shaderListManager,
+				uiManager,
+				dataSource,
+				createShaderViewListener());
 
 		MainMenuManager mainMenuManager = new MainMenuManager(
 				this,
@@ -91,7 +105,8 @@ public class MainActivity extends AppCompatActivity {
 		if (state == null) {
 			Intent intent = getIntent();
 			String action = intent != null ? intent.getAction() : null;
-			if (!Intent.ACTION_SEND.equals(action) && !Intent.ACTION_VIEW.equals(action)) {
+			if (!Intent.ACTION_SEND.equals(action) &&
+					!Intent.ACTION_VIEW.equals(action)) {
 				isInitialLoad = true;
 			}
 		}
@@ -220,6 +235,9 @@ public class MainActivity extends AppCompatActivity {
 	@Contract(" -> new")
 	private ShaderViewManager.Listener createShaderViewListener() {
 		return new ShaderViewManager.Listener() {
+			private final View showErrors = findViewById(R.id.show_errors);
+			private final View mainCoordinator = findViewById(R.id.main_coordinator);
+
 			@Override
 			public void onFramesPerSecond(int fps) {
 				if (fps > 0) {
@@ -231,10 +249,11 @@ public class MainActivity extends AppCompatActivity {
 			public void onInfoLog(@NonNull List<ShaderError> infoLog) {
 				runOnUiThread(() -> {
 					editorFragment.setErrors(infoLog);
-					findViewById(R.id.show_errors).setVisibility(
-							editorFragment.hasErrors() ? View.VISIBLE : View.GONE);
+					showErrors.setVisibility(editorFragment.hasErrors()
+							? View.VISIBLE
+							: View.GONE);
 					if (editorFragment.hasErrors()) {
-						Snackbar.make(findViewById(R.id.main_coordinator),
+						Snackbar.make(mainCoordinator,
 										infoLog.get(0).toString(), Snackbar.LENGTH_LONG)
 								.setAction(R.string.details, v -> editorFragment.showErrors())
 								.setAnchorView(R.id.extra_keys)

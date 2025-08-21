@@ -1,12 +1,15 @@
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/main_layout"
-	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:orientation="vertical">
-	<include layout="@layout/toolbar"/>
-	<androidx.coordinatorlayout.widget.CoordinatorLayout
-		android:id="@+id/content_frame"
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+	<LinearLayout
+		android:id="@+id/main_layout"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"/>
-</LinearLayout>
+		android:layout_height="match_parent"
+		android:orientation="vertical">
+		<include layout="@layout/toolbar"/>
+		<androidx.coordinatorlayout.widget.CoordinatorLayout
+			android:id="@+id/content_frame"
+			android:layout_width="match_parent"
+			android:layout_height="0dp"
+			android:layout_weight="1"/>
+	</LinearLayout>
+	<include layout="@layout/navbar"/>
+</merge>

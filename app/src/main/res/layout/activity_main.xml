@@ -1,5 +1,4 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
-
 	<!-- ShaderView as the background -->
 	<de.markusfisch.android.shadereditor.widget.ShaderView
 		android:id="@+id/preview"
@@ -15,10 +14,10 @@
 
 		<!-- LinearLayout to manage vertical space -->
 		<LinearLayout
+			android:id="@+id/main_layout"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:orientation="vertical"
-			android:fitsSystemWindows="true">
+			android:orientation="vertical">
 
 			<include layout="@layout/toolbar_main" />
 
@@ -49,5 +48,9 @@
 				android:layout_height="wrap_content" />
 
 		</LinearLayout>
+
+		<!-- Nav bar background for SDK35+ -->
+		<include layout="@layout/navbar"/>
+
 	</androidx.coordinatorlayout.widget.CoordinatorLayout>
 </merge>

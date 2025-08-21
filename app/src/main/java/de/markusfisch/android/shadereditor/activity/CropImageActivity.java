@@ -34,9 +34,9 @@ public class CropImageActivity
 		super.onCreate(state);
 		setContentView(R.layout.activity_crop_image);
 
-		cropImageView = (CropImageView) findViewById(R.id.crop_image_view);
+		cropImageView = findViewById(R.id.crop_image_view);
 
-		SystemBarMetrics.initSystemBars(this, cropImageView.insets);
+		SystemBarMetrics.initMainLayout(this, cropImageView.insets);
 		AbstractSubsequentActivity.initToolbar(this);
 
 		if (state == null) {

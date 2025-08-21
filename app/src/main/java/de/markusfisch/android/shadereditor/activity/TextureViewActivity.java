@@ -22,10 +22,9 @@ public class TextureViewActivity
 		super.onCreate(state);
 		setContentView(R.layout.activity_view_texture);
 
-		scalingImageView = (ScalingImageView) findViewById(
-				R.id.scaling_image_view);
+		scalingImageView = findViewById(R.id.scaling_image_view);
 
-		SystemBarMetrics.initSystemBars(this);
+		SystemBarMetrics.initMainLayout(this, null);
 		AbstractSubsequentActivity.initToolbar(this);
 
 		if (state == null) {

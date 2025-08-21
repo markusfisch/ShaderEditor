@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
 import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 
 public abstract class AbstractContentActivity
 		extends AbstractSubsequentActivity {
@@ -13,7 +14,7 @@ public abstract class AbstractContentActivity
 		super.onCreate(state);
 		setContentView(R.layout.activity_subsequent);
 
-		initSystemBars(this);
+		SystemBarMetrics.initMainLayout(this, null);
 		initToolbar(this);
 
 		if (state == null) {

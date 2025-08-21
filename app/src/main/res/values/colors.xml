@@ -1,7 +1,6 @@
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources>
 	<color name="primary">#222</color>
 	<color name="primary_translucent">#8222</color>
-	<color name="primary_dark_translucent">#8111</color>
 	<color name="accent">#fff</color>
 	<color name="secondary_text">#8a000000</color>
 	<color name="disabled_text">#8affffff</color>

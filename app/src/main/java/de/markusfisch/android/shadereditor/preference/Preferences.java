@@ -88,7 +88,7 @@ public class Preferences {
 	public void init(Context context) {
 		systemBarColor = ContextCompat.getColor(
 				context,
-				R.color.primary_dark_translucent);
+				R.color.primary_translucent);
 
 		PreferenceManager.setDefaultValues(
 				context,

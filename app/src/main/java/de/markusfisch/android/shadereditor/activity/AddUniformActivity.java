@@ -78,8 +78,8 @@ public class AddUniformActivity extends AbstractContentActivity {
 					if (result.getResultCode() == RESULT_OK && result.getData() != null) {
 						Uri imageUri = result.getData().getData();
 						if (imageUri != null) {
-							Intent cropIntent = CropImageActivity.getIntentForImage(this,
-									imageUri);
+							Intent cropIntent = CropImageActivity.getIntentForImage(
+									this, imageUri);
 							cropImageLauncher.launch(cropIntent);
 						}
 					}

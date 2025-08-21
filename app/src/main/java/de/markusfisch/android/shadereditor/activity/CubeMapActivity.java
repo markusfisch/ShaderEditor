@@ -22,9 +22,9 @@ public class CubeMapActivity
 		super.onCreate(state);
 		setContentView(R.layout.activity_cube_map);
 
-		cubeMapImageView = (CubeMapView) findViewById(R.id.cube_map_view);
+		cubeMapImageView = findViewById(R.id.cube_map_view);
 
-		SystemBarMetrics.initSystemBars(this, cubeMapImageView.insets);
+		SystemBarMetrics.initMainLayout(this, cubeMapImageView.insets);
 		AbstractSubsequentActivity.initToolbar(this);
 
 		if (state == null) {

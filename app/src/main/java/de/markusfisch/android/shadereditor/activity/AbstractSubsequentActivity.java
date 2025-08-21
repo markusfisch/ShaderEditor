@@ -12,8 +12,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import de.markusfisch.android.shadereditor.R;
-import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
-import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 
 public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 	private FragmentManager fm;
@@ -29,7 +27,7 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 	}
 
 	public static void initToolbar(AppCompatActivity activity) {
-		Toolbar toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
+		Toolbar toolbar = activity.findViewById(R.id.toolbar);
 		activity.setSupportActionBar(toolbar);
 
 		ActionBar actionBar = activity.getSupportActionBar();
@@ -37,13 +35,6 @@ public abstract class AbstractSubsequentActivity extends AppCompatActivity {
 			return;
 		}
 		actionBar.setDisplayHomeAsUpEnabled(true);
-	}
-
-	public static void initSystemBars(AppCompatActivity activity) {
-		SystemBarMetrics.setSystemBarColor(
-				activity.getWindow(),
-				ShaderEditorApp.preferences.getSystemBarColor(),
-				false);
 	}
 
 	@Override

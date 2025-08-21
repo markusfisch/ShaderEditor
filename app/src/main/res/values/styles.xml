@@ -5,10 +5,6 @@
 		<item name="buttonStyle">@style/ButtonTheme</item>
 	</style>
 
-	<style name="MainTheme" parent="AppTheme">
-		<item name="android:windowTranslucentStatus">true</item>
-	</style>
-
 	<style name="SplashTheme" parent="@style/AppTheme">
 		<item name="android:windowBackground">@drawable/background_splash</item>
 	</style>
