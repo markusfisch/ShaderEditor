@@ -1,0 +1,5 @@
+* Add Russian translation
+* Add Microphone Gain uniform
+* Fix capturing thumbnails
+* Updates for latest Android
+

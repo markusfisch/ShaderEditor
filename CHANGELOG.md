@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.35.1
+* Add Russian translation
+* Add Microphone Gain uniform
+* Fix capturing thumbnails
+* Updates for latest Android
+
 ## 2.35.0
 * Improve option menus
 * Improve code completions
