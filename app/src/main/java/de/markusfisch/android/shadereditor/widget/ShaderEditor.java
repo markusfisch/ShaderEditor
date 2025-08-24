@@ -363,16 +363,11 @@ public class ShaderEditor extends LineNumberEditText {
 	protected void onSelectionChanged(int selStart, int selEnd) {
 		super.onSelectionChanged(selStart, selEnd);
 		Editable text = getText();
-		CodeCompletionListener listener = codeCompletionListener;
-		if (text == null || listener == null) {
-			return;
-		}
-		int start = getSelectionStart();
-		int end = getSelectionEnd();
-		if (start != end) {
-			return;
-		}
-		if (!isApplyingEdit && tokenListUpdater.isDone()) {
+		if (text != null &&
+				codeCompletionListener != null &&
+				getSelectionStart() == getSelectionEnd() &&
+				!isApplyingEdit &&
+				tokenListUpdater.isDone()) {
 			provideCompletions(tokens, text);
 		}
 	}
