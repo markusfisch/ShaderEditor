@@ -48,7 +48,8 @@ public class ShaderDao {
 			if (cursor.moveToFirst()) {
 				return new DataRecords.Shader(
 						CursorHelpers.getLong(cursor, DatabaseContract.ShaderColumns._ID),
-						CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.FRAGMENT_SHADER),
+						CursorHelpers.getString(cursor,
+								DatabaseContract.ShaderColumns.FRAGMENT_SHADER),
 						CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.NAME),
 						CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.MODIFIED),
 						CursorHelpers.getFloat(cursor, DatabaseContract.ShaderColumns.QUALITY));
@@ -72,7 +73,8 @@ public class ShaderDao {
 					shaders.add(new DataRecords.ShaderInfo(
 							CursorHelpers.getLong(cursor, DatabaseContract.ShaderColumns._ID),
 							CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.NAME),
-							CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.MODIFIED),
+							CursorHelpers.getString(cursor,
+									DatabaseContract.ShaderColumns.MODIFIED),
 							CursorHelpers.getBlob(cursor, DatabaseContract.ShaderColumns.THUMB)));
 				} while (cursor.moveToNext());
 			}
@@ -92,7 +94,8 @@ public class ShaderDao {
 			if (cursor.moveToFirst()) {
 				return new DataRecords.Shader(
 						CursorHelpers.getLong(cursor, DatabaseContract.ShaderColumns._ID),
-						CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.FRAGMENT_SHADER),
+						CursorHelpers.getString(cursor,
+								DatabaseContract.ShaderColumns.FRAGMENT_SHADER),
 						CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.NAME),
 						CursorHelpers.getString(cursor, DatabaseContract.ShaderColumns.MODIFIED),
 						CursorHelpers.getFloat(cursor, DatabaseContract.ShaderColumns.QUALITY));
@@ -288,7 +291,8 @@ public class ShaderDao {
 
 			private void insertInitialShaders(SQLiteDatabase db) {
 				try {
-					String defaultShader = Resources.loadRawResource(context, R.raw.default_shader);
+					String defaultShader = Resources.loadRawResource(context,
+							R.raw.default_shader);
 					var defaultThumb = Resources.loadBitmapResource(context,
 							R.drawable.thumbnail_default);
 					insertShader(db,

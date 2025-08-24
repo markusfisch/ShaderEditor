@@ -79,8 +79,9 @@ public class ShaderEditor extends LineNumberEditText {
 	private OnEditPausedListener onEditPausedListener;
 	@Nullable
 	private CodeCompletionListener codeCompletionListener;
-	private final TokenListUpdater tokenListUpdater =
-			new TokenListUpdater((tokens, text) -> post(() -> provideCompletions(tokens, text)));
+	private final TokenListUpdater tokenListUpdater = new TokenListUpdater(
+			(tokens, text) -> post(
+					() -> provideCompletions(tokens, text)));
 	private int updateDelay = 1000;
 	@NonNull
 	private List<ShaderError> shaderErrors = Collections.emptyList();
@@ -113,12 +114,15 @@ public class ShaderEditor extends LineNumberEditText {
 		init(context);
 	}
 
-	public ShaderEditor(@NonNull Context context, @Nullable AttributeSet attrs) {
+	public ShaderEditor(
+			@NonNull Context context,
+			@Nullable AttributeSet attrs) {
 		super(context, attrs);
 		init(context);
 	}
 
-	private static <T> void clearSpans(Spannable e, int start, int end, Class<T> clazz) {
+	private static <T> void clearSpans(Spannable e,
+			int start, int end, Class<T> clazz) {
 		// Remove foreground color spans.
 		T[] spans = e.getSpans(
 				start,
@@ -155,15 +159,18 @@ public class ShaderEditor extends LineNumberEditText {
 				"}\n";
 	}
 
-	public void setOnEditPausedListener(@Nullable OnEditPausedListener listener) {
+	public void setOnEditPausedListener(
+			@Nullable OnEditPausedListener listener) {
 		onEditPausedListener = listener;
 	}
 
-	public void setOnTextModifiedListener(@Nullable OnTextModifiedListener listener) {
+	public void setOnTextModifiedListener(
+			@Nullable OnTextModifiedListener listener) {
 		onTextModifiedListener = listener;
 	}
 
-	public void setOnCompletionsListener(@Nullable CodeCompletionListener listener) {
+	public void setOnCompletionsListener(
+			@Nullable CodeCompletionListener listener) {
 		codeCompletionListener = listener;
 	}
 
@@ -245,7 +252,8 @@ public class ShaderEditor extends LineNumberEditText {
 
 		isUserInteraction = false;
 
-		tokenListUpdater.update(text, ++revision); // `setText` can't be overridden
+		// `setText` can't be overridden
+		tokenListUpdater.update(text, ++revision);
 		setText(highlight(new SpannableStringBuilder(text), true));
 		isUserInteraction = true;
 
@@ -293,7 +301,8 @@ public class ShaderEditor extends LineNumberEditText {
 		Layout layout = getLayout();
 		int lineStart = layout.getLineStart(lineNumber - 1);
 		int lineEnd = layout.getLineEnd(lineNumber - 1);
-		if (getSelectionStart() >= lineStart && getSelectionEnd() <= lineEnd) {
+		if (getSelectionStart() >= lineStart &&
+				getSelectionEnd() <= lineEnd) {
 			return;
 		}
 		setSelection(lineStart, lineStart);
@@ -351,7 +360,8 @@ public class ShaderEditor extends LineNumberEditText {
 
 	@Nullable
 	@Override
-	public InputConnection onCreateInputConnection(@NonNull EditorInfo outAttrs) {
+	public InputConnection onCreateInputConnection(
+			@NonNull EditorInfo outAttrs) {
 		InputConnection connection = super.onCreateInputConnection(outAttrs);
 		if (ShaderEditorApp.preferences.hideNativeSuggestions()) {
 			outAttrs.inputType = InputType.TYPE_NULL;
@@ -405,7 +415,9 @@ public class ShaderEditor extends LineNumberEditText {
 		// Setting this through XML does not work
 		setHorizontallyScrolling(true);
 
-		setFilters(new InputFilter[]{(source, start, end, dest, dstart, dend) -> {
+		setFilters(new InputFilter[]{(source,
+				start, end,
+				dest, dstart, dend) -> {
 			if (isUserInteraction &&
 					end - start == 1 &&
 					start < source.length() &&
@@ -487,7 +499,8 @@ public class ShaderEditor extends LineNumberEditText {
 
 	private void setSyntaxColors(Context context) {
 		for (Highlight highlight : Highlight.values()) {
-			colors[highlight.ordinal()] = ContextCompat.getColor(context, highlight.id());
+			colors[highlight.ordinal()] =
+					ContextCompat.getColor(context, highlight.id());
 		}
 		textColor = ContextCompat.getColor(context, R.color.editor_text);
 		colorError = ContextCompat.getColor(
@@ -550,8 +563,11 @@ public class ShaderEditor extends LineNumberEditText {
 			for (int i = diff.start; i <= diff.insertEnd; ++i) {
 				Token token = newTokens.get(i);
 				e.setSpan(
-						new ForegroundColorSpan(colors[Highlight.from(token.type()).ordinal()]),
-						token.startOffset(), token.endOffset(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+						new ForegroundColorSpan(
+								colors[Highlight.from(token.type()).ordinal()]),
+						token.startOffset(),
+						token.endOffset(),
+						Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 		}
 
@@ -560,7 +576,9 @@ public class ShaderEditor extends LineNumberEditText {
 		return e;
 	}
 
-	private void provideCompletions(@NonNull List<Token> tokens, @NonNull CharSequence text) {
+	private void provideCompletions(
+			@NonNull List<Token> tokens,
+			@NonNull CharSequence text) {
 		CodeCompletionListener listener = codeCompletionListener;
 		if (listener == null) {
 			return;
@@ -580,7 +598,8 @@ public class ShaderEditor extends LineNumberEditText {
 			completions = DEFAULT_COMPLETIONS;
 			positionInToken = 0;
 		}
-		if (completions.size() == 1 && completions.get(0).contentEquals(text.subSequence(tok.startOffset(), start))) {
+		if (completions.size() == 1 && completions.get(0).contentEquals(
+				text.subSequence(tok.startOffset(), start))) {
 			completions = DEFAULT_COMPLETIONS;
 			positionInToken = 0;
 		}
@@ -757,7 +776,9 @@ public class ShaderEditor extends LineNumberEditText {
 		@NonNull
 		private final OnTokenized onTokenized;
 
-		public TokenizeCalculation(@NonNull String text, @NonNull OnTokenized onTokenized) {
+		public TokenizeCalculation(
+				@NonNull String text,
+				@NonNull OnTokenized onTokenized) {
 			this.text = text;
 			this.onTokenized = onTokenized;
 		}
@@ -815,7 +836,8 @@ public class ShaderEditor extends LineNumberEditText {
 			}
 
 			this.revision = revision;
-			task = new FutureTask<>(new TokenizeCalculation(text.toString(), onTokenized));
+			task = new FutureTask<>(new TokenizeCalculation(
+					text.toString(), onTokenized));
 			executor.submit(task);
 		}
 

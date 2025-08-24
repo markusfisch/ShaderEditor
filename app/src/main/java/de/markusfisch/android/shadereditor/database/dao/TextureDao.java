@@ -285,7 +285,8 @@ public class TextureDao {
 								calculateRatio(bm.getWidth(), bm.getHeight()) +
 								" WHERE " +
 								DatabaseContract.TextureColumns._ID + "=" +
-								CursorHelpers.getLong(cursor, DatabaseContract.TextureColumns._ID) +
+								CursorHelpers.getLong(cursor,
+										DatabaseContract.TextureColumns._ID) +
 								";");
 
 						bm.recycle();
