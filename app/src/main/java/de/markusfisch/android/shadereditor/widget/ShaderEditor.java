@@ -80,7 +80,7 @@ public class ShaderEditor extends LineNumberEditText {
 	@Nullable
 	private CodeCompletionListener codeCompletionListener;
 	private final TokenListUpdater tokenListUpdater =
-			new TokenListUpdater(this::provideCompletions);
+			new TokenListUpdater((tokens, text) -> post(() -> provideCompletions(tokens, text)));
 	private int updateDelay = 1000;
 	@NonNull
 	private List<ShaderError> shaderErrors = Collections.emptyList();
