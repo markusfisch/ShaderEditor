@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.os.Build;
-import android.os.Handler;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.InputType;
@@ -73,7 +72,6 @@ public class ShaderEditor extends LineNumberEditText {
 		DEFAULT_COMPLETIONS.add("]");
 	}
 
-	private final Handler updateHandler = new Handler();
 	private final int[] colors = new int[Highlight.values().length];
 	@Nullable
 	private OnTextModifiedListener onTextModifiedListener;
@@ -466,7 +464,7 @@ public class ShaderEditor extends LineNumberEditText {
 
 				isApplyingEdit = false;
 				tokenListUpdater.update(e, ++revision);
-				updateHandler.postDelayed(updateRunnable, updateDelay);
+				postDelayed(updateRunnable, updateDelay);
 			}
 		});
 
@@ -498,7 +496,7 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	private void cancelUpdate() {
-		updateHandler.removeCallbacks(updateRunnable);
+		removeCallbacks(updateRunnable);
 	}
 
 	private void highlightWithoutChange(@NonNull Editable e) {
