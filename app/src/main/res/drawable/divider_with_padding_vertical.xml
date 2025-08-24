@@ -5,6 +5,6 @@
 	android:insetBottom="@dimen/extra_key_divider_padding">
 	<shape android:shape="rectangle">
 		<size android:width="1dp" />
-		<solid android:color="?attr/colorSurfaceContainerHigh" />
+		<solid android:color="@color/primary_translucent" />
 	</shape>
 </inset>
