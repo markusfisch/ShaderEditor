@@ -262,8 +262,12 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	public String getCleanText() {
+		Editable text = getText();
+		if (text == null) {
+			return "";
+		}
 		return PATTERN_TRAILING_WHITE_SPACE
-				.matcher(getText())
+				.matcher(text)
 				.replaceAll("");
 	}
 
@@ -301,6 +305,9 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 
 		Editable e = getText();
+		if (e == null) {
+			return;
+		}
 		removeUniform(e, statement);
 
 		Matcher m = PATTERN_INSERT_UNIFORM.matcher(e);
@@ -330,9 +337,7 @@ public class ShaderEditor extends LineNumberEditText {
 			++start;
 		}
 
-		if (e != null) {
-			e.insert(start, statement);
-		}
+		e.insert(start, statement);
 	}
 
 	/**
