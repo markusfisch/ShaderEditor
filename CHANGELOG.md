@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.35.2
+* Improve highlighting
+
 ## 2.35.1
 * Add Russian translation
 * Add Microphone Gain uniform
