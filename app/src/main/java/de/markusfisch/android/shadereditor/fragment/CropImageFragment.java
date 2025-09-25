@@ -130,8 +130,20 @@ public class CropImageFragment extends Fragment {
 				}
 
 				if (isAdded()) {
-					bitmap = b;
-					cropImageView.setImageBitmap(b);
+					if (bitmap != null) {
+						bitmap.recycle();
+					}
+					// `b` is non-premultiplied. We need a premultiplied one for display.
+					if (b.hasAlpha() && !b.isPremultiplied()) {
+						// Create a premultiplied copy for display.
+						Bitmap premultipliedBitmap = b.copy(b.getConfig(), true);
+						premultipliedBitmap.setPremultiplied(true);
+						b.recycle();
+						bitmap = premultipliedBitmap;
+					} else {
+						bitmap = b;
+					}
+					cropImageView.setImageBitmap(bitmap);
 				}
 			});
 		});

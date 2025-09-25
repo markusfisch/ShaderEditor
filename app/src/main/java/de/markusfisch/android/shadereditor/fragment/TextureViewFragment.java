@@ -73,10 +73,10 @@ public class TextureViewFragment extends Fragment {
 		}
 
 		// Fetch texture info and bitmap using the modern DataSource.
-		Bitmap textureBitmap = dataSource.texture.getTextureBitmap(textureId);
+		Bitmap nonPremultipliedBitmap = dataSource.texture.getTextureBitmap(textureId);
 		TextureInfo textureInfo = dataSource.texture.getTextureInfo(textureId);
 
-		if (textureBitmap == null || textureInfo == null) {
+		if (nonPremultipliedBitmap == null || textureInfo == null) {
 			// Automatically remove defective textures.
 			dataSource.texture.removeTexture(textureId);
 			Toast.makeText(activity, R.string.removed_invalid_texture,
@@ -84,6 +84,16 @@ public class TextureViewFragment extends Fragment {
 			activity.finish();
 			return null;
 		}
+
+		Bitmap textureBitmap;
+		if (nonPremultipliedBitmap.hasAlpha() && !nonPremultipliedBitmap.isPremultiplied()) {
+			textureBitmap = nonPremultipliedBitmap.copy(nonPremultipliedBitmap.getConfig(), true);
+			textureBitmap.setPremultiplied(true);
+			nonPremultipliedBitmap.recycle();
+		} else {
+			textureBitmap = nonPremultipliedBitmap;
+		}
+
 
 		textureName = textureInfo.name();
 		activity.setTitle(textureName);

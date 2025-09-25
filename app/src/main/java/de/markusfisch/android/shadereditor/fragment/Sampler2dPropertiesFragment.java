@@ -113,13 +113,12 @@ public class Sampler2dPropertiesFragment extends AbstractSamplerPropertiesFragme
 		// Get the DataSource using the modern singleton pattern.
 		DataSource dataSource = Database.getInstance(context).getDataSource();
 
-		if (dataSource.texture.insertTexture(
-				name,
-				Bitmap.createScaledBitmap(
-						bitmap,
-						size,
-						size,
-						true)) < 1) {
+		Bitmap scaledBitmap = BitmapEditor.createScaledBitmapManual(
+				bitmap,
+				size,
+				size);
+
+		if (dataSource.texture.insertTexture(name, scaledBitmap) < 1) {
 			return R.string.name_already_taken;
 		}
 

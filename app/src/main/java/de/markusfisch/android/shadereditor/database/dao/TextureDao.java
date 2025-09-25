@@ -81,7 +81,9 @@ public class TextureDao {
 			if (cursor.moveToFirst()) {
 				var data = CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
 				if (data != null) {
-					return BitmapFactory.decodeByteArray(data, 0, data.length);
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					options.inPremultiplied = false;
+					return BitmapFactory.decodeByteArray(data, 0, data.length, options);
 				}
 			}
 		} catch (OutOfMemoryError e) {
@@ -101,7 +103,9 @@ public class TextureDao {
 			if (cursor.moveToFirst()) {
 				var data = CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
 				if (data != null) {
-					return BitmapFactory.decodeByteArray(data, 0, data.length);
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					options.inPremultiplied = false;
+					return BitmapFactory.decodeByteArray(data, 0, data.length, options);
 				}
 			}
 		} catch (OutOfMemoryError e) {
@@ -129,8 +133,7 @@ public class TextureDao {
 	private static long insertTexture(SQLiteDatabase db, String name, Bitmap bitmap,
 			int thumbnailSize) {
 		try {
-			var thumbnail = Bitmap.createScaledBitmap(bitmap, thumbnailSize, thumbnailSize,
-					true);
+			var thumbnail = BitmapEditor.createScaledBitmapManual(bitmap, thumbnailSize, thumbnailSize);
 			int w = bitmap.getWidth();
 			int h = bitmap.getHeight();
 			return insertTexture(db, name, w, h, calculateRatio(w, h),
@@ -236,8 +239,10 @@ public class TextureDao {
 			}
 
 			private void insertInitialTextures(@NonNull SQLiteDatabase db) {
+				BitmapFactory.Options options = new BitmapFactory.Options();
+				options.inPremultiplied = false;
 				Bitmap noiseBitmap = BitmapFactory.decodeResource(context.getResources(),
-						R.drawable.texture_noise);
+						R.drawable.texture_noise, options);
 				int thumbnailSize =
 						Math.round(context.getResources().getDisplayMetrics().density * 48f);
 				insertTexture(db,
@@ -270,7 +275,9 @@ public class TextureDao {
 							continue;
 						}
 
-						var bm = BitmapFactory.decodeByteArray(data, 0, data.length);
+						BitmapFactory.Options options = new BitmapFactory.Options();
+						options.inPremultiplied = false;
+						var bm = BitmapFactory.decodeByteArray(data, 0, data.length, options);
 						if (bm == null) {
 							continue;
 						}
