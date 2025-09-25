@@ -124,18 +124,43 @@ public class TextureParameters {
 	}
 
 	static String setBitmap(Bitmap bitmap) {
-		if (bitmap == null) {
+		if (bitmap == null || bitmap.isRecycled()) {
 			return null;
 		}
-		// Flip bitmap because 0/0 is bottom left in OpenGL.
-		Bitmap flippedBitmap = Bitmap.createBitmap(
-				bitmap,
-				0,
-				0,
-				bitmap.getWidth(),
-				bitmap.getHeight(),
-				flipMatrix,
-				true);
+
+		Bitmap flippedBitmap;
+		int width = bitmap.getWidth();
+		int height = bitmap.getHeight();
+
+		// 1. Get all pixels from the source bitmap.
+		int[] srcPixels = new int[width * height];
+		bitmap.getPixels(srcPixels, 0, width, 0, 0, width, height);
+
+		// 2. Create a destination array to hold the flipped pixels.
+		int[] dstPixels = new int[width * height];
+
+		// 3. Copy the pixels row by row, in reverse vertical order.
+		for (int y = 0; y < height; y++) {
+			int srcY = y;
+			int dstY = height - 1 - y;
+			System.arraycopy(
+					srcPixels,  // Source array
+					srcY * width, // Start position in source
+					dstPixels,  // Destination array
+					dstY * width, // Start position in destination
+					width       // Number of pixels to copy (one row)
+			);
+		}
+
+		// 4. Create a new bitmap from the flipped pixel data.
+		// We can't use createBitmap(pixels...) because it always returns a
+		// premultiplied bitmap. Instead, we create an empty mutable bitmap
+		// and set its pixels. setPixels() respects the non-premultiplied
+		// flag.
+		flippedBitmap = Bitmap.createBitmap(width, height, bitmap.getConfig());
+		flippedBitmap.setPremultiplied(bitmap.isPremultiplied());
+		flippedBitmap.setPixels(dstPixels, 0, width, 0, 0, width, height);
+
 		String message = null;
 		try {
 			GLUtils.texImage2D(
@@ -145,11 +170,20 @@ public class TextureParameters {
 					flippedBitmap,
 					GLES20.GL_UNSIGNED_BYTE,
 					0);
+
+			// Note: The GLUtils.texImage2D call that takes a Bitmap is a bit of a black
+			// box and could have issues with non-premultiplied formats on some
+			// devices. If anyone encounters issues here, the ultimate solution is to pass
+			// a Buffer of the pixel data to the GLES20.glTexImage2D method directly.
+			// For now, this should work on most devices.
+
 		} catch (IllegalArgumentException e) {
 			// Format/color space is invalid.
 			message = e.getMessage();
+		} finally {
+			flippedBitmap.recycle();
 		}
-		flippedBitmap.recycle();
+
 		return message;
 	}
 
