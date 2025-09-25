@@ -81,7 +81,9 @@ public class TextureDao {
 			if (cursor.moveToFirst()) {
 				var data = CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
 				if (data != null) {
-					return BitmapFactory.decodeByteArray(data, 0, data.length);
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					options.inPremultiplied = false;
+					return BitmapFactory.decodeByteArray(data, 0, data.length, options);
 				}
 			}
 		} catch (OutOfMemoryError e) {
@@ -101,7 +103,9 @@ public class TextureDao {
 			if (cursor.moveToFirst()) {
 				var data = CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
 				if (data != null) {
-					return BitmapFactory.decodeByteArray(data, 0, data.length);
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					options.inPremultiplied = false;
+					return BitmapFactory.decodeByteArray(data, 0, data.length, options);
 				}
 			}
 		} catch (OutOfMemoryError e) {
@@ -127,8 +131,7 @@ public class TextureDao {
 	private static long insertTexture(SQLiteDatabase db, String name, Bitmap bitmap,
 			int thumbnailSize) {
 		try {
-			var thumbnail = Bitmap.createScaledBitmap(bitmap, thumbnailSize, thumbnailSize,
-					true);
+			var thumbnail = BitmapEditor.createScaledBitmapManual(bitmap, thumbnailSize, thumbnailSize);
 			int w = bitmap.getWidth();
 			int h = bitmap.getHeight();
 			return insertTexture(db, name, w, h, calculateRatio(w, h),
@@ -237,8 +240,7 @@ public class TextureDao {
 
 			private void insertInitialTextures(@NonNull SQLiteDatabase db) {
 				int thumbnailSize = Math.round(
-						context.getResources().getDisplayMetrics().density *
-						48f);
+						context.getResources().getDisplayMetrics().density * 48f);
 				insertTextureIfMissing(db,
 						context.getString(R.string.texture_name_noise),
 						R.drawable.texture_noise,
@@ -254,8 +256,10 @@ public class TextureDao {
 				if (textureExists(db, name)) {
 					return;
 				}
+				BitmapFactory.Options options = new BitmapFactory.Options();
+				options.inPremultiplied = false;
 				Bitmap bitmap = BitmapFactory.decodeResource(
-						context.getResources(), drawableResId);
+						context.getResources(), drawableResId, options);
 				if (bitmap == null) {
 					return;
 				}
@@ -287,7 +291,9 @@ public class TextureDao {
 							continue;
 						}
 
-						var bm = BitmapFactory.decodeByteArray(data, 0, data.length);
+						BitmapFactory.Options options = new BitmapFactory.Options();
+						options.inPremultiplied = false;
+						var bm = BitmapFactory.decodeByteArray(data, 0, data.length, options);
 						if (bm == null) {
 							continue;
 						}
