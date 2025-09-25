@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ColorSpace;
-import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Build;
@@ -80,23 +79,19 @@ public class BitmapEditor {
 
 		try {
 			Bitmap sourceBitmap = bitmap;
+			boolean sourceBitmapIsTemp = false;
 
-			// 1. Handle rotation. This step may produce an intermediate premultiplied bitmap,
-			// but that's okay because we will be extracting its pixels manually.
+			// 1. Handle rotation.
+			// This is done before cropping to simplify the cropping logic.
 			if (rotation % 360f != 0) {
-				Matrix matrix = new Matrix();
-				matrix.setRotate(rotation);
-				sourceBitmap = Bitmap.createBitmap(
-						bitmap,
-						0,
-						0,
-						bitmap.getWidth(),
-						bitmap.getHeight(),
-						matrix,
-						true);
+				sourceBitmap = rotateBitmapManual(bitmap, rotation);
+				if (sourceBitmap != bitmap) {
+					sourceBitmapIsTemp = true;
+				}
 			}
 
-			// 2. Calculate the crop area in pixels
+			// 2. Calculate the crop area in pixels based on the (possibly rotated)
+			// source bitmap's dimensions.
 			int srcWidth = sourceBitmap.getWidth();
 			int srcHeight = sourceBitmap.getHeight();
 			int cropX = Math.round(rect.left * srcWidth);
@@ -104,29 +99,34 @@ public class BitmapEditor {
 			int cropWidth = Math.round(rect.width() * srcWidth);
 			int cropHeight = Math.round(rect.height() * srcHeight);
 
-			// 3. Validate crop dimensions
+			// 3. Validate crop dimensions.
 			if (cropWidth <= 0 || cropHeight <= 0 || cropX < 0 || cropY < 0 ||
 					cropX + cropWidth > srcWidth || cropY + cropHeight > srcHeight) {
-				Log.e("BitmapUtils", "Invalid crop parameters.");
+				Log.e("BitmapEditor", "Invalid crop parameters.");
+				if (sourceBitmapIsTemp) {
+					sourceBitmap.recycle();
+				}
 				return null;
 			}
 
-			// 4. *** The Core Logic: Manual Pixel Copy ***
-			// Create an array to hold the cropped pixels.
+			// 4. Extract the rectangular block of pixels from the source bitmap.
+			// getPixels() always returns non-premultiplied ARGB values.
 			int[] croppedPixels = new int[cropWidth * cropHeight];
-
-			// Extract the rectangular block of pixels from the source bitmap.
-			// This is a highly optimized, low-level copy.
 			sourceBitmap.getPixels(croppedPixels, 0, cropWidth, cropX, cropY, cropWidth,
 					cropHeight);
 
+			// If a temporary rotated bitmap was created, it's no longer needed.
+			if (sourceBitmapIsTemp) {
+				sourceBitmap.recycle();
+			}
+
 			// 5. Create the final bitmap from the array of cropped pixels.
-			// getPixels() always returns non-premultiplied pixels. We create a
-			// new non-premultiplied bitmap from them. We cannot use
-			// createBitmap(pixels...) as that always creates a premultiplied
-			// bitmap.
+			// We cannot use createBitmap(pixels...) as that always creates a
+			// premultiplied bitmap. Instead, we create an empty mutable bitmap
+			// and set its pixels, which respects the non-premultiplied flag.
 			Bitmap croppedBitmap = Bitmap.createBitmap(cropWidth, cropHeight,
-					Objects.requireNonNull(sourceBitmap.getConfig()));
+					Objects.requireNonNull(bitmap.getConfig())); // Use original bitmap's config
+			// for safety.
 			croppedBitmap.setPremultiplied(false);
 			croppedBitmap.setPixels(croppedPixels, 0, cropWidth, 0, 0, cropWidth, cropHeight);
 
@@ -210,6 +210,70 @@ public class BitmapEditor {
 		finalBitmap.setPixels(dstPixels, 0, dstWidth, 0, 0, dstWidth, dstHeight);
 
 		return finalBitmap;
+	}
+
+	@SuppressWarnings("SuspiciousNameCombination")
+	private static Bitmap rotateBitmapManual(Bitmap src, float degrees) {
+		if (src == null || degrees % 360 == 0) {
+			return src;
+		}
+
+		final int width = src.getWidth();
+		final int height = src.getHeight();
+		final Bitmap.Config config = src.getConfig();
+
+		final int[] srcPixels = new int[width * height];
+		// getPixels returns non-premultiplied ARGB values.
+		src.getPixels(srcPixels, 0, width, 0, 0, width, height);
+
+		final int[] dstPixels;
+		final int newWidth, newHeight;
+
+		final int rotation = (int) (degrees + 360) % 360;
+
+		switch (rotation) {
+			case 90:
+				newWidth = height;
+				newHeight = width;
+				dstPixels = new int[newWidth * newHeight];
+				for (int y = 0; y < height; y++) {
+					for (int x = 0; x < width; x++) {
+						dstPixels[x * newWidth + (newWidth - 1 - y)] = srcPixels[y * width + x];
+					}
+				}
+				break;
+			case 180:
+				newWidth = width;
+				newHeight = height;
+				dstPixels = new int[newWidth * newHeight];
+				for (int i = 0; i < srcPixels.length; i++) {
+					dstPixels[srcPixels.length - 1 - i] = srcPixels[i];
+				}
+				break;
+			case 270:
+				newWidth = height;
+				newHeight = width;
+				dstPixels = new int[newWidth * newHeight];
+				for (int y = 0; y < height; y++) {
+					for (int x = 0; x < width; x++) {
+						dstPixels[((newHeight - 1 - x) * newWidth) + y] = srcPixels[y * width + x];
+					}
+				}
+				break;
+			default:
+				// Should not happen as UI only allows 90 degree increments
+				return src;
+		}
+
+		assert config != null;
+		Bitmap rotatedBitmap = Bitmap.createBitmap(newWidth, newHeight, config);
+		// The created bitmap must be flagged as non-premultiplied because
+		// the pixel data from getPixels() and our manual transformation is
+		// non-premultiplied.
+		rotatedBitmap.setPremultiplied(false);
+		rotatedBitmap.setPixels(dstPixels, 0, newWidth, 0, 0, newWidth, newHeight);
+
+		return rotatedBitmap;
 	}
 
 	private static float interpolate(float a, float b, float frac) {
