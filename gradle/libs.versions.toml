@@ -1,5 +1,5 @@
 [versions]
-agp = "8.12.1"
+agp = "8.13.1"
 appcompat = "1.7.1"
 camerax = "1.4.2"
 preference = "1.2.1"
