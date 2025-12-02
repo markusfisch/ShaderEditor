@@ -38,6 +38,10 @@ import de.markusfisch.android.shadereditor.view.SystemBarMetrics;
 
 public class MainActivity extends AppCompatActivity {
 	private static final String CODE_VISIBLE = "code_visible";
+	private static final String CRASH_RECOVERY_COMMENT = """
+			// Shader Editor disabled this shader because it caused a crash while loading.
+			// Fix the shader and remove the #if 0 wrapper to re-enable it.
+			""";
 
 	private EditorFragment editorFragment;
 	private UIManager uiManager;
@@ -55,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
 		SystemBarMetrics.initMainLayout(this, null);
 
 		dataSource = Database.getInstance(this).getDataSource();
+		recoverFromCrashIfNeeded();
 
 		editorFragment = state == null ? new EditorFragment() : (EditorFragment)
 				getSupportFragmentManager().findFragmentByTag(EditorFragment.TAG);
@@ -150,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	protected void onPause() {
+		ShaderEditorApp.preferences.setPendingCrashShaderId(0);
 		if (ShaderEditorApp.preferences.autoSave()) {
 			shaderManager.saveShader();
 		}
@@ -241,6 +247,7 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onFramesPerSecond(int fps) {
 				if (fps > 0) {
+					ShaderEditorApp.preferences.setPendingCrashShaderId(0);
 					uiManager.setToolbarSubtitle(fps + " fps");
 				}
 			}
@@ -444,5 +451,41 @@ public class MainActivity extends AppCompatActivity {
 			navigationManager.showPreview(src, shaderManager.getQuality(),
 					shaderManager.previewShaderLauncher);
 		}
+	}
+
+	private void recoverFromCrashIfNeeded() {
+		var preferences = ShaderEditorApp.preferences;
+		long shaderId = preferences.getPendingCrashShaderId();
+		if (shaderId <= 0) {
+			return;
+		}
+		var shader = dataSource.shader.getShader(shaderId);
+		if (shader == null) {
+			preferences.setPendingCrashShaderId(0);
+			return;
+		}
+		String recoveredSource = buildCrashRecoverySource(shader.fragmentShader());
+		dataSource.shader.updateShader(shaderId, recoveredSource, null, shader.quality());
+		preferences.setPendingCrashShaderId(0);
+		Toast.makeText(this, R.string.shader_disabled_after_crash,
+				Toast.LENGTH_LONG).show();
+	}
+
+	@NonNull
+	private static String buildCrashRecoverySource(@Nullable String source) {
+		if (source != null && source.startsWith(CRASH_RECOVERY_COMMENT)) {
+			return source;
+		}
+		StringBuilder builder = new StringBuilder();
+		builder.append(CRASH_RECOVERY_COMMENT);
+		builder.append("#if 0\n");
+		if (source != null && !source.isEmpty()) {
+			builder.append(source);
+			if (!source.endsWith("\n")) {
+				builder.append('\n');
+			}
+		}
+		builder.append("#endif\n");
+		return builder.toString();
 	}
 }

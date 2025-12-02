@@ -31,6 +31,7 @@
 	<string name="menu_btn">More options</string>
 	<string name="show_errors">Show errors</string>
 	<string name="shader_saved">Shader saved</string>
+	<string name="shader_disabled_after_crash">The previous shader crashed Shader Editor and was commented out.</string>
 
 	<string name="new_shader_template" translatable="false">#ifdef GL_ES\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\nuniform float time;\n\nvoid main(void)\n{\n\tvec2 p = gl_FragCoord.xy / resolution.xy;\n\tgl_FragColor = vec4(p.x, p.y, 0.0, 1.0);\n}</string>
 	<string name="details">Details</string>

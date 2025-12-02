@@ -31,6 +31,7 @@
 	<string name="menu_btn">Больше опций</string>
 	<string name="show_errors">Показать ошибки</string>
 	<string name="shader_saved">Шейдер сохранен</string>
+	<string name="shader_disabled_after_crash">Предыдущий шейдер вызвал сбой Shader Editor и был закомментирован.</string>
 
 	<!-- EditorFragment -->
 	<string name="details">Детали</string>

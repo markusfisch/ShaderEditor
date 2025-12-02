@@ -165,6 +165,12 @@ public class ShaderManager {
 			quality = shader.quality();
 		}
 
+		ShaderEditorApp.preferences.setPendingCrashShaderId(
+				ShaderEditorApp.preferences.doesRunInBackground() &&
+						selectedShaderId > 0
+						? selectedShaderId
+						: 0);
+
 		shaderListManager.setSelectedShaderId(selectedShaderId);
 		shaderViewManager.setQuality(quality);
 		shaderViewManager.setFragmentShader(editorFragment.getText());
