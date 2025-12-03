@@ -73,25 +73,9 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	private final int[] colors = new int[Highlight.values().length];
-	@Nullable
-	private OnTextModifiedListener onTextModifiedListener;
-	@Nullable
-	private OnEditPausedListener onEditPausedListener;
-	@Nullable
-	private CodeCompletionListener codeCompletionListener;
 	private final TokenListUpdater tokenListUpdater = new TokenListUpdater(
 			(tokens, text) -> post(
 					() -> provideCompletions(tokens, text)));
-	private int updateDelay = 1000;
-	@NonNull
-	private List<ShaderError> shaderErrors = Collections.emptyList();
-	private boolean isUserInteraction = true;
-	private int colorError;
-	private int textColor;
-	private int tabWidthInCharacters = 0;
-	private int tabWidth = 0;
-	private List<Token> tokens = new ArrayList<>();
-	private int revision = 0;
 	private final Runnable updateRunnable = new Runnable() {
 		@Override
 		public void run() {
@@ -107,6 +91,23 @@ public class ShaderEditor extends LineNumberEditText {
 
 		}
 	};
+
+	@Nullable
+	private OnTextModifiedListener onTextModifiedListener;
+	@Nullable
+	private OnEditPausedListener onEditPausedListener;
+	@Nullable
+	private CodeCompletionListener codeCompletionListener;
+	private int updateDelay = 1000;
+	@NonNull
+	private List<ShaderError> shaderErrors = Collections.emptyList();
+	private boolean isUserInteraction = true;
+	private int colorError;
+	private int textColor;
+	private int tabWidthInCharacters = 0;
+	private int tabWidth = 0;
+	private List<Token> tokens = new ArrayList<>();
+	private int revision = 0;
 	private boolean isApplyingEdit = false;
 
 	public ShaderEditor(Context context) {
