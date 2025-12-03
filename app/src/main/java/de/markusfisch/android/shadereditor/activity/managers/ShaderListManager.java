@@ -72,6 +72,9 @@ public class ShaderListManager {
 	 * Loads shaders from the database asynchronously.
 	 */
 	public void loadShadersAsync() {
+		if (executor.isShutdown()) {
+			return;
+		}
 		// Use a WeakReference to avoid leaking the context if the activity
 		// is destroyed.
 		WeakReference<ShaderListManager> managerRef = new WeakReference<>(this);
@@ -97,8 +100,13 @@ public class ShaderListManager {
 					finalManager.listener.onShadersLoaded(shaderList);
 					finalManager.updateAdapter(shaderList);
 				}
-			});
+				});
 		});
+	}
+
+	public void destroy() {
+		executor.shutdownNow();
+		handler.removeCallbacksAndMessages(null);
 	}
 
 	private void updateAdapter(List<ShaderInfo> shaders) {

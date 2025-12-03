@@ -20,6 +20,7 @@ import androidx.lifecycle.Lifecycle;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
@@ -146,15 +147,17 @@ public class TextureViewFragment extends Fragment {
 		Context appContext = context.getApplicationContext();
 		Handler handler = new Handler(Looper.getMainLooper());
 
-		Executors.newSingleThreadExecutor().execute(() -> {
-			Database.getInstance(appContext).getDataSource().texture.removeTexture(id);
-			handler.post(() -> {
-				Activity activity = getActivity();
-				if (activity != null) {
-					activity.finish();
-				}
+		try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
+			executor.execute(() -> {
+				Database.getInstance(appContext).getDataSource().texture.removeTexture(id);
+				handler.post(() -> {
+					Activity activity = getActivity();
+					if (activity != null) {
+						activity.finish();
+					}
+				});
 			});
-		});
+		}
 	}
 
 	private void insertUniformSamplerStatement() {

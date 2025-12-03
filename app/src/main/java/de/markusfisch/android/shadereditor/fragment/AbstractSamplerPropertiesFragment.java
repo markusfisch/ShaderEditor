@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 
@@ -173,36 +174,38 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 		progressView.setVisibility(View.VISIBLE);
 
 		Handler handler = new Handler(Looper.getMainLooper());
-		Executors.newSingleThreadExecutor().execute(() -> {
-			int messageId = saveSampler(context, name, size);
-			handler.post(() -> {
-				inProgress = false;
-				progressView.setVisibility(View.GONE);
+		try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
+			executor.execute(() -> {
+				int messageId = saveSampler(context, name, size);
+				handler.post(() -> {
+					inProgress = false;
+					progressView.setVisibility(View.GONE);
 
-				Activity activity = getActivity();
-				if (activity == null) {
-					return;
-				}
+					Activity activity = getActivity();
+					if (activity == null) {
+						return;
+					}
 
-				if (messageId > 0) {
-					Toast.makeText(
-							activity,
-							messageId,
-							Toast.LENGTH_SHORT).show();
+					if (messageId > 0) {
+						Toast.makeText(
+								activity,
+								messageId,
+								Toast.LENGTH_SHORT).show();
 
-					return;
-				}
+						return;
+					}
 
-				if (addUniformView.isChecked()) {
-					AddUniformActivity.setAddUniformResult(
-							activity,
-							"uniform " + samplerType + " " + name + ";" +
-									params);
-				}
+					if (addUniformView.isChecked()) {
+						AddUniformActivity.setAddUniformResult(
+								activity,
+								"uniform " + samplerType + " " + name + ";" +
+										params);
+					}
 
-				activity.finish();
+					activity.finish();
+				});
 			});
-		});
+		}
 	}
 
 	private static int getPower(int power) {

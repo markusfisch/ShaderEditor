@@ -164,6 +164,14 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	@Override
+	protected void onDestroy() {
+		if (shaderListManager != null) {
+			shaderListManager.destroy();
+		}
+		super.onDestroy();
+	}
+
+	@Override
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 		shaderManager.handleSendText(intent);

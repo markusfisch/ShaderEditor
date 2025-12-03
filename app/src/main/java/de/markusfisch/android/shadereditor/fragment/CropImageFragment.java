@@ -18,6 +18,7 @@ import androidx.core.view.MenuProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
@@ -115,26 +116,28 @@ public class CropImageFragment extends Fragment {
 		inProgress = true;
 		progressView.setVisibility(View.VISIBLE);
 		Handler handler = new Handler(Looper.getMainLooper());
-		Executors.newSingleThreadExecutor().execute(() -> {
-			Bitmap b = BitmapEditor.getBitmapFromUri(
-					activity,
-					imageUri,
-					1024);
-			handler.post(() -> {
-				inProgress = false;
-				progressView.setVisibility(View.GONE);
+		try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
+			executor.execute(() -> {
+				Bitmap b = BitmapEditor.getBitmapFromUri(
+						activity,
+						imageUri,
+						1024);
+				handler.post(() -> {
+					inProgress = false;
+					progressView.setVisibility(View.GONE);
 
-				if (b == null) {
-					abort(activity);
-					return;
-				}
+					if (b == null) {
+						abort(activity);
+						return;
+					}
 
-				if (isAdded()) {
-					bitmap = b;
-					cropImageView.setImageBitmap(b);
-				}
+					if (isAdded()) {
+						bitmap = b;
+						cropImageView.setImageBitmap(b);
+					}
+				});
 			});
-		});
+		}
 	}
 
 	private void abort(Activity activity) {

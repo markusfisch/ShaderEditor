@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
@@ -102,17 +103,19 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 			return;
 		}
 		Handler handler = new Handler(Looper.getMainLooper());
-		Executors.newSingleThreadExecutor().execute(() -> {
-			DataSource dataSource = Database.getInstance(context).getDataSource();
-			// Call the new overridable method to get the textures.
-			final List<DataRecords.TextureInfo> textures = getTextures(dataSource, searchQuery);
+		try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
+			executor.execute(() -> {
+				DataSource dataSource = Database.getInstance(context).getDataSource();
+				// Call the new overridable method to get the textures.
+				final List<DataRecords.TextureInfo> textures = getTextures(dataSource, searchQuery);
 
-			handler.post(() -> {
-				if (isAdded()) {
-					updateAdapter(textures);
-				}
+				handler.post(() -> {
+					if (isAdded()) {
+						updateAdapter(textures);
+					}
+				});
 			});
-		});
+		}
 	}
 
 	/**
