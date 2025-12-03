@@ -513,6 +513,12 @@ public class ShaderEditor extends LineNumberEditText {
 		removeCallbacks(updateRunnable);
 	}
 
+	@Override
+	protected void onDetachedFromWindow() {
+		super.onDetachedFromWindow();
+		tokenListUpdater.shutdown();
+	}
+
 	private void highlightWithoutChange(@NonNull Editable e) {
 		isUserInteraction = false;
 		highlight(e, false);
@@ -844,6 +850,14 @@ public class ShaderEditor extends LineNumberEditText {
 
 		public boolean isDone() {
 			return task != null && task.isDone();
+		}
+
+		public void shutdown() {
+			if (task != null) {
+				task.cancel(true);
+				task = null;
+			}
+			executor.shutdownNow();
 		}
 	}
 }
