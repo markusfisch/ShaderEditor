@@ -3,7 +3,6 @@ package de.markusfisch.android.shadereditor.activity;
 import android.app.WallpaperManager;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -429,8 +428,7 @@ public class MainActivity extends AppCompatActivity {
 		ShaderEditorApp.preferences.setWallpaperShader(shaderManager.getSelectedShaderId());
 
 		int messageId = R.string.wallpaper_set;
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-				!WallpaperManager.getInstance(this).isWallpaperSupported()) {
+		if (!WallpaperManager.getInstance(this).isWallpaperSupported()) {
 			messageId = R.string.cannot_set_wallpaper;
 		} else if (!ShaderWallpaperService.isRunning()) {
 			Intent intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER)
