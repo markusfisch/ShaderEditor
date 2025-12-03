@@ -14,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import de.markusfisch.android.shadereditor.R;
@@ -236,7 +237,7 @@ public class ShaderManager {
 			int len;
 			var sb = new StringBuilder();
 			while ((len = in.read(buffer)) != -1) {
-				sb.append(new String(buffer, 0, len));
+				sb.append(new String(buffer, 0, len, StandardCharsets.UTF_8));
 			}
 			PreviewActivity.renderStatus.reset();
 			intent.setAction(null);
