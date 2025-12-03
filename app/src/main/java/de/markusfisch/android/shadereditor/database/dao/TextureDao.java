@@ -252,7 +252,7 @@ public class TextureDao {
 				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME +
 						" ADD COLUMN " + DatabaseContract.TextureColumns.HEIGHT + " INTEGER;");
 				db.execSQL("ALTER TABLE " + DatabaseContract.TextureColumns.TABLE_NAME +
-						" ADD COLUMN" + DatabaseContract.TextureColumns.RATIO + "REAL;");
+						" ADD COLUMN " + DatabaseContract.TextureColumns.RATIO + " REAL;");
 
 				try (var cursor =
 						db.rawQuery("SELECT " +
