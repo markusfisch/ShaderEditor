@@ -6,6 +6,7 @@ import android.graphics.Typeface;
 import android.hardware.SensorManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.preference.PreferenceManager;
@@ -200,21 +201,39 @@ public class Preferences {
 
 	private @NonNull Typeface loadFont(
 			@NonNull Context context,
-			@NonNull String fontName) {
-		if (fontName.equals("monospace")) {
+			@Nullable String fontName) {
+		Typeface typeface = tryLoadFont(context, fontName);
+		if (typeface != null) {
+			return typeface;
+		}
+
+		// Reset to default font if the stored value is no longer available.
+		if (preferences != null && defaultFont != null &&
+				fontName != null && !fontName.equals(defaultFont)) {
+			preferences.edit().putString(FONT, defaultFont).apply();
+			Typeface fallback = tryLoadFont(context, defaultFont);
+			if (fallback != null) {
+				return fallback;
+			}
+		}
+
+		// Absolute last resort: return the platform monospace font.
+		return Typeface.MONOSPACE;
+	}
+
+	@Nullable
+	private Typeface tryLoadFont(@NonNull Context context, @Nullable String fontName) {
+		if (fontName == null || fontName.isEmpty()) {
+			return null;
+		}
+		if ("monospace".equals(fontName)) {
 			return Typeface.MONOSPACE;
 		}
 		Integer resId = fontNameToResId.get(fontName);
 		if (resId == null) {
-			throw new IllegalArgumentException(
-					"font \"" + fontName + "\" not found!");
+			return null;
 		}
-		Typeface tf = ResourcesCompat.getFont(context, resId);
-		if (tf == null) {
-			throw new IllegalArgumentException(
-					"font \"" + fontName + "\" could not be loaded!");
-		}
-		return tf;
+		return ResourcesCompat.getFont(context, resId);
 	}
 
 	public boolean saveBattery() {
