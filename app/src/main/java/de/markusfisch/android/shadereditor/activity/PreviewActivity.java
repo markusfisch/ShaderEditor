@@ -17,7 +17,7 @@ public class PreviewActivity extends AppCompatActivity {
 	public static class RenderStatus {
 		private volatile int fps;
 		private volatile List<ShaderError> infoLog;
-		private byte[] thumbnail;
+		private volatile byte[] thumbnail;
 
 		RenderStatus() {
 			reset();
@@ -40,6 +40,10 @@ public class PreviewActivity extends AppCompatActivity {
 		public byte[] getThumbnail() {
 			return thumbnail;
 		}
+
+		public void setThumbnail(byte[] thumbnail) {
+			this.thumbnail = thumbnail;
+		}
 	}
 
 	public static final String FRAGMENT_SHADER = "fragment_shader";
@@ -54,7 +58,7 @@ public class PreviewActivity extends AppCompatActivity {
 				return;
 			}
 
-			renderStatus.thumbnail = shaderView.getRenderer().getThumbnail();
+			renderStatus.setThumbnail(shaderView.getRenderer().getThumbnail());
 		}
 	};
 
