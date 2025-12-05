@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.35.3
+* Detect crash loops and disable bad shaders
+* Improve loading fonts and shaders
+* Fix database migration
+
 ## 2.35.2
 * Improve highlighting
 
