@@ -214,6 +214,9 @@ public class TextureDao {
 				if (oldVersion < 4) {
 					addTexturesWidthHeightRatio(db);
 				}
+				if (oldVersion < 6) {
+					insertInitialTextures(db);
+				}
 			}
 
 			@Override
@@ -224,8 +227,7 @@ public class TextureDao {
 
 			private void createTexturesTable(@NonNull SQLiteDatabase db) {
 				db.execSQL("CREATE TABLE " + DatabaseContract.TextureColumns.TABLE_NAME + " (" +
-						DatabaseContract.TextureColumns._ID + " INTEGER PRIMARY KEY " +
-						"AUTOINCREMENT," +
+						DatabaseContract.TextureColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
 						DatabaseContract.TextureColumns.NAME + " TEXT NOT NULL UNIQUE," +
 						DatabaseContract.TextureColumns.WIDTH + " INTEGER," +
 						DatabaseContract.TextureColumns.HEIGHT + " INTEGER," +
@@ -236,14 +238,31 @@ public class TextureDao {
 			}
 
 			private void insertInitialTextures(@NonNull SQLiteDatabase db) {
-				Bitmap noiseBitmap = BitmapFactory.decodeResource(context.getResources(),
-						R.drawable.texture_noise);
-				int thumbnailSize =
-						Math.round(context.getResources().getDisplayMetrics().density * 48f);
-				insertTexture(db,
+				int thumbnailSize = Math.round(
+						context.getResources().getDisplayMetrics().density *
+						48f);
+				insertTextureIfMissing(db,
 						context.getString(R.string.texture_name_noise),
-						noiseBitmap,
+						R.drawable.texture_noise,
 						thumbnailSize);
+				insertTextureIfMissing(db,
+						context.getString(R.string.texture_name_rgba_noise),
+						R.drawable.texture_noise_rgba,
+						thumbnailSize);
+			}
+
+			private void insertTextureIfMissing(@NonNull SQLiteDatabase db,
+					String name, int drawableResId, int thumbnailSize) {
+				if (textureExists(db, name)) {
+					return;
+				}
+				Bitmap bitmap = BitmapFactory.decodeResource(
+						context.getResources(), drawableResId);
+				if (bitmap == null) {
+					return;
+				}
+				insertTexture(db, name, bitmap, thumbnailSize);
+				bitmap.recycle();
 			}
 
 			private void addTexturesWidthHeightRatio(@NonNull SQLiteDatabase db) {

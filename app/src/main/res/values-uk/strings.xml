@@ -163,6 +163,7 @@
 	<!-- UniformSampler2dPageFragment -->
 	<string name="texture_preview">Попередній перегляд текстури</string>
 	<string name="texture_name_noise">шум</string>
+	<string name="texture_name_rgba_noise">rgb_шум</string>
 	<string name="choose_image">Вибрати зображення</string>
 	<string name="no_textures">Немає доступних текстур</string>
 	<string name="texture_size_format" formatted="false">%d x %d</string>

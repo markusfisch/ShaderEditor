@@ -163,6 +163,7 @@
 	<!-- UniformSampler2dPageFragment -->
 	<string name="texture_preview">Texture preview</string>
 	<string name="texture_name_noise">noise</string>
+	<string name="texture_name_rgba_noise">rgba_noise</string>
 	<string name="choose_image">Choose image</string>
 	<string name="no_textures">No textures available</string>
 	<string name="texture_size_format" formatted="false">%d x %d</string>
