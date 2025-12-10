@@ -4,12 +4,17 @@ import android.app.WallpaperManager;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.snackbar.Snackbar;
@@ -250,6 +255,7 @@ public class MainActivity extends AppCompatActivity {
 		return new ShaderViewManager.Listener() {
 			private final View showErrors = findViewById(R.id.show_errors);
 			private final View mainCoordinator = findViewById(R.id.main_coordinator);
+			private final View toolbar = findViewById(R.id.toolbar);
 
 			@Override
 			public void onFramesPerSecond(int fps) {
@@ -267,11 +273,7 @@ public class MainActivity extends AppCompatActivity {
 							? View.VISIBLE
 							: View.GONE);
 					if (editorFragment.hasErrors()) {
-						Snackbar.make(mainCoordinator,
-										infoLog.get(0).toString(), Snackbar.LENGTH_LONG)
-								.setAction(R.string.details, v -> editorFragment.showErrors())
-								.setAnchorView(R.id.extra_keys)
-								.show();
+						showError(infoLog.get(0).toString());
 					}
 				});
 			}
@@ -279,6 +281,44 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onQualityChanged(float quality) {
 				shaderManager.setQuality(quality);
+			}
+
+			private void showError(String error) {
+				Snackbar snackbar = Snackbar.make(mainCoordinator,
+								error,
+								Snackbar.LENGTH_LONG)
+						.setAction(R.string.details,
+								v -> editorFragment.showErrors());
+				moveSnackBarOverActionBar(snackbar.getView());
+				snackbar.show();
+			}
+
+			private void moveSnackBarOverActionBar(View snackbarView) {
+				if (snackbarView == null) {
+					return;
+				}
+
+				ViewGroup.LayoutParams layoutParams =
+						snackbarView.getLayoutParams();
+				if (!(layoutParams instanceof
+						CoordinatorLayout.LayoutParams params)) {
+					return;
+				}
+
+				params.gravity = Gravity.TOP;
+
+				int topInset = 0;
+				WindowInsetsCompat rootInsets =
+						ViewCompat.getRootWindowInsets(mainCoordinator);
+				if (rootInsets != null) {
+					topInset = rootInsets.getInsets(
+							WindowInsetsCompat.Type.systemBars()).top;
+				}
+				if (topInset == 0 && toolbar != null) {
+					topInset = toolbar.getPaddingTop();
+				}
+				params.topMargin = topInset;
+				snackbarView.setLayoutParams(params);
 			}
 		};
 	}
