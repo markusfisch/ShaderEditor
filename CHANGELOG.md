@@ -1,5 +1,9 @@
 # Change Log
 
+## 2.36.0
+* Move error SnackBar on top of ActionBar
+* Add RGBA noise texture
+
 ## 2.35.3
 * Detect crash loops and disable bad shaders
 * Improve loading fonts and shaders
