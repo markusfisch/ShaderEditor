@@ -48,8 +48,8 @@ public class TextureDao {
 						" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 						" WHERE " + DatabaseContract.TextureColumns._ID + " = ?";
 
-		try (var db = dbHelper.getReadableDatabase();
-				var cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		try (var cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
 			if (cursor.moveToFirst()) {
 				return new DataRecords.TextureInfo(
 						CursorHelpers.getLong(cursor, DatabaseContract.TextureColumns._ID),
@@ -76,8 +76,8 @@ public class TextureDao {
 				"SELECT " + DatabaseContract.TextureColumns.MATRIX +
 						" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 						" WHERE " + DatabaseContract.TextureColumns._ID + " = ?";
-		try (var db = dbHelper.getReadableDatabase();
-				var cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		try (var cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
 			if (cursor.moveToFirst()) {
 				var data = CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
 				if (data != null) {
@@ -96,8 +96,8 @@ public class TextureDao {
 				"SELECT " + DatabaseContract.TextureColumns.MATRIX +
 						" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 						" WHERE " + DatabaseContract.TextureColumns.NAME + " = ?";
-		try (var db = dbHelper.getReadableDatabase();
-				var cursor = db.rawQuery(query, new String[]{name})) {
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		try (var cursor = db.rawQuery(query, new String[]{name})) {
 			if (cursor.moveToFirst()) {
 				var data = CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
 				if (data != null) {
@@ -111,17 +111,15 @@ public class TextureDao {
 	}
 
 	public long insertTexture(String name, Bitmap bitmap) {
-		try (var db = dbHelper.getWritableDatabase()) {
-			return insertTexture(db, name, bitmap, textureThumbnailSize);
-		}
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		return insertTexture(db, name, bitmap, textureThumbnailSize);
 	}
 
 	public void removeTexture(long id) {
-		try (var db = dbHelper.getWritableDatabase()) {
-			db.delete(DatabaseContract.TextureColumns.TABLE_NAME,
-					DatabaseContract.TextureColumns._ID + " = ?",
-					new String[]{String.valueOf(id)});
-		}
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		db.delete(DatabaseContract.TextureColumns.TABLE_NAME,
+				DatabaseContract.TextureColumns._ID + " = ?",
+				new String[]{String.valueOf(id)});
 	}
 	// endregion
 
@@ -152,24 +150,24 @@ public class TextureDao {
 						"");
 		var args = substring != null ? new String[]{"%" + substring + "%"} : null;
 
-		String query =
-				"SELECT " +
-						DatabaseContract.TextureColumns._ID + "," +
-						DatabaseContract.TextureColumns.NAME + "," +
-						DatabaseContract.TextureColumns.WIDTH + "," +
-						DatabaseContract.TextureColumns.HEIGHT + "," +
-						DatabaseContract.TextureColumns.THUMB +
-						" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
-						" WHERE " + where +
-						" ORDER BY " + DatabaseContract.TextureColumns._ID;
+			String query =
+					"SELECT " +
+							DatabaseContract.TextureColumns._ID + "," +
+							DatabaseContract.TextureColumns.NAME + "," +
+							DatabaseContract.TextureColumns.WIDTH + "," +
+							DatabaseContract.TextureColumns.HEIGHT + "," +
+							DatabaseContract.TextureColumns.THUMB +
+							" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
+							" WHERE " + where +
+							" ORDER BY " + DatabaseContract.TextureColumns._ID;
 
-		try (var db = dbHelper.getReadableDatabase();
-				var cursor = db.rawQuery(query, args)) {
-			if (cursor.moveToFirst()) {
-				do {
-					textures.add(new DataRecords.TextureInfo(
-							CursorHelpers.getLong(cursor, DatabaseContract.TextureColumns._ID),
-							CursorHelpers.getString(cursor, DatabaseContract.TextureColumns.NAME),
+			SQLiteDatabase db = dbHelper.getReadableDatabase();
+			try (var cursor = db.rawQuery(query, args)) {
+				if (cursor.moveToFirst()) {
+					do {
+						textures.add(new DataRecords.TextureInfo(
+								CursorHelpers.getLong(cursor, DatabaseContract.TextureColumns._ID),
+								CursorHelpers.getString(cursor, DatabaseContract.TextureColumns.NAME),
 							CursorHelpers.getInt(cursor, DatabaseContract.TextureColumns.WIDTH),
 							CursorHelpers.getInt(cursor, DatabaseContract.TextureColumns.HEIGHT),
 							CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.THUMB)));

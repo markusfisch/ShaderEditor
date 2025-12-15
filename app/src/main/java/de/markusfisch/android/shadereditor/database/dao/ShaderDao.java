@@ -43,8 +43,8 @@ public class ShaderDao {
 				"SELECT " + DatabaseContract.ShaderColumns._ID + "," + DatabaseContract.ShaderColumns.FRAGMENT_SHADER + "," + DatabaseContract.ShaderColumns.NAME + "," +
 						DatabaseContract.ShaderColumns.MODIFIED + "," + DatabaseContract.ShaderColumns.QUALITY + " FROM " + DatabaseContract.ShaderColumns.TABLE_NAME + " WHERE " + DatabaseContract.ShaderColumns._ID + " = ?";
 
-		try (var db = dbHelper.getReadableDatabase();
-				var cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		try (var cursor = db.rawQuery(query, new String[]{String.valueOf(id)})) {
 			if (cursor.moveToFirst()) {
 				return new DataRecords.Shader(
 						CursorHelpers.getLong(cursor, DatabaseContract.ShaderColumns._ID),
@@ -61,13 +61,13 @@ public class ShaderDao {
 	public List<DataRecords.ShaderInfo> getShaders(boolean sortByLastModification) {
 		List<DataRecords.ShaderInfo> shaders = new ArrayList<>();
 		String query =
-				"SELECT " + DatabaseContract.ShaderColumns._ID + "," + DatabaseContract.ShaderColumns.THUMB + "," + DatabaseContract.ShaderColumns.NAME + "," + DatabaseContract.ShaderColumns.MODIFIED +
-						" FROM " + DatabaseContract.ShaderColumns.TABLE_NAME + " ORDER BY " + (sortByLastModification ?
-						DatabaseContract.ShaderColumns.MODIFIED + " DESC" :
-						DatabaseContract.ShaderColumns._ID);
+					"SELECT " + DatabaseContract.ShaderColumns._ID + "," + DatabaseContract.ShaderColumns.THUMB + "," + DatabaseContract.ShaderColumns.NAME + "," + DatabaseContract.ShaderColumns.MODIFIED +
+							" FROM " + DatabaseContract.ShaderColumns.TABLE_NAME + " ORDER BY " + (sortByLastModification ?
+							DatabaseContract.ShaderColumns.MODIFIED + " DESC" :
+							DatabaseContract.ShaderColumns._ID);
 
-		try (var db = dbHelper.getReadableDatabase();
-				var cursor = db.rawQuery(query, null)) {
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		try (var cursor = db.rawQuery(query, null)) {
 			if (cursor.moveToFirst()) {
 				do {
 					shaders.add(new DataRecords.ShaderInfo(
@@ -89,8 +89,8 @@ public class ShaderDao {
 						DatabaseContract.ShaderColumns.MODIFIED + "," + DatabaseContract.ShaderColumns.QUALITY + " FROM " + DatabaseContract.ShaderColumns.TABLE_NAME +
 						" ORDER BY RANDOM() LIMIT 1";
 
-		try (var db = dbHelper.getReadableDatabase();
-				var cursor = db.rawQuery(query, null)) {
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		try (var cursor = db.rawQuery(query, null)) {
 			if (cursor.moveToFirst()) {
 				return new DataRecords.Shader(
 						CursorHelpers.getLong(cursor, DatabaseContract.ShaderColumns._ID),
@@ -106,13 +106,13 @@ public class ShaderDao {
 
 	@Nullable
 	public byte[] getThumbnail(long id) {
-		try (var db = dbHelper.getReadableDatabase();
-				var cursor = db.query(
-						DatabaseContract.ShaderColumns.TABLE_NAME,
-						new String[]{DatabaseContract.ShaderColumns.THUMB},
-						DatabaseContract.ShaderColumns._ID + " = ?",
-						new String[]{String.valueOf(id)},
-						null, null, null)) {
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		try (var cursor = db.query(
+				DatabaseContract.ShaderColumns.TABLE_NAME,
+				new String[]{DatabaseContract.ShaderColumns.THUMB},
+				DatabaseContract.ShaderColumns._ID + " = ?",
+				new String[]{String.valueOf(id)},
+				null, null, null)) {
 			if (cursor != null && cursor.moveToFirst()) {
 				return CursorHelpers.getBlob(cursor, DatabaseContract.ShaderColumns.THUMB);
 			}
@@ -121,10 +121,10 @@ public class ShaderDao {
 	}
 
 	public long getFirstShaderId() {
-		try (var db = dbHelper.getReadableDatabase();
-				var cursor =
-						db.rawQuery("SELECT " + DatabaseContract.ShaderColumns._ID + " FROM " + DatabaseContract.ShaderColumns.TABLE_NAME + " ORDER BY "
-								+ DatabaseContract.ShaderColumns._ID + " LIMIT 1", null)) {
+		SQLiteDatabase db = dbHelper.getReadableDatabase();
+		try (var cursor =
+				db.rawQuery("SELECT " + DatabaseContract.ShaderColumns._ID + " FROM " + DatabaseContract.ShaderColumns.TABLE_NAME + " ORDER BY "
+						+ DatabaseContract.ShaderColumns._ID + " LIMIT 1", null)) {
 			if (cursor != null && cursor.moveToFirst()) {
 				return CursorHelpers.getLong(cursor, DatabaseContract.ShaderColumns._ID);
 			}
@@ -157,45 +157,41 @@ public class ShaderDao {
 
 	public long insertShader(@NonNull String shader, @Nullable String name,
 			@Nullable byte[] thumbnail, float quality) {
-		try (var db = dbHelper.getWritableDatabase()) {
-			return insertShader(db, shader, name, thumbnail, quality);
-		}
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		return insertShader(db, shader, name, thumbnail, quality);
 	}
 
 	public void updateShader(long id, @Nullable String shader, @Nullable byte[] thumbnail,
 			float quality) {
-		try (var db = dbHelper.getWritableDatabase()) {
-			var cv = new ContentValues();
-			cv.put(DatabaseContract.ShaderColumns.MODIFIED, currentTime());
-			cv.put(DatabaseContract.ShaderColumns.QUALITY, quality);
-			if (shader != null) {
-				cv.put(DatabaseContract.ShaderColumns.FRAGMENT_SHADER, shader);
-			}
-			if (thumbnail != null) {
-				cv.put(DatabaseContract.ShaderColumns.THUMB, thumbnail);
-			}
-			db.update(DatabaseContract.ShaderColumns.TABLE_NAME, cv,
-					DatabaseContract.ShaderColumns._ID + " = ?",
-					new String[]{String.valueOf(id)});
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		var cv = new ContentValues();
+		cv.put(DatabaseContract.ShaderColumns.MODIFIED, currentTime());
+		cv.put(DatabaseContract.ShaderColumns.QUALITY, quality);
+		if (shader != null) {
+			cv.put(DatabaseContract.ShaderColumns.FRAGMENT_SHADER, shader);
 		}
+		if (thumbnail != null) {
+			cv.put(DatabaseContract.ShaderColumns.THUMB, thumbnail);
+		}
+		db.update(DatabaseContract.ShaderColumns.TABLE_NAME, cv,
+				DatabaseContract.ShaderColumns._ID + " = ?",
+				new String[]{String.valueOf(id)});
 	}
 
 	public void updateShaderName(long id, @NonNull String name) {
-		try (var db = dbHelper.getWritableDatabase()) {
-			var cv = new ContentValues();
-			cv.put(DatabaseContract.ShaderColumns.NAME, name);
-			db.update(DatabaseContract.ShaderColumns.TABLE_NAME, cv,
-					DatabaseContract.ShaderColumns._ID + " = ?",
-					new String[]{String.valueOf(id)});
-		}
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		var cv = new ContentValues();
+		cv.put(DatabaseContract.ShaderColumns.NAME, name);
+		db.update(DatabaseContract.ShaderColumns.TABLE_NAME, cv,
+				DatabaseContract.ShaderColumns._ID + " = ?",
+				new String[]{String.valueOf(id)});
 	}
 
 	public void removeShader(long id) {
-		try (var db = dbHelper.getWritableDatabase()) {
-			db.delete(DatabaseContract.ShaderColumns.TABLE_NAME,
-					DatabaseContract.ShaderColumns._ID + " = ?",
-					new String[]{String.valueOf(id)});
-		}
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		db.delete(DatabaseContract.ShaderColumns.TABLE_NAME,
+				DatabaseContract.ShaderColumns._ID + " = ?",
+				new String[]{String.valueOf(id)});
 	}
 	// endregion
 
