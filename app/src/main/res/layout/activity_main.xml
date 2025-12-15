@@ -3,8 +3,7 @@
 	<de.markusfisch.android.shadereditor.widget.ShaderView
 		android:id="@+id/preview"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:fitsSystemWindows="true"/>
+		android:layout_height="match_parent" />
 
 	<!-- CoordinatorLayout for managing the toolbar, drawer, and content -->
 	<androidx.coordinatorlayout.widget.CoordinatorLayout
