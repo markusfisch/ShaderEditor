@@ -516,6 +516,7 @@ public class ShaderEditor extends LineNumberEditText {
 	@Override
 	protected void onDetachedFromWindow() {
 		super.onDetachedFromWindow();
+		cancelUpdate();
 		tokenListUpdater.shutdown();
 	}
 
@@ -828,15 +829,19 @@ public class ShaderEditor extends LineNumberEditText {
 				}
 			}
 			update(text, revision);
+			FutureTask<List<Token>> futureTask = task;
+			if (futureTask == null) {
+				return Collections.emptyList();
+			}
 			try {
-				return task.get();
+				return futureTask.get();
 			} catch (ExecutionException | InterruptedException e) {
 				throw new RuntimeException(e);
 			}
 		}
 
 		public void update(@NonNull CharSequence text, int revision) {
-			if (revision == this.revision) {
+			if (revision == this.revision && task != null) {
 				return;
 			} else if (task != null) {
 				task.cancel(false);
