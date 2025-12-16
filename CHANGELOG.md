@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.36.1
+* Fix main layout for old Androids
+
 ## 2.36.0
 * Move error SnackBar on top of ActionBar
 * Add RGBA noise texture
