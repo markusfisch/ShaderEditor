@@ -21,6 +21,8 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import de.markusfisch.android.shadereditor.opengl.GpuBitmapTransformer;
+
 public class BitmapEditor {
 	@NonNull
 	@Contract("null -> new")
@@ -107,7 +109,48 @@ public class BitmapEditor {
 			Bitmap bitmap,
 			RectF rect,
 			float rotation) {
+		if (bitmap == null || bitmap.isRecycled()) {
+			return null;
+		}
 
+		int normalizedRotation = Math.round(rotation) % 360;
+		if (normalizedRotation < 0) {
+			normalizedRotation += 360;
+		}
+		if (normalizedRotation != 0 &&
+				rect.left >= 0f &&
+				rect.top >= 0f &&
+				rect.right <= 1f &&
+				rect.bottom <= 1f &&
+				rect.width() > 0f &&
+				rect.height() > 0f) {
+			int rotatedWidth = normalizedRotation % 180 == 0
+					? bitmap.getWidth()
+					: bitmap.getHeight();
+			int rotatedHeight = normalizedRotation % 180 == 0
+					? bitmap.getHeight()
+					: bitmap.getWidth();
+			int cropWidth = Math.round(rect.width() * rotatedWidth);
+			int cropHeight = Math.round(rect.height() * rotatedHeight);
+			Bitmap transformedBitmap = GpuBitmapTransformer.transform(
+					bitmap,
+					rect,
+					rotation,
+					cropWidth,
+					cropHeight);
+			if (transformedBitmap != null) {
+				return transformedBitmap;
+			}
+		}
+
+		return cropManual(bitmap, rect, rotation);
+	}
+
+	@Nullable
+	private static Bitmap cropManual(
+			@NonNull Bitmap bitmap,
+			@NonNull RectF rect,
+			float rotation) {
 		if (bitmap == null || bitmap.isRecycled()) {
 			return null;
 		}
@@ -179,10 +222,58 @@ public class BitmapEditor {
 			@NonNull Bitmap src,
 			int dstWidth,
 			int dstHeight) {
-		Bitmap scaledBitmap = GpuBitmapScaler.scale(src, dstWidth, dstHeight);
+		Bitmap scaledBitmap = GpuBitmapTransformer.scale(src, dstWidth, dstHeight);
 		return scaledBitmap != null
 				? scaledBitmap
 				: createScaledBitmapManual(src, dstWidth, dstHeight);
+	}
+
+	@Nullable
+	public static Bitmap transformBitmap(
+			@NonNull Bitmap bitmap,
+			@NonNull RectF rect,
+			float rotation,
+			int dstWidth,
+			int dstHeight) {
+		if (bitmap.isRecycled() || dstWidth <= 0 || dstHeight <= 0) {
+			return null;
+		}
+
+		Bitmap transformedBitmap = GpuBitmapTransformer.transform(
+				bitmap,
+				rect,
+				rotation,
+				dstWidth,
+				dstHeight);
+		if (transformedBitmap != null) {
+			return transformedBitmap;
+		}
+
+		Bitmap croppedBitmap = cropManual(bitmap, rect, rotation);
+		if (croppedBitmap == null) {
+			return null;
+		}
+		if (croppedBitmap.getWidth() == dstWidth &&
+				croppedBitmap.getHeight() == dstHeight) {
+			return croppedBitmap;
+		}
+
+		try {
+			Bitmap scaledBitmap = createScaledBitmapManual(
+					croppedBitmap,
+					dstWidth,
+					dstHeight);
+			if (scaledBitmap != croppedBitmap &&
+					!croppedBitmap.isRecycled()) {
+				croppedBitmap.recycle();
+			}
+			return scaledBitmap;
+		} catch (IllegalArgumentException e) {
+			if (!croppedBitmap.isRecycled()) {
+				croppedBitmap.recycle();
+			}
+			return null;
+		}
 	}
 
 	/**

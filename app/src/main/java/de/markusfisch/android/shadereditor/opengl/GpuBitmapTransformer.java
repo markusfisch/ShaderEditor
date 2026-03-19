@@ -1,6 +1,7 @@
-package de.markusfisch.android.shadereditor.graphics;
+package de.markusfisch.android.shadereditor.opengl;
 
 import android.graphics.Bitmap;
+import android.graphics.RectF;
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
@@ -15,40 +16,62 @@ import androidx.annotation.Nullable;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.List;
 
-final class GpuBitmapScaler {
-	private static final String TAG = "GpuBitmapScaler";
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 
-	private static final String VERTEX_SHADER =
-			"attribute vec2 aPosition;\n" +
-			"attribute vec2 aTexCoord;\n" +
-			"varying vec2 vTexCoord;\n" +
-			"void main() {\n" +
-			"\tvTexCoord = aTexCoord;\n" +
-			"\tgl_Position = vec4(aPosition, 0.0, 1.0);\n" +
-			"}";
+public final class GpuBitmapTransformer {
+	private static final String TAG = "GpuBitmapTransformer";
+	private static final RectF FULL_BOUNDS = new RectF(0f, 0f, 1f, 1f);
 
-	private static final String FRAGMENT_SHADER =
-			"precision mediump float;\n" +
-			"uniform sampler2D uTexture;\n" +
-			"varying vec2 vTexCoord;\n" +
-			"void main() {\n" +
-			"\tgl_FragColor = texture2D(uTexture, vTexCoord);\n" +
-			"}";
-
-	private static final float[] QUAD = {
-			-1f, -1f, 0f, 0f,
-			1f, -1f, 1f, 0f,
-			-1f, 1f, 0f, 1f,
-			1f, 1f, 1f, 1f
+	private static final String VERTEX_SHADER = """
+			attribute vec2 position;
+			attribute vec2 texCoord;
+			varying vec2 uv;
+			void main() {
+				uv = texCoord;
+				gl_Position = vec4(position, 0., 1.);
+			}
+			""";
+	private static final String FRAGMENT_SHADER = """
+			#ifdef GL_FRAGMENT_PRECISION_HIGH
+			precision highp float;
+			#else
+			precision mediump float;
+			#endif
+			
+			uniform sampler2D frame;
+			varying vec2 uv;
+			void main(void) {
+				gl_FragColor = texture2D(frame, uv).rgba;
+			}
+			""";
+	private static final float[] POSITIONS = {
+			-1f, -1f,
+			1f, -1f,
+			-1f, 1f,
+			1f, 1f
 	};
 
-	private GpuBitmapScaler() {
+	private GpuBitmapTransformer() {
 		// Utility class.
 	}
 
 	@Nullable
-	static Bitmap scale(@NonNull Bitmap bitmap, int dstWidth, int dstHeight) {
+	public static Bitmap scale(
+			@NonNull Bitmap bitmap,
+			int dstWidth,
+			int dstHeight) {
+		return transform(bitmap, FULL_BOUNDS, 0f, dstWidth, dstHeight);
+	}
+
+	@Nullable
+	public static Bitmap transform(
+			@NonNull Bitmap bitmap,
+			@NonNull RectF rect,
+			float rotation,
+			int dstWidth,
+			int dstHeight) {
 		if (bitmap.isRecycled() ||
 				dstWidth <= 0 ||
 				dstHeight <= 0 ||
@@ -59,9 +82,9 @@ final class GpuBitmapScaler {
 		Session session = null;
 		try {
 			session = new Session(dstWidth, dstHeight);
-			return session.scale(bitmap);
+			return session.transform(bitmap, rect, rotation);
 		} catch (RuntimeException e) {
-			Log.w(TAG, "Falling back to CPU bitmap scaling", e);
+			Log.w(TAG, "Falling back to CPU bitmap transform", e);
 			return null;
 		} finally {
 			if (session != null) {
@@ -73,7 +96,13 @@ final class GpuBitmapScaler {
 	private static final class Session {
 		private final int dstWidth;
 		private final int dstHeight;
-		private final FloatBuffer quadBuffer;
+		private final FloatBuffer vertexBuffer;
+		private final TextureParameters textureParameters =
+				new TextureParameters(
+						GLES20.GL_LINEAR,
+						GLES20.GL_LINEAR,
+						GLES20.GL_CLAMP_TO_EDGE,
+						GLES20.GL_CLAMP_TO_EDGE);
 
 		private EGLDisplay display = EGL14.EGL_NO_DISPLAY;
 		private EGLContext context = EGL14.EGL_NO_CONTEXT;
@@ -82,23 +111,26 @@ final class GpuBitmapScaler {
 		private int textureId;
 		private int positionLoc;
 		private int texCoordLoc;
-		private int textureLoc;
+		private int frameLoc;
 
 		private Session(int dstWidth, int dstHeight) {
 			this.dstWidth = dstWidth;
 			this.dstHeight = dstHeight;
-			quadBuffer = ByteBuffer.allocateDirect(QUAD.length * 4)
+			vertexBuffer = ByteBuffer.allocateDirect(16 * 4)
 					.order(ByteOrder.nativeOrder())
 					.asFloatBuffer();
-			quadBuffer.put(QUAD).position(0);
 
 			initEgl();
 			initProgram();
 		}
 
 		@NonNull
-		private Bitmap scale(@NonNull Bitmap bitmap) {
+		private Bitmap transform(
+				@NonNull Bitmap bitmap,
+				@NonNull RectF rect,
+				float rotation) {
 			createTexture(bitmap);
+			updateVertexBuffer(rect, rotation);
 
 			GLES20.glViewport(0, 0, dstWidth, dstHeight);
 			GLES20.glClearColor(0f, 0f, 0f, 0f);
@@ -106,19 +138,19 @@ final class GpuBitmapScaler {
 
 			GLES20.glUseProgram(program);
 
-			quadBuffer.position(0);
+			vertexBuffer.position(0);
 			GLES20.glVertexAttribPointer(positionLoc, 2, GLES20.GL_FLOAT,
-					false, 16, quadBuffer);
+					false, 16, vertexBuffer);
 			GLES20.glEnableVertexAttribArray(positionLoc);
 
-			quadBuffer.position(2);
+			vertexBuffer.position(2);
 			GLES20.glVertexAttribPointer(texCoordLoc, 2, GLES20.GL_FLOAT,
-					false, 16, quadBuffer);
+					false, 16, vertexBuffer);
 			GLES20.glEnableVertexAttribArray(texCoordLoc);
 
 			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-			GLES20.glUniform1i(textureLoc, 0);
+			GLES20.glUniform1i(frameLoc, 0);
 
 			GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 			checkGlError("glDrawArrays");
@@ -206,11 +238,16 @@ final class GpuBitmapScaler {
 		}
 
 		private void initProgram() {
-			program = createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
-			positionLoc = GLES20.glGetAttribLocation(program, "aPosition");
-			texCoordLoc = GLES20.glGetAttribLocation(program, "aTexCoord");
-			textureLoc = GLES20.glGetUniformLocation(program, "uTexture");
-			if (positionLoc < 0 || texCoordLoc < 0 || textureLoc < 0) {
+			program = Program.loadProgram(VERTEX_SHADER, FRAGMENT_SHADER);
+			if (program == 0) {
+				List<ShaderError> log = Program.getInfoLog();
+				throw new IllegalStateException(
+						"Cannot create transform program: " + log);
+			}
+			positionLoc = GLES20.glGetAttribLocation(program, "position");
+			texCoordLoc = GLES20.glGetAttribLocation(program, "texCoord");
+			frameLoc = GLES20.glGetUniformLocation(program, "frame");
+			if (positionLoc < 0 || texCoordLoc < 0 || frameLoc < 0) {
 				throw new IllegalStateException("Failed to resolve shader handles");
 			}
 		}
@@ -220,33 +257,26 @@ final class GpuBitmapScaler {
 			GLES20.glGenTextures(1, textures, 0);
 			textureId = textures[0];
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-			GLES20.glTexParameteri(
-					GLES20.GL_TEXTURE_2D,
-					GLES20.GL_TEXTURE_MIN_FILTER,
-					GLES20.GL_LINEAR);
-			GLES20.glTexParameteri(
-					GLES20.GL_TEXTURE_2D,
-					GLES20.GL_TEXTURE_MAG_FILTER,
-					GLES20.GL_LINEAR);
-			GLES20.glTexParameteri(
-					GLES20.GL_TEXTURE_2D,
-					GLES20.GL_TEXTURE_WRAP_S,
-					GLES20.GL_CLAMP_TO_EDGE);
-			GLES20.glTexParameteri(
-					GLES20.GL_TEXTURE_2D,
-					GLES20.GL_TEXTURE_WRAP_T,
-					GLES20.GL_CLAMP_TO_EDGE);
-			GLES20.glTexImage2D(
-					GLES20.GL_TEXTURE_2D,
-					0,
-					GLES20.GL_RGBA,
-					bitmap.getWidth(),
-					bitmap.getHeight(),
-					0,
-					GLES20.GL_RGBA,
-					GLES20.GL_UNSIGNED_BYTE,
-					BitmapEditor.createRgbaBuffer(bitmap, true));
-			checkGlError("glTexImage2D");
+			textureParameters.setParameters(GLES20.GL_TEXTURE_2D);
+			String message = TextureParameters.setBitmap(bitmap);
+			if (message != null) {
+				throw new IllegalStateException(message);
+			}
+			checkGlError("setBitmap");
+		}
+
+		private void updateVertexBuffer(@NonNull RectF rect, float rotation) {
+			float[] topLeft = mapCorner(rect.left, rect.top, rotation);
+			float[] topRight = mapCorner(rect.right, rect.top, rotation);
+			float[] bottomLeft = mapCorner(rect.left, rect.bottom, rotation);
+			float[] bottomRight = mapCorner(rect.right, rect.bottom, rotation);
+
+			vertexBuffer.position(0);
+			putVertex(POSITIONS[0], POSITIONS[1], bottomLeft, vertexBuffer);
+			putVertex(POSITIONS[2], POSITIONS[3], bottomRight, vertexBuffer);
+			putVertex(POSITIONS[4], POSITIONS[5], topLeft, vertexBuffer);
+			putVertex(POSITIONS[6], POSITIONS[7], topRight, vertexBuffer);
+			vertexBuffer.position(0);
 		}
 
 		private void release() {
@@ -277,54 +307,57 @@ final class GpuBitmapScaler {
 				display = EGL14.EGL_NO_DISPLAY;
 			}
 		}
+	}
 
-		private static int createProgram(String vertexShaderSource, String fragmentShaderSource) {
-			int vertexShader = compileShader(GLES20.GL_VERTEX_SHADER, vertexShaderSource);
-			int fragmentShader = compileShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderSource);
-			int program = GLES20.glCreateProgram();
-			if (program == 0) {
-				throw new IllegalStateException("glCreateProgram failed");
-			}
-			GLES20.glAttachShader(program, vertexShader);
-			GLES20.glAttachShader(program, fragmentShader);
-			GLES20.glLinkProgram(program);
+	private static void putVertex(
+			float x,
+			float y,
+			@NonNull float[] texCoord,
+			@NonNull FloatBuffer buffer) {
+		buffer.put(x);
+		buffer.put(y);
+		buffer.put(texCoord[0]);
+		buffer.put(texCoord[1]);
+	}
 
-			int[] status = new int[1];
-			GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, status, 0);
-			GLES20.glDeleteShader(vertexShader);
-			GLES20.glDeleteShader(fragmentShader);
-			if (status[0] == 0) {
-				String message = GLES20.glGetProgramInfoLog(program);
-				GLES20.glDeleteProgram(program);
-				throw new IllegalStateException("Program link failed: " + message);
-			}
-			return program;
+	@NonNull
+	private static float[] mapCorner(float x, float y, float rotation) {
+		float sourceX;
+		float sourceY;
+		switch (normalizeRotation(rotation)) {
+			case 90:
+				sourceX = y;
+				sourceY = 1f - x;
+				break;
+			case 180:
+				sourceX = 1f - x;
+				sourceY = 1f - y;
+				break;
+			case 270:
+				sourceX = 1f - y;
+				sourceY = x;
+				break;
+			default:
+				sourceX = x;
+				sourceY = y;
+				break;
 		}
+		return new float[]{sourceX, 1f - sourceY};
+	}
 
-		private static int compileShader(int type, String source) {
-			int shader = GLES20.glCreateShader(type);
-			if (shader == 0) {
-				throw new IllegalStateException("glCreateShader failed");
-			}
-			GLES20.glShaderSource(shader, source);
-			GLES20.glCompileShader(shader);
-
-			int[] status = new int[1];
-			GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, status, 0);
-			if (status[0] == 0) {
-				String message = GLES20.glGetShaderInfoLog(shader);
-				GLES20.glDeleteShader(shader);
-				throw new IllegalStateException("Shader compile failed: " + message);
-			}
-			return shader;
+	private static int normalizeRotation(float rotation) {
+		int degrees = Math.round(rotation) % 360;
+		if (degrees < 0) {
+			degrees += 360;
 		}
+		return degrees;
+	}
 
-		private static void checkGlError(String operation) {
-			int error = GLES20.glGetError();
-			if (error != GLES20.GL_NO_ERROR) {
-				throw new IllegalStateException(
-						operation + " failed with GL error 0x" + Integer.toHexString(error));
-			}
+	private static void checkGlError(String operation) {
+		int error = GLES20.glGetError();
+		if (error != GLES20.GL_NO_ERROR) {
+			throw new IllegalStateException(
+					operation + " failed with GL error 0x" + Integer.toHexString(error));
 		}
 	}
 }

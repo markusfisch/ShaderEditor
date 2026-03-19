@@ -96,7 +96,6 @@ public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFrag
 					int max = Math.round(size + size / nw * (1f - nw));
 
 					Bitmap sourceBitmap = null;
-					Bitmap bitmap = null;
 					Bitmap scaledBitmap = null;
 					try {
 						sourceBitmap = BitmapEditor.getBitmapFromUri(
@@ -107,21 +106,21 @@ public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFrag
 							return R.string.cannot_pick_image;
 						}
 
-						bitmap = BitmapEditor.crop(sourceBitmap, clip, rotation);
-						if (bitmap == null) {
+						scaledBitmap = BitmapEditor.transformBitmap(
+								sourceBitmap,
+								clip,
+								rotation,
+								size,
+								size);
+						if (scaledBitmap == null) {
 							return R.string.cannot_pick_image;
 						}
-
-						scaledBitmap = BitmapEditor.createScaledBitmap(bitmap, size, size);
 						BitmapEditor.copyBitmap(scaledBitmap, mapBitmap, x, y);
 					} finally {
 						if (scaledBitmap != null && !scaledBitmap.isRecycled()) {
 							scaledBitmap.recycle();
 						}
-						if (bitmap != null && bitmap != scaledBitmap && !bitmap.isRecycled()) {
-							bitmap.recycle();
-						}
-						if (sourceBitmap != null && sourceBitmap != bitmap && !sourceBitmap.isRecycled()) {
+						if (sourceBitmap != null && !sourceBitmap.isRecycled()) {
 							sourceBitmap.recycle();
 						}
 					}
