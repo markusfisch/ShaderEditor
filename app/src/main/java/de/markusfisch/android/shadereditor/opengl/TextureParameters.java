@@ -133,6 +133,7 @@ public class TextureParameters {
 
 		String message = null;
 		try {
+			clearGlErrors();
 			GLES20.glTexImage2D(
 					target,
 					0,
@@ -143,7 +144,7 @@ public class TextureParameters {
 					GLES20.GL_RGBA,
 					GLES20.GL_UNSIGNED_BYTE,
 					BitmapEditor.createRgbaBuffer(bitmap, flipY));
-			int error = GLES20.glGetError();
+			int error = getLastGlError();
 			if (error != GLES20.GL_NO_ERROR) {
 				message = GLUtils.getEGLErrorString(error);
 			}
@@ -152,6 +153,21 @@ public class TextureParameters {
 		}
 
 		return message;
+	}
+
+	private static void clearGlErrors() {
+		while (GLES20.glGetError() != GLES20.GL_NO_ERROR) {
+			// Drain stale GL errors so setBitmap() only reports its own failures.
+		}
+	}
+
+	private static int getLastGlError() {
+		int lastError = GLES20.GL_NO_ERROR;
+		int error;
+		while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+			lastError = error;
+		}
+		return lastError;
 	}
 
 	void parse(String params) {
