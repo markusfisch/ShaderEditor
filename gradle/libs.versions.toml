@@ -2,6 +2,7 @@
 agp = "9.1.0"
 appcompat = "1.7.1"
 camerax = "1.5.3"
+leakcanary = "2.14"
 preference = "1.2.1"
 material = "1.13.0"
 
@@ -11,6 +12,7 @@ androidx-camera-camera2 = { module = "androidx.camera:camera-camera2", version.r
 androidx-camera-core = { module = "androidx.camera:camera-core", version.ref = "camerax" }
 androidx-camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
 androidx-preference = { module = "androidx.preference:preference", version.ref = "preference" }
+leakcanary-android = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
 
 [plugins]
