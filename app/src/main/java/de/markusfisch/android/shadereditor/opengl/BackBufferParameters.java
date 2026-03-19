@@ -2,16 +2,13 @@ package de.markusfisch.android.shadereditor.opengl;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Shader;
 import android.opengl.GLES20;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import de.markusfisch.android.shadereditor.database.Database;
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 
 public class BackBufferParameters extends TextureParameters {
 	private static final String PRESET = "p";
@@ -67,34 +64,47 @@ public class BackBufferParameters extends TextureParameters {
 			return null;
 		}
 
-		Bitmap background = Bitmap.createBitmap(
-				width,
-				height,
-				Bitmap.Config.ARGB_8888);
-		Canvas canvas = new Canvas(background);
-
 		int tw = tile.getWidth();
 		int th = tile.getHeight();
 		int scaledHeight = Math.round((float) width / tw * th);
 
-		// Use a try-catch block for bitmap operations that can fail.
 		try {
-			tile = Bitmap.createScaledBitmap(
+			Bitmap scaledTile = BitmapEditor.createScaledBitmap(
 					tile,
 					width,
-					scaledHeight,
-					true);
+					scaledHeight);
+			if (scaledTile != tile) {
+				tile.recycle();
+			}
+			tile = scaledTile;
 		} catch (IllegalArgumentException e) {
-			background.recycle();
+			tile.recycle();
 			return null;
 		}
 
-		Paint paint = new Paint();
-		paint.setAntiAlias(true);
-		paint.setShader(new BitmapShader(tile,
-				Shader.TileMode.CLAMP,
-				Shader.TileMode.MIRROR));
-		canvas.drawPaint(paint);
+		Bitmap background = Bitmap.createBitmap(
+				width,
+				height,
+				Bitmap.Config.ARGB_8888);
+		background.setPremultiplied(false);
+
+		int[] tilePixels = new int[width * scaledHeight];
+		tile.getPixels(tilePixels, 0, width, 0, 0, width, scaledHeight);
+		int[] backgroundPixels = new int[width * height];
+		for (int y = 0; y < height; ++y) {
+			int mirroredY = y % (scaledHeight * 2);
+			if (mirroredY >= scaledHeight) {
+				mirroredY = (scaledHeight * 2) - mirroredY - 1;
+			}
+			System.arraycopy(
+					tilePixels,
+					mirroredY * width,
+					backgroundPixels,
+					y * width,
+					width);
+		}
+		background.setPixels(backgroundPixels, 0, width, 0, 0, width, height);
+		tile.recycle();
 
 		return background;
 	}

@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -17,7 +18,8 @@ import org.jetbrains.annotations.Contract;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class BitmapEditor {
 	@NonNull
@@ -26,14 +28,24 @@ public class BitmapEditor {
 		if (bitmap == null) {
 			return new byte[0];
 		}
+		Bitmap bitmapToEncode = bitmap;
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
 				bitmap.getColorSpace() != null &&
 				!bitmap.getColorSpace().equals(ColorSpace.get(ColorSpace.Named.SRGB))) {
-			bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+			Bitmap convertedBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
+			if (convertedBitmap != null) {
+				bitmapToEncode = convertedBitmap;
+			}
 		}
-		var out = new ByteArrayOutputStream();
-		bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-		return out.toByteArray();
+		try {
+			var out = new ByteArrayOutputStream();
+			bitmapToEncode.compress(Bitmap.CompressFormat.PNG, 100, out);
+			return out.toByteArray();
+		} finally {
+			if (bitmapToEncode != bitmap && !bitmapToEncode.isRecycled()) {
+				bitmapToEncode.recycle();
+			}
+		}
 	}
 
 	@Nullable
@@ -56,6 +68,29 @@ public class BitmapEditor {
 
 			return BitmapFactory.decodeStream(in, null, options);
 		} catch (OutOfMemoryError | SecurityException | IOException e) {
+			return null;
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					// Ignore.
+				}
+			}
+		}
+	}
+
+	@Nullable
+	public static Bitmap getBitmapFromResource(
+			@NonNull Context context,
+			@DrawableRes int resId) {
+		InputStream in = null;
+		try {
+			in = context.getResources().openRawResource(resId);
+			BitmapFactory.Options options = new BitmapFactory.Options();
+			options.inPremultiplied = false;
+			return BitmapFactory.decodeStream(in, null, options);
+		} catch (OutOfMemoryError | RuntimeException e) {
 			return null;
 		} finally {
 			if (in != null) {
@@ -124,9 +159,10 @@ public class BitmapEditor {
 			// We cannot use createBitmap(pixels...) as that always creates a
 			// premultiplied bitmap. Instead, we create an empty mutable bitmap
 			// and set its pixels, which respects the non-premultiplied flag.
-			Bitmap croppedBitmap = Bitmap.createBitmap(cropWidth, cropHeight,
-					Objects.requireNonNull(bitmap.getConfig())); // Use original bitmap's config
-			// for safety.
+			Bitmap croppedBitmap = Bitmap.createBitmap(
+					cropWidth,
+					cropHeight,
+					getSafeConfig(bitmap));
 			croppedBitmap.setPremultiplied(false);
 			croppedBitmap.setPixels(croppedPixels, 0, cropWidth, 0, 0, cropWidth, cropHeight);
 
@@ -136,6 +172,14 @@ public class BitmapEditor {
 			Log.e("BitmapEditor", "Failed to crop bitmap", e);
 			return null;
 		}
+	}
+
+	@NonNull
+	public static Bitmap createScaledBitmap(
+			@NonNull Bitmap src,
+			int dstWidth,
+			int dstHeight) {
+		return createScaledBitmapManual(src, dstWidth, dstHeight);
 	}
 
 	/**
@@ -151,6 +195,12 @@ public class BitmapEditor {
 	@NonNull
 	public static Bitmap createScaledBitmapManual(
 			@NonNull Bitmap src, int dstWidth, int dstHeight) {
+		if (src.isRecycled()) {
+			throw new IllegalArgumentException("Cannot scale a recycled bitmap");
+		}
+		if (dstWidth <= 0 || dstHeight <= 0) {
+			throw new IllegalArgumentException("dstWidth and dstHeight must be > 0");
+		}
 
 		int srcWidth = src.getWidth();
 		int srcHeight = src.getHeight();
@@ -160,24 +210,30 @@ public class BitmapEditor {
 
 		int[] dstPixels = new int[dstWidth * dstHeight];
 
-		float xRatio = (float) (srcWidth - 1) / dstWidth;
-		float yRatio = (float) (srcHeight - 1) / dstHeight;
+		float xRatio = dstWidth > 1
+				? (float) (srcWidth - 1) / (dstWidth - 1)
+				: 0f;
+		float yRatio = dstHeight > 1
+				? (float) (srcHeight - 1) / (dstHeight - 1)
+				: 0f;
 
 		for (int y = 0; y < dstHeight; y++) {
+			float gy = y * yRatio;
+			int gyi = (int) gy;
+			int gyi1 = Math.min(gyi + 1, srcHeight - 1);
+			float fracY = gy - gyi;
+
 			for (int x = 0; x < dstWidth; x++) {
 				float gx = x * xRatio;
-				float gy = y * yRatio;
-
 				int gxi = (int) gx;
-				int gyi = (int) gy;
+				int gxi1 = Math.min(gxi + 1, srcWidth - 1);
 
 				int c00 = srcPixels[gyi * srcWidth + gxi];
-				int c10 = srcPixels[gyi * srcWidth + gxi + 1];
-				int c01 = srcPixels[(gyi + 1) * srcWidth + gxi];
-				int c11 = srcPixels[(gyi + 1) * srcWidth + gxi + 1];
+				int c10 = srcPixels[gyi * srcWidth + gxi1];
+				int c01 = srcPixels[gyi1 * srcWidth + gxi];
+				int c11 = srcPixels[gyi1 * srcWidth + gxi1];
 
 				float fracX = gx - gxi;
-				float fracY = gy - gyi;
 
 				// Interpolate each channel (A, R, G, B) separately.
 				int a = (int) interpolate(
@@ -205,11 +261,99 @@ public class BitmapEditor {
 		}
 
 		Bitmap finalBitmap = Bitmap.createBitmap(
-				dstWidth, dstHeight, Objects.requireNonNull(src.getConfig()));
+				dstWidth, dstHeight, getSafeConfig(src));
 		finalBitmap.setPremultiplied(false);
 		finalBitmap.setPixels(dstPixels, 0, dstWidth, 0, 0, dstWidth, dstHeight);
 
 		return finalBitmap;
+	}
+
+	@NonNull
+	public static Bitmap createDisplayBitmap(@NonNull Bitmap bitmap) {
+		if (!bitmap.hasAlpha() || bitmap.isPremultiplied()) {
+			return bitmap;
+		}
+
+		int width = bitmap.getWidth();
+		int height = bitmap.getHeight();
+		int[] pixels = new int[width * height];
+		bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+
+		Bitmap displayBitmap = Bitmap.createBitmap(width, height, getSafeConfig(bitmap));
+		displayBitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+		return displayBitmap;
+	}
+
+	public static void copyBitmap(
+			@NonNull Bitmap src,
+			@NonNull Bitmap dst,
+			int dstX,
+			int dstY) {
+		int width = src.getWidth();
+		int height = src.getHeight();
+		int[] pixels = new int[width * height];
+		src.getPixels(pixels, 0, width, 0, 0, width, height);
+		dst.setPixels(pixels, 0, width, dstX, dstY, width, height);
+	}
+
+	@NonNull
+	public static ByteBuffer createRgbaBuffer(@NonNull Bitmap bitmap, boolean flipY) {
+		if (bitmap.isRecycled()) {
+			throw new IllegalArgumentException("Cannot copy pixels from a recycled bitmap");
+		}
+
+		int width = bitmap.getWidth();
+		int height = bitmap.getHeight();
+		int[] pixels = new int[width * height];
+		bitmap.getPixels(pixels, 0, width, 0, 0, width, height);
+
+		ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * 4)
+				.order(ByteOrder.nativeOrder());
+		for (int y = 0; y < height; ++y) {
+			int srcY = flipY ? height - y - 1 : y;
+			int rowOffset = srcY * width;
+			for (int x = 0; x < width; ++x) {
+				int pixel = pixels[rowOffset + x];
+				buffer.put((byte) ((pixel >> 16) & 0xff));
+				buffer.put((byte) ((pixel >> 8) & 0xff));
+				buffer.put((byte) (pixel & 0xff));
+				buffer.put((byte) ((pixel >> 24) & 0xff));
+			}
+		}
+		buffer.position(0);
+		return buffer;
+	}
+
+	@NonNull
+	public static Bitmap createBitmapFromRgbaBuffer(
+			@NonNull ByteBuffer rgba,
+			int width,
+			int height,
+			boolean flipY) {
+		if (width <= 0 || height <= 0) {
+			throw new IllegalArgumentException("width and height must be > 0");
+		}
+
+		ByteBuffer pixelsBuffer = rgba.duplicate();
+		pixelsBuffer.position(0);
+
+		int[] pixels = new int[width * height];
+		for (int y = 0; y < height; ++y) {
+			int dstY = flipY ? height - y - 1 : y;
+			int rowOffset = dstY * width;
+			for (int x = 0; x < width; ++x) {
+				int r = pixelsBuffer.get() & 0xff;
+				int g = pixelsBuffer.get() & 0xff;
+				int b = pixelsBuffer.get() & 0xff;
+				int a = pixelsBuffer.get() & 0xff;
+				pixels[rowOffset + x] = (a << 24) | (r << 16) | (g << 8) | b;
+			}
+		}
+
+		Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+		bitmap.setPremultiplied(false);
+		bitmap.setPixels(pixels, 0, width, 0, 0, width, height);
+		return bitmap;
 	}
 
 	@SuppressWarnings("SuspiciousNameCombination")
@@ -220,7 +364,6 @@ public class BitmapEditor {
 
 		final int width = src.getWidth();
 		final int height = src.getHeight();
-		final Bitmap.Config config = src.getConfig();
 
 		final int[] srcPixels = new int[width * height];
 		// getPixels returns non-premultiplied ARGB values.
@@ -265,8 +408,7 @@ public class BitmapEditor {
 				return src;
 		}
 
-		assert config != null;
-		Bitmap rotatedBitmap = Bitmap.createBitmap(newWidth, newHeight, config);
+		Bitmap rotatedBitmap = Bitmap.createBitmap(newWidth, newHeight, getSafeConfig(src));
 		// The created bitmap must be flagged as non-premultiplied because
 		// the pixel data from getPixels() and our manual transformation is
 		// non-premultiplied.
@@ -278,6 +420,14 @@ public class BitmapEditor {
 
 	private static float interpolate(float a, float b, float frac) {
 		return a * (1 - frac) + b * frac;
+	}
+
+	@NonNull
+	private static Bitmap.Config getSafeConfig(@NonNull Bitmap bitmap) {
+		Bitmap.Config config = bitmap.getConfig();
+		return config != null && config != Bitmap.Config.HARDWARE
+				? config
+				: Bitmap.Config.ARGB_8888;
 	}
 
 	private static void setSampleSize(

@@ -1,11 +1,12 @@
 package de.markusfisch.android.shadereditor.opengl;
 
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
 import androidx.annotation.NonNull;
+
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 
 public class TextureParameters {
 	protected static final String HEADER = "///";
@@ -16,11 +17,6 @@ public class TextureParameters {
 	private static final String MAG = "mag";
 	private static final String WRAP_S = "s";
 	private static final String WRAP_T = "t";
-	private static final Matrix flipMatrix = new Matrix();
-
-	static {
-		flipMatrix.postScale(1f, -1f);
-	}
 
 	private final int defaultMin;
 	private final int defaultMag;
@@ -124,64 +120,35 @@ public class TextureParameters {
 	}
 
 	static String setBitmap(Bitmap bitmap) {
+		return setBitmap(GLES20.GL_TEXTURE_2D, bitmap, true);
+	}
+
+	static String setBitmap(int target, Bitmap bitmap, boolean flipY) {
 		if (bitmap == null || bitmap.isRecycled()) {
 			return null;
 		}
 
-		Bitmap flippedBitmap;
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
 
-		// 1. Get all pixels from the source bitmap.
-		int[] srcPixels = new int[width * height];
-		bitmap.getPixels(srcPixels, 0, width, 0, 0, width, height);
-
-		// 2. Create a destination array to hold the flipped pixels.
-		int[] dstPixels = new int[width * height];
-
-		// 3. Copy the pixels row by row, in reverse vertical order.
-		for (int y = 0; y < height; y++) {
-			int srcY = y;
-			int dstY = height - 1 - y;
-			System.arraycopy(
-					srcPixels,  // Source array
-					srcY * width, // Start position in source
-					dstPixels,  // Destination array
-					dstY * width, // Start position in destination
-					width       // Number of pixels to copy (one row)
-			);
-		}
-
-		// 4. Create a new bitmap from the flipped pixel data.
-		// We can't use createBitmap(pixels...) because it always returns a
-		// premultiplied bitmap. Instead, we create an empty mutable bitmap
-		// and set its pixels. setPixels() respects the non-premultiplied
-		// flag.
-		flippedBitmap = Bitmap.createBitmap(width, height, bitmap.getConfig());
-		flippedBitmap.setPremultiplied(bitmap.isPremultiplied());
-		flippedBitmap.setPixels(dstPixels, 0, width, 0, 0, width, height);
-
 		String message = null;
 		try {
-			GLUtils.texImage2D(
-					GLES20.GL_TEXTURE_2D,
+			GLES20.glTexImage2D(
+					target,
 					0,
 					GLES20.GL_RGBA,
-					flippedBitmap,
+					width,
+					height,
+					0,
+					GLES20.GL_RGBA,
 					GLES20.GL_UNSIGNED_BYTE,
-					0);
-
-			// Note: The GLUtils.texImage2D call that takes a Bitmap is a bit of a black
-			// box and could have issues with non-premultiplied formats on some
-			// devices. If anyone encounters issues here, the ultimate solution is to pass
-			// a Buffer of the pixel data to the GLES20.glTexImage2D method directly.
-			// For now, this should work on most devices.
-
+					BitmapEditor.createRgbaBuffer(bitmap, flipY));
+			int error = GLES20.glGetError();
+			if (error != GLES20.GL_NO_ERROR) {
+				message = GLUtils.getEGLErrorString(error);
+			}
 		} catch (IllegalArgumentException e) {
-			// Format/color space is invalid.
 			message = e.getMessage();
-		} finally {
-			flippedBitmap.recycle();
 		}
 
 		return message;

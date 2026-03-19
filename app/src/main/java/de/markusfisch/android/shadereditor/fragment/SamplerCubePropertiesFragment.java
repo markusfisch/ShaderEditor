@@ -3,7 +3,6 @@ package de.markusfisch.android.shadereditor.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -79,47 +78,70 @@ public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFrag
 				width,
 				height,
 				Bitmap.Config.ARGB_8888);
-		Canvas canvas = new Canvas(mapBitmap);
+		mapBitmap.setPremultiplied(false);
 		int x = 0;
 		int y = 0;
 
-		for (int i = 0, l = 6; i < l; ++i) {
-			if (faces[i].getUri() == null) {
+		try {
+			try {
+				for (int i = 0, l = 6; i < l; ++i) {
+					if (faces[i].getUri() == null) {
+						return R.string.cannot_pick_image;
+					}
+
+					RectF clip = faces[i].getClip();
+					float rotation = faces[i].getRotation();
+
+					float nw = clip.width();
+					int max = Math.round(size + size / nw * (1f - nw));
+
+					Bitmap sourceBitmap = null;
+					Bitmap bitmap = null;
+					Bitmap scaledBitmap = null;
+					try {
+						sourceBitmap = BitmapEditor.getBitmapFromUri(
+								context,
+								faces[i].getUri(),
+								max);
+						if (sourceBitmap == null) {
+							return R.string.cannot_pick_image;
+						}
+
+						bitmap = BitmapEditor.crop(sourceBitmap, clip, rotation);
+						if (bitmap == null) {
+							return R.string.cannot_pick_image;
+						}
+
+						scaledBitmap = BitmapEditor.createScaledBitmap(bitmap, size, size);
+						BitmapEditor.copyBitmap(scaledBitmap, mapBitmap, x, y);
+					} finally {
+						if (scaledBitmap != null && !scaledBitmap.isRecycled()) {
+							scaledBitmap.recycle();
+						}
+						if (bitmap != null && bitmap != scaledBitmap && !bitmap.isRecycled()) {
+							bitmap.recycle();
+						}
+						if (sourceBitmap != null && sourceBitmap != bitmap && !sourceBitmap.isRecycled()) {
+							sourceBitmap.recycle();
+						}
+					}
+
+					x += size;
+
+					if (x >= width) {
+						y += size;
+						x = 0;
+					}
+				}
+			} catch (IllegalArgumentException e) {
 				return R.string.cannot_pick_image;
 			}
 
-			RectF clip = faces[i].getClip();
-			float rotation = faces[i].getRotation();
-
-			float nw = clip.width();
-			int max = Math.round(size + size / nw * (1f - nw));
-
-			Bitmap bitmap = BitmapEditor.getBitmapFromUri(
-					context,
-					faces[i].getUri(),
-					max);
-
-			if (bitmap == null ||
-					(bitmap = BitmapEditor.crop(
-							bitmap, clip, rotation)) == null) {
-				return R.string.cannot_pick_image;
-			}
-
-			bitmap = Bitmap.createScaledBitmap(
-					bitmap, size, size, true);
-			canvas.drawBitmap(bitmap, x, y, null);
-			bitmap.recycle();
-
-			x += size;
-
-			if (x >= width) {
-				y += size;
-				x = 0;
-			}
+			return dataSource.texture.insertTexture(name, mapBitmap) < 1
+					? R.string.name_already_taken
+					: 0;
+		} finally {
+			mapBitmap.recycle();
 		}
-
-		return dataSource.texture.insertTexture(name, mapBitmap) < 1
-				? R.string.name_already_taken
-				: 0;
 	}
 }

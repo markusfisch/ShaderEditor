@@ -131,12 +131,16 @@ public class TextureDao {
 	private static long insertTexture(SQLiteDatabase db, String name, Bitmap bitmap,
 			int thumbnailSize) {
 		try {
-			var thumbnail = BitmapEditor.createScaledBitmapManual(bitmap, thumbnailSize, thumbnailSize);
+			var thumbnail = BitmapEditor.createScaledBitmap(bitmap, thumbnailSize, thumbnailSize);
 			int w = bitmap.getWidth();
 			int h = bitmap.getHeight();
-			return insertTexture(db, name, w, h, calculateRatio(w, h),
-					BitmapEditor.encodeAsPng(thumbnail),
-					BitmapEditor.encodeAsPng(bitmap));
+			try {
+				return insertTexture(db, name, w, h, calculateRatio(w, h),
+						BitmapEditor.encodeAsPng(thumbnail),
+						BitmapEditor.encodeAsPng(bitmap));
+			} finally {
+				thumbnail.recycle();
+			}
 		} catch (IllegalArgumentException e) {
 			return 0;
 		}
@@ -256,10 +260,7 @@ public class TextureDao {
 				if (textureExists(db, name)) {
 					return;
 				}
-				BitmapFactory.Options options = new BitmapFactory.Options();
-				options.inPremultiplied = false;
-				Bitmap bitmap = BitmapFactory.decodeResource(
-						context.getResources(), drawableResId, options);
+				Bitmap bitmap = BitmapEditor.getBitmapFromResource(context, drawableResId);
 				if (bitmap == null) {
 					return;
 				}

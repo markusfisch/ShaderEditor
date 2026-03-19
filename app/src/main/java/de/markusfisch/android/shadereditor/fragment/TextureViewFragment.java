@@ -28,6 +28,7 @@ import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
 import de.markusfisch.android.shadereditor.database.DataRecords.TextureInfo;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.database.Database;
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 import de.markusfisch.android.shadereditor.widget.ScalingImageView;
 
 public class TextureViewFragment extends Fragment {
@@ -42,6 +43,7 @@ public class TextureViewFragment extends Fragment {
 	private long textureId;
 	private String textureName;
 	private String samplerType;
+	private Bitmap textureBitmap;
 
 	@Override
 	public View onCreateView(
@@ -86,15 +88,10 @@ public class TextureViewFragment extends Fragment {
 			return null;
 		}
 
-		Bitmap textureBitmap;
-		if (nonPremultipliedBitmap.hasAlpha() && !nonPremultipliedBitmap.isPremultiplied()) {
-			textureBitmap = nonPremultipliedBitmap.copy(nonPremultipliedBitmap.getConfig(), true);
-			textureBitmap.setPremultiplied(true);
+		textureBitmap = BitmapEditor.createDisplayBitmap(nonPremultipliedBitmap);
+		if (textureBitmap != nonPremultipliedBitmap) {
 			nonPremultipliedBitmap.recycle();
-		} else {
-			textureBitmap = nonPremultipliedBitmap;
 		}
-
 
 		textureName = textureInfo.name();
 		activity.setTitle(textureName);
@@ -111,6 +108,20 @@ public class TextureViewFragment extends Fragment {
 
 		addMenuProvider();
 		return view;
+	}
+
+	@Override
+	public void onDestroyView() {
+		if (imageView != null) {
+			imageView.setImageBitmap(null);
+			imageView.setVisibility(View.GONE);
+			imageView = null;
+		}
+		if (textureBitmap != null && !textureBitmap.isRecycled()) {
+			textureBitmap.recycle();
+			textureBitmap = null;
+		}
+		super.onDestroyView();
 	}
 
 	private void addMenuProvider() {
