@@ -179,7 +179,10 @@ public class BitmapEditor {
 			@NonNull Bitmap src,
 			int dstWidth,
 			int dstHeight) {
-		return createScaledBitmapManual(src, dstWidth, dstHeight);
+		Bitmap scaledBitmap = GpuBitmapScaler.scale(src, dstWidth, dstHeight);
+		return scaledBitmap != null
+				? scaledBitmap
+				: createScaledBitmapManual(src, dstWidth, dstHeight);
 	}
 
 	/**
