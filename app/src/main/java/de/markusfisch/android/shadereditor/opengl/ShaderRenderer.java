@@ -12,7 +12,6 @@ import android.media.AudioManager;
 import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.opengl.GLUtils;
 import android.os.BatteryManager;
 import android.view.MotionEvent;
 import android.view.Surface;
@@ -1238,6 +1237,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		Bitmap bitmap = tp.getPresetBitmap(context, width, height);
 		if (bitmap != null) {
 			setTexture(bitmap);
+			bitmap.recycle();
 		} else {
 			GLES20.glTexImage2D(
 					GLES20.GL_TEXTURE_2D,
@@ -1349,24 +1349,17 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		int y = 0;
 
 		for (int target : CUBE_MAP_TARGETS) {
-			Bitmap side = Bitmap.createBitmap(
-					bitmap,
-					x,
-					y,
-					// Cube textures need to be quadratic.
-					sideLength,
-					sideLength,
-					// Don't flip cube textures.
-					null,
-					true);
+			int[] sidePixels = new int[sideLength * sideLength];
+			bitmap.getPixels(sidePixels, 0, sideLength, x, y, sideLength, sideLength);
 
-			GLUtils.texImage2D(
-					target,
-					0,
-					GLES20.GL_RGBA,
-					side,
-					GLES20.GL_UNSIGNED_BYTE,
-					0);
+			Bitmap side = Bitmap.createBitmap(
+					sideLength,
+					sideLength,
+					Bitmap.Config.ARGB_8888);
+			side.setPremultiplied(false);
+			side.setPixels(sidePixels, 0, sideLength, 0, 0, sideLength, sideLength);
+
+			TextureParameters.setBitmap(target, side, false);
 
 			side.recycle();
 

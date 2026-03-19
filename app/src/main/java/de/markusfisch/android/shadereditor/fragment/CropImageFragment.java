@@ -132,8 +132,16 @@ public class CropImageFragment extends Fragment {
 					}
 
 					if (isAdded()) {
-						bitmap = b;
-						cropImageView.setImageBitmap(b);
+						if (bitmap != null) {
+							bitmap.recycle();
+						}
+						bitmap = BitmapEditor.createDisplayBitmap(b);
+						if (bitmap != b) {
+							b.recycle();
+						}
+						cropImageView.setImageBitmap(bitmap);
+					} else if (!b.isRecycled()) {
+						b.recycle();
 					}
 				});
 			});

@@ -28,6 +28,7 @@ import de.markusfisch.android.shadereditor.activity.AbstractSubsequentActivity;
 import de.markusfisch.android.shadereditor.database.DataRecords.TextureInfo;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.database.Database;
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 import de.markusfisch.android.shadereditor.widget.ScalingImageView;
 
 public class TextureViewFragment extends Fragment {
@@ -42,6 +43,7 @@ public class TextureViewFragment extends Fragment {
 	private long textureId;
 	private String textureName;
 	private String samplerType;
+	private Bitmap textureBitmap;
 
 	@Override
 	public View onCreateView(
@@ -74,16 +76,21 @@ public class TextureViewFragment extends Fragment {
 		}
 
 		// Fetch texture info and bitmap using the modern DataSource.
-		Bitmap textureBitmap = dataSource.texture.getTextureBitmap(textureId);
+		Bitmap nonPremultipliedBitmap = dataSource.texture.getTextureBitmap(textureId);
 		TextureInfo textureInfo = dataSource.texture.getTextureInfo(textureId);
 
-		if (textureBitmap == null || textureInfo == null) {
+		if (nonPremultipliedBitmap == null || textureInfo == null) {
 			// Automatically remove defective textures.
 			dataSource.texture.removeTexture(textureId);
 			Toast.makeText(activity, R.string.removed_invalid_texture,
 					Toast.LENGTH_LONG).show();
 			activity.finish();
 			return null;
+		}
+
+		textureBitmap = BitmapEditor.createDisplayBitmap(nonPremultipliedBitmap);
+		if (textureBitmap != nonPremultipliedBitmap) {
+			nonPremultipliedBitmap.recycle();
 		}
 
 		textureName = textureInfo.name();
@@ -101,6 +108,20 @@ public class TextureViewFragment extends Fragment {
 
 		addMenuProvider();
 		return view;
+	}
+
+	@Override
+	public void onDestroyView() {
+		if (imageView != null) {
+			imageView.setImageBitmap(null);
+			imageView.setVisibility(View.GONE);
+			imageView = null;
+		}
+		if (textureBitmap != null && !textureBitmap.isRecycled()) {
+			textureBitmap.recycle();
+			textureBitmap = null;
+		}
+		super.onDestroyView();
 	}
 
 	private void addMenuProvider() {

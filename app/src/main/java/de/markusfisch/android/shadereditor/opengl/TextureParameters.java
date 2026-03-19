@@ -1,11 +1,12 @@
 package de.markusfisch.android.shadereditor.opengl;
 
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.opengl.GLES20;
 import android.opengl.GLUtils;
 
 import androidx.annotation.NonNull;
+
+import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 
 public class TextureParameters {
 	protected static final String HEADER = "///";
@@ -16,11 +17,6 @@ public class TextureParameters {
 	private static final String MAG = "mag";
 	private static final String WRAP_S = "s";
 	private static final String WRAP_T = "t";
-	private static final Matrix flipMatrix = new Matrix();
-
-	static {
-		flipMatrix.postScale(1f, -1f);
-	}
 
 	private final int defaultMin;
 	private final int defaultMag;
@@ -124,33 +120,54 @@ public class TextureParameters {
 	}
 
 	static String setBitmap(Bitmap bitmap) {
-		if (bitmap == null) {
+		return setBitmap(GLES20.GL_TEXTURE_2D, bitmap, true);
+	}
+
+	static String setBitmap(int target, Bitmap bitmap, boolean flipY) {
+		if (bitmap == null || bitmap.isRecycled()) {
 			return null;
 		}
-		// Flip bitmap because 0/0 is bottom left in OpenGL.
-		Bitmap flippedBitmap = Bitmap.createBitmap(
-				bitmap,
-				0,
-				0,
-				bitmap.getWidth(),
-				bitmap.getHeight(),
-				flipMatrix,
-				true);
+
+		int width = bitmap.getWidth();
+		int height = bitmap.getHeight();
+
 		String message = null;
 		try {
-			GLUtils.texImage2D(
-					GLES20.GL_TEXTURE_2D,
+			clearGlErrors();
+			GLES20.glTexImage2D(
+					target,
 					0,
 					GLES20.GL_RGBA,
-					flippedBitmap,
+					width,
+					height,
+					0,
+					GLES20.GL_RGBA,
 					GLES20.GL_UNSIGNED_BYTE,
-					0);
+					BitmapEditor.createRgbaBuffer(bitmap, flipY));
+			int error = getLastGlError();
+			if (error != GLES20.GL_NO_ERROR) {
+				message = GLUtils.getEGLErrorString(error);
+			}
 		} catch (IllegalArgumentException e) {
-			// Format/color space is invalid.
 			message = e.getMessage();
 		}
-		flippedBitmap.recycle();
+
 		return message;
+	}
+
+	private static void clearGlErrors() {
+		while (GLES20.glGetError() != GLES20.GL_NO_ERROR) {
+			// Drain stale GL errors so setBitmap() only reports its own failures.
+		}
+	}
+
+	private static int getLastGlError() {
+		int lastError = GLES20.GL_NO_ERROR;
+		int error;
+		while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+			lastError = error;
+		}
+		return lastError;
 	}
 
 	void parse(String params) {

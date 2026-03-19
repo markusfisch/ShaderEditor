@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RawRes;
 
 import org.jetbrains.annotations.Contract;
 
@@ -81,7 +82,9 @@ public class TextureDao {
 			if (cursor.moveToFirst()) {
 				var data = CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
 				if (data != null) {
-					return BitmapFactory.decodeByteArray(data, 0, data.length);
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					options.inPremultiplied = false;
+					return BitmapFactory.decodeByteArray(data, 0, data.length, options);
 				}
 			}
 		} catch (OutOfMemoryError e) {
@@ -101,7 +104,9 @@ public class TextureDao {
 			if (cursor.moveToFirst()) {
 				var data = CursorHelpers.getBlob(cursor, DatabaseContract.TextureColumns.MATRIX);
 				if (data != null) {
-					return BitmapFactory.decodeByteArray(data, 0, data.length);
+					BitmapFactory.Options options = new BitmapFactory.Options();
+					options.inPremultiplied = false;
+					return BitmapFactory.decodeByteArray(data, 0, data.length, options);
 				}
 			}
 		} catch (OutOfMemoryError e) {
@@ -127,13 +132,16 @@ public class TextureDao {
 	private static long insertTexture(SQLiteDatabase db, String name, Bitmap bitmap,
 			int thumbnailSize) {
 		try {
-			var thumbnail = Bitmap.createScaledBitmap(bitmap, thumbnailSize, thumbnailSize,
-					true);
+			var thumbnail = BitmapEditor.createScaledBitmap(bitmap, thumbnailSize, thumbnailSize);
 			int w = bitmap.getWidth();
 			int h = bitmap.getHeight();
-			return insertTexture(db, name, w, h, calculateRatio(w, h),
-					BitmapEditor.encodeAsPng(thumbnail),
-					BitmapEditor.encodeAsPng(bitmap));
+			try {
+				return insertTexture(db, name, w, h, calculateRatio(w, h),
+						BitmapEditor.encodeAsPng(thumbnail),
+						BitmapEditor.encodeAsPng(bitmap));
+			} finally {
+				thumbnail.recycle();
+			}
 		} catch (IllegalArgumentException e) {
 			return 0;
 		}
@@ -237,25 +245,23 @@ public class TextureDao {
 
 			private void insertInitialTextures(@NonNull SQLiteDatabase db) {
 				int thumbnailSize = Math.round(
-						context.getResources().getDisplayMetrics().density *
-						48f);
+						context.getResources().getDisplayMetrics().density * 48f);
 				insertTextureIfMissing(db,
 						context.getString(R.string.texture_name_noise),
-						R.drawable.texture_noise,
+						R.raw.texture_noise,
 						thumbnailSize);
 				insertTextureIfMissing(db,
 						context.getString(R.string.texture_name_rgba_noise),
-						R.drawable.texture_noise_rgba,
+						R.raw.texture_noise_rgba,
 						thumbnailSize);
 			}
 
 			private void insertTextureIfMissing(@NonNull SQLiteDatabase db,
-					String name, int drawableResId, int thumbnailSize) {
+					String name, @RawRes int rawResId, int thumbnailSize) {
 				if (textureExists(db, name)) {
 					return;
 				}
-				Bitmap bitmap = BitmapFactory.decodeResource(
-						context.getResources(), drawableResId);
+				Bitmap bitmap = BitmapEditor.getBitmapFromResource(context, rawResId);
 				if (bitmap == null) {
 					return;
 				}
@@ -287,7 +293,9 @@ public class TextureDao {
 							continue;
 						}
 
-						var bm = BitmapFactory.decodeByteArray(data, 0, data.length);
+						BitmapFactory.Options options = new BitmapFactory.Options();
+						options.inPremultiplied = false;
+						var bm = BitmapFactory.decodeByteArray(data, 0, data.length, options);
 						if (bm == null) {
 							continue;
 						}

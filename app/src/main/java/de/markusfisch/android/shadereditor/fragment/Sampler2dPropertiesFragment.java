@@ -103,26 +103,33 @@ public class Sampler2dPropertiesFragment extends AbstractSamplerPropertiesFragme
 			float rotation,
 			String name,
 			int size) {
-		if ((bitmap = BitmapEditor.crop(
-				bitmap,
-				rect,
-				rotation)) == null) {
+		if (bitmap == null) {
 			return R.string.illegal_rectangle;
 		}
 
 		// Get the DataSource using the modern singleton pattern.
 		DataSource dataSource = Database.getInstance(context).getDataSource();
 
-		if (dataSource.texture.insertTexture(
-				name,
-				Bitmap.createScaledBitmap(
-						bitmap,
-						size,
-						size,
-						true)) < 1) {
-			return R.string.name_already_taken;
+		try {
+			Bitmap scaledBitmap = BitmapEditor.transformBitmap(
+					bitmap,
+					rect,
+					rotation,
+					size,
+					size);
+			if (scaledBitmap == null) {
+				return R.string.illegal_rectangle;
+			}
+			if (dataSource.texture.insertTexture(name, scaledBitmap) < 1) {
+				scaledBitmap.recycle();
+				return R.string.name_already_taken;
+			}
+			scaledBitmap.recycle();
+			return 0;
+		} finally {
+			if (!bitmap.isRecycled()) {
+				bitmap.recycle();
+			}
 		}
-
-		return 0;
 	}
 }
