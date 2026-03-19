@@ -107,7 +107,8 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 			executor.execute(() -> {
 				DataSource dataSource = Database.getInstance(context).getDataSource();
 				// Call the new overridable method to get the textures.
-				final List<DataRecords.TextureInfo> textures = getTextures(dataSource, searchQuery);
+				final List<DataRecords.TextureInfo> textures = getTextures(dataSource,
+						searchQuery);
 
 				handler.post(() -> {
 					if (isAdded()) {

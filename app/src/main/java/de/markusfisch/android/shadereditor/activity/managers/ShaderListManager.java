@@ -100,7 +100,7 @@ public class ShaderListManager {
 					finalManager.listener.onShadersLoaded(shaderList);
 					finalManager.updateAdapter(shaderList);
 				}
-				});
+			});
 		});
 	}
 

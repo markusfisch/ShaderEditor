@@ -61,10 +61,10 @@ public class ShaderDao {
 	public List<DataRecords.ShaderInfo> getShaders(boolean sortByLastModification) {
 		List<DataRecords.ShaderInfo> shaders = new ArrayList<>();
 		String query =
-					"SELECT " + DatabaseContract.ShaderColumns._ID + "," + DatabaseContract.ShaderColumns.THUMB + "," + DatabaseContract.ShaderColumns.NAME + "," + DatabaseContract.ShaderColumns.MODIFIED +
-							" FROM " + DatabaseContract.ShaderColumns.TABLE_NAME + " ORDER BY " + (sortByLastModification ?
-							DatabaseContract.ShaderColumns.MODIFIED + " DESC" :
-							DatabaseContract.ShaderColumns._ID);
+				"SELECT " + DatabaseContract.ShaderColumns._ID + "," + DatabaseContract.ShaderColumns.THUMB + "," + DatabaseContract.ShaderColumns.NAME + "," + DatabaseContract.ShaderColumns.MODIFIED +
+						" FROM " + DatabaseContract.ShaderColumns.TABLE_NAME + " ORDER BY " + (sortByLastModification ?
+						DatabaseContract.ShaderColumns.MODIFIED + " DESC" :
+						DatabaseContract.ShaderColumns._ID);
 
 		SQLiteDatabase db = dbHelper.getReadableDatabase();
 		try (var cursor = db.rawQuery(query, null)) {

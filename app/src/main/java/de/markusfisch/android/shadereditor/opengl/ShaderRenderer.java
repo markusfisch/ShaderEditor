@@ -204,7 +204,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			#else
 			precision mediump float;
 			#endif
-			
+
 			uniform vec2 resolution;
 			uniform sampler2D frame;
 			void main(void) {
