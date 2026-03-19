@@ -105,25 +105,17 @@ public class BitmapEditor {
 		}
 	}
 
+	@Nullable
 	public static Bitmap crop(
-			Bitmap bitmap,
-			RectF rect,
+			@NonNull Bitmap bitmap,
+			@NonNull RectF rect,
 			float rotation) {
-		if (bitmap == null || bitmap.isRecycled()) {
+		if (bitmap.isRecycled()) {
 			return null;
 		}
 
-		int normalizedRotation = Math.round(rotation) % 360;
-		if (normalizedRotation < 0) {
-			normalizedRotation += 360;
-		}
-		if (normalizedRotation != 0 &&
-				rect.left >= 0f &&
-				rect.top >= 0f &&
-				rect.right <= 1f &&
-				rect.bottom <= 1f &&
-				rect.width() > 0f &&
-				rect.height() > 0f) {
+		int normalizedRotation = normalizeRotation(rotation);
+		if (normalizedRotation != 0 && isUnitRect(rect)) {
 			int rotatedWidth = normalizedRotation % 180 == 0
 					? bitmap.getWidth()
 					: bitmap.getHeight();
@@ -151,7 +143,7 @@ public class BitmapEditor {
 			@NonNull Bitmap bitmap,
 			@NonNull RectF rect,
 			float rotation) {
-		if (bitmap == null || bitmap.isRecycled()) {
+		if (bitmap.isRecycled()) {
 			return null;
 		}
 
@@ -250,30 +242,9 @@ public class BitmapEditor {
 		}
 
 		Bitmap croppedBitmap = cropManual(bitmap, rect, rotation);
-		if (croppedBitmap == null) {
-			return null;
-		}
-		if (croppedBitmap.getWidth() == dstWidth &&
-				croppedBitmap.getHeight() == dstHeight) {
-			return croppedBitmap;
-		}
-
-		try {
-			Bitmap scaledBitmap = createScaledBitmapManual(
-					croppedBitmap,
-					dstWidth,
-					dstHeight);
-			if (scaledBitmap != croppedBitmap &&
-					!croppedBitmap.isRecycled()) {
-				croppedBitmap.recycle();
-			}
-			return scaledBitmap;
-		} catch (IllegalArgumentException e) {
-			if (!croppedBitmap.isRecycled()) {
-				croppedBitmap.recycle();
-			}
-			return null;
-		}
+		return croppedBitmap == null
+				? null
+				: scaleBitmapManualIfNeeded(croppedBitmap, dstWidth, dstHeight);
 	}
 
 	/**
@@ -451,8 +422,9 @@ public class BitmapEditor {
 	}
 
 	@SuppressWarnings("SuspiciousNameCombination")
-	private static Bitmap rotateBitmapManual(Bitmap src, float degrees) {
-		if (src == null || degrees % 360 == 0) {
+	private static Bitmap rotateBitmapManual(@NonNull Bitmap src, float degrees) {
+		int rotation = normalizeRotation(degrees);
+		if (rotation == 0) {
 			return src;
 		}
 
@@ -465,8 +437,6 @@ public class BitmapEditor {
 
 		final int[] dstPixels;
 		final int newWidth, newHeight;
-
-		final int rotation = (int) (degrees + 360) % 360;
 
 		switch (rotation) {
 			case 90:
@@ -516,6 +486,31 @@ public class BitmapEditor {
 		return a * (1 - frac) + b * frac;
 	}
 
+	@Nullable
+	private static Bitmap scaleBitmapManualIfNeeded(
+			@NonNull Bitmap bitmap,
+			int dstWidth,
+			int dstHeight) {
+		if (bitmap.getWidth() == dstWidth &&
+				bitmap.getHeight() == dstHeight) {
+			return bitmap;
+		}
+
+		try {
+			Bitmap scaledBitmap = createScaledBitmapManual(bitmap, dstWidth, dstHeight);
+			if (scaledBitmap != bitmap &&
+					!bitmap.isRecycled()) {
+				bitmap.recycle();
+			}
+			return scaledBitmap;
+		} catch (IllegalArgumentException e) {
+			if (!bitmap.isRecycled()) {
+				bitmap.recycle();
+			}
+			return null;
+		}
+	}
+
 	@NonNull
 	private static Bitmap.Config getSafeConfig(@NonNull Bitmap bitmap) {
 		Bitmap.Config config = bitmap.getConfig();
@@ -556,5 +551,22 @@ public class BitmapEditor {
 		}
 
 		return size;
+	}
+
+	private static boolean isUnitRect(@NonNull RectF rect) {
+		return rect.left >= 0f &&
+				rect.top >= 0f &&
+				rect.right <= 1f &&
+				rect.bottom <= 1f &&
+				rect.width() > 0f &&
+				rect.height() > 0f;
+	}
+
+	private static int normalizeRotation(float rotation) {
+		int degrees = Math.round(rotation) % 360;
+		if (degrees < 0) {
+			degrees += 360;
+		}
+		return degrees;
 	}
 }

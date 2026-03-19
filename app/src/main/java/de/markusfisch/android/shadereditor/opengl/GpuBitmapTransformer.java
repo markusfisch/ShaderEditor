@@ -8,6 +8,9 @@ import android.opengl.EGLContext;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
 import android.opengl.GLES20;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -17,12 +20,16 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 
 public final class GpuBitmapTransformer {
 	private static final String TAG = "GpuBitmapTransformer";
 	private static final RectF FULL_BOUNDS = new RectF(0f, 0f, 1f, 1f);
+	private static final Engine ENGINE = new Engine();
+	private static final int MAX_RENDER_ATTEMPTS = 2;
 
 	private static final String VERTEX_SHADER = """
 			attribute vec2 position;
@@ -74,29 +81,28 @@ public final class GpuBitmapTransformer {
 			int dstHeight) {
 		if (bitmap.isRecycled() ||
 				dstWidth <= 0 ||
-				dstHeight <= 0 ||
-				EGL14.eglGetCurrentContext() != EGL14.EGL_NO_CONTEXT) {
+				dstHeight <= 0) {
 			return null;
 		}
 
-		Session session = null;
 		try {
-			session = new Session(dstWidth, dstHeight);
-			return session.transform(bitmap, rect, rotation);
-		} catch (RuntimeException e) {
+			return ENGINE.transform(
+					bitmap,
+					new RectF(rect),
+					rotation,
+					dstWidth,
+					dstHeight);
+		} catch (RuntimeException | OutOfMemoryError e) {
 			Log.w(TAG, "Falling back to CPU bitmap transform", e);
 			return null;
-		} finally {
-			if (session != null) {
-				session.release();
-			}
 		}
 	}
 
-	private static final class Session {
-		private final int dstWidth;
-		private final int dstHeight;
-		private final FloatBuffer vertexBuffer;
+	private static final class Engine {
+		private final Object lock = new Object();
+		private final FloatBuffer vertexBuffer = ByteBuffer.allocateDirect(16 * 4)
+				.order(ByteOrder.nativeOrder())
+				.asFloatBuffer();
 		private final TextureParameters textureParameters =
 				new TextureParameters(
 						GLES20.GL_LINEAR,
@@ -104,70 +110,84 @@ public final class GpuBitmapTransformer {
 						GLES20.GL_CLAMP_TO_EDGE,
 						GLES20.GL_CLAMP_TO_EDGE);
 
+		private HandlerThread thread;
+		private Handler handler;
+
 		private EGLDisplay display = EGL14.EGL_NO_DISPLAY;
 		private EGLContext context = EGL14.EGL_NO_CONTEXT;
 		private EGLSurface surface = EGL14.EGL_NO_SURFACE;
 		private int program;
 		private int textureId;
+		private int framebufferId;
+		private int framebufferTextureId;
+		private int framebufferWidth;
+		private int framebufferHeight;
 		private int positionLoc;
 		private int texCoordLoc;
 		private int frameLoc;
-
-		private Session(int dstWidth, int dstHeight) {
-			this.dstWidth = dstWidth;
-			this.dstHeight = dstHeight;
-			vertexBuffer = ByteBuffer.allocateDirect(16 * 4)
-					.order(ByteOrder.nativeOrder())
-					.asFloatBuffer();
-
-			initEgl();
-			initProgram();
-		}
+		private ByteBuffer pixels;
 
 		@NonNull
 		private Bitmap transform(
 				@NonNull Bitmap bitmap,
 				@NonNull RectF rect,
-				float rotation) {
-			createTexture(bitmap);
-			updateVertexBuffer(rect, rotation);
+				float rotation,
+				int dstWidth,
+				int dstHeight) {
+			if (isEngineThread()) {
+				return transformOnThread(bitmap, rect, rotation, dstWidth, dstHeight);
+			}
 
-			GLES20.glViewport(0, 0, dstWidth, dstHeight);
-			GLES20.glClearColor(0f, 0f, 0f, 0f);
-			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+			FutureTask<Bitmap> task = new FutureTask<>(
+					() -> transformOnThread(bitmap, rect, rotation, dstWidth, dstHeight));
+			post(task);
 
-			GLES20.glUseProgram(program);
+			try {
+				return task.get();
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new IllegalStateException("Bitmap transform interrupted", e);
+			} catch (ExecutionException e) {
+				Throwable cause = e.getCause();
+				if (cause instanceof RuntimeException) {
+					throw (RuntimeException) cause;
+				}
+				if (cause instanceof Error) {
+					throw (Error) cause;
+				}
+				throw new IllegalStateException(cause);
+			}
+		}
 
-			vertexBuffer.position(0);
-			GLES20.glVertexAttribPointer(positionLoc, 2, GLES20.GL_FLOAT,
-					false, 16, vertexBuffer);
-			GLES20.glEnableVertexAttribArray(positionLoc);
+		@NonNull
+		private Bitmap transformOnThread(
+				@NonNull Bitmap bitmap,
+				@NonNull RectF rect,
+				float rotation,
+				int dstWidth,
+				int dstHeight) {
+			for (int attempt = 0; attempt < MAX_RENDER_ATTEMPTS; ++attempt) {
+				try {
+					ensureReady();
+					return render(bitmap, rect, rotation, dstWidth, dstHeight);
+				} catch (RuntimeException error) {
+					if (attempt + 1 >= MAX_RENDER_ATTEMPTS) {
+						throw error;
+					}
+					Log.w(TAG, "Re-initializing bitmap transform context", error);
+					releaseUnsafe();
+				}
+			}
+			throw new IllegalStateException("Bitmap transform failed");
+		}
 
-			vertexBuffer.position(2);
-			GLES20.glVertexAttribPointer(texCoordLoc, 2, GLES20.GL_FLOAT,
-					false, 16, vertexBuffer);
-			GLES20.glEnableVertexAttribArray(texCoordLoc);
-
-			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-			GLES20.glUniform1i(frameLoc, 0);
-
-			GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
-			checkGlError("glDrawArrays");
-
-			ByteBuffer pixels = ByteBuffer.allocateDirect(dstWidth * dstHeight * 4)
-					.order(ByteOrder.nativeOrder());
-			GLES20.glReadPixels(
-					0,
-					0,
-					dstWidth,
-					dstHeight,
-					GLES20.GL_RGBA,
-					GLES20.GL_UNSIGNED_BYTE,
-					pixels);
-			checkGlError("glReadPixels");
-
-			return BitmapEditor.createBitmapFromRgbaBuffer(pixels, dstWidth, dstHeight, true);
+		private void ensureReady() {
+			if (!isReady()) {
+				initEgl();
+				initProgram();
+				return;
+			}
+			makeCurrent();
 		}
 
 		private void initEgl() {
@@ -203,7 +223,6 @@ public final class GpuBitmapTransformer {
 					0) || numConfigs[0] < 1) {
 				throw new IllegalStateException("eglChooseConfig failed");
 			}
-
 			int[] contextAttribs = {
 					EGL14.EGL_CONTEXT_CLIENT_VERSION, 2,
 					EGL14.EGL_NONE
@@ -218,9 +237,10 @@ public final class GpuBitmapTransformer {
 				throw new IllegalStateException("eglCreateContext failed");
 			}
 
+			// Keep the pbuffer minimal; the actual output lives in an FBO-attached texture.
 			int[] surfaceAttribs = {
-					EGL14.EGL_WIDTH, dstWidth,
-					EGL14.EGL_HEIGHT, dstHeight,
+					EGL14.EGL_WIDTH, 1,
+					EGL14.EGL_HEIGHT, 1,
 					EGL14.EGL_NONE
 			};
 			surface = EGL14.eglCreatePbufferSurface(
@@ -232,9 +252,12 @@ public final class GpuBitmapTransformer {
 				throw new IllegalStateException("eglCreatePbufferSurface failed");
 			}
 
-			if (!EGL14.eglMakeCurrent(display, surface, surface, context)) {
-				throw new IllegalStateException("eglMakeCurrent failed");
-			}
+			makeCurrent();
+			GLES20.glDisable(GLES20.GL_BLEND);
+			GLES20.glDisable(GLES20.GL_CULL_FACE);
+			GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+			GLES20.glClearColor(0f, 0f, 0f, 0f);
+			checkGlError("initEgl");
 		}
 
 		private void initProgram() {
@@ -252,10 +275,30 @@ public final class GpuBitmapTransformer {
 			}
 		}
 
+		private void makeCurrent() {
+			if (EGL14.eglGetCurrentContext() == context &&
+					EGL14.eglGetCurrentSurface(EGL14.EGL_DRAW) == surface &&
+					EGL14.eglGetCurrentSurface(EGL14.EGL_READ) == surface) {
+				return;
+			}
+			if (!EGL14.eglMakeCurrent(display, surface, surface, context)) {
+				throw new IllegalStateException("eglMakeCurrent failed");
+			}
+		}
+
+		private boolean isReady() {
+			return display != EGL14.EGL_NO_DISPLAY &&
+					context != EGL14.EGL_NO_CONTEXT &&
+					surface != EGL14.EGL_NO_SURFACE &&
+					program != 0;
+		}
+
 		private void createTexture(@NonNull Bitmap bitmap) {
-			int[] textures = new int[1];
-			GLES20.glGenTextures(1, textures, 0);
-			textureId = textures[0];
+			if (textureId == 0) {
+				int[] textures = new int[1];
+				GLES20.glGenTextures(1, textures, 0);
+				textureId = textures[0];
+			}
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
 			textureParameters.setParameters(GLES20.GL_TEXTURE_2D);
 			String message = TextureParameters.setBitmap(bitmap);
@@ -263,6 +306,105 @@ public final class GpuBitmapTransformer {
 				throw new IllegalStateException(message);
 			}
 			checkGlError("setBitmap");
+		}
+
+		private void ensureFramebuffer(int dstWidth, int dstHeight) {
+			if (framebufferId == 0) {
+				int[] framebuffers = new int[1];
+				GLES20.glGenFramebuffers(1, framebuffers, 0);
+				framebufferId = framebuffers[0];
+			}
+			if (framebufferTextureId == 0) {
+				int[] textures = new int[1];
+				GLES20.glGenTextures(1, textures, 0);
+				framebufferTextureId = textures[0];
+			}
+
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, framebufferTextureId);
+			textureParameters.setParameters(GLES20.GL_TEXTURE_2D);
+			if (framebufferWidth != dstWidth || framebufferHeight != dstHeight) {
+				GLES20.glTexImage2D(
+						GLES20.GL_TEXTURE_2D,
+						0,
+						GLES20.GL_RGBA,
+						dstWidth,
+						dstHeight,
+						0,
+						GLES20.GL_RGBA,
+						GLES20.GL_UNSIGNED_BYTE,
+						null);
+				checkGlError("glTexImage2D(framebuffer)");
+				framebufferWidth = dstWidth;
+				framebufferHeight = dstHeight;
+			}
+
+			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebufferId);
+			GLES20.glFramebufferTexture2D(
+					GLES20.GL_FRAMEBUFFER,
+					GLES20.GL_COLOR_ATTACHMENT0,
+					GLES20.GL_TEXTURE_2D,
+					framebufferTextureId,
+					0);
+
+			int status = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER);
+			if (status != GLES20.GL_FRAMEBUFFER_COMPLETE) {
+				throw new IllegalStateException(
+						"Framebuffer incomplete: 0x" + Integer.toHexString(status));
+			}
+		}
+
+		@NonNull
+		private Bitmap render(
+				@NonNull Bitmap bitmap,
+				@NonNull RectF rect,
+				float rotation,
+				int dstWidth,
+				int dstHeight) {
+			createTexture(bitmap);
+			ensureFramebuffer(dstWidth, dstHeight);
+			updateVertexBuffer(rect, rotation);
+
+			GLES20.glViewport(0, 0, dstWidth, dstHeight);
+			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+			GLES20.glUseProgram(program);
+
+			vertexBuffer.position(0);
+			GLES20.glVertexAttribPointer(positionLoc, 2, GLES20.GL_FLOAT,
+					false, 16, vertexBuffer);
+			GLES20.glEnableVertexAttribArray(positionLoc);
+
+			vertexBuffer.position(2);
+			GLES20.glVertexAttribPointer(texCoordLoc, 2, GLES20.GL_FLOAT,
+					false, 16, vertexBuffer);
+			GLES20.glEnableVertexAttribArray(texCoordLoc);
+
+			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
+			GLES20.glUniform1i(frameLoc, 0);
+
+			GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+			checkGlError("glDrawArrays");
+
+			ByteBuffer pixelBuffer = getPixelBuffer(dstWidth * dstHeight * 4);
+			pixelBuffer.position(0);
+			GLES20.glReadPixels(
+					0,
+					0,
+					dstWidth,
+					dstHeight,
+					GLES20.GL_RGBA,
+					GLES20.GL_UNSIGNED_BYTE,
+					pixelBuffer);
+			checkGlError("glReadPixels");
+
+			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+
+			return BitmapEditor.createBitmapFromRgbaBuffer(
+					pixelBuffer,
+					dstWidth,
+					dstHeight,
+					true);
 		}
 
 		private void updateVertexBuffer(@NonNull RectF rect, float rotation) {
@@ -279,14 +421,47 @@ public final class GpuBitmapTransformer {
 			vertexBuffer.position(0);
 		}
 
-		private void release() {
-			if (textureId != 0) {
-				GLES20.glDeleteTextures(1, new int[]{textureId}, 0);
-				textureId = 0;
+		@NonNull
+		private ByteBuffer getPixelBuffer(int size) {
+			if (pixels == null || pixels.capacity() < size) {
+				pixels = ByteBuffer.allocateDirect(size)
+						.order(ByteOrder.nativeOrder());
 			}
-			if (program != 0) {
-				GLES20.glDeleteProgram(program);
-				program = 0;
+			return pixels;
+		}
+
+		private void post(@NonNull Runnable runnable) {
+			synchronized (lock) {
+				ensureThreadLocked();
+				if (!handler.post(runnable)) {
+					throw new IllegalStateException("Cannot post bitmap transform task");
+				}
+			}
+		}
+
+		private boolean isEngineThread() {
+			synchronized (lock) {
+				return thread != null &&
+						thread.isAlive() &&
+						Looper.myLooper() == thread.getLooper();
+			}
+		}
+
+		private void ensureThreadLocked() {
+			if (thread != null && thread.isAlive()) {
+				return;
+			}
+			thread = new HandlerThread(TAG);
+			thread.start();
+			handler = new Handler(thread.getLooper());
+		}
+
+		private void releaseUnsafe() {
+			if (display != EGL14.EGL_NO_DISPLAY &&
+					context != EGL14.EGL_NO_CONTEXT &&
+					surface != EGL14.EGL_NO_SURFACE &&
+					EGL14.eglMakeCurrent(display, surface, surface, context)) {
+				deleteGlObjects();
 			}
 			if (display != EGL14.EGL_NO_DISPLAY) {
 				EGL14.eglMakeCurrent(
@@ -296,15 +471,41 @@ public final class GpuBitmapTransformer {
 						EGL14.EGL_NO_CONTEXT);
 				if (surface != EGL14.EGL_NO_SURFACE) {
 					EGL14.eglDestroySurface(display, surface);
-					surface = EGL14.EGL_NO_SURFACE;
 				}
 				if (context != EGL14.EGL_NO_CONTEXT) {
 					EGL14.eglDestroyContext(display, context);
-					context = EGL14.EGL_NO_CONTEXT;
 				}
 				EGL14.eglReleaseThread();
 				EGL14.eglTerminate(display);
-				display = EGL14.EGL_NO_DISPLAY;
+			}
+
+			display = EGL14.EGL_NO_DISPLAY;
+			context = EGL14.EGL_NO_CONTEXT;
+			surface = EGL14.EGL_NO_SURFACE;
+			program = 0;
+			textureId = 0;
+			framebufferId = 0;
+			framebufferTextureId = 0;
+			framebufferWidth = 0;
+			framebufferHeight = 0;
+			positionLoc = 0;
+			texCoordLoc = 0;
+			frameLoc = 0;
+			pixels = null;
+		}
+
+		private void deleteGlObjects() {
+			if (textureId != 0) {
+				GLES20.glDeleteTextures(1, new int[]{textureId}, 0);
+			}
+			if (framebufferTextureId != 0) {
+				GLES20.glDeleteTextures(1, new int[]{framebufferTextureId}, 0);
+			}
+			if (framebufferId != 0) {
+				GLES20.glDeleteFramebuffers(1, new int[]{framebufferId}, 0);
+			}
+			if (program != 0) {
+				GLES20.glDeleteProgram(program);
 			}
 		}
 	}
