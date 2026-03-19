@@ -12,6 +12,7 @@ import android.util.Log;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RawRes;
 
 import org.jetbrains.annotations.Contract;
 
@@ -85,23 +86,13 @@ public class BitmapEditor {
 	@Nullable
 	public static Bitmap getBitmapFromResource(
 			@NonNull Context context,
-			@DrawableRes int resId) {
-		InputStream in = null;
-		try {
-			in = context.getResources().openRawResource(resId);
+			@RawRes int resId) {
+		try (InputStream in = context.getResources().openRawResource(resId)) {
 			BitmapFactory.Options options = new BitmapFactory.Options();
 			options.inPremultiplied = false;
 			return BitmapFactory.decodeStream(in, null, options);
-		} catch (OutOfMemoryError | RuntimeException e) {
+		} catch (OutOfMemoryError | RuntimeException | IOException e) {
 			return null;
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					// Ignore.
-				}
-			}
 		}
 	}
 
@@ -514,9 +505,16 @@ public class BitmapEditor {
 	@NonNull
 	private static Bitmap.Config getSafeConfig(@NonNull Bitmap bitmap) {
 		Bitmap.Config config = bitmap.getConfig();
-		return config != null && config != Bitmap.Config.HARDWARE
+		return (config != null && !isHardwareConfig(config))
 				? config
 				: Bitmap.Config.ARGB_8888;
+	}
+
+	private static boolean isHardwareConfig(@NonNull Bitmap.Config config) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			return config == Bitmap.Config.HARDWARE;
+		}
+		return false;
 	}
 
 	private static void setSampleSize(
