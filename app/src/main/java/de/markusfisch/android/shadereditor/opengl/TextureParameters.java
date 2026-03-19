@@ -1,12 +1,8 @@
 package de.markusfisch.android.shadereditor.opengl;
 
-import android.graphics.Bitmap;
 import android.opengl.GLES20;
-import android.opengl.GLUtils;
 
 import androidx.annotation.NonNull;
-
-import de.markusfisch.android.shadereditor.graphics.BitmapEditor;
 
 public class TextureParameters {
 	protected static final String HEADER = "///";
@@ -100,74 +96,20 @@ public class TextureParameters {
 		this.wrapT = wrapT;
 	}
 
-	void setParameters(int target) {
-		GLES20.glTexParameteri(
-				target,
-				GLES20.GL_TEXTURE_MIN_FILTER,
-				min);
-		GLES20.glTexParameteri(
-				target,
-				GLES20.GL_TEXTURE_MAG_FILTER,
-				mag);
-		GLES20.glTexParameteri(
-				target,
-				GLES20.GL_TEXTURE_WRAP_S,
-				wrapS);
-		GLES20.glTexParameteri(
-				target,
-				GLES20.GL_TEXTURE_WRAP_T,
-				wrapT);
+	int getMinFilter() {
+		return min;
 	}
 
-	static String setBitmap(Bitmap bitmap) {
-		return setBitmap(GLES20.GL_TEXTURE_2D, bitmap, true);
+	int getMagFilter() {
+		return mag;
 	}
 
-	static String setBitmap(int target, Bitmap bitmap, boolean flipY) {
-		if (bitmap == null || bitmap.isRecycled()) {
-			return null;
-		}
-
-		int width = bitmap.getWidth();
-		int height = bitmap.getHeight();
-
-		String message = null;
-		try {
-			clearGlErrors();
-			GLES20.glTexImage2D(
-					target,
-					0,
-					GLES20.GL_RGBA,
-					width,
-					height,
-					0,
-					GLES20.GL_RGBA,
-					GLES20.GL_UNSIGNED_BYTE,
-					BitmapEditor.createRgbaBuffer(bitmap, flipY));
-			int error = getLastGlError();
-			if (error != GLES20.GL_NO_ERROR) {
-				message = GLUtils.getEGLErrorString(error);
-			}
-		} catch (IllegalArgumentException e) {
-			message = e.getMessage();
-		}
-
-		return message;
+	int getWrapS() {
+		return wrapS;
 	}
 
-	private static void clearGlErrors() {
-		while (GLES20.glGetError() != GLES20.GL_NO_ERROR) {
-			// Drain stale GL errors so setBitmap() only reports its own failures.
-		}
-	}
-
-	private static int getLastGlError() {
-		int lastError = GLES20.GL_NO_ERROR;
-		int error;
-		while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-			lastError = error;
-		}
-		return lastError;
+	int getWrapT() {
+		return wrapT;
 	}
 
 	void parse(String params) {

@@ -12,7 +12,6 @@ import java.util.regex.Pattern;
 public class ShaderError {
 	private static final Pattern ERROR_PATTERN = Pattern.compile(
 			"^.*(\\d+):(\\d+):\\s+(.*)$");
-	private static int silentlyAddedExtraLines;
 
 	private final int sourceStringNumber;
 	private final int errorLine;
@@ -34,7 +33,7 @@ public class ShaderError {
 	}
 
 	public int getLine() {
-		return errorLine - silentlyAddedExtraLines;
+		return errorLine;
 	}
 
 	@NonNull
@@ -44,16 +43,30 @@ public class ShaderError {
 
 	@NonNull
 	public static List<ShaderError> parseAll(@NonNull String infoLog) {
+		return parseAll(infoLog, 0);
+	}
+
+	@NonNull
+	public static List<ShaderError> parseAll(
+			@NonNull String infoLog,
+			int silentlyAddedExtraLines) {
 		String[] messages = infoLog.split("\n");
 		List<ShaderError> shaderErrors = new ArrayList<>(messages.length);
 		for (String message : messages) {
-			shaderErrors.add(parse(message));
+			shaderErrors.add(parse(message, silentlyAddedExtraLines));
 		}
 		return shaderErrors;
 	}
 
 	@NonNull
 	public static ShaderError parse(@NonNull String message) {
+		return parse(message, 0);
+	}
+
+	@NonNull
+	public static ShaderError parse(
+			@NonNull String message,
+			int silentlyAddedExtraLines) {
 		Matcher matcher = ERROR_PATTERN.matcher(message);
 		if (!matcher.matches()) {
 			return ShaderError.createGeneral(message);
@@ -67,18 +80,11 @@ public class ShaderError {
 		if (errorLineString == null) {
 			return ShaderError.createGeneral(message);
 		}
-		int errorLine = Integer.parseInt(errorLineString);
+		int errorLine = Math.max(
+				Integer.parseInt(errorLineString) - silentlyAddedExtraLines,
+				-1);
 		String infoLog = Objects.requireNonNull(matcher.group(3));
 		return new ShaderError(sourceStringNumber, errorLine, infoLog);
-
-	}
-
-	public static void resetSilentlyAddedExtraLines() {
-		silentlyAddedExtraLines = 0;
-	}
-
-	public static void addSilentlyAddedExtraLine() {
-		++silentlyAddedExtraLines;
 	}
 
 	@Override
