@@ -98,6 +98,58 @@ public final class GpuBitmapTransformer {
 		}
 	}
 
+	private static void putVertex(
+			float x,
+			float y,
+			@NonNull float[] texCoord,
+			@NonNull FloatBuffer buffer) {
+		buffer.put(x);
+		buffer.put(y);
+		buffer.put(texCoord[0]);
+		buffer.put(texCoord[1]);
+	}
+
+	@NonNull
+	private static float[] mapCorner(float x, float y, float rotation) {
+		float sourceX;
+		float sourceY = switch (normalizeRotation(rotation)) {
+			case 90 -> {
+				//noinspection SuspiciousNameCombination
+				sourceX = y;
+				yield 1f - x;
+			}
+			case 180 -> {
+				sourceX = 1f - x;
+				yield 1f - y;
+			}
+			case 270 -> {
+				sourceX = 1f - y;
+				yield x;
+			}
+			default -> {
+				sourceX = x;
+				yield y;
+			}
+		};
+		return new float[]{sourceX, 1f - sourceY};
+	}
+
+	private static int normalizeRotation(float rotation) {
+		int degrees = Math.round(rotation) % 360;
+		if (degrees < 0) {
+			degrees += 360;
+		}
+		return degrees;
+	}
+
+	private static void checkGlError(String operation) {
+		int error = GLES20.glGetError();
+		if (error != GLES20.GL_NO_ERROR) {
+			throw new IllegalStateException(
+					operation + " failed with GL error 0x" + Integer.toHexString(error));
+		}
+	}
+
 	private static final class Engine {
 		private final Object lock = new Object();
 		private final FloatBuffer vertexBuffer = ByteBuffer.allocateDirect(16 * 4)
@@ -166,7 +218,7 @@ public final class GpuBitmapTransformer {
 				float rotation,
 				int dstWidth,
 				int dstHeight) {
-			for (int attempt = 0; attempt < MAX_RENDER_ATTEMPTS; ++attempt) {
+			for (int attempt = 0; ; ++attempt) {
 				try {
 					ensureReady();
 					return render(bitmap, rect, rotation, dstWidth, dstHeight);
@@ -178,7 +230,6 @@ public final class GpuBitmapTransformer {
 					releaseUnsafe();
 				}
 			}
-			throw new IllegalStateException("Bitmap transform failed");
 		}
 
 		private void ensureReady() {
@@ -507,58 +558,6 @@ public final class GpuBitmapTransformer {
 			if (program != 0) {
 				GLES20.glDeleteProgram(program);
 			}
-		}
-	}
-
-	private static void putVertex(
-			float x,
-			float y,
-			@NonNull float[] texCoord,
-			@NonNull FloatBuffer buffer) {
-		buffer.put(x);
-		buffer.put(y);
-		buffer.put(texCoord[0]);
-		buffer.put(texCoord[1]);
-	}
-
-	@NonNull
-	private static float[] mapCorner(float x, float y, float rotation) {
-		float sourceX;
-		float sourceY;
-		switch (normalizeRotation(rotation)) {
-			case 90:
-				sourceX = y;
-				sourceY = 1f - x;
-				break;
-			case 180:
-				sourceX = 1f - x;
-				sourceY = 1f - y;
-				break;
-			case 270:
-				sourceX = 1f - y;
-				sourceY = x;
-				break;
-			default:
-				sourceX = x;
-				sourceY = y;
-				break;
-		}
-		return new float[]{sourceX, 1f - sourceY};
-	}
-
-	private static int normalizeRotation(float rotation) {
-		int degrees = Math.round(rotation) % 360;
-		if (degrees < 0) {
-			degrees += 360;
-		}
-		return degrees;
-	}
-
-	private static void checkGlError(String operation) {
-		int error = GLES20.glGetError();
-		if (error != GLES20.GL_NO_ERROR) {
-			throw new IllegalStateException(
-					operation + " failed with GL error 0x" + Integer.toHexString(error));
 		}
 	}
 }

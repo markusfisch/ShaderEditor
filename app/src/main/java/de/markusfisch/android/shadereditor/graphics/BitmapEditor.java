@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RawRes;
@@ -502,19 +501,16 @@ public class BitmapEditor {
 		}
 	}
 
+	private static boolean isUnsafeConfig(@Nullable Bitmap.Config config) {
+		return config == null
+				|| (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+				&& config == Bitmap.Config.HARDWARE);
+	}
+
 	@NonNull
 	private static Bitmap.Config getSafeConfig(@NonNull Bitmap bitmap) {
 		Bitmap.Config config = bitmap.getConfig();
-		return (config != null && !isHardwareConfig(config))
-				? config
-				: Bitmap.Config.ARGB_8888;
-	}
-
-	private static boolean isHardwareConfig(@NonNull Bitmap.Config config) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			return config == Bitmap.Config.HARDWARE;
-		}
-		return false;
+		return isUnsafeConfig(config) ? Bitmap.Config.ARGB_8888 : config;
 	}
 
 	private static void setSampleSize(

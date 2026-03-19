@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RawRes;
 
 import org.jetbrains.annotations.Contract;
 
@@ -247,20 +248,20 @@ public class TextureDao {
 						context.getResources().getDisplayMetrics().density * 48f);
 				insertTextureIfMissing(db,
 						context.getString(R.string.texture_name_noise),
-						R.drawable.texture_noise,
+						R.raw.texture_noise,
 						thumbnailSize);
 				insertTextureIfMissing(db,
 						context.getString(R.string.texture_name_rgba_noise),
-						R.drawable.texture_noise_rgba,
+						R.raw.texture_noise_rgba,
 						thumbnailSize);
 			}
 
 			private void insertTextureIfMissing(@NonNull SQLiteDatabase db,
-					String name, int drawableResId, int thumbnailSize) {
+					String name, @RawRes int rawResId, int thumbnailSize) {
 				if (textureExists(db, name)) {
 					return;
 				}
-				Bitmap bitmap = BitmapEditor.getBitmapFromResource(context, drawableResId);
+				Bitmap bitmap = BitmapEditor.getBitmapFromResource(context, rawResId);
 				if (bitmap == null) {
 					return;
 				}
