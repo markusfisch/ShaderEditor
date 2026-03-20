@@ -65,33 +65,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private static final int MAX_TEXTURES = 32;
 	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000L;
 	private static final float NS_PER_SECOND = 1000000000f;
-	private static final String VERTEX_SHADER = """
-			attribute vec2 position;
-			void main() {
-				gl_Position = vec4(position, 0., 1.);
-			}
-			""";
-	private static final String VERTEX_SHADER_3 = """
-			in vec2 position;
-			void main() {
-				gl_Position = vec4(position, 0., 1.);
-			}
-			""";
-	private static final String FRAGMENT_SHADER = """
-			#ifdef GL_FRAGMENT_PRECISION_HIGH
-			precision highp float;
-			#else
-			precision mediump float;
-			#endif
-
-			uniform vec2 resolution;
-			uniform sampler2D frame;
-			void main(void) {
-				gl_FragColor = texture2D(frame,gl_FragCoord.xy / resolution.xy).rgba;
-			}
-			""";
 
 	private final GlDevice device = new GlDevice(MAX_TEXTURES);
+	private final RendererProgramManager programManager =
+			new RendererProgramManager(MAX_TEXTURES);
 	private final ShaderRenderPipeline renderPipeline =
 			new ShaderRenderPipeline(device, Mesh.fullScreenQuad());
 	private final BuiltinUniforms builtinUniforms;
@@ -100,24 +77,10 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 	@Nullable
 	private OnRendererListener onRendererListener;
-	@Nullable
-	private String sourceText;
-	@NonNull
-	private PreparedShaderSource preparedShaderSource = PreparedShaderSource.empty();
-	@NonNull
-	private ShaderTextureResources textureResources =
-			ShaderTextureResources.empty();
 	@NonNull
 	private BuiltinUniforms.SurfaceState surfaceState =
 			BuiltinUniforms.SurfaceState.empty();
-	private int version = 2;
 	private long lastRender;
-	@Nullable
-	private GlProgram surfaceProgram;
-	@Nullable
-	private GlProgram program;
-	@Nullable
-	private ProgramBindings surfaceBindings;
 	private byte[] thumbnail = new byte[1];
 	private boolean captureThumbnail;
 	private volatile long nextFpsUpdate;
@@ -131,14 +94,12 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	public void setVersion(int version) {
-		this.version = version;
-		prepareShaderSource(sourceText);
+		programManager.setVersion(version);
 	}
 
 	public void setFragmentShader(String source, float quality) {
 		setQuality(quality);
-		sourceText = source;
-		prepareShaderSource(source);
+		programManager.setFragmentShader(source);
 		resetFps();
 	}
 
@@ -164,16 +125,19 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			submitErrors(thumbnailErrors);
 		}
 
-		var fragmentShader = preparedShaderSource.getFragmentShader();
-		if (fragmentShader != null && !fragmentShader.isEmpty()) {
+		if (programManager.hasPreparedShader()) {
 			resetFps();
-			submitErrors(textureResources.load(context, device));
-			if (loadPrograms()) {
+			var reloadResult = programManager.reload(context, device);
+			submitErrors(reloadResult.textureErrors());
+			if (reloadResult.succeeded()) {
+				submitErrors(Collections.emptyList());
 				builtinUniforms.configure(
 						device,
-						program,
-						preparedShaderSource.getFTimeMax(),
-						textureResources);
+						programManager.getMainProgram(),
+						programManager.getFTimeMax(),
+						programManager.getTextureResources());
+			} else if (!reloadResult.programErrors().isEmpty()) {
+				submitErrors(reloadResult.programErrors());
 			}
 		}
 	}
@@ -192,8 +156,11 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 
 	@Override
 	public void onDrawFrame(GL10 gl) {
+		var surfaceProgram = programManager.getSurfaceProgram();
+		var mainProgram = programManager.getMainProgram();
+		var surfaceBindings = programManager.getSurfaceBindings();
 		if (surfaceProgram == null ||
-				program == null ||
+				mainProgram == null ||
 				surfaceBindings == null) {
 			device.clear(GLES20.GL_COLOR_BUFFER_BIT |
 					GLES20.GL_DEPTH_BUFFER_BIT);
@@ -206,7 +173,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 					context,
 					surfaceState.renderWidth(),
 					surfaceState.renderHeight(),
-					preparedShaderSource.getBackBufferParameters());
+					programManager.getBackBufferParameters());
 			if (!targetErrors.isEmpty()) {
 				submitErrors(targetErrors);
 			}
@@ -224,7 +191,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 			return;
 		}
 
-		renderPipeline.renderMainPass(frame.bindings(), program);
+		renderPipeline.renderMainPass(frame.bindings(), mainProgram);
 		renderPipeline.renderSurfacePass(
 				surfaceBindings,
 				surfaceProgram,
@@ -273,42 +240,6 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		nextFpsUpdate = 0;
 	}
 
-	private boolean loadPrograms() {
-		var surfaceResult = device.createProgram(
-				VERTEX_SHADER,
-				FRAGMENT_SHADER,
-				0);
-		if (!surfaceResult.succeeded() || surfaceResult.getProgram() == null) {
-			submitErrors(surfaceResult.getInfoLog());
-			return false;
-		}
-
-		var fragmentShader = preparedShaderSource.getFragmentShader();
-		if (fragmentShader == null) {
-			device.deleteProgram(surfaceResult.getProgram());
-			return false;
-		}
-
-		var mainResult = device.createProgram(
-				preparedShaderSource.getVertexShader(
-						VERTEX_SHADER,
-						VERTEX_SHADER_3,
-						version),
-				fragmentShader,
-				preparedShaderSource.getFragmentShaderExtraLines());
-		if (!mainResult.succeeded() || mainResult.getProgram() == null) {
-			device.deleteProgram(surfaceResult.getProgram());
-			submitErrors(mainResult.getInfoLog());
-			return false;
-		}
-
-		surfaceProgram = surfaceResult.getProgram();
-		program = mainResult.getProgram();
-		surfaceBindings = new ProgramBindings(surfaceProgram);
-		submitErrors(Collections.emptyList());
-		return true;
-	}
-
 	private void submitErrors(@NonNull List<ShaderError> errors) {
 		if (onRendererListener != null) {
 			onRendererListener.onInfoLog(errors);
@@ -316,16 +247,15 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	}
 
 	private void discardContextResources() {
-		surfaceProgram = null;
-		program = null;
-		surfaceBindings = null;
 		builtinUniforms.clearConfiguration();
 		renderPipeline.discardContextResources();
-		textureResources.discard();
+		programManager.discardContextResources();
 	}
 
 	private void captureThumbnail() {
 		synchronized (thumbnailLock) {
+			var surfaceBindings = programManager.getSurfaceBindings();
+			var surfaceProgram = programManager.getSurfaceProgram();
 			if (captureThumbnail &&
 					surfaceBindings != null &&
 					surfaceProgram != null) {
@@ -369,14 +299,5 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 
 		lastRender = now;
-	}
-
-	private void prepareShaderSource(@Nullable String source) {
-		preparedShaderSource = ShaderSourcePreparer.prepare(
-				source,
-				version,
-				MAX_TEXTURES);
-		textureResources = ShaderTextureResources.create(
-				preparedShaderSource.getSamplers());
 	}
 }
