@@ -162,6 +162,8 @@ final class BuiltinUniforms {
 	@Nullable
 	private CameraListener cameraListener;
 	@Nullable
+	private GlDevice device;
+	@Nullable
 	private GravityListener gravityListener;
 	@Nullable
 	private GyroscopeListener gyroscopeListener;
@@ -218,6 +220,7 @@ final class BuiltinUniforms {
 			float fTimeMax,
 			@NonNull ShaderTextureResources textureResources) {
 		releaseListeners();
+		this.device = device;
 		this.fTimeMax = fTimeMax;
 		this.textureResources = textureResources;
 		cameraBinding = textureResources.getCameraBinding();
@@ -449,6 +452,11 @@ final class BuiltinUniforms {
 						cameraListener.addent);
 			}
 			cameraListener.update();
+			// SurfaceTexture mutates GL state outside GlDevice, so the cache
+			// must be invalidated before the render pass binds programs/textures.
+			if (device != null) {
+				device.resetState();
+			}
 		}
 
 		textureResources.applyTo(bindings);
@@ -465,6 +473,7 @@ final class BuiltinUniforms {
 	}
 
 	void clearConfiguration() {
+		device = null;
 		fTimeMax = 3f;
 		textureResources = ShaderTextureResources.empty();
 		cameraBinding = null;
