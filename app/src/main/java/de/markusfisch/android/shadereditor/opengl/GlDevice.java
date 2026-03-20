@@ -121,7 +121,9 @@ final class GlDevice {
 		int target = texture.getTarget();
 		int[] bindings = stateCache.getTextureBindingsForTarget(target);
 		int textureId = texture.getId();
-		if (bindings[unit] != textureId) {
+		boolean forceBind = texture instanceof GlExternalTexture externalTexture &&
+				externalTexture.consumeBindingDirty();
+		if (forceBind || bindings[unit] != textureId) {
 			GLES20.glBindTexture(target, textureId);
 			bindings[unit] = textureId;
 		}
