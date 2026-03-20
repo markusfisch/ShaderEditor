@@ -131,10 +131,21 @@ final class GlDevice {
 			@NonNull TextureParameters parameters) {
 		bindTexture(0, texture);
 		int target = texture.getTarget();
+		int minFilter = parameters.getMinFilter();
+		int wrapS = parameters.getWrapS();
+		int wrapT = parameters.getWrapT();
+		if (target == GLES11Ext.GL_TEXTURE_EXTERNAL_OES) {
+			minFilter = switch (minFilter) {
+				case GLES20.GL_NEAREST, GLES20.GL_LINEAR -> minFilter;
+				default -> GLES20.GL_LINEAR;
+			};
+			wrapS = GLES20.GL_CLAMP_TO_EDGE;
+			wrapT = GLES20.GL_CLAMP_TO_EDGE;
+		}
 		GLES20.glTexParameteri(
 				target,
 				GLES20.GL_TEXTURE_MIN_FILTER,
-				parameters.getMinFilter());
+				minFilter);
 		GLES20.glTexParameteri(
 				target,
 				GLES20.GL_TEXTURE_MAG_FILTER,
@@ -142,11 +153,11 @@ final class GlDevice {
 		GLES20.glTexParameteri(
 				target,
 				GLES20.GL_TEXTURE_WRAP_S,
-				parameters.getWrapS());
+				wrapS);
 		GLES20.glTexParameteri(
 				target,
 				GLES20.GL_TEXTURE_WRAP_T,
-				parameters.getWrapT());
+				wrapT);
 	}
 
 	void allocateTexture2D(@NonNull GlTexture2D texture, int width, int height) {
