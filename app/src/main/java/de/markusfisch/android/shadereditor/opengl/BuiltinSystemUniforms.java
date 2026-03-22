@@ -21,12 +21,6 @@ import de.markusfisch.android.shadereditor.hardware.MicInputListener;
 import de.markusfisch.android.shadereditor.service.NotificationService;
 
 final class BuiltinSystemUniforms {
-	private static final String[] NOTIFICATION_UNIFORMS = {
-			ShaderRenderer.UNIFORM_NOTIFICATION_COUNT,
-			ShaderRenderer.UNIFORM_LAST_NOTIFICATION_TIME};
-	private static final String[] DATE_UNIFORMS = {
-			ShaderRenderer.UNIFORM_DATE,
-			ShaderRenderer.UNIFORM_DAYTIME};
 	private static final long BATTERY_UPDATE_INTERVAL = 10000000000L;
 	private static final long DATE_UPDATE_INTERVAL = 1000000000L;
 
@@ -56,7 +50,7 @@ final class BuiltinSystemUniforms {
 					Configuration.UI_MODE_NIGHT_YES ? 1 : 0;
 		}
 
-		if (uniforms.hasAny(NOTIFICATION_UNIFORMS)) {
+		if (usesNotificationUniforms(uniforms)) {
 			NotificationService.requirePermissions(context);
 		}
 
@@ -108,7 +102,7 @@ final class BuiltinSystemUniforms {
 					ShaderRenderer.UNIFORM_POWER_CONNECTED,
 					ShaderEditorApp.preferences.isPowerConnected() ? 1 : 0);
 		}
-		if (uniforms.hasAny(DATE_UNIFORMS)) {
+		if (usesDateUniforms(uniforms)) {
 			if (now - lastDateUpdate > DATE_UPDATE_INTERVAL) {
 				Calendar calendar = Calendar.getInstance();
 				if (uniforms.has(ShaderRenderer.UNIFORM_DATE)) {
@@ -150,6 +144,18 @@ final class BuiltinSystemUniforms {
 			micInputListener.unregister();
 			micInputListener = null;
 		}
+	}
+
+	private static boolean usesNotificationUniforms(
+			@NonNull BuiltinUniformAccess uniforms) {
+		return uniforms.has(ShaderRenderer.UNIFORM_NOTIFICATION_COUNT) ||
+				uniforms.has(ShaderRenderer.UNIFORM_LAST_NOTIFICATION_TIME);
+	}
+
+	private static boolean usesDateUniforms(
+			@NonNull BuiltinUniformAccess uniforms) {
+		return uniforms.has(ShaderRenderer.UNIFORM_DATE) ||
+				uniforms.has(ShaderRenderer.UNIFORM_DAYTIME);
 	}
 
 	private void requestPermission(@NonNull String permission) {

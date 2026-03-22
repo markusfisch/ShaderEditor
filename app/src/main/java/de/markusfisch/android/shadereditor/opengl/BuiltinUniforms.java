@@ -47,7 +47,6 @@ final class BuiltinUniforms {
 	@NonNull
 	private ShaderTextureResources textureResources =
 			ShaderTextureResources.empty();
-	private int deviceRotation;
 	private int pointerCount;
 	private int frameNum;
 	private long startTime;
@@ -71,7 +70,7 @@ final class BuiltinUniforms {
 			@NonNull GlProgram program,
 			float fTimeMax,
 			@NonNull ShaderTextureResources textureResources) {
-		releaseProviders();
+		releaseModules();
 		this.fTimeMax = fTimeMax;
 		this.textureResources = textureResources;
 		uniformAccess = new BuiltinUniformAccess(device, program);
@@ -95,7 +94,7 @@ final class BuiltinUniforms {
 
 		surfaceResolution[0] = width;
 		surfaceResolution[1] = height;
-		deviceRotation = getDeviceRotation(context);
+		int deviceRotation = getDeviceRotation(context);
 		sensorUniforms.setDeviceRotation(deviceRotation);
 
 		float w = Math.round(width * quality);
@@ -190,7 +189,7 @@ final class BuiltinUniforms {
 	}
 
 	void release() {
-		releaseProviders();
+		releaseModules();
 		clearConfiguration();
 	}
 
@@ -221,7 +220,7 @@ final class BuiltinUniforms {
 		bindings.setFloat(ShaderRenderer.UNIFORM_START_RANDOM, startRandom);
 	}
 
-	private void releaseProviders() {
+	private void releaseModules() {
 		sensorUniforms.release();
 		systemUniforms.release();
 		cameraUniforms.release();

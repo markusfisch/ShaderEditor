@@ -18,23 +18,6 @@ import de.markusfisch.android.shadereditor.hardware.ProximityListener;
 import de.markusfisch.android.shadereditor.hardware.RotationVectorListener;
 
 final class BuiltinSensorUniforms {
-	private static final String[] ROTATION_UNIFORMS = {
-			ShaderRenderer.UNIFORM_ROTATION_MATRIX,
-			ShaderRenderer.UNIFORM_ORIENTATION,
-			ShaderRenderer.UNIFORM_INCLINATION_MATRIX,
-			ShaderRenderer.UNIFORM_INCLINATION};
-	private static final String[] MAGNETIC_DEPENDENT_UNIFORMS = {
-			ShaderRenderer.UNIFORM_MAGNETIC,
-			ShaderRenderer.UNIFORM_ROTATION_MATRIX,
-			ShaderRenderer.UNIFORM_ORIENTATION,
-			ShaderRenderer.UNIFORM_INCLINATION_MATRIX,
-			ShaderRenderer.UNIFORM_INCLINATION};
-	private static final String[] GRAVITY_DEPENDENT_UNIFORMS = {
-			ShaderRenderer.UNIFORM_GRAVITY,
-			ShaderRenderer.UNIFORM_ROTATION_MATRIX,
-			ShaderRenderer.UNIFORM_ORIENTATION,
-			ShaderRenderer.UNIFORM_INCLINATION_MATRIX,
-			ShaderRenderer.UNIFORM_INCLINATION};
 	private final float[] rotationMatrix = new float[9];
 	private final float[] inclinationMatrix = new float[9];
 	private final float[] orientation = new float[]{0, 0, 0};
@@ -70,7 +53,7 @@ final class BuiltinSensorUniforms {
 	}
 
 	void configure(@NonNull BuiltinUniformAccess uniforms) {
-		if (uniforms.hasAny(GRAVITY_DEPENDENT_UNIFORMS)) {
+		if (needsGravitySource(uniforms)) {
 			if (gravityListener == null) {
 				gravityListener = new GravityListener(context);
 			}
@@ -106,7 +89,7 @@ final class BuiltinSensorUniforms {
 			}
 		}
 
-		if (uniforms.hasAny(MAGNETIC_DEPENDENT_UNIFORMS)) {
+		if (needsMagneticSource(uniforms)) {
 			if (magneticFieldListener == null) {
 				magneticFieldListener = new MagneticFieldListener(context);
 			}
@@ -143,7 +126,7 @@ final class BuiltinSensorUniforms {
 		}
 
 		if (uniforms.has(ShaderRenderer.UNIFORM_ROTATION_VECTOR) ||
-				(magneticFieldListener == null && uniforms.hasAny(ROTATION_UNIFORMS))) {
+				(magneticFieldListener == null && usesRotationUniforms(uniforms))) {
 			if (rotationVectorListener == null) {
 				rotationVectorListener = new RotationVectorListener(context);
 			}
@@ -196,7 +179,7 @@ final class BuiltinSensorUniforms {
 					ShaderRenderer.UNIFORM_ROTATION_VECTOR,
 					rotationVectorListener.values);
 		}
-		if (uniforms.hasAny(ROTATION_UNIFORMS)) {
+		if (usesRotationUniforms(uniforms)) {
 			bindRotationUniforms(uniforms, bindings);
 		}
 	}
@@ -241,6 +224,26 @@ final class BuiltinSensorUniforms {
 		if (rotationVectorListener != null) {
 			rotationVectorListener.unregister();
 		}
+	}
+
+	private static boolean needsGravitySource(
+			@NonNull BuiltinUniformAccess uniforms) {
+		return uniforms.has(ShaderRenderer.UNIFORM_GRAVITY) ||
+				usesRotationUniforms(uniforms);
+	}
+
+	private static boolean needsMagneticSource(
+			@NonNull BuiltinUniformAccess uniforms) {
+		return uniforms.has(ShaderRenderer.UNIFORM_MAGNETIC) ||
+				usesRotationUniforms(uniforms);
+	}
+
+	private static boolean usesRotationUniforms(
+			@NonNull BuiltinUniformAccess uniforms) {
+		return uniforms.has(ShaderRenderer.UNIFORM_ROTATION_MATRIX) ||
+				uniforms.has(ShaderRenderer.UNIFORM_ORIENTATION) ||
+				uniforms.has(ShaderRenderer.UNIFORM_INCLINATION_MATRIX) ||
+				uniforms.has(ShaderRenderer.UNIFORM_INCLINATION);
 	}
 
 	private void bindRotationUniforms(

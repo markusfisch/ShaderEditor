@@ -22,7 +22,7 @@ final class BuiltinCameraUniforms {
 	@Nullable
 	private CameraListener cameraListener;
 	@Nullable
-	private ShaderTextureResources.LoadedTextureBinding cameraBinding;
+	private ShaderTextureResources.SamplerTextureBinding cameraTextureBinding;
 	private int renderWidth;
 	private int renderHeight;
 	private int deviceRotation;
@@ -32,7 +32,9 @@ final class BuiltinCameraUniforms {
 	}
 
 	void configure(@NonNull ShaderTextureResources textureResources) {
-		cameraBinding = textureResources.getCameraBinding();
+		cameraTextureBinding = textureResources.getFirstBinding(
+				ShaderRenderer.UNIFORM_CAMERA_BACK,
+				ShaderRenderer.UNIFORM_CAMERA_FRONT);
 		openCameraIfNeeded();
 	}
 
@@ -65,20 +67,20 @@ final class BuiltinCameraUniforms {
 					cameraListener.addent);
 		}
 		cameraListener.update();
-		if (cameraBinding != null && cameraBinding.texture() != null) {
-			cameraBinding.texture().markBindingDirty();
+		if (cameraTextureBinding != null && cameraTextureBinding.texture() != null) {
+			cameraTextureBinding.texture().markBindingDirty();
 		}
 	}
 
 	void release() {
-		cameraBinding = null;
+		cameraTextureBinding = null;
 		unregisterCamera();
 	}
 
 	private void openCameraIfNeeded() {
 		unregisterCamera();
 
-		var binding = cameraBinding;
+		var binding = cameraTextureBinding;
 		if (binding == null ||
 				renderWidth <= 0 ||
 				renderHeight <= 0 ||
