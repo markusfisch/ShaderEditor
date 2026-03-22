@@ -609,12 +609,12 @@ final class GlDevice {
 		}
 		if (buffer instanceof FloatBuffer floatBuffer) {
 			FloatBuffer duplicate = floatBuffer.duplicate();
-			duplicate.position(byteOffset / Float.BYTES);
+			duplicate.position(byteOffset / 4);
 			return duplicate;
 		}
 		if (buffer instanceof IntBuffer intBuffer) {
 			IntBuffer duplicate = intBuffer.duplicate();
-			duplicate.position(byteOffset / Integer.BYTES);
+			duplicate.position(byteOffset / 4);
 			return duplicate;
 		}
 		throw new IllegalArgumentException("Unsupported vertex buffer type: " +
