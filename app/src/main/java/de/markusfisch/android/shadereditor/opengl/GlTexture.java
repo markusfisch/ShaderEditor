@@ -10,4 +10,13 @@ interface GlTexture {
 	int getHeight();
 
 	boolean isValid();
+
+	void invalidate();
+
+	default void markBindingDirty() {
+	}
+
+	default boolean consumeBindingDirty() {
+		return false;
+	}
 }

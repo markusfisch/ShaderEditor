@@ -41,7 +41,8 @@ final class GlTexture2D implements GlTexture {
 		this.height = height;
 	}
 
-	void invalidate() {
+	@Override
+	public void invalidate() {
 		id = 0;
 		width = 0;
 		height = 0;

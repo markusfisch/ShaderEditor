@@ -35,17 +35,20 @@ final class GlExternalTexture implements GlTexture {
 		return id != 0;
 	}
 
-	void markBindingDirty() {
+	@Override
+	public void markBindingDirty() {
 		bindingDirty = true;
 	}
 
-	boolean consumeBindingDirty() {
+	@Override
+	public boolean consumeBindingDirty() {
 		boolean dirty = bindingDirty;
 		bindingDirty = false;
 		return dirty;
 	}
 
-	void invalidate() {
+	@Override
+	public void invalidate() {
 		id = 0;
 		bindingDirty = false;
 	}

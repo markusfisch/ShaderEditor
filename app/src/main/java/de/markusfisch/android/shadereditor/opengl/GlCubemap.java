@@ -39,7 +39,8 @@ final class GlCubemap implements GlTexture {
 		this.sideLength = sideLength;
 	}
 
-	void invalidate() {
+	@Override
+	public void invalidate() {
 		id = 0;
 		sideLength = 0;
 	}

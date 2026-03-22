@@ -101,13 +101,7 @@ final class GlDevice {
 		int id = texture.getId();
 		GLES20.glDeleteTextures(1, new int[]{id}, 0);
 		stateCache.clearTextureId(id);
-		if (texture instanceof GlTexture2D texture2D) {
-			texture2D.invalidate();
-		} else if (texture instanceof GlCubemap cubemap) {
-			cubemap.invalidate();
-		} else if (texture instanceof GlExternalTexture externalTexture) {
-			externalTexture.invalidate();
-		}
+		texture.invalidate();
 	}
 
 	void bindTexture(int unit, @Nullable GlTexture texture) {
@@ -121,8 +115,7 @@ final class GlDevice {
 		int target = texture.getTarget();
 		int[] bindings = stateCache.getTextureBindingsForTarget(target);
 		int textureId = texture.getId();
-		boolean forceBind = texture instanceof GlExternalTexture externalTexture &&
-				externalTexture.consumeBindingDirty();
+		boolean forceBind = texture.consumeBindingDirty();
 		if (forceBind || bindings[unit] != textureId) {
 			GLES20.glBindTexture(target, textureId);
 			bindings[unit] = textureId;
