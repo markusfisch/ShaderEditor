@@ -44,13 +44,13 @@ final class BuiltinCameraUniforms {
 	}
 
 	void apply(
-			@NonNull BuiltinUniformSchema schema,
+			@NonNull BuiltinUniformAccess uniforms,
 			@NonNull ProgramBindings bindings) {
 		if (cameraListener == null) {
 			return;
 		}
 
-		if (schema.cameraOrientation()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_CAMERA_ORIENTATION)) {
 			cameraListener.getOrientationMatrix().rewind();
 			cameraListener.getOrientationMatrix().get(cameraOrientation);
 			cameraListener.getOrientationMatrix().rewind();
@@ -59,7 +59,7 @@ final class BuiltinCameraUniforms {
 					false,
 					cameraOrientation);
 		}
-		if (schema.cameraAddent()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_CAMERA_ADDENT)) {
 			bindings.setFloat2(
 					ShaderRenderer.UNIFORM_CAMERA_ADDENT,
 					cameraListener.addent);

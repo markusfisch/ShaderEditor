@@ -18,6 +18,23 @@ import de.markusfisch.android.shadereditor.hardware.ProximityListener;
 import de.markusfisch.android.shadereditor.hardware.RotationVectorListener;
 
 final class BuiltinSensorUniforms {
+	private static final String[] ROTATION_UNIFORMS = {
+			ShaderRenderer.UNIFORM_ROTATION_MATRIX,
+			ShaderRenderer.UNIFORM_ORIENTATION,
+			ShaderRenderer.UNIFORM_INCLINATION_MATRIX,
+			ShaderRenderer.UNIFORM_INCLINATION};
+	private static final String[] MAGNETIC_DEPENDENT_UNIFORMS = {
+			ShaderRenderer.UNIFORM_MAGNETIC,
+			ShaderRenderer.UNIFORM_ROTATION_MATRIX,
+			ShaderRenderer.UNIFORM_ORIENTATION,
+			ShaderRenderer.UNIFORM_INCLINATION_MATRIX,
+			ShaderRenderer.UNIFORM_INCLINATION};
+	private static final String[] GRAVITY_DEPENDENT_UNIFORMS = {
+			ShaderRenderer.UNIFORM_GRAVITY,
+			ShaderRenderer.UNIFORM_ROTATION_MATRIX,
+			ShaderRenderer.UNIFORM_ORIENTATION,
+			ShaderRenderer.UNIFORM_INCLINATION_MATRIX,
+			ShaderRenderer.UNIFORM_INCLINATION};
 	private final float[] rotationMatrix = new float[9];
 	private final float[] inclinationMatrix = new float[9];
 	private final float[] orientation = new float[]{0, 0, 0};
@@ -52,8 +69,8 @@ final class BuiltinSensorUniforms {
 		this.context = context;
 	}
 
-	void configure(@NonNull BuiltinUniformSchema schema) {
-		if (schema.needsGravitySource()) {
+	void configure(@NonNull BuiltinUniformAccess uniforms) {
+		if (uniforms.hasAny(GRAVITY_DEPENDENT_UNIFORMS)) {
 			if (gravityListener == null) {
 				gravityListener = new GravityListener(context);
 			}
@@ -66,7 +83,7 @@ final class BuiltinSensorUniforms {
 			}
 		}
 
-		if (schema.linear()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_LINEAR)) {
 			if (linearAccelerationListener == null) {
 				linearAccelerationListener =
 						new LinearAccelerationListener(context);
@@ -80,7 +97,7 @@ final class BuiltinSensorUniforms {
 			}
 		}
 
-		if (schema.gyroscope()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_GYROSCOPE)) {
 			if (gyroscopeListener == null) {
 				gyroscopeListener = new GyroscopeListener(context);
 			}
@@ -89,7 +106,7 @@ final class BuiltinSensorUniforms {
 			}
 		}
 
-		if (schema.needsMagneticSource()) {
+		if (uniforms.hasAny(MAGNETIC_DEPENDENT_UNIFORMS)) {
 			if (magneticFieldListener == null) {
 				magneticFieldListener = new MagneticFieldListener(context);
 			}
@@ -98,7 +115,7 @@ final class BuiltinSensorUniforms {
 			}
 		}
 
-		if (schema.light()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_LIGHT)) {
 			if (lightListener == null) {
 				lightListener = new LightListener(context);
 			}
@@ -107,7 +124,7 @@ final class BuiltinSensorUniforms {
 			}
 		}
 
-		if (schema.pressure()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_PRESSURE)) {
 			if (pressureListener == null) {
 				pressureListener = new PressureListener(context);
 			}
@@ -116,7 +133,7 @@ final class BuiltinSensorUniforms {
 			}
 		}
 
-		if (schema.proximity()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_PROXIMITY)) {
 			if (proximityListener == null) {
 				proximityListener = new ProximityListener(context);
 			}
@@ -125,9 +142,8 @@ final class BuiltinSensorUniforms {
 			}
 		}
 
-		if (schema.rotationVector() ||
-				(magneticFieldListener == null &&
-						(schema.orientation() || schema.rotationMatrix()))) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_ROTATION_VECTOR) ||
+				(magneticFieldListener == null && uniforms.hasAny(ROTATION_UNIFORMS))) {
 			if (rotationVectorListener == null) {
 				rotationVectorListener = new RotationVectorListener(context);
 			}
@@ -142,46 +158,46 @@ final class BuiltinSensorUniforms {
 	}
 
 	void apply(
-			@NonNull BuiltinUniformSchema schema,
+			@NonNull BuiltinUniformAccess uniforms,
 			@NonNull ProgramBindings bindings) {
-		if (schema.gravity() && gravityValues != null) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_GRAVITY) && gravityValues != null) {
 			bindings.setFloat3(ShaderRenderer.UNIFORM_GRAVITY, gravityValues);
 		}
-		if (schema.linear() && linearValues != null) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_LINEAR) && linearValues != null) {
 			bindings.setFloat3(ShaderRenderer.UNIFORM_LINEAR, linearValues);
 		}
-		if (schema.gyroscope() && gyroscopeListener != null) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_GYROSCOPE) && gyroscopeListener != null) {
 			bindings.setFloat3(
 					ShaderRenderer.UNIFORM_GYROSCOPE,
 					gyroscopeListener.rotation);
 		}
-		if (schema.magnetic() && magneticFieldListener != null) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_MAGNETIC) && magneticFieldListener != null) {
 			bindings.setFloat3(
 					ShaderRenderer.UNIFORM_MAGNETIC,
 					magneticFieldListener.values);
 		}
-		if (schema.light() && lightListener != null) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_LIGHT) && lightListener != null) {
 			bindings.setFloat(
 					ShaderRenderer.UNIFORM_LIGHT,
 					lightListener.getAmbient());
 		}
-		if (schema.pressure() && pressureListener != null) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_PRESSURE) && pressureListener != null) {
 			bindings.setFloat(
 					ShaderRenderer.UNIFORM_PRESSURE,
 					pressureListener.getPressure());
 		}
-		if (schema.proximity() && proximityListener != null) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_PROXIMITY) && proximityListener != null) {
 			bindings.setFloat(
 					ShaderRenderer.UNIFORM_PROXIMITY,
 					proximityListener.getCentimeters());
 		}
-		if (schema.rotationVector() && rotationVectorListener != null) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_ROTATION_VECTOR) && rotationVectorListener != null) {
 			bindings.setFloat3(
 					ShaderRenderer.UNIFORM_ROTATION_VECTOR,
 					rotationVectorListener.values);
 		}
-		if (schema.needsRotationUniforms() && gravityValues != null) {
-			bindRotationUniforms(schema, bindings);
+		if (uniforms.hasAny(ROTATION_UNIFORMS)) {
+			bindRotationUniforms(uniforms, bindings);
 		}
 	}
 
@@ -228,7 +244,7 @@ final class BuiltinSensorUniforms {
 	}
 
 	private void bindRotationUniforms(
-			@NonNull BuiltinUniformSchema schema,
+			@NonNull BuiltinUniformAccess uniforms,
 			@NonNull ProgramBindings bindings) {
 		boolean haveInclination = false;
 		if (gravityListener != null &&
@@ -267,23 +283,23 @@ final class BuiltinSensorUniforms {
 					rotationMatrix);
 		}
 
-		if (schema.rotationMatrix()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_ROTATION_MATRIX)) {
 			bindings.setMatrix3(
 					ShaderRenderer.UNIFORM_ROTATION_MATRIX,
 					true,
 					rotationMatrix);
 		}
-		if (schema.orientation()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_ORIENTATION)) {
 			SensorManager.getOrientation(rotationMatrix, orientation);
 			bindings.setFloat3(ShaderRenderer.UNIFORM_ORIENTATION, orientation);
 		}
-		if (schema.inclinationMatrix() && haveInclination) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_INCLINATION_MATRIX) && haveInclination) {
 			bindings.setMatrix3(
 					ShaderRenderer.UNIFORM_INCLINATION_MATRIX,
 					true,
 					inclinationMatrix);
 		}
-		if (schema.inclination() && haveInclination) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_INCLINATION) && haveInclination) {
 			bindings.setFloat(
 					ShaderRenderer.UNIFORM_INCLINATION,
 					SensorManager.getInclination(inclinationMatrix));

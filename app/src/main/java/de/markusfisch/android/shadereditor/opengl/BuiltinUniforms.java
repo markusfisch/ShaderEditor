@@ -41,7 +41,7 @@ final class BuiltinUniforms {
 	private final BuiltinCameraUniforms cameraUniforms;
 
 	@Nullable
-	private BuiltinUniformSchema shaderUniformSchema;
+	private BuiltinUniformAccess uniformAccess;
 	@Nullable
 	private ProgramBindings programBindings;
 	@NonNull
@@ -74,16 +74,16 @@ final class BuiltinUniforms {
 		releaseProviders();
 		this.fTimeMax = fTimeMax;
 		this.textureResources = textureResources;
-		shaderUniformSchema = BuiltinUniformSchema.create(device, program);
+		uniformAccess = new BuiltinUniformAccess(device, program);
 		programBindings = new ProgramBindings(program);
 
-		var schema = shaderUniformSchema;
-		if (schema == null) {
+		var access = uniformAccess;
+		if (access == null) {
 			return;
 		}
 
-		sensorUniforms.configure(schema);
-		systemUniforms.configure(schema);
+		sensorUniforms.configure(access);
+		systemUniforms.configure(access);
 		cameraUniforms.configure(textureResources);
 	}
 
@@ -152,9 +152,9 @@ final class BuiltinUniforms {
 
 	@Nullable
 	PreparedFrame beginFrame(@Nullable GlTexture2D backBufferTexture) {
-		var schema = shaderUniformSchema;
+		var access = uniformAccess;
 		var bindings = programBindings;
-		if (schema == null || bindings == null) {
+		if (access == null || bindings == null) {
 			return null;
 		}
 
@@ -163,12 +163,12 @@ final class BuiltinUniforms {
 
 		bindings.clear();
 		bindFrameUniforms(bindings, delta);
-		systemUniforms.apply(schema, bindings, now);
-		sensorUniforms.apply(schema, bindings);
+		systemUniforms.apply(access, bindings, now);
+		sensorUniforms.apply(access, bindings);
 		if (backBufferTexture != null) {
 			bindings.setTexture(ShaderRenderer.UNIFORM_BACKBUFFER, backBufferTexture);
 		}
-		cameraUniforms.apply(schema, bindings);
+		cameraUniforms.apply(access, bindings);
 		textureResources.applyTo(bindings);
 
 		return new PreparedFrame(
@@ -185,7 +185,7 @@ final class BuiltinUniforms {
 	void clearConfiguration() {
 		fTimeMax = 3f;
 		textureResources = ShaderTextureResources.empty();
-		shaderUniformSchema = null;
+		uniformAccess = null;
 		programBindings = null;
 	}
 

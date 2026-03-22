@@ -21,6 +21,12 @@ import de.markusfisch.android.shadereditor.hardware.MicInputListener;
 import de.markusfisch.android.shadereditor.service.NotificationService;
 
 final class BuiltinSystemUniforms {
+	private static final String[] NOTIFICATION_UNIFORMS = {
+			ShaderRenderer.UNIFORM_NOTIFICATION_COUNT,
+			ShaderRenderer.UNIFORM_LAST_NOTIFICATION_TIME};
+	private static final String[] DATE_UNIFORMS = {
+			ShaderRenderer.UNIFORM_DATE,
+			ShaderRenderer.UNIFORM_DAYTIME};
 	private static final long BATTERY_UPDATE_INTERVAL = 10000000000L;
 	private static final long DATE_UPDATE_INTERVAL = 1000000000L;
 
@@ -40,21 +46,21 @@ final class BuiltinSystemUniforms {
 		this.context = context;
 	}
 
-	void configure(@NonNull BuiltinUniformSchema schema) {
+	void configure(@NonNull BuiltinUniformAccess uniforms) {
 		lastBatteryUpdate = 0L;
 		lastDateUpdate = 0L;
 
-		if (schema.nightMode()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_NIGHT_MODE)) {
 			nightMode = (context.getResources().getConfiguration().uiMode &
 					Configuration.UI_MODE_NIGHT_MASK) ==
 					Configuration.UI_MODE_NIGHT_YES ? 1 : 0;
 		}
 
-		if (schema.needsNotifications()) {
+		if (uniforms.hasAny(NOTIFICATION_UNIFORMS)) {
 			NotificationService.requirePermissions(context);
 		}
 
-		if (schema.micAmplitude()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_MIC_AMPLITUDE)) {
 			if (micInputListener == null) {
 				micInputListener = new MicInputListener(context);
 			}
@@ -66,18 +72,18 @@ final class BuiltinSystemUniforms {
 	}
 
 	void apply(
-			@NonNull BuiltinUniformSchema schema,
+			@NonNull BuiltinUniformAccess uniforms,
 			@NonNull ProgramBindings bindings,
 			long now) {
-		if (schema.nightMode()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_NIGHT_MODE)) {
 			bindings.setInt(ShaderRenderer.UNIFORM_NIGHT_MODE, nightMode);
 		}
-		if (schema.notificationCount()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_NOTIFICATION_COUNT)) {
 			bindings.setInt(
 					ShaderRenderer.UNIFORM_NOTIFICATION_COUNT,
 					NotificationService.getCount());
 		}
-		if (schema.lastNotificationTime()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_LAST_NOTIFICATION_TIME)) {
 			Long lastTime = NotificationService.getLastNotificationTime();
 			if (lastTime == null) {
 				bindings.setFloat(
@@ -90,22 +96,22 @@ final class BuiltinSystemUniforms {
 						(System.currentTimeMillis() - lastTime) * millisPerSecond);
 			}
 		}
-		if (schema.battery()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_BATTERY)) {
 			if (now - lastBatteryUpdate > BATTERY_UPDATE_INTERVAL) {
 				batteryLevel = getBatteryLevel();
 				lastBatteryUpdate = now;
 			}
 			bindings.setFloat(ShaderRenderer.UNIFORM_BATTERY, batteryLevel);
 		}
-		if (schema.powerConnected()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_POWER_CONNECTED)) {
 			bindings.setInt(
 					ShaderRenderer.UNIFORM_POWER_CONNECTED,
 					ShaderEditorApp.preferences.isPowerConnected() ? 1 : 0);
 		}
-		if (schema.needsDateData()) {
+		if (uniforms.hasAny(DATE_UNIFORMS)) {
 			if (now - lastDateUpdate > DATE_UPDATE_INTERVAL) {
 				Calendar calendar = Calendar.getInstance();
-				if (schema.date()) {
+				if (uniforms.has(ShaderRenderer.UNIFORM_DATE)) {
 					dateTime[0] = calendar.get(Calendar.YEAR);
 					dateTime[1] = calendar.get(Calendar.MONTH);
 					dateTime[2] = calendar.get(Calendar.DAY_OF_MONTH);
@@ -113,26 +119,26 @@ final class BuiltinSystemUniforms {
 							calendar.get(Calendar.MINUTE) * 60f +
 							calendar.get(Calendar.SECOND);
 				}
-				if (schema.daytime()) {
+				if (uniforms.has(ShaderRenderer.UNIFORM_DAYTIME)) {
 					daytime[0] = calendar.get(Calendar.HOUR_OF_DAY);
 					daytime[1] = calendar.get(Calendar.MINUTE);
 					daytime[2] = calendar.get(Calendar.SECOND);
 				}
 				lastDateUpdate = now;
 			}
-			if (schema.date()) {
+			if (uniforms.has(ShaderRenderer.UNIFORM_DATE)) {
 				bindings.setFloat4(ShaderRenderer.UNIFORM_DATE, dateTime);
 			}
-			if (schema.daytime()) {
+			if (uniforms.has(ShaderRenderer.UNIFORM_DAYTIME)) {
 				bindings.setFloat3(ShaderRenderer.UNIFORM_DAYTIME, daytime);
 			}
 		}
-		if (schema.mediaVolume()) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_MEDIA_VOLUME)) {
 			bindings.setFloat(
 					ShaderRenderer.UNIFORM_MEDIA_VOLUME,
 					getMediaVolumeLevel(context));
 		}
-		if (schema.micAmplitude() && micInputListener != null) {
+		if (uniforms.has(ShaderRenderer.UNIFORM_MIC_AMPLITUDE) && micInputListener != null) {
 			bindings.setFloat(
 					ShaderRenderer.UNIFORM_MIC_AMPLITUDE,
 					micInputListener.getAmplitude());
