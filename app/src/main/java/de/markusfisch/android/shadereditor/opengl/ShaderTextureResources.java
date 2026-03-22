@@ -14,13 +14,13 @@ import java.util.List;
 import de.markusfisch.android.shadereditor.database.Database;
 
 final class ShaderTextureResources {
-	static final class LoadedTextureBinding {
+	static final class SamplerTextureBinding {
 		@NonNull
 		private final DiscoveredSampler sampler;
 		@Nullable
 		private GlTexture texture;
 
-		LoadedTextureBinding(@NonNull DiscoveredSampler sampler) {
+		SamplerTextureBinding(@NonNull DiscoveredSampler sampler) {
 			this.sampler = sampler;
 		}
 
@@ -40,17 +40,17 @@ final class ShaderTextureResources {
 	}
 
 	@NonNull
-	private final List<LoadedTextureBinding> bindings;
+	private final List<SamplerTextureBinding> bindings;
 
-	private ShaderTextureResources(@NonNull List<LoadedTextureBinding> bindings) {
+	private ShaderTextureResources(@NonNull List<SamplerTextureBinding> bindings) {
 		this.bindings = bindings;
 	}
 
 	@NonNull
 	static ShaderTextureResources create(@NonNull List<DiscoveredSampler> samplers) {
-		var bindings = new ArrayList<LoadedTextureBinding>(samplers.size());
+		var bindings = new ArrayList<SamplerTextureBinding>(samplers.size());
 		for (var sampler : samplers) {
-			bindings.add(new LoadedTextureBinding(sampler));
+			bindings.add(new SamplerTextureBinding(sampler));
 		}
 		return new ShaderTextureResources(bindings);
 	}
@@ -82,9 +82,7 @@ final class ShaderTextureResources {
 		for (var binding : bindings) {
 			var sampler = binding.sampler();
 			if (sampler.target() == GLES11Ext.GL_TEXTURE_EXTERNAL_OES) {
-				var texture = device.createExternalTexture();
-				device.applyTextureParameters(texture, sampler.parameters());
-				binding.setTexture(texture);
+				loadExternalTexture(device, binding);
 				continue;
 			}
 
@@ -97,13 +95,11 @@ final class ShaderTextureResources {
 				switch (sampler.target()) {
 					case GLES20.GL_TEXTURE_2D -> loadTexture2D(
 							device,
-							sampler,
 							binding,
-							bitmap,
-							errors);
+							errors,
+							bitmap);
 					case GLES20.GL_TEXTURE_CUBE_MAP -> loadCubemap(
 							device,
-							sampler,
 							binding,
 							bitmap,
 							errors);
@@ -127,21 +123,32 @@ final class ShaderTextureResources {
 	}
 
 	@Nullable
-	LoadedTextureBinding getCameraBinding() {
+	SamplerTextureBinding getFirstBinding(@NonNull String... samplerNames) {
 		for (var binding : bindings) {
-			if (binding.sampler().isCameraTexture()) {
-				return binding;
+			for (String samplerName : samplerNames) {
+				if (binding.sampler().name().equals(samplerName)) {
+					return binding;
+				}
 			}
 		}
 		return null;
 	}
 
+	private static void loadExternalTexture(
+			@NonNull GlDevice device,
+			@NonNull SamplerTextureBinding binding) {
+		var sampler = binding.sampler();
+		var texture = device.createExternalTexture();
+		device.applyTextureParameters(texture, sampler.parameters());
+		binding.setTexture(texture);
+	}
+
 	private static void loadTexture2D(
 			@NonNull GlDevice device,
-			@NonNull DiscoveredSampler sampler,
-			@NonNull LoadedTextureBinding binding,
-			@NonNull Bitmap bitmap,
-			@NonNull List<ShaderError> errors) {
+			@NonNull SamplerTextureBinding binding,
+			@NonNull List<ShaderError> errors,
+			@NonNull Bitmap bitmap) {
+		var sampler = binding.sampler();
 		var texture = device.createTexture2D();
 		device.applyTextureParameters(texture, sampler.parameters());
 		var message = device.uploadTexture2D(texture, bitmap, true);
@@ -156,10 +163,10 @@ final class ShaderTextureResources {
 
 	private static void loadCubemap(
 			@NonNull GlDevice device,
-			@NonNull DiscoveredSampler sampler,
-			@NonNull LoadedTextureBinding binding,
+			@NonNull SamplerTextureBinding binding,
 			@NonNull Bitmap bitmap,
 			@NonNull List<ShaderError> errors) {
+		var sampler = binding.sampler();
 		var texture = device.createCubemap();
 		device.applyTextureParameters(texture, sampler.parameters());
 		var message = device.uploadCubemapFromAtlas(texture, bitmap);
