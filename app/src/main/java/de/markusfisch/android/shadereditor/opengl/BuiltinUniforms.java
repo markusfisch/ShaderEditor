@@ -41,8 +41,6 @@ final class BuiltinUniforms {
 	private final BuiltinCameraUniforms cameraUniforms;
 
 	@Nullable
-	private BuiltinUniformAccess uniformAccess;
-	@Nullable
 	private ProgramBindings programBindings;
 	@NonNull
 	private ShaderTextureResources textureResources =
@@ -73,17 +71,11 @@ final class BuiltinUniforms {
 		releaseModules();
 		this.fTimeMax = fTimeMax;
 		this.textureResources = textureResources;
-		uniformAccess = new BuiltinUniformAccess(device, program);
 		programBindings = new ProgramBindings(program);
 
-		var access = uniformAccess;
-		if (access == null) {
-			return;
-		}
-
-		sensorUniforms.configure(access);
-		systemUniforms.configure(access);
-		cameraUniforms.configure(textureResources);
+		sensorUniforms.configure(device, program);
+		systemUniforms.configure(device, program);
+		cameraUniforms.configure(device, program, textureResources);
 	}
 
 	@NonNull
@@ -151,9 +143,8 @@ final class BuiltinUniforms {
 
 	@Nullable
 	PreparedFrame beginFrame(@Nullable GlTexture2D backBufferTexture) {
-		var access = uniformAccess;
 		var bindings = programBindings;
-		if (access == null || bindings == null) {
+		if (bindings == null) {
 			return null;
 		}
 
@@ -162,12 +153,12 @@ final class BuiltinUniforms {
 
 		bindings.clear();
 		bindFrameUniforms(bindings, delta);
-		systemUniforms.apply(access, bindings, now);
-		sensorUniforms.apply(access, bindings);
+		systemUniforms.apply(bindings, now);
+		sensorUniforms.apply(bindings);
 		if (backBufferTexture != null) {
 			bindings.setTexture(ShaderRenderer.UNIFORM_BACKBUFFER, backBufferTexture);
 		}
-		cameraUniforms.apply(access, bindings);
+		cameraUniforms.apply(bindings);
 		textureResources.applyTo(bindings);
 
 		return new PreparedFrame(
@@ -184,7 +175,6 @@ final class BuiltinUniforms {
 	void clearConfiguration() {
 		fTimeMax = 3f;
 		textureResources = ShaderTextureResources.empty();
-		uniformAccess = null;
 		programBindings = null;
 	}
 

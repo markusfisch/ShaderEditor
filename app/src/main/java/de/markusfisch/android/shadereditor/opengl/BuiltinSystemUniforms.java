@@ -31,6 +31,15 @@ final class BuiltinSystemUniforms {
 
 	@Nullable
 	private MicInputListener micInputListener;
+	private boolean hasNightMode;
+	private boolean hasNotificationCount;
+	private boolean hasLastNotificationTime;
+	private boolean hasBattery;
+	private boolean hasPowerConnected;
+	private boolean hasDate;
+	private boolean hasDaytime;
+	private boolean hasMediaVolume;
+	private boolean hasMicAmplitude;
 	private int nightMode;
 	private long lastBatteryUpdate;
 	private long lastDateUpdate;
@@ -40,21 +49,42 @@ final class BuiltinSystemUniforms {
 		this.context = context;
 	}
 
-	void configure(@NonNull BuiltinUniformAccess uniforms) {
+	void configure(
+			@NonNull GlDevice device,
+			@NonNull GlProgram program) {
 		lastBatteryUpdate = 0L;
 		lastDateUpdate = 0L;
+		hasNightMode = device.hasUniform(program, ShaderRenderer.UNIFORM_NIGHT_MODE);
+		hasNotificationCount = device.hasUniform(
+				program,
+				ShaderRenderer.UNIFORM_NOTIFICATION_COUNT);
+		hasLastNotificationTime = device.hasUniform(
+				program,
+				ShaderRenderer.UNIFORM_LAST_NOTIFICATION_TIME);
+		hasBattery = device.hasUniform(program, ShaderRenderer.UNIFORM_BATTERY);
+		hasPowerConnected = device.hasUniform(
+				program,
+				ShaderRenderer.UNIFORM_POWER_CONNECTED);
+		hasDate = device.hasUniform(program, ShaderRenderer.UNIFORM_DATE);
+		hasDaytime = device.hasUniform(program, ShaderRenderer.UNIFORM_DAYTIME);
+		hasMediaVolume = device.hasUniform(
+				program,
+				ShaderRenderer.UNIFORM_MEDIA_VOLUME);
+		hasMicAmplitude = device.hasUniform(
+				program,
+				ShaderRenderer.UNIFORM_MIC_AMPLITUDE);
 
-		if (uniforms.has(ShaderRenderer.UNIFORM_NIGHT_MODE)) {
+		if (hasNightMode) {
 			nightMode = (context.getResources().getConfiguration().uiMode &
 					Configuration.UI_MODE_NIGHT_MASK) ==
 					Configuration.UI_MODE_NIGHT_YES ? 1 : 0;
 		}
 
-		if (usesNotificationUniforms(uniforms)) {
+		if (usesNotificationUniforms()) {
 			NotificationService.requirePermissions(context);
 		}
 
-		if (uniforms.has(ShaderRenderer.UNIFORM_MIC_AMPLITUDE)) {
+		if (hasMicAmplitude) {
 			if (micInputListener == null) {
 				micInputListener = new MicInputListener(context);
 			}
@@ -65,19 +95,16 @@ final class BuiltinSystemUniforms {
 		}
 	}
 
-	void apply(
-			@NonNull BuiltinUniformAccess uniforms,
-			@NonNull ProgramBindings bindings,
-			long now) {
-		if (uniforms.has(ShaderRenderer.UNIFORM_NIGHT_MODE)) {
+	void apply(@NonNull ProgramBindings bindings, long now) {
+		if (hasNightMode) {
 			bindings.setInt(ShaderRenderer.UNIFORM_NIGHT_MODE, nightMode);
 		}
-		if (uniforms.has(ShaderRenderer.UNIFORM_NOTIFICATION_COUNT)) {
+		if (hasNotificationCount) {
 			bindings.setInt(
 					ShaderRenderer.UNIFORM_NOTIFICATION_COUNT,
 					NotificationService.getCount());
 		}
-		if (uniforms.has(ShaderRenderer.UNIFORM_LAST_NOTIFICATION_TIME)) {
+		if (hasLastNotificationTime) {
 			Long lastTime = NotificationService.getLastNotificationTime();
 			if (lastTime == null) {
 				bindings.setFloat(
@@ -90,22 +117,22 @@ final class BuiltinSystemUniforms {
 						(System.currentTimeMillis() - lastTime) * millisPerSecond);
 			}
 		}
-		if (uniforms.has(ShaderRenderer.UNIFORM_BATTERY)) {
+		if (hasBattery) {
 			if (now - lastBatteryUpdate > BATTERY_UPDATE_INTERVAL) {
 				batteryLevel = getBatteryLevel();
 				lastBatteryUpdate = now;
 			}
 			bindings.setFloat(ShaderRenderer.UNIFORM_BATTERY, batteryLevel);
 		}
-		if (uniforms.has(ShaderRenderer.UNIFORM_POWER_CONNECTED)) {
+		if (hasPowerConnected) {
 			bindings.setInt(
 					ShaderRenderer.UNIFORM_POWER_CONNECTED,
 					ShaderEditorApp.preferences.isPowerConnected() ? 1 : 0);
 		}
-		if (usesDateUniforms(uniforms)) {
+		if (usesDateUniforms()) {
 			if (now - lastDateUpdate > DATE_UPDATE_INTERVAL) {
 				Calendar calendar = Calendar.getInstance();
-				if (uniforms.has(ShaderRenderer.UNIFORM_DATE)) {
+				if (hasDate) {
 					dateTime[0] = calendar.get(Calendar.YEAR);
 					dateTime[1] = calendar.get(Calendar.MONTH);
 					dateTime[2] = calendar.get(Calendar.DAY_OF_MONTH);
@@ -113,26 +140,26 @@ final class BuiltinSystemUniforms {
 							calendar.get(Calendar.MINUTE) * 60f +
 							calendar.get(Calendar.SECOND);
 				}
-				if (uniforms.has(ShaderRenderer.UNIFORM_DAYTIME)) {
+				if (hasDaytime) {
 					daytime[0] = calendar.get(Calendar.HOUR_OF_DAY);
 					daytime[1] = calendar.get(Calendar.MINUTE);
 					daytime[2] = calendar.get(Calendar.SECOND);
 				}
 				lastDateUpdate = now;
 			}
-			if (uniforms.has(ShaderRenderer.UNIFORM_DATE)) {
+			if (hasDate) {
 				bindings.setFloat4(ShaderRenderer.UNIFORM_DATE, dateTime);
 			}
-			if (uniforms.has(ShaderRenderer.UNIFORM_DAYTIME)) {
+			if (hasDaytime) {
 				bindings.setFloat3(ShaderRenderer.UNIFORM_DAYTIME, daytime);
 			}
 		}
-		if (uniforms.has(ShaderRenderer.UNIFORM_MEDIA_VOLUME)) {
+		if (hasMediaVolume) {
 			bindings.setFloat(
 					ShaderRenderer.UNIFORM_MEDIA_VOLUME,
 					getMediaVolumeLevel(context));
 		}
-		if (uniforms.has(ShaderRenderer.UNIFORM_MIC_AMPLITUDE) && micInputListener != null) {
+		if (hasMicAmplitude && micInputListener != null) {
 			bindings.setFloat(
 					ShaderRenderer.UNIFORM_MIC_AMPLITUDE,
 					micInputListener.getAmplitude());
@@ -146,16 +173,12 @@ final class BuiltinSystemUniforms {
 		}
 	}
 
-	private static boolean usesNotificationUniforms(
-			@NonNull BuiltinUniformAccess uniforms) {
-		return uniforms.has(ShaderRenderer.UNIFORM_NOTIFICATION_COUNT) ||
-				uniforms.has(ShaderRenderer.UNIFORM_LAST_NOTIFICATION_TIME);
+	private boolean usesNotificationUniforms() {
+		return hasNotificationCount || hasLastNotificationTime;
 	}
 
-	private static boolean usesDateUniforms(
-			@NonNull BuiltinUniformAccess uniforms) {
-		return uniforms.has(ShaderRenderer.UNIFORM_DATE) ||
-				uniforms.has(ShaderRenderer.UNIFORM_DAYTIME);
+	private boolean usesDateUniforms() {
+		return hasDate || hasDaytime;
 	}
 
 	private void requestPermission(@NonNull String permission) {

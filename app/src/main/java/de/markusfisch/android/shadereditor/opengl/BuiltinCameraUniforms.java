@@ -23,6 +23,8 @@ final class BuiltinCameraUniforms {
 	private CameraListener cameraListener;
 	@Nullable
 	private ShaderTextureResources.SamplerTextureBinding cameraTextureBinding;
+	private boolean hasCameraOrientation;
+	private boolean hasCameraAddent;
 	private int renderWidth;
 	private int renderHeight;
 	private int deviceRotation;
@@ -31,7 +33,16 @@ final class BuiltinCameraUniforms {
 		this.context = context;
 	}
 
-	void configure(@NonNull ShaderTextureResources textureResources) {
+	void configure(
+			@NonNull GlDevice device,
+			@NonNull GlProgram program,
+			@NonNull ShaderTextureResources textureResources) {
+		hasCameraOrientation = device.hasUniform(
+				program,
+				ShaderRenderer.UNIFORM_CAMERA_ORIENTATION);
+		hasCameraAddent = device.hasUniform(
+				program,
+				ShaderRenderer.UNIFORM_CAMERA_ADDENT);
 		cameraTextureBinding = textureResources.getFirstBinding(
 				ShaderRenderer.UNIFORM_CAMERA_BACK,
 				ShaderRenderer.UNIFORM_CAMERA_FRONT);
@@ -45,14 +56,12 @@ final class BuiltinCameraUniforms {
 		openCameraIfNeeded();
 	}
 
-	void apply(
-			@NonNull BuiltinUniformAccess uniforms,
-			@NonNull ProgramBindings bindings) {
+	void apply(@NonNull ProgramBindings bindings) {
 		if (cameraListener == null) {
 			return;
 		}
 
-		if (uniforms.has(ShaderRenderer.UNIFORM_CAMERA_ORIENTATION)) {
+		if (hasCameraOrientation) {
 			cameraListener.getOrientationMatrix().rewind();
 			cameraListener.getOrientationMatrix().get(cameraOrientation);
 			cameraListener.getOrientationMatrix().rewind();
@@ -61,7 +70,7 @@ final class BuiltinCameraUniforms {
 					false,
 					cameraOrientation);
 		}
-		if (uniforms.has(ShaderRenderer.UNIFORM_CAMERA_ADDENT)) {
+		if (hasCameraAddent) {
 			bindings.setFloat2(
 					ShaderRenderer.UNIFORM_CAMERA_ADDENT,
 					cameraListener.addent);
