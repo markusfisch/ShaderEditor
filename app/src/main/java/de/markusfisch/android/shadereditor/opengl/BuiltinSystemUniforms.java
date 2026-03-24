@@ -115,10 +115,9 @@ final class BuiltinSystemUniforms {
 						ShaderRenderer.UNIFORM_LAST_NOTIFICATION_TIME,
 						Float.NaN);
 			} else {
-				float millisPerSecond = 1f / 1000f;
 				bindings.setFloat(
 						ShaderRenderer.UNIFORM_LAST_NOTIFICATION_TIME,
-						(System.currentTimeMillis() - lastTime) * millisPerSecond);
+						(System.currentTimeMillis() - lastTime) / 1000f);
 			}
 		}
 		if (hasBattery) {
