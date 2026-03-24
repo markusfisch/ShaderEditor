@@ -23,13 +23,15 @@ final class BuiltinUniforms {
 	}
 
 	private static final float NS_PER_SECOND = 1000000000f;
+	private static final float DEFAULT_FTIME_MAX = 3f;
+	private static final int MAX_POINTERS = 10;
 
 	private final float[] surfaceResolution = new float[]{0, 0};
 	private final float[] resolution = new float[]{0, 0};
 	private final float[] touch = new float[]{0, 0};
 	private final float[] touchStart = new float[]{0, 0};
 	private final float[] mouse = new float[]{0, 0};
-	private final float[] pointers = new float[30];
+	private final float[] pointers = new float[MAX_POINTERS * 3];
 	private final float[] offset = new float[]{0, 0};
 	@NonNull
 	private final Context context;
@@ -48,7 +50,7 @@ final class BuiltinUniforms {
 	private int pointerCount;
 	private int frameNum;
 	private long startTime;
-	private float fTimeMax = 3f;
+	private float fTimeMax = DEFAULT_FTIME_MAX;
 	private float quality = 1f;
 	private float startRandom;
 
@@ -173,7 +175,7 @@ final class BuiltinUniforms {
 	}
 
 	void clearConfiguration() {
-		fTimeMax = 3f;
+		fTimeMax = DEFAULT_FTIME_MAX;
 		textureResources = ShaderTextureResources.empty();
 		programBindings = null;
 	}
