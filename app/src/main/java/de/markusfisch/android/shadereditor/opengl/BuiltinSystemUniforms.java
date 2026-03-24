@@ -23,6 +23,7 @@ import de.markusfisch.android.shadereditor.service.NotificationService;
 final class BuiltinSystemUniforms {
 	private static final long BATTERY_UPDATE_INTERVAL = 10000000000L;
 	private static final long DATE_UPDATE_INTERVAL = 1000000000L;
+	private static final long MEDIA_VOLUME_UPDATE_INTERVAL = 1000000000L;
 
 	private final float[] daytime = new float[]{0, 0, 0};
 	private final float[] dateTime = new float[]{0, 0, 0, 0};
@@ -43,7 +44,9 @@ final class BuiltinSystemUniforms {
 	private int nightMode;
 	private long lastBatteryUpdate;
 	private long lastDateUpdate;
+	private long lastMediaVolumeUpdate;
 	private float batteryLevel;
+	private float mediaVolumeLevel;
 
 	BuiltinSystemUniforms(@NonNull Context context) {
 		this.context = context;
@@ -54,6 +57,7 @@ final class BuiltinSystemUniforms {
 			@NonNull GlProgram program) {
 		lastBatteryUpdate = 0L;
 		lastDateUpdate = 0L;
+		lastMediaVolumeUpdate = 0L;
 		hasNightMode = device.hasUniform(program, ShaderRenderer.UNIFORM_NIGHT_MODE);
 		hasNotificationCount = device.hasUniform(
 				program,
@@ -155,9 +159,11 @@ final class BuiltinSystemUniforms {
 			}
 		}
 		if (hasMediaVolume) {
-			bindings.setFloat(
-					ShaderRenderer.UNIFORM_MEDIA_VOLUME,
-					getMediaVolumeLevel(context));
+			if (now - lastMediaVolumeUpdate > MEDIA_VOLUME_UPDATE_INTERVAL) {
+				mediaVolumeLevel = getMediaVolumeLevel(context);
+				lastMediaVolumeUpdate = now;
+			}
+			bindings.setFloat(ShaderRenderer.UNIFORM_MEDIA_VOLUME, mediaVolumeLevel);
 		}
 		if (hasMicAmplitude && micInputListener != null) {
 			bindings.setFloat(
