@@ -62,9 +62,10 @@ final class BuiltinCameraUniforms {
 		}
 
 		if (hasCameraOrientation) {
-			cameraListener.getOrientationMatrix().rewind();
-			cameraListener.getOrientationMatrix().get(cameraOrientation);
-			cameraListener.getOrientationMatrix().rewind();
+			var orientationMatrix = cameraListener.getOrientationMatrix();
+			orientationMatrix.rewind();
+			orientationMatrix.get(cameraOrientation);
+			orientationMatrix.rewind();
 			bindings.setMatrix2(
 					ShaderRenderer.UNIFORM_CAMERA_ORIENTATION,
 					false,
