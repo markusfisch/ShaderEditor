@@ -61,7 +61,6 @@ public final class GpuBitmapTransformer {
 	};
 
 	private GpuBitmapTransformer() {
-		// Utility class.
 	}
 
 	@Nullable
