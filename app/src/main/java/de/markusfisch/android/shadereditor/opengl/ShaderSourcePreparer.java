@@ -51,15 +51,15 @@ final class ShaderSourcePreparer {
 			return new PreparedShaderSource(
 					null,
 					fTimeMax,
-					0,
 					null,
 					new BackBufferParameters(),
 					List.of());
 		}
 
 		String gles3Version = getGLES3Version(source, version);
-		String preparedSource = source;
-		int fragmentShaderExtraLines = 0;
+		PreparedShaderInput preparedInput = new PreparedShaderInput(
+				source,
+				ShaderLineMapping.identity());
 		BackBufferParameters backBufferParameters = new BackBufferParameters();
 		ArrayList<DiscoveredSampler> samplers = new ArrayList<>();
 
@@ -85,11 +85,8 @@ final class ShaderSourcePreparer {
 					String pattern = gles3Version != null
 							? OES_EXTERNAL_ESS3
 							: OES_EXTERNAL;
-					if (!preparedSource.contains(pattern)) {
-						preparedSource = addPreprocessorDirective(
-								preparedSource,
-								pattern);
-						++fragmentShaderExtraLines;
+					if (!preparedInput.getSource().contains(pattern)) {
+						preparedInput = addPreprocessorDirective(preparedInput, pattern);
 					}
 					yield GLES11Ext.GL_TEXTURE_EXTERNAL_OES;
 				}
@@ -105,17 +102,13 @@ final class ShaderSourcePreparer {
 					new TextureParameters(params)));
 		}
 
-		if (!preparedSource.contains(SHADER_EDITOR)) {
-			preparedSource = addPreprocessorDirective(
-					preparedSource,
-					SHADER_EDITOR);
-			++fragmentShaderExtraLines;
+		if (!preparedInput.getSource().contains(SHADER_EDITOR)) {
+			preparedInput = addPreprocessorDirective(preparedInput, SHADER_EDITOR);
 		}
 
 		return new PreparedShaderSource(
-				preparedSource,
+				preparedInput,
 				fTimeMax,
-				fragmentShaderExtraLines,
 				gles3Version,
 				backBufferParameters,
 				samplers);
@@ -141,19 +134,49 @@ final class ShaderSourcePreparer {
 	}
 
 	@NonNull
-	private static String addPreprocessorDirective(
-			@NonNull String source,
+	private static PreparedShaderInput addPreprocessorDirective(
+			@NonNull PreparedShaderInput input,
 			@NonNull String directive) {
+		String source = input.getSource();
+		ShaderLineMapping lineMapping = input.getLineMapping();
+		int insertedLines = countLines(directive);
 		if (source.trim().startsWith("#version")) {
 			int lineFeed = source.indexOf("\n");
 			if (lineFeed < 0) {
-				return source;
+				return input;
 			}
+			int sourceLine = countSourceLines(source, lineFeed + 1);
 			++lineFeed;
-			return source.substring(0, lineFeed) +
-					directive +
-					source.substring(lineFeed);
+			return new PreparedShaderInput(
+					source.substring(0, lineFeed) +
+							directive +
+							source.substring(lineFeed),
+					lineMapping.addInsertedLinesAfterSourceLine(
+							sourceLine,
+							insertedLines));
 		}
-		return directive + source;
+		return new PreparedShaderInput(
+				directive + source,
+				lineMapping.addInsertedLinesAfterSourceLine(0, insertedLines));
+	}
+
+	private static int countSourceLines(@NonNull String source, int endExclusive) {
+		int lines = 0;
+		for (int index = 0; index < endExclusive; ++index) {
+			if (source.charAt(index) == '\n') {
+				++lines;
+			}
+		}
+		return lines;
+	}
+
+	private static int countLines(@NonNull String source) {
+		int lines = 1;
+		for (int index = 0; index < source.length(); ++index) {
+			if (source.charAt(index) == '\n') {
+				++lines;
+			}
+		}
+		return source.endsWith("\n") ? lines - 1 : lines;
 	}
 }

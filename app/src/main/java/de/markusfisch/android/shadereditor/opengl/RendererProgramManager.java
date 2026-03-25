@@ -87,7 +87,7 @@ final class RendererProgramManager {
 
 	boolean hasPreparedShader() {
 		var fragmentShader = preparedShaderSource.getFragmentShader();
-		return fragmentShader != null && !fragmentShader.isEmpty();
+		return fragmentShader != null && !fragmentShader.getSource().isEmpty();
 	}
 
 	@NonNull
@@ -98,7 +98,7 @@ final class RendererProgramManager {
 		var surfaceResult = device.createProgram(
 				FULL_SCREEN_VERTEX_SHADER,
 				SURFACE_FRAGMENT_SHADER,
-				0);
+				ShaderLineMapping.identity());
 		if (!surfaceResult.succeeded() || surfaceResult.getProgram() == null) {
 			return ReloadResult.failure(textureErrors, surfaceResult.getInfoLog());
 		}
@@ -114,8 +114,8 @@ final class RendererProgramManager {
 						FULL_SCREEN_VERTEX_SHADER,
 						FULL_SCREEN_VERTEX_SHADER_3,
 						version),
-				fragmentShader,
-				preparedShaderSource.getFragmentShaderExtraLines());
+				fragmentShader.getSource(),
+				fragmentShader.getLineMapping());
 		if (!mainResult.succeeded() || mainResult.getProgram() == null) {
 			device.deleteProgram(surfaceResult.getProgram());
 			return ReloadResult.failure(textureErrors, mainResult.getInfoLog());
