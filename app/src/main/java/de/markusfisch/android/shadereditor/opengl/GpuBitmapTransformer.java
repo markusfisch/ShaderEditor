@@ -61,7 +61,6 @@ public final class GpuBitmapTransformer {
 	};
 
 	private GpuBitmapTransformer() {
-		// Utility class.
 	}
 
 	@Nullable
@@ -142,19 +141,13 @@ public final class GpuBitmapTransformer {
 		return degrees;
 	}
 
-	private static void checkGlError(String operation) {
-		int error = GLES20.glGetError();
-		if (error != GLES20.GL_NO_ERROR) {
-			throw new IllegalStateException(
-					operation + " failed with GL error 0x" + Integer.toHexString(error));
-		}
-	}
-
 	private static final class Engine {
 		private final Object lock = new Object();
 		private final FloatBuffer vertexBuffer = ByteBuffer.allocateDirect(16 * 4)
 				.order(ByteOrder.nativeOrder())
 				.asFloatBuffer();
+		private final Mesh texturedQuad = Mesh.texturedQuad(vertexBuffer);
+		private final GlDevice device = new GlDevice(1);
 		private final TextureParameters textureParameters =
 				new TextureParameters(
 						GLES20.GL_LINEAR,
@@ -168,15 +161,13 @@ public final class GpuBitmapTransformer {
 		private EGLDisplay display = EGL14.EGL_NO_DISPLAY;
 		private EGLContext context = EGL14.EGL_NO_CONTEXT;
 		private EGLSurface surface = EGL14.EGL_NO_SURFACE;
-		private int program;
-		private int textureId;
-		private int framebufferId;
-		private int framebufferTextureId;
+		private GlProgram program;
+		private ProgramBindings programBindings;
+		private GlTexture2D sourceTexture;
+		private GlFramebuffer framebuffer;
+		private GlTexture2D framebufferTexture;
 		private int framebufferWidth;
 		private int framebufferHeight;
-		private int positionLoc;
-		private int texCoordLoc;
-		private int frameLoc;
 		private ByteBuffer pixels;
 
 		@NonNull
@@ -304,26 +295,25 @@ public final class GpuBitmapTransformer {
 			}
 
 			makeCurrent();
-			GLES20.glDisable(GLES20.GL_BLEND);
-			GLES20.glDisable(GLES20.GL_CULL_FACE);
-			GLES20.glDisable(GLES20.GL_DEPTH_TEST);
-			GLES20.glClearColor(0f, 0f, 0f, 0f);
-			checkGlError("initEgl");
+			device.resetState();
+			device.disable(GLES20.GL_BLEND);
+			device.disable(GLES20.GL_CULL_FACE);
+			device.disable(GLES20.GL_DEPTH_TEST);
+			device.setClearColor(0f, 0f, 0f, 0f);
 		}
 
 		private void initProgram() {
-			program = Program.loadProgram(VERTEX_SHADER, FRAGMENT_SHADER);
-			if (program == 0) {
-				List<ShaderError> log = Program.getInfoLog();
+			GlProgramBuildResult result = device.createProgram(
+					VERTEX_SHADER,
+					FRAGMENT_SHADER,
+					0);
+			if (!result.succeeded() || result.getProgram() == null) {
+				List<ShaderError> log = result.getInfoLog();
 				throw new IllegalStateException(
 						"Cannot create transform program: " + log);
 			}
-			positionLoc = GLES20.glGetAttribLocation(program, "position");
-			texCoordLoc = GLES20.glGetAttribLocation(program, "texCoord");
-			frameLoc = GLES20.glGetUniformLocation(program, "frame");
-			if (positionLoc < 0 || texCoordLoc < 0 || frameLoc < 0) {
-				throw new IllegalStateException("Failed to resolve shader handles");
-			}
+			program = result.getProgram();
+			programBindings = new ProgramBindings(program);
 		}
 
 		private void makeCurrent() {
@@ -341,63 +331,38 @@ public final class GpuBitmapTransformer {
 			return display != EGL14.EGL_NO_DISPLAY &&
 					context != EGL14.EGL_NO_CONTEXT &&
 					surface != EGL14.EGL_NO_SURFACE &&
-					program != 0;
+					program != null &&
+					program.isValid();
 		}
 
 		private void createTexture(@NonNull Bitmap bitmap) {
-			if (textureId == 0) {
-				int[] textures = new int[1];
-				GLES20.glGenTextures(1, textures, 0);
-				textureId = textures[0];
+			if (sourceTexture == null) {
+				sourceTexture = device.createTexture2D();
 			}
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-			textureParameters.setParameters(GLES20.GL_TEXTURE_2D);
-			String message = TextureParameters.setBitmap(bitmap);
+			device.applyTextureParameters(sourceTexture, textureParameters);
+			String message = device.uploadTexture2D(sourceTexture, bitmap, true);
 			if (message != null) {
 				throw new IllegalStateException(message);
 			}
-			checkGlError("setBitmap");
 		}
 
 		private void ensureFramebuffer(int dstWidth, int dstHeight) {
-			if (framebufferId == 0) {
-				int[] framebuffers = new int[1];
-				GLES20.glGenFramebuffers(1, framebuffers, 0);
-				framebufferId = framebuffers[0];
+			if (framebuffer == null) {
+				framebuffer = device.createFramebuffer();
 			}
-			if (framebufferTextureId == 0) {
-				int[] textures = new int[1];
-				GLES20.glGenTextures(1, textures, 0);
-				framebufferTextureId = textures[0];
+			if (framebufferTexture == null) {
+				framebufferTexture = device.createTexture2D();
 			}
 
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, framebufferTextureId);
-			textureParameters.setParameters(GLES20.GL_TEXTURE_2D);
+			device.applyTextureParameters(framebufferTexture, textureParameters);
 			if (framebufferWidth != dstWidth || framebufferHeight != dstHeight) {
-				GLES20.glTexImage2D(
-						GLES20.GL_TEXTURE_2D,
-						0,
-						GLES20.GL_RGBA,
-						dstWidth,
-						dstHeight,
-						0,
-						GLES20.GL_RGBA,
-						GLES20.GL_UNSIGNED_BYTE,
-						null);
-				checkGlError("glTexImage2D(framebuffer)");
+				device.allocateTexture2D(framebufferTexture, dstWidth, dstHeight);
 				framebufferWidth = dstWidth;
 				framebufferHeight = dstHeight;
 			}
 
-			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, framebufferId);
-			GLES20.glFramebufferTexture2D(
-					GLES20.GL_FRAMEBUFFER,
-					GLES20.GL_COLOR_ATTACHMENT0,
-					GLES20.GL_TEXTURE_2D,
-					framebufferTextureId,
-					0);
-
-			int status = GLES20.glCheckFramebufferStatus(GLES20.GL_FRAMEBUFFER);
+			device.attachColor(framebuffer, framebufferTexture);
+			int status = device.checkFramebufferStatus(framebuffer);
 			if (status != GLES20.GL_FRAMEBUFFER_COMPLETE) {
 				throw new IllegalStateException(
 						"Framebuffer incomplete: 0x" + Integer.toHexString(status));
@@ -415,41 +380,25 @@ public final class GpuBitmapTransformer {
 			ensureFramebuffer(dstWidth, dstHeight);
 			updateVertexBuffer(rect, rotation);
 
-			GLES20.glViewport(0, 0, dstWidth, dstHeight);
-			GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-			GLES20.glUseProgram(program);
+			device.bindFramebuffer(framebuffer);
+			device.setViewport(0, 0, dstWidth, dstHeight);
+			device.clear(GLES20.GL_COLOR_BUFFER_BIT);
 
-			vertexBuffer.position(0);
-			GLES20.glVertexAttribPointer(positionLoc, 2, GLES20.GL_FLOAT,
-					false, 16, vertexBuffer);
-			GLES20.glEnableVertexAttribArray(positionLoc);
-
-			vertexBuffer.position(2);
-			GLES20.glVertexAttribPointer(texCoordLoc, 2, GLES20.GL_FLOAT,
-					false, 16, vertexBuffer);
-			GLES20.glEnableVertexAttribArray(texCoordLoc);
-
-			GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureId);
-			GLES20.glUniform1i(frameLoc, 0);
-
-			GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
-			checkGlError("glDrawArrays");
+			programBindings.clear();
+			programBindings.setTexture("frame", sourceTexture);
+			device.applyBindings(programBindings);
+			device.draw(texturedQuad, program);
 
 			ByteBuffer pixelBuffer = getPixelBuffer(dstWidth * dstHeight * 4);
 			pixelBuffer.position(0);
-			GLES20.glReadPixels(
+			device.readPixels(
 					0,
 					0,
 					dstWidth,
 					dstHeight,
-					GLES20.GL_RGBA,
-					GLES20.GL_UNSIGNED_BYTE,
 					pixelBuffer);
-			checkGlError("glReadPixels");
 
-			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
+			device.bindFramebuffer(null);
 
 			return BitmapEditor.createBitmapFromRgbaBuffer(
 					pixelBuffer,
@@ -533,31 +482,22 @@ public final class GpuBitmapTransformer {
 			display = EGL14.EGL_NO_DISPLAY;
 			context = EGL14.EGL_NO_CONTEXT;
 			surface = EGL14.EGL_NO_SURFACE;
-			program = 0;
-			textureId = 0;
-			framebufferId = 0;
-			framebufferTextureId = 0;
+			device.resetState();
+			program = null;
+			programBindings = null;
+			sourceTexture = null;
+			framebuffer = null;
+			framebufferTexture = null;
 			framebufferWidth = 0;
 			framebufferHeight = 0;
-			positionLoc = 0;
-			texCoordLoc = 0;
-			frameLoc = 0;
 			pixels = null;
 		}
 
 		private void deleteGlObjects() {
-			if (textureId != 0) {
-				GLES20.glDeleteTextures(1, new int[]{textureId}, 0);
-			}
-			if (framebufferTextureId != 0) {
-				GLES20.glDeleteTextures(1, new int[]{framebufferTextureId}, 0);
-			}
-			if (framebufferId != 0) {
-				GLES20.glDeleteFramebuffers(1, new int[]{framebufferId}, 0);
-			}
-			if (program != 0) {
-				GLES20.glDeleteProgram(program);
-			}
+			device.deleteTexture(sourceTexture);
+			device.deleteTexture(framebufferTexture);
+			device.deleteFramebuffer(framebuffer);
+			device.deleteProgram(program);
 		}
 	}
 }
