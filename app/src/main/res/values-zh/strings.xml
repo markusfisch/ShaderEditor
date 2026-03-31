@@ -1,0 +1,256 @@
+<resources>
+	<string name="app_name">着色器编辑器</string>
+
+	<string name="drawer_open">打开菜单</string>
+	<string name="drawer_close">关闭菜单</string>
+	<string name="no_shaders">无着色器</string>
+	<string name="unsuitable_text">抱歉，此文本不适用。</string>
+	<string name="cannot_open_content">抱歉，未找到可以打开该链接的应用</string>
+	<string name="insert_tab">插入制表符 (Tab)</string>
+	<string name="run_code">运行代码</string>
+	<string name="toggle_code">显示/隐藏代码</string>
+	<string name="undo">撤销</string>
+	<string name="redo">重做</string>
+	<string name="save_shader">保存</string>
+	<string name="add_shader">新建</string>
+	<string name="duplicate_shader">另存为</string>
+	<string name="delete_shader">删除</string>
+	<string name="share_shader">分享</string>
+	<string name="update_wallpaper">更新壁纸</string>
+	<string name="set_as_wallpaper">设置为新壁纸</string>
+	<string name="faq">常见问题</string>
+	<string name="show_extra_keys">显示扩展按键</string>
+	<string name="settings">设置</string>
+	<string name="sure_remove_shader">确定要删除这个着色器吗？</string>
+	<string name="rename_shader">重命名</string>
+	<string name="enter_name">请输入名称</string>
+	<string name="wallpaper_set">壁纸已更新</string>
+	<string name="cannot_set_wallpaper">无法更新壁纸</string>
+	<string name="pick_live_wallpaper_manually">请先在系统设置中将此程序选择为动态壁纸</string>
+	<string name="menu_btn">更多选项</string>
+	<string name="show_errors">显示错误</string>
+	<string name="shader_saved">着色器已保存</string>
+	<string name="shader_disabled_after_crash">上一个着色器导致程序崩溃，已被自动注释。</string>
+
+	<string name="details">详情</string>
+
+	<string name="preferences">偏好设置</string>
+	<string name="wallpaper">壁纸</string>
+	<string name="save_battery">省电模式</string>
+	<string name="save_battery_summary">电池电量低时停止渲染</string>
+	<string name="sort_by_last_modification">按修改时间排序</string>
+	<string name="sort_by_last_modification_summary">根据最近修改的时间对比着色器进行排序</string>
+	<string name="sensors">传感器</string>
+	<string name="sensor_delay">传感器延迟</string>
+	<string name="no_shader_selected">未选择着色器</string>
+	<string name="shader">着色器</string>
+	<string name="editor">编辑器</string>
+	<string name="run_mode">调试运行模式</string>
+	<string name="update_delay">自动运行延迟</string>
+	<string name="text_size">字体大小</string>
+	<string name="font">字体风格</string>
+	<string name="use_ligatures">启用连字 (Ligatures)</string>
+	<string name="use_ligatures_summary">将 &lt;= 等字符组合转换为单一符号 ≤</string>
+	<string name="tab_width">制表符宽度</string>
+	<string name="use_tab_for_indent">使用 Tab 键缩进</string>
+	<string name="use_tab_for_indent_summary">使用 Tab 键进行代码缩进，而不是切换焦点</string>
+	<string name="export_tabs">导出时保留制表符</string>
+	<string name="export_tabs_summary">分享或保存文件时，不将制表符转换为空格</string>
+	<string name="show_insert_tab">显示插入制表符选项</string>
+	<string name="show_insert_tab_summary">在菜单中显示“插入制表符”项目</string>
+	<string name="save_on_run">运行即保存</string>
+	<string name="save_on_run_summary">手动启动着色器时自动保存更改</string>
+	<string name="disable_highlighting">关闭语法高亮</string>
+	<string name="disable_highlighting_summary">为大型着色器文件关闭高亮以提高性能</string>
+	<string name="auto_save">自动保存</string>
+	<string name="auto_save_summary">自动保存着色器更改</string>
+	<string name="auto_hide_extra_keys">自动隐藏扩展按键</string>
+	<string name="auto_hide_extra_keys_summary">自动隐藏键盘上方的额外按键行</string>
+	<string name="default_new_shader">默认新着色器模板</string>
+	<string name="import_export">导入与导出</string>
+	<string name="import_shaders_files">从文件导入着色器</string>
+	<string name="import_shaders_files_summary">从 Download/ShaderEditor 目录下的 *.glsl 文件导入</string>
+	<string name="export_shaders_files">导出着色器为文件</string>
+	<string name="export_shaders_files_summary">将所有着色器导出到 Download/ShaderEditor 目录</string>
+	<string name="import_database">导入数据库</string>
+	<string name="import_database_summary">导入之前备份的 SQLite 数据库</string>
+	<string name="export_database">导出数据库</string>
+	<string name="export_database_summary">将所有着色器导出到 SQLite 数据库</string>
+	<string name="show_line_numbers">显示行号</string>
+	<string name="show_line_numbers_summary">在编辑器左侧显示每行代码的编号</string>
+	<string name="enable_notification_listener">使用 \"notificationCount\" 和 \"lastNotificationTime\" 变量前，请在设置中开启通知监听权限。</string>
+	<string name="go_to_settings">前往设置</string>
+	<string name="enable_notification_listener_title">启用通知监听</string>
+	<string name="hide_native_suggestions">隐藏系统键盘建议</string>
+	<string name="hide_native_suggestions_summary">隐藏键盘自带的词语建议。如果出现输入问题，请关闭此项。</string>
+
+	<string name="run_auto">修改后自动运行</string>
+	<string name="run_manually">手动运行</string>
+	<string name="run_manually_extra">在新 Activity 中运行</string>
+	<string name="run_manually_new">作为新任务启动运行</string>
+	<string name="monospace">等宽字体 (Monospace)</string>
+	<string name="fira_code">Fira Code</string>
+	<string name="ibm_plex_mono">IBM Plex Mono</string>
+	<string name="jetbrains_mono">JetBrains Mono</string>
+	<string name="roboto_mono">Roboto Mono</string>
+	<string name="source_code_pro">Source Code Pro</string>
+	<string name="fastest">最快</string>
+	<string name="game">游戏</string>
+	<string name="normal">正常</string>
+	<string name="ui">用户界面</string>
+	<string name="small">小号</string>
+	<string name="medium">中号</string>
+	<string name="big">大号</string>
+
+	<string name="wallpaper_description">编写你自己的动态壁纸。</string>
+
+	<string name="preview">预览</string>
+
+	<string name="add_uniform">添加变量/纹理</string>
+	<string name="sampler_2d">sampler2D</string>
+	<string name="sampler_cube">samplerCube</string>
+	<string name="preset">预置变量</string>
+	<string name="search">搜索</string>
+
+	<string name="uniform_format">%1$s (%2$s)</string>
+	<string name="resolution_in_pixels">渲染表面的像素分辨率</string>
+	<string name="time_in_seconds_since_load">自加载以来的运行时间（秒）</string>
+	<string name="int_seconds_since_load">自加载以来的整秒时间</string>
+	<string name="fractional_part_of_seconds_since_load">运行时间的小数部分</string>
+	<string name="frame_number">当前帧编号（从零开始）</string>
+	<string name="time_in_cycle">在 FTIME_PERIOD 定义的周期内的时间循环（-1.0 到 +1.0）</string>
+	<string name="touch_position_in_pixels">第一个手指触碰位置的像素坐标</string>
+	<string name="touch_start_position_in_pixels">初始触碰位置的像素坐标</string>
+	<string name="number_of_touches">当前触碰点数量</string>
+	<string name="positions_of_touches">所有触碰点的像素坐标</string>
+	<string name="linear_acceleration_vector">线性加速度 (m/s^2)</string>
+	<string name="gravity_vector">重力矢量 (m/s^2)</string>
+	<string name="gyroscope">设备绕 x, y, z 轴的旋转速率积分解 (rad/s)</string>
+	<string name="last_notification_time">距上次通知的时间。若无通知则为 NaN。</string>
+	<string name="device_orientation">设备的方位角、俯仰角和滚动角</string>
+	<string name="device_inclination">设备的地磁倾角（弧度）</string>
+	<string name="device_rotation_matrix">相对于世界坐标系的旋转矩阵</string>
+	<string name="device_rotation_vector">旋转矢量，表示设备围绕某轴旋转的角度组合</string>
+	<string name="device_inclination_matrix">将地磁矢量转换到重力坐标空间的旋转矩阵</string>
+	<string name="magnetic_field">沿 x, y, z 轴的地磁强度 (μT)</string>
+	<string name="night_mode">夜间模式（开启为 1，关闭为 0）</string>
+	<string name="notification_count">当前活动通知计数</string>
+	<string name="light">环境光亮度 (SI lux 单位)</string>
+	<string name="pressure">大气压 (hPa/毫巴)</string>
+	<string name="proximity">距离传感器感应距离（厘米）</string>
+	<string name="battery_level">电池电量 (0.0 到 1.0)</string>
+	<string name="power_connected">电源连接状态（充电为 1，否则为 0）</string>
+	<string name="wallpaper_offset">壁纸偏移量 (0.0 到 1.0)</string>
+	<string name="previous_frame">上一帧渲染的画面</string>
+	<string name="camera_back">后置摄像头（支持 Android 4.0+）</string>
+	<string name="camera_front">前置摄像头（支持 Android 4.0+）</string>
+	<string name="camera_addent">摄像头纹理坐标增量</string>
+	<string name="camera_orientation">用于将摄像头帧旋转至设备方向的矩阵（cameraAddent + uv * cameraOrientation）</string>
+	<string name="date_time">年、月、日和当前秒数</string>
+	<string name="daytime">时、分、秒</string>
+	<string name="start_random">加载时生成的 0.0 到 1.0 之间的随机值</string>
+	<string name="media_volume_level">媒体音量 (0.0 到 1.0)</string>
+	<string name="microphone_amplitude">麦克风输入振幅 (0.0 到 1.0)</string>
+
+	<string name="texture_preview">纹理预览</string>
+	<string name="texture_name_noise">noise (噪声)</string>
+	<string name="texture_name_rgba_noise">rgb_noise (彩色噪声)</string>
+	<string name="choose_image">选择图片</string>
+	<string name="no_textures">无可用图片</string>
+	<string name="texture_size_format" formatted="false">%d x %d 像素</string>
+
+	<string name="crop_image">裁剪图片</string>
+	<string name="cannot_pick_image">无法打开图片，请尝试选择其他文件。</string>
+	<string name="rotate_clockwise">顺时针旋转</string>
+
+	<string name="compose_sampler_cube">合成立方体纹理 (Cube Map)</string>
+	<string name="not_enough_faces">面数量不足</string>
+	<string name="add_texture">添加纹理</string>
+
+	<string name="cube_map_negative_x">-X 左侧</string>
+	<string name="cube_map_positive_x">+X 右侧</string>
+	<string name="cube_map_negative_y">-Y 下方</string>
+	<string name="cube_map_positive_y">+Y 上方</string>
+	<string name="cube_map_negative_z">-Z 前方</string>
+	<string name="cube_map_positive_z">+Z 后方</string>
+
+	<string name="texture_properties">纹理参数</string>
+	<string name="texture_size">纹理分辨率</string>
+	<string name="face_size">表面大小（像素）</string>
+	<string name="texture_name">唯一纹理名称</string>
+	<string name="input_texture_name">请给纹理起个名字</string>
+	<string name="should_add_uniform">是否在源码中自动添加 uniform sampler2D 声明？</string>
+	<string name="save_texture">保存纹理</string>
+	<string name="missing_name">必须输入名称</string>
+	<string name="invalid_texture_name">名称无效，请选择一个符合 GLSL 规范的变量名</string>
+	<string name="illegal_rectangle">非法的矩形区域</string>
+	<string name="name_already_taken">名称已被占用</string>
+	<string name="insert_uniform_sampler">插入 sampler2D 变量</string>
+
+	<string name="view_texture">查看纹理</string>
+	<string name="remove_texture">移除纹理</string>
+	<string name="sure_remove_texture">确定要移除这个纹理吗？</string>
+	<string name="removed_invalid_texture">纹理尺寸过大，无法处理</string>
+
+	<string name="texture_parameters">纹理过滤参数</string>
+	<string name="texture_minifying">缩小 (Minifying) 过滤函数</string>
+	<string name="texture_magnification">放大 (Magnification) 过滤函数</string>
+	<string name="texture_wrap_s">S 轴环绕方式</string>
+	<string name="texture_wrap_t">T 轴环绕方式</string>
+
+	<string name="backbuffer_preset">预设纹理 (Backbuffer)</string>
+	<string name="no_preset">(无预设)</string>
+	<string name="insert_code">插入代码</string>
+
+	<string name="load_sample">加载示例</string>
+	<string name="sample_battery_name">电池电量</string>
+	<string name="sample_battery_rationale">显示水平电池电量指示器</string>
+	<string name="sample_camera_back_name">后置摄像头</string>
+	<string name="sample_camera_back_rationale">如何使用后置摄像头纹理（仅限 Android 4.0+）</string>
+	<string name="sample_circles_name">圆圈</string>
+	<string name="sample_circles_rationale">一个简单的绘制多个圆形图案的着色器</string>
+	<string name="sample_cloudy_conway_name">多云康威</string>
+	<string name="sample_cloudy_conway_rationale">康威生命游戏的一个变种。</string>
+	<string name="sample_electric_fade_name">电力淡化</string>
+	<string name="sample_electric_fade_rationale">类似于多云康威，但使用了预设的回扫缓冲区 (Backbuffer)。</string>
+	<string name="sample_game_of_life_name">生命游戏</string>
+	<string name="sample_game_of_life_rationale">康威生命游戏，点击屏幕来创造新的生命点</string>
+	<string name="sample_gles_300_name">GLES 3.0</string>
+	<string name="sample_gles_300_rationale">该着色器展示如何使用 GLES 3.0 版本语法</string>
+	<string name="sample_gravity_name">重力感应</string>
+	<string name="sample_gravity_rationale">演示如何使用重力感应变量</string>
+	<string name="sample_orientation_name">方向感应</string>
+	<string name="sample_orientation_rationale">演示如何使用方向 uniform 变量</string>
+	<string name="sample_swirl_name">旋涡</string>
+	<string name="sample_swirl_rationale">演示如何对纹理进行扭曲/旋转变形</string>
+	<string name="sample_texture_name">纹理贴图</string>
+	<string name="sample_texture_rationale">演示如何渲染纹理图像</string>
+	<string name="sample_touch_name">触碰反馈</string>
+	<string name="sample_touch_rationale">演示如何处理触摸屏输入</string>
+
+	<string name="default_shader">默认模板</string>
+
+	<string name="write_access_required">需要写入权限才能导出到外部存储。</string>
+	<string name="read_access_required">需要读取权限才能从外部存储导入。</string>
+	<plurals name="n_shaders_successfully_exported">
+		<item quantity="other">%1$d 个着色器已成功导出</item>
+	</plurals>
+	<plurals name="n_shaders_successfully_exported_m_failed">
+		<item quantity="other">%1$d 个成功导出，%2$d 个导出失败</item>
+	</plurals>
+	<string name="n_shaders_export_failed">导出错误：%1$s</string>
+	<plurals name="n_shaders_successfully_imported">
+		<item quantity="other">%1$d 个着色器已成功导入</item>
+	</plurals>
+	<plurals name="n_shaders_successfully_imported_m_failed">
+		<item quantity="other">%1$d 个成功导入，%2$d 个导入失败</item>
+	</plurals>
+	<string name="import_failed">导入错误：%1$s</string>
+	<string name="no_shaders_found">未找到着色器文件</string>
+	<string name="no_shaders_could_be_written">无法向目录写入着色器</string>
+	<string name="path_is_no_directory">路径 %1$s 不是一个有效的目录</string>
+	<string name="cant_find_db">找不到数据库文件</string>
+	<string name="storage_not_writeable">无法写入数据库</string>
+	<string name="successfully_exported">已成功导出至下载目录</string>
+	<string name="successfully_imported">数据库已成功导入</string>
+</resources>
