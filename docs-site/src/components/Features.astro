@@ -1,0 +1,271 @@
+---
+import Icon from './Icon.astro';
+const base = import.meta.env.BASE_URL;
+
+interface Feature {
+  icon: string;
+  title: string;
+  desc: string;
+  detail: string;
+  media: string;
+  mediaType: 'video' | 'image';
+  poster?: string;
+  accent: string;
+}
+
+const features: Feature[] = [
+  {
+    icon: 'zap',
+    title: 'Live Preview',
+    desc: 'Your shader renders behind the code as you type — zero compile buttons.',
+    detail: 'Four run modes: auto (recompiles on pause), manual, manual on extra screen, or manual in new window. FPS counter in the toolbar. Quality slider from 1/32 to 2× resolution.',
+    media: `${base}media/feat-live-preview.webm`,
+    mediaType: 'video',
+    poster: `${base}media/feat-live-preview.webp`,
+    accent: 'var(--accent-cyan)',
+  },
+  {
+    icon: 'palette',
+    title: 'Syntax & Error Highlighting',
+    desc: 'Full lexer-based GLSL tokenizer with 20 distinct token colors.',
+    detail: 'Keywords, types, built-in functions, qualifiers, control flow, samplers, numbers, and booleans each get distinct colors. Compile errors highlighted inline with a tap-to-jump error sheet.',
+    media: `${base}media/feat-highlighting.webm`,
+    mediaType: 'video',
+    poster: `${base}media/feat-highlighting.webp`,
+    accent: 'var(--accent-magenta)',
+  },
+  {
+    icon: 'wallpaper',
+    title: 'Live Wallpaper',
+    desc: 'Set any shader as your Android live wallpaper with one tap.',
+    detail: 'Battery-aware rendering switches to RENDERMODE_WHEN_DIRTY on low battery. Wallpaper offset uniform tracks home screen paging. Edit while your wallpaper shines.',
+    media: `${base}media/feat-wallpaper.webm`,
+    mediaType: 'video',
+    poster: `${base}media/feat-wallpaper.webp`,
+    accent: 'var(--accent-violet)',
+  },
+  {
+    icon: 'camera',
+    title: 'Camera as Texture',
+    desc: 'Front and back camera feeds as live samplerExternalOES textures.',
+    detail: 'CameraX-powered with automatic orientation correction. Use the camera feed as input for edge detection, color grading, or AR-style effects.',
+    media: `${base}media/feat-camera.webm`,
+    mediaType: 'video',
+    poster: `${base}media/feat-camera.webp`,
+    accent: 'var(--accent-lime)',
+  },
+  {
+    icon: 'layers',
+    title: 'Textures & Cube Maps',
+    desc: 'Import any image as a 2D texture or compose a cube map from 6 faces.',
+    detail: 'Full sampler control: wrap mode (repeat, mirror, clamp), min/mag filter (nearest, linear, mipmap variants). Textures travel with database exports.',
+    media: `${base}media/feat-textures.webp`,
+    mediaType: 'image',
+    accent: 'var(--accent-orange)',
+  },
+  {
+    icon: 'code',
+    title: 'Editor Power Features',
+    desc: 'Undo/redo, auto-completions, bracket matching, ShaderToy import.',
+    detail: 'Completions from the lexer above the keyboard. Auto-indenting. Paste ShaderToy code and it auto-converts. Six font choices with ligature support.',
+    media: `${base}media/feat-editor.webm`,
+    mediaType: 'video',
+    poster: `${base}media/feat-editor.webp`,
+    accent: 'var(--accent-cyan)',
+  },
+  {
+    icon: 'hand',
+    title: 'Multi-Touch & Interaction',
+    desc: 'Up to 10 simultaneous touch points as vec3 uniforms.',
+    detail: 'Each pointer provides (x, y, size). Plus touch, touchStart, mouse uniforms. Use for painting, sculpting, or interactive art.',
+    media: `${base}media/feat-touch.webm`,
+    mediaType: 'video',
+    poster: `${base}media/feat-touch.webp`,
+    accent: 'var(--accent-magenta)',
+  },
+  {
+    icon: 'volume-2',
+    title: 'Audio Reactive',
+    desc: 'Microphone amplitude and media volume drive your visuals.',
+    detail: 'micAmplitude samples the mic via AudioRecord (0.0–1.0). mediaVolume reads system volume each frame. Build music visualizers or VJ tools.',
+    media: `${base}media/feat-audio.webm`,
+    mediaType: 'video',
+    poster: `${base}media/feat-audio.webp`,
+    accent: 'var(--accent-violet)',
+  },
+];
+---
+
+<section class="section" id="features">
+  <div class="container">
+    <span class="section-label">Features</span>
+    <h2 class="section-title">Everything you need to create</h2>
+    <p class="section-desc">
+      A complete GLSL development environment in your pocket — from code editing
+      to live wallpaper, no PC required.
+    </p>
+
+    <div class="features-list">
+      {features.map((f, i) => (
+        <div class={`feature-row ${i % 2 === 1 ? 'feature-row-reverse' : ''}`}>
+          <div class="feature-media">
+            <div class="feature-phone" style={`--card-accent: ${f.accent};`}>
+              <div class="feature-screen">
+                {f.mediaType === 'video' ? (
+                  <video class="lazy-video" loop muted playsinline preload="none" poster={f.poster} data-src={f.media}>
+                    <source data-src={f.media} type="video/webm" />
+                  </video>
+                ) : (
+                  <img src={f.media} alt={f.title} loading="lazy" />
+                )}
+              </div>
+            </div>
+          </div>
+          <div class="feature-text">
+            <div class="feature-icon-wrap" style={`--icon-accent: ${f.accent};`}>
+              <Icon name={f.icon} size={22} />
+            </div>
+            <h3 class="feature-title">{f.title}</h3>
+            <p class="feature-desc-main">{f.desc}</p>
+            <p class="feature-detail">{f.detail}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  // Play videos only when visible, pause when not
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const video = entry.target as HTMLVideoElement;
+      if (entry.isIntersecting) {
+        // Lazy-load src on first intersection
+        const source = video.querySelector('source[data-src]');
+        if (source) {
+          source.setAttribute('src', source.getAttribute('data-src')!);
+          source.removeAttribute('data-src');
+          video.load();
+        }
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('.lazy-video').forEach(v => observer.observe(v));
+</script>
+
+<style>
+  .features-list {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(4rem, 8vw, 7rem);
+    margin-top: 4rem;
+  }
+
+  .feature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  .feature-row-reverse { direction: rtl; }
+  .feature-row-reverse > * { direction: ltr; }
+
+  .feature-media {
+    display: flex;
+    justify-content: center;
+  }
+
+  .feature-phone {
+    width: 220px;
+    background: #1a1d2b;
+    border-radius: 28px;
+    padding: 8px;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.06),
+      0 12px 40px rgba(0,0,0,0.4);
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .feature-phone::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 20%; right: 20%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--card-accent, var(--accent-cyan)), transparent);
+    opacity: 0; transition: opacity 0.4s;
+  }
+
+  .feature-phone::after {
+    content: '';
+    position: absolute;
+    width: 180px; height: 180px; border-radius: 50%;
+    background: var(--card-accent);
+    filter: blur(80px); opacity: 0;
+    top: -40px; right: -40px;
+    transition: opacity 0.5s;
+    pointer-events: none; z-index: -1;
+  }
+
+  .feature-phone:hover {
+    transform: translateY(-6px);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.1),
+      0 20px 60px rgba(0,0,0,0.5),
+      0 0 40px color-mix(in srgb, var(--card-accent) 12%, transparent);
+  }
+
+  .feature-phone:hover::before { opacity: 0.6; }
+  .feature-phone:hover::after { opacity: 0.12; }
+
+  .feature-screen {
+    border-radius: 20px;
+    overflow: hidden;
+    aspect-ratio: 9/19;
+    background: var(--bg-surface);
+  }
+
+  .feature-screen video,
+  .feature-screen img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+
+  .feature-icon-wrap {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--icon-accent) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--icon-accent) 20%, transparent);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1rem;
+    color: var(--icon-accent);
+  }
+
+  .feature-title {
+    font-family: var(--font-display);
+    font-size: 1.5rem; font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .feature-desc-main {
+    font-size: 1.05rem; color: var(--text-primary);
+    line-height: 1.6; margin-bottom: 0.75rem;
+  }
+
+  .feature-detail {
+    font-size: 0.9rem; color: var(--text-secondary);
+    line-height: 1.8;
+  }
+
+  @media (max-width: 900px) {
+    .feature-row, .feature-row-reverse {
+      grid-template-columns: 1fr; direction: ltr;
+    }
+    .feature-media { justify-content: center; }
+    .feature-phone { width: 180px; }
+  }
+</style>

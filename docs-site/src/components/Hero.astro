@@ -1,0 +1,195 @@
+---
+import Icon from './Icon.astro';
+import GitHubIcon from './GitHubIcon.astro';
+const base = import.meta.env.BASE_URL;
+---
+
+<section class="hero">
+  <div class="grid-overlay"></div>
+  <div class="gradient-orb hero-orb-1"></div>
+  <div class="gradient-orb hero-orb-2"></div>
+  <div class="hero-noise"></div>
+
+  <div class="container hero-content">
+    <div class="hero-text">
+      <h1 class="hero-title animate-in">
+        <span class="hero-title-line">Write shaders.</span>
+        <span class="hero-title-line hero-title-gradient">See them live.</span>
+        <span class="hero-title-line">Wear them.</span>
+      </h1>
+
+      <p class="hero-desc animate-in delay-1">
+        A full GLSL editor on Android with live preview, syntax highlighting,
+        40+ hardware uniforms, and live wallpaper support. Free &amp; open source.
+      </p>
+
+      <div class="hero-actions animate-in delay-2">
+        <a href="#download" class="btn btn-primary">
+          <Icon name="download" size={18} />
+          Download
+        </a>
+        <a href="https://github.com/markusfisch/ShaderEditor" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">
+          <GitHubIcon size={18} />
+          Source Code
+        </a>
+      </div>
+
+      <div class="hero-stats animate-in delay-3">
+        <div class="hero-stat">
+          <span class="hero-stat-value">40+</span>
+          <span class="hero-stat-label">Uniforms</span>
+        </div>
+        <div class="hero-stat-sep"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-value">13</span>
+          <span class="hero-stat-label">Sample Shaders</span>
+        </div>
+        <div class="hero-stat-sep"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-value">6</span>
+          <span class="hero-stat-label">Fonts</span>
+        </div>
+        <div class="hero-stat-sep"></div>
+        <div class="hero-stat">
+          <span class="hero-stat-value">3</span>
+          <span class="hero-stat-label">Languages</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual animate-in delay-2">
+      <div class="hero-phone">
+        <div class="hero-phone-notch"></div>
+        <div class="hero-phone-screen">
+          <video autoplay loop muted playsinline poster={`${base}media/hero-editor.webp`}>
+            <source src={`${base}media/hero-editor.webm`} type="video/webm" />
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    padding-top: 72px;
+    overflow: hidden;
+  }
+
+  .hero-noise {
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+  }
+
+  .hero-orb-1 {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, var(--accent-cyan), transparent 70%);
+    top: -10%; right: -5%;
+    animation: pulse-glow 8s ease-in-out infinite, float 12s ease-in-out infinite;
+  }
+
+  .hero-orb-2 {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, var(--accent-magenta), transparent 70%);
+    bottom: -15%; left: -10%;
+    animation: pulse-glow 10s ease-in-out infinite 2s, float 15s ease-in-out infinite 3s;
+  }
+
+  .hero-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    position: relative; z-index: 1;
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 6vw, 4.25rem);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-title-line { display: block; }
+
+  .hero-title-gradient {
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta), var(--accent-violet));
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: gradient-shift 6s ease infinite;
+  }
+
+  .hero-desc {
+    font-size: 1.15rem; color: var(--text-secondary);
+    line-height: 1.8; max-width: 520px; margin-bottom: 2rem;
+  }
+
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+
+  .hero-stats {
+    display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+  }
+
+  .hero-stat { display: flex; flex-direction: column; gap: 0.15rem; }
+
+  .hero-stat-value {
+    font-family: var(--font-display);
+    font-size: 1.5rem; font-weight: 700;
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+
+  .hero-stat-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.08em;
+  }
+
+  .hero-stat-sep {
+    width: 1px; height: 32px;
+    background: rgba(255,255,255,0.08);
+  }
+
+  .hero-visual {
+    position: relative; display: flex; justify-content: center;
+  }
+
+  .hero-phone {
+    width: 280px;
+    background: #1a1d2b; border-radius: 36px; padding: 12px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.08), 0 25px 80px rgba(0,0,0,0.6), var(--glow-cyan);
+    position: relative;
+  }
+
+  .hero-phone-notch {
+    width: 100px; height: 24px;
+    background: #1a1d2b;
+    border-radius: 0 0 16px 16px;
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%); z-index: 2;
+  }
+
+  .hero-phone-screen {
+    border-radius: 24px; overflow: hidden;
+    aspect-ratio: 9/19; background: var(--bg-surface);
+  }
+
+  .hero-phone-screen video,
+  .hero-phone-screen img {
+    width: 100%; height: 100%; object-fit: cover;
+  }
+
+  @media (max-width: 900px) {
+    .hero-content { grid-template-columns: 1fr; text-align: center; gap: 3rem; }
+    .hero-desc { margin-left: auto; margin-right: auto; }
+    .hero-actions { justify-content: center; }
+    .hero-stats { justify-content: center; }
+    .hero-visual { order: -1; }
+    .hero-phone { width: 220px; }
+  }
+</style>

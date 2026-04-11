@@ -1,0 +1,61 @@
+---
+import zap from 'lucide-static/icons/zap.svg?raw';
+import palette from 'lucide-static/icons/palette.svg?raw';
+import wallpaper from 'lucide-static/icons/wallpaper.svg?raw';
+import camera from 'lucide-static/icons/camera.svg?raw';
+import layers from 'lucide-static/icons/layers.svg?raw';
+import code from 'lucide-static/icons/code.svg?raw';
+import hand from 'lucide-static/icons/hand.svg?raw';
+import volume2 from 'lucide-static/icons/volume-2.svg?raw';
+import clock from 'lucide-static/icons/clock.svg?raw';
+import cpu from 'lucide-static/icons/cpu.svg?raw';
+import settings from 'lucide-static/icons/settings.svg?raw';
+import download from 'lucide-static/icons/download.svg?raw';
+import play from 'lucide-static/icons/play.svg?raw';
+import chevronDown from 'lucide-static/icons/chevron-down.svg?raw';
+import chevronLeft from 'lucide-static/icons/chevron-left.svg?raw';
+import chevronRight from 'lucide-static/icons/chevron-right.svg?raw';
+import x from 'lucide-static/icons/x.svg?raw';
+import copy from 'lucide-static/icons/copy.svg?raw';
+import externalLink from 'lucide-static/icons/external-link.svg?raw';
+import bookOpen from 'lucide-static/icons/book-open.svg?raw';
+import fileCode from 'lucide-static/icons/file-code.svg?raw';
+import terminal from 'lucide-static/icons/terminal.svg?raw';
+
+const icons: Record<string, string> = {
+  zap, palette, wallpaper, camera, layers, code, hand,
+  'volume-2': volume2, clock, cpu, settings, download, play,
+  'chevron-down': chevronDown, 'chevron-left': chevronLeft,
+  'chevron-right': chevronRight, x, copy,
+  'external-link': externalLink, 'book-open': bookOpen,
+  'file-code': fileCode, terminal,
+};
+
+interface Props {
+  name: string;
+  size?: number;
+  class?: string;
+  strokeWidth?: number;
+}
+
+const { name, size = 24, class: cls = '', strokeWidth = 2 } = Astro.props;
+
+let svg = icons[name] ?? '';
+
+if (svg) {
+  svg = svg
+    .replace(/width="\d+"/, `width="${size}"`)
+    .replace(/height="\d+"/, `height="${size}"`)
+    .replace(/stroke-width="\d+(\.\d+)?"/, `stroke-width="${strokeWidth}"`)
+    .replace(/class="[^"]*"/, `class="icon ${cls}"`)
+    .replace(/^<!--[\s\S]*?-->\s*/, ''); // strip license comment
+  // If no class attr existed, add one
+  if (!svg.includes('class="icon')) {
+    svg = svg.replace('<svg ', `<svg class="icon ${cls}" `);
+  }
+} else {
+  svg = `<!-- lucide:${name} not found -->`;
+}
+---
+
+<Fragment set:html={svg} />

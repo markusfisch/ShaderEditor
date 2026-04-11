@@ -1,0 +1,432 @@
+---
+import { Code } from 'astro:components';
+import Icon from './Icon.astro';
+
+interface UniformItem {
+  name: string;
+  type: string;
+  desc: string;
+  example?: string;
+}
+
+interface UniformTab {
+  id: string;
+  label: string;
+  icon: string;
+  badge: string;
+  items: UniformItem[];
+}
+
+const precisionHeader = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+`;
+
+const tabs: UniformTab[] = [
+  {
+    id: 'core', label: 'Core', icon: 'clock', badge: 'badge-cyan',
+    items: [
+      { name: 'time', type: 'float', desc: 'Seconds since shader start',
+        example: precisionHeader + `uniform float time;
+uniform vec2 resolution;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution;
+\tvec3 col = 0.5 + 0.5 * cos(time + uv.xyx + vec3(0, 2, 4));
+\tgl_FragColor = vec4(col, 1.0);
+}` },
+      { name: 'resolution', type: 'vec2', desc: 'Viewport size in pixels',
+        example: precisionHeader + `uniform vec2 resolution;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution;
+\tgl_FragColor = vec4(uv, 0.5, 1.0);
+}` },
+      { name: 'frame', type: 'int', desc: 'Frame counter from 0' },
+      { name: 'ftime', type: 'float', desc: 'Cycles −1 to +1 over FTIME_PERIOD seconds',
+        example: precisionHeader + `#define FTIME_PERIOD 4.0
+
+uniform float ftime;
+uniform vec2 resolution;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution;
+\tfloat pulse = smoothstep(-1.0, 1.0, ftime);
+\tgl_FragColor = vec4(vec3(uv * pulse, 0.5), 1.0);
+}` },
+      { name: 'second', type: 'float', desc: 'Integer seconds since start (no precision loss)' },
+      { name: 'subsecond', type: 'float', desc: 'Fractional part of current second' },
+      { name: 'date', type: 'vec4', desc: 'Year, month, day, seconds since midnight',
+        example: precisionHeader + `uniform vec4 date;
+uniform vec2 resolution;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution;
+\tfloat hour = floor(date.w / 3600.0) / 24.0;
+\tgl_FragColor = vec4(hour, uv.y, 1.0 - hour, 1.0);
+}` },
+      { name: 'daytime', type: 'vec3', desc: 'Hours, minutes, seconds' },
+      { name: 'startRandom', type: 'float', desc: 'Random 0–1, set once at load' },
+      { name: 'backbuffer', type: 'sampler2D', desc: 'Previous frame as texture',
+        example: precisionHeader + `uniform vec2 resolution;
+uniform float time;
+uniform sampler2D backbuffer;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution;
+\tvec4 prev = texture2D(backbuffer, uv);
+\tvec3 fresh = vec3(uv, 0.5 + 0.5 * sin(time));
+\tgl_FragColor = vec4(mix(prev.rgb, fresh, 0.05), 1.0);
+}` },
+    ],
+  },
+  {
+    id: 'touch', label: 'Touch', icon: 'hand', badge: 'badge-magenta',
+    items: [
+      { name: 'pointerCount', type: 'int', desc: 'Active touch count (0–10)' },
+      { name: 'pointers[10]', type: 'vec3', desc: 'Touch xy + size z',
+        example: precisionHeader + `uniform int pointerCount;
+uniform vec3 pointers[10];
+uniform vec2 resolution;
+
+void main(void) {
+\tfloat mx = max(resolution.x, resolution.y);
+\tvec2 uv = gl_FragCoord.xy / mx;
+\tvec3 color = vec3(0.0);
+\tfor (int i = 0; i < pointerCount; ++i) {
+\t\tfloat d = distance(uv, pointers[i].xy / mx);
+\t\tcolor += smoothstep(0.06, 0.05, d);
+\t}
+\tgl_FragColor = vec4(color, 1.0);
+}` },
+      { name: 'touch', type: 'vec2', desc: 'Last single touch position in pixels' },
+      { name: 'touchStart', type: 'vec2', desc: 'Where current gesture began' },
+      { name: 'mouse', type: 'vec2', desc: 'Normalized cursor position' },
+      { name: 'offset', type: 'vec2', desc: 'Wallpaper scroll offset (0–1)' },
+    ],
+  },
+  {
+    id: 'sensors', label: 'Sensors', icon: 'cpu', badge: 'badge-violet',
+    items: [
+      { name: 'gravity', type: 'vec3', desc: 'Gravity vector (m/s²)',
+        example: precisionHeader + `uniform vec2 resolution;
+uniform vec3 gravity;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution;
+\tvec2 dir = gravity.xy / 9.81;
+\tvec2 shifted = uv + dir * 0.3;
+\tgl_FragColor = vec4(shifted, 0.5, 1.0);
+}` },
+      { name: 'linear', type: 'vec3', desc: 'Linear acceleration excluding gravity' },
+      { name: 'gyroscope', type: 'vec3', desc: 'Rotation rate (rad/s)' },
+      { name: 'magnetic', type: 'vec3', desc: 'Geomagnetic field (μT)' },
+      { name: 'orientation', type: 'vec3', desc: 'Azimuth, pitch, roll',
+        example: precisionHeader + `uniform vec2 resolution;
+uniform vec3 orientation;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / min(resolution.x, resolution.y);
+\tuv = uv * 2.0 - 1.0;
+\tfloat a = orientation.z;
+\tmat2 rot = mat2(cos(a), sin(a), -sin(a), cos(a));
+\tuv = rot * uv;
+\tuv = mod(uv, 0.2) * 5.0;
+\tgl_FragColor = vec4(uv, 1.0, 1.0);
+}` },
+      { name: 'rotationVector', type: 'vec3', desc: 'Rotation vector sensor' },
+      { name: 'rotationMatrix', type: 'mat3', desc: 'Device rotation matrix' },
+      { name: 'inclination', type: 'float', desc: 'Geomagnetic inclination (rad)' },
+      { name: 'inclinationMatrix', type: 'mat3', desc: 'Geomagnetic inclination matrix' },
+      { name: 'light', type: 'float', desc: 'Ambient light (lux)',
+        example: precisionHeader + `uniform vec2 resolution;
+uniform float light;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution;
+\tfloat b = clamp(light / 400.0, 0.0, 1.0);
+\tgl_FragColor = vec4(vec3(uv * b, 0.3), 1.0);
+}` },
+      { name: 'pressure', type: 'float', desc: 'Atmospheric pressure (hPa)' },
+      { name: 'proximity', type: 'float', desc: 'Proximity distance (cm)' },
+      { name: 'position', type: 'vec3', desc: 'Computed device position' },
+    ],
+  },
+  {
+    id: 'camera', label: 'Camera & Audio', icon: 'camera', badge: 'badge-cyan',
+    items: [
+      { name: 'cameraBack', type: 'samplerExternalOES', desc: 'Back camera live feed' },
+      { name: 'cameraFront', type: 'samplerExternalOES', desc: 'Front camera live feed' },
+      { name: 'cameraOrientation', type: 'mat2', desc: 'Rotation correction matrix' },
+      { name: 'cameraAddent', type: 'vec2', desc: 'Camera orientation offset' },
+      { name: 'mediaVolume', type: 'float', desc: 'System media volume (0–1)',
+        example: precisionHeader + `uniform vec2 resolution;
+uniform float mediaVolume;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution;
+\tvec2 center = vec2(0.5);
+\tfloat r = 0.1 + mediaVolume * 0.35;
+\tfloat d = distance(uv, center);
+\tfloat ring = smoothstep(r + 0.01, r, d);
+\tgl_FragColor = vec4(vec3(ring) * vec3(0.2, 0.8, 1.0), 1.0);
+}` },
+      { name: 'micAmplitude', type: 'float', desc: 'Microphone level (0–1)',
+        example: precisionHeader + `uniform vec2 resolution;
+uniform float micAmplitude;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution;
+\tfloat d = abs(uv.y - 0.5);
+\tfloat wave = smoothstep(micAmplitude * 0.4 + 0.005,
+\t\tmicAmplitude * 0.4, d);
+\tgl_FragColor = vec4(wave * vec3(1.0, 0.3, 0.5), 1.0);
+}` },
+    ],
+  },
+  {
+    id: 'system', label: 'System', icon: 'settings', badge: 'badge-magenta',
+    items: [
+      { name: 'battery', type: 'float', desc: 'Battery level (0–1)',
+        example: precisionHeader + `uniform vec2 resolution;
+uniform float battery;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution;
+\tvec3 bar = vec3(step(uv.x, battery));
+\tbar *= mix(vec3(1.0, 0.2, 0.2), vec3(0.2, 1.0, 0.3), battery);
+\tgl_FragColor = vec4(bar, 1.0);
+}` },
+      { name: 'powerConnected', type: 'bool', desc: 'True when charging' },
+      { name: 'nightMode', type: 'bool', desc: 'System dark mode active' },
+      { name: 'notificationCount', type: 'int', desc: 'Pending notification count' },
+      { name: 'lastNotificationTime', type: 'float', desc: 'Seconds since last notification (NaN if none)' },
+    ],
+  },
+];
+---
+
+<section class="section" id="uniforms">
+  <div class="container">
+    <span class="section-label">Uniforms</span>
+    <h2 class="section-title">40+ built-in uniforms</h2>
+    <p class="section-desc">
+      Declare any uniform in your shader — ShaderEditor detects it and feeds live data
+      automatically. Expand a code example to see a full, copyable shader.
+    </p>
+
+    <div class="uniform-tabs" role="tablist">
+      {tabs.map((tab, i) => (
+        <button
+          class={`uniform-tab ${i === 0 ? 'active' : ''}`}
+          role="tab"
+          data-tab={tab.id}
+          aria-selected={i === 0 ? 'true' : 'false'}
+        >
+          <Icon name={tab.icon} size={15} />
+          <span class={`badge ${tab.badge}`}>{tab.label}</span>
+          <span class="tab-count">{tab.items.length}</span>
+        </button>
+      ))}
+    </div>
+
+    <div class="uniform-panels">
+      {tabs.map((tab, i) => (
+        <div
+          class={`uniform-panel ${i === 0 ? 'active' : ''}`}
+          role="tabpanel"
+          data-panel={tab.id}
+        >
+          {tab.items.map(item => (
+            <div class="uniform-entry">
+              <div class="uniform-header">
+                <code class="uniform-name">{item.name}</code>
+                <span class="uniform-type">{item.type}</span>
+              </div>
+              <p class="uniform-desc">{item.desc}</p>
+              {item.example && (
+                <details class="uniform-example">
+                  <summary class="uniform-example-toggle">
+                    <Icon name="terminal" size={13} />
+                    Full example shader
+                  </summary>
+                  <div class="uniform-code-wrap">
+                    <div class="uniform-code-header">
+                      <span>Complete shader — paste into ShaderEditor</span>
+                      <button class="copy-btn" data-code={item.example} aria-label="Copy">
+                        <Icon name="copy" size={13} />
+                        Copy
+                      </button>
+                    </div>
+                    <div class="uniform-code-block">
+                      <Code code={item.example} lang="glsl" theme="github-dark" />
+                    </div>
+                  </div>
+                </details>
+              )}
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  // Tab switching
+  document.querySelectorAll('.uniform-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const id = tab.getAttribute('data-tab');
+      document.querySelectorAll('.uniform-tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.uniform-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      document.querySelector(`[data-panel="${id}"]`)?.classList.add('active');
+    });
+  });
+
+  // Copy buttons
+  document.querySelectorAll('#uniforms .copy-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const code = btn.getAttribute('data-code') || '';
+      await navigator.clipboard.writeText(code);
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<svg class="icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+      setTimeout(() => { btn.innerHTML = orig; }, 1500);
+    });
+  });
+</script>
+
+<style>
+  .uniform-tabs {
+    display: flex; gap: 0.375rem; margin-top: 3rem; flex-wrap: wrap;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .uniform-tab {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: none; border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer; transition: all 0.2s;
+    color: var(--text-secondary);
+    position: relative; bottom: -1px;
+  }
+
+  .uniform-tab:hover { color: var(--text-primary); }
+  .uniform-tab.active { border-bottom-color: var(--accent-cyan); color: var(--text-primary); }
+
+  .tab-count {
+    font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted);
+  }
+
+  .uniform-panels { margin-top: 1.25rem; }
+
+  .uniform-panel { display: none; }
+  .uniform-panel.active { display: flex; flex-direction: column; gap: 0.625rem; }
+
+  .uniform-entry {
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: var(--radius-md);
+    padding: 1rem 1.25rem;
+    transition: border-color 0.2s;
+  }
+
+  .uniform-entry:hover { border-color: rgba(255,255,255,0.08); }
+
+  .uniform-header {
+    display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem;
+  }
+
+  .uniform-name {
+    font-family: var(--font-mono); font-size: 0.875rem;
+    font-weight: 600; color: var(--accent-cyan);
+  }
+
+  .uniform-type {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    color: var(--accent-magenta); opacity: 0.7;
+    background: rgba(255,45,170,0.06);
+    padding: 0.125rem 0.45rem; border-radius: 4px;
+  }
+
+  .uniform-desc {
+    font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;
+  }
+
+  .uniform-example { margin-top: 0.5rem; }
+
+  .uniform-example-toggle {
+    font-family: var(--font-mono); font-size: 0.7rem;
+    color: var(--text-muted); cursor: pointer;
+    list-style: none;
+    display: flex; align-items: center; gap: 0.375rem;
+    padding: 0.375rem 0; transition: color 0.2s;
+  }
+
+  .uniform-example-toggle::-webkit-details-marker { display: none; }
+  .uniform-example-toggle:hover,
+  .uniform-example[open] .uniform-example-toggle { color: var(--accent-cyan); }
+
+  .uniform-code-wrap {
+    margin-top: 0.5rem;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius-sm); overflow: hidden;
+  }
+
+  .uniform-code-header {
+    background: rgba(255,255,255,0.03);
+    padding: 0.4rem 0.875rem;
+    font-family: var(--font-mono); font-size: 0.6rem;
+    color: var(--text-muted); letter-spacing: 0.05em;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .copy-btn {
+    display: flex; align-items: center; gap: 0.25rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--text-secondary);
+    font-family: var(--font-mono); font-size: 0.6rem;
+    padding: 0.2rem 0.5rem; border-radius: 4px;
+    cursor: pointer; transition: all 0.2s;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+
+  .copy-btn:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+
+  .uniform-code-block {
+    max-height: 300px; overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .uniform-code-block :global(pre) {
+    margin: 0 !important; border-radius: 0 !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.75rem !important; line-height: 1.7 !important;
+    overflow: visible !important;
+  }
+
+  .uniform-code-block :global(code) {
+    font-family: var(--font-mono) !important;
+    white-space: pre !important;
+    word-break: normal !important;
+    display: block !important;
+  }
+
+  @media (max-width: 600px) {
+    .uniform-tab { padding: 0.5rem 0.6rem; }
+    .uniform-tab .badge { font-size: 0.6rem; padding: 0.2rem 0.4rem; }
+    .uniform-tab .icon { display: none; }
+    .uniform-code-block :global(pre) { font-size: 0.675rem !important; }
+  }
+</style>

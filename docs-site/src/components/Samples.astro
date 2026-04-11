@@ -1,0 +1,623 @@
+---
+import { Code } from 'astro:components';
+import Icon from './Icon.astro';
+const base = import.meta.env.BASE_URL;
+
+interface Sample {
+  name: string;
+  tag: string;
+  tagColor: string;
+  summary: string;
+  detail: string;
+  code: string;
+  video: string;
+  poster: string;
+  learnLinks?: { label: string; href: string }[];
+}
+
+const samples: Sample[] = [
+  {
+    name: 'Touch Ripples',
+    tag: 'Touch', tagColor: 'badge-cyan',
+    summary: 'Interactive gradient reacting to multi-touch with ripple distortions. Demonstrates pointerCount, pointers, and distance-based blending.',
+    detail: `### How it works
+
+The shader creates a smooth UV-gradient background that animates over \`time\`. When you touch the screen, each finger position is read from the \`pointers[10]\` array.
+
+For each active pointer, the shader computes the **distance** from the current pixel to the touch point, then creates a sine-based "hole" effect. The \`mix()\` with a negative factor produces the dark ripple rings.
+
+**Key uniforms used:**
+- \`pointerCount\` — how many fingers are touching
+- \`pointers[10]\` — xy position + z size per finger
+- \`time\` — animates the background gradient
+- \`resolution\` — normalizes coordinates
+
+**Try this:** Change the \`8.0\` multiplier inside \`distance()\` to control ripple frequency, or change \`-0.5\` in \`mix()\` to invert the effect.`,
+    code: `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+uniform float time;
+uniform int pointerCount;
+uniform vec3 pointers[10];
+uniform vec2 resolution;
+
+void main(void) {
+\tfloat mx = max(resolution.x, resolution.y);
+\tvec2 uv = gl_FragCoord.xy / mx;
+\tvec3 color = vec3(uv, 0.25 + 0.5 * sin(time));
+
+\tfor (int n = 0; n < pointerCount; ++n) {
+\t\tvec3 hole = vec3(sin(1.5 - distance(
+\t\t\tuv, pointers[n].xy / mx) * 8.0));
+\t\tcolor = mix(color, hole, -0.5);
+\t}
+\tgl_FragColor = vec4(color, 1.0);
+}`,
+    video: `${base}media/sample-touch.webm`,
+    poster: `${base}media/sample-touch.webp`,
+    learnLinks: [
+      { label: 'The Book of Shaders — Shapes', href: 'https://thebookofshaders.com/07/' },
+    ],
+  },
+  {
+    name: 'Game of Life',
+    tag: 'Backbuffer', tagColor: 'badge-magenta',
+    summary: "Conway's Game of Life running entirely on the GPU. Each pixel reads 8 neighbors from the previous frame via the backbuffer uniform.",
+    detail: `### How it works
+
+The \`backbuffer\` uniform contains the **previous frame** as a texture. Each pixel samples its 8 neighbors using offset texture lookups, sums the alive-count, then applies Conway's rules:
+
+- **3 neighbors → cell becomes alive** (birth)
+- **2 neighbors + was alive → stays alive** (survival)
+- **Otherwise → cell dies**
+
+Touch input overrides the sum to 3.0 near your finger, sparking new life.
+
+**Key uniforms used:**
+- \`backbuffer\` — previous frame (the state buffer)
+- \`pointerCount\` / \`pointers\` — touch to inject cells
+- \`resolution\` — coordinate normalization
+
+**Try this:** Change the tap radius (\`0.05\`) to create bigger or smaller brush strokes. Add color by mapping alive-time to a palette.`,
+    code: `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+uniform vec2 resolution;
+uniform int pointerCount;
+uniform vec3 pointers[10];
+uniform sampler2D backbuffer;
+
+float get(float x, float y) {
+\treturn texture2D(backbuffer,
+\t\t(gl_FragCoord.xy + vec2(x, y)) / resolution).r;
+}
+
+float oneIfZero(float value) {
+\treturn step(abs(value), 0.1);
+}
+
+void main() {
+\tfloat sum =
+\t\tget(-1.0, -1.0) + get(-1.0, 0.0) + get(-1.0, 1.0) +
+\t\tget( 0.0, -1.0) +                   get( 0.0, 1.0) +
+\t\tget( 1.0, -1.0) + get( 1.0, 0.0) + get( 1.0, 1.0);
+
+\tfloat tap = min(resolution.x, resolution.y) * 0.05;
+\tfor (int n = 0; n < pointerCount; ++n) {
+\t\tif (distance(pointers[n].xy, gl_FragCoord.xy) < tap) {
+\t\t\tsum = 3.0;
+\t\t\tbreak;
+\t\t}
+\t}
+
+\tfloat has3 = oneIfZero(sum - 3.0);
+\tfloat has2 = oneIfZero(sum - 2.0);
+\tfloat alive = has3 + has2 * get(0.0, 0.0);
+\tgl_FragColor = vec4(vec3(alive), 1.0);
+}`,
+    video: `${base}media/sample-gol.webm`,
+    poster: `${base}media/sample-gol.webp`,
+    learnLinks: [
+      { label: 'Wikipedia — Game of Life', href: 'https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life' },
+    ],
+  },
+  {
+    name: 'Gravity Sensor',
+    tag: 'Sensor', tagColor: 'badge-violet',
+    summary: 'Colors shift based on real device gravity vector. Tilt your phone to paint with physics.',
+    detail: `### How it works
+
+The \`gravity\` uniform is a \`vec3\` containing the device's gravity vector in m/s². When the phone is flat, gravity is approximately \`(0, 0, 9.81)\`. Tilting shifts values across x and y.
+
+The shader normalizes gravity by dividing by ~4.9 and multiplies it with the UV+1.0 color channels. The result: different tilts produce different dominant colors.
+
+**Key uniforms used:**
+- \`gravity\` — hardware accelerometer gravity component
+- \`resolution\` — coordinate normalization
+
+**Try this:** Replace \`abs(gravity - 4.90332)\` with \`gravity * 0.1\` for a more linear response, or use \`gravity.xy\` to offset the UV coordinates directly.`,
+    code: `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+uniform vec2 resolution;
+uniform vec3 gravity;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution.xy;
+
+\tgl_FragColor = vec4(
+\t\tvec3(uv, 1.0) * 9.80665 / abs(gravity - 4.90332),
+\t\t1.0);
+}`,
+    video: `${base}media/sample-gravity.webm`,
+    poster: `${base}media/sample-gravity.webp`,
+  },
+  {
+    name: 'Back Camera',
+    tag: 'Camera', tagColor: 'badge-cyan',
+    summary: 'Live camera feed as a shader texture with automatic orientation correction.',
+    detail: `### How it works
+
+The \`cameraBack\` uniform provides a live \`samplerExternalOES\` texture from the rear camera. Since the camera sensor may be rotated relative to the screen, the \`cameraOrientation\` matrix and \`cameraAddent\` vector correct the UV mapping.
+
+The formula \`cameraAddent + uv * cameraOrientation\` produces correctly-oriented texture coordinates regardless of device rotation.
+
+**Key uniforms used:**
+- \`cameraBack\` — live camera feed (samplerExternalOES)
+- \`cameraOrientation\` — mat2 rotation correction
+- \`cameraAddent\` — vec2 translation offset
+- \`resolution\` — viewport size
+
+**Try this:** Apply a grayscale effect: \`float gray = dot(cam.rgb, vec3(0.299, 0.587, 0.114));\`. Or invert: \`1.0 - cam.rgb\`.`,
+    code: `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+uniform vec2 resolution;
+uniform vec2 cameraAddent;
+uniform mat2 cameraOrientation;
+uniform samplerExternalOES cameraBack;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution.xy;
+\tvec2 st = cameraAddent + uv * cameraOrientation;
+
+\tgl_FragColor = vec4(
+\t\ttexture2D(cameraBack, st).rgb,
+\t\t1.0);
+}`,
+    video: `${base}media/sample-camera.webm`,
+    poster: `${base}media/sample-camera.webp`,
+  },
+  {
+    name: 'Battery Gauge',
+    tag: 'System', tagColor: 'badge-magenta',
+    summary: 'A horizontal bar that reads the real battery level. Simplest system uniform demo.',
+    detail: `### How it works
+
+\`step(uv.x, battery)\` returns 1.0 when the x-coordinate is less than the battery level (0.0–1.0), creating a white bar whose width matches your battery percentage.
+
+**Key uniforms used:**
+- \`battery\` — float from 0.0 (empty) to 1.0 (full)
+- \`resolution\` — coordinate normalization
+
+**Try this:** Add color: \`mix(vec3(1,0,0), vec3(0,1,0), battery)\` for a red-to-green gradient. Or animate the edge: \`smoothstep(battery-0.01, battery+0.01, uv.x)\`.`,
+    code: `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+uniform vec2 resolution;
+uniform float battery;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution.xy;
+
+\tgl_FragColor = vec4(
+\t\tvec3(step(uv.x, battery)),
+\t\t1.0);
+}`,
+    video: `${base}media/sample-battery.webm`,
+    poster: `${base}media/sample-battery.webp`,
+  },
+  {
+    name: 'GLES 3.0',
+    tag: 'GLES3', tagColor: 'badge-violet',
+    summary: 'Same touch ripple demo but using #version 300 es syntax with out variables.',
+    detail: `### How it works
+
+GLES 3.0 replaces \`gl_FragColor\` with a user-declared \`out vec4\`. The \`#version 300 es\` directive must be the **very first line**. ShaderEditor automatically acquires a GLES 3.0 context when it detects this directive.
+
+**Key differences from GLES 2.0:**
+- \`out vec4 fragColor\` instead of \`gl_FragColor\`
+- \`texture()\` instead of \`texture2D()\` (both work)
+- Additional built-ins available (bitwise ops, integer textures, etc.)
+
+**Try this:** Use GLES 3.0 integer operations for cellular automata, or \`texelFetch()\` for exact pixel reads.`,
+    code: `#version 300 es
+
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+
+out vec4 fragColor;
+
+uniform float time;
+uniform int pointerCount;
+uniform vec3 pointers[10];
+uniform vec2 resolution;
+
+void main() {
+\tfloat mx = max(resolution.x, resolution.y);
+\tvec2 uv = gl_FragCoord.xy / mx;
+\tvec3 color = vec3(uv, 0.25 + 0.5 * sin(time));
+
+\tfor (int n = 0; n < pointerCount; ++n) {
+\t\tvec3 hole = vec3(sin(1.5 - distance(
+\t\t\tuv, pointers[n].xy / mx) * 8.0));
+\t\tcolor = mix(color, hole, -0.5);
+\t}
+\tfragColor = vec4(color, 1.0);
+}`,
+    video: `${base}media/sample-touch.webm`,
+    poster: `${base}media/sample-touch.webp`,
+  },
+];
+---
+
+<section class="section samples-section" id="samples">
+  <div class="container">
+    <span class="section-label">Examples</span>
+    <h2 class="section-title">Learn by example</h2>
+    <p class="section-desc">
+      Each example is a full, working shader you can copy directly into ShaderEditor.
+      Expand any card to see the code with syntax highlighting, a video of the output, and a
+      detailed walkthrough.
+    </p>
+
+    <div class="samples-list">
+      {samples.map((s, i) => (
+        <details class="sample-item" open={i === 0}>
+          <summary class="sample-summary">
+            <div class="sample-summary-left">
+              <span class={`badge ${s.tagColor}`}>{s.tag}</span>
+              <h3 class="sample-name">{s.name}</h3>
+            </div>
+            <p class="sample-oneliner">{s.summary}</p>
+            <span class="sample-chevron">
+              <Icon name="chevron-down" size={18} />
+            </span>
+          </summary>
+
+          <div class="sample-body">
+            <div class="sample-media-col">
+              <div class="sample-media">
+                <video class="lazy-video" loop muted playsinline preload="none" poster={s.poster} data-src={s.video}>
+                  <source data-src={s.video} type="video/webm" />
+                </video>
+              </div>
+              {s.learnLinks && s.learnLinks.length > 0 && (
+                <div class="sample-links">
+                  {s.learnLinks.map(link => (
+                    <a href={link.href} target="_blank" rel="noopener noreferrer" class="sample-link">
+                      <Icon name="external-link" size={13} />
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div class="sample-content">
+              <p class="sample-summary-text">{s.summary}</p>
+
+              <details class="sample-detail-toggle">
+                <summary class="sample-readmore">
+                  <Icon name="book-open" size={14} />
+                  Read detailed walkthrough
+                  <span class="readmore-chevron">
+                    <Icon name="chevron-down" size={14} />
+                  </span>
+                </summary>
+                <div class="sample-detail-body" set:html={
+                  s.detail
+                    .replace(/### (.+)/g, '<h4>$1</h4>')
+                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/`([^`]+)`/g, '<code>$1</code>')
+                    .replace(/^- (.+)$/gm, '<li>$1</li>')
+                    .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+                    .replace(/\n\n/g, '</p><p>')
+                    .replace(/^(?!<[hup]|<li)(.+)$/gm, '<p>$1</p>')
+                } />
+              </details>
+
+              <div class="sample-code-wrap">
+                <div class="sample-code-header">
+                  <span><Icon name="file-code" size={14} /> Fragment Shader</span>
+                  <button class="copy-btn" data-code={s.code} aria-label="Copy code">
+                    <Icon name="copy" size={14} />
+                    Copy
+                  </button>
+                </div>
+                <div class="sample-code-block">
+                  <Code code={s.code} lang="glsl" theme="github-dark" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  // Copy button
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const code = btn.getAttribute('data-code') || '';
+      await navigator.clipboard.writeText(code);
+      const icon = btn.querySelector('.icon');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+      setTimeout(() => { btn.innerHTML = orig; }, 1500);
+    });
+  });
+
+  // Lazy video
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const video = entry.target;
+      if (entry.isIntersecting) {
+        const source = video.querySelector('source[data-src]');
+        if (source) {
+          source.setAttribute('src', source.getAttribute('data-src'));
+          source.removeAttribute('data-src');
+          video.load();
+        }
+        video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
+    });
+  }, { threshold: 0.2 });
+
+  document.querySelectorAll('#samples .lazy-video').forEach(v => observer.observe(v));
+</script>
+
+<style>
+  .samples-section {
+    background: linear-gradient(180deg, transparent, rgba(0, 229, 255, 0.01) 50%, transparent);
+  }
+
+  .samples-list {
+    display: flex; flex-direction: column; gap: 0.75rem; margin-top: 3rem;
+  }
+
+  .sample-item {
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: var(--radius-lg);
+    overflow: hidden; transition: border-color 0.3s;
+  }
+
+  .sample-item[open] { border-color: rgba(0, 229, 255, 0.12); }
+
+  .sample-summary {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1.125rem 1.5rem;
+    cursor: pointer; list-style: none; transition: background 0.2s;
+  }
+
+  .sample-summary::-webkit-details-marker { display: none; }
+  .sample-summary:hover { background: rgba(255,255,255,0.015); }
+
+  .sample-summary-left {
+    display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;
+  }
+
+  .sample-name {
+    font-family: var(--font-display);
+    font-size: 1rem; font-weight: 700; white-space: nowrap;
+  }
+
+  .sample-oneliner {
+    font-size: 0.8rem; color: var(--text-muted);
+    flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  .sample-chevron {
+    color: var(--text-muted); flex-shrink: 0;
+    transition: transform 0.3s;
+  }
+
+  .sample-item[open] .sample-chevron {
+    transform: rotate(180deg); color: var(--accent-cyan);
+  }
+
+  .sample-body {
+    display: grid; grid-template-columns: 240px 1fr;
+    gap: 1.5rem;
+    padding: 0 1.5rem 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    padding-top: 1.5rem;
+    min-width: 0; /* prevent grid blowout */
+  }
+
+  .sample-media-col {
+    display: flex; flex-direction: column; gap: 1rem;
+  }
+
+  .sample-media {
+    border-radius: var(--radius-md); overflow: hidden;
+    aspect-ratio: 9/16; background: var(--bg-surface);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+
+  .sample-media video { width: 100%; height: 100%; object-fit: cover; }
+
+  .sample-summary-text {
+    font-size: 0.925rem; color: var(--text-secondary);
+    line-height: 1.7; margin-bottom: 1rem;
+  }
+
+  .sample-detail-toggle { margin-bottom: 1.25rem; }
+
+  .sample-readmore {
+    font-family: var(--font-mono);
+    font-size: 0.75rem; color: var(--accent-cyan);
+    cursor: pointer; list-style: none;
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.5rem 0;
+    transition: opacity 0.2s;
+  }
+
+  .sample-readmore::-webkit-details-marker { display: none; }
+  .sample-readmore:hover { opacity: 0.8; }
+
+  .readmore-chevron {
+    display: inline-flex;
+    transition: transform 0.3s;
+  }
+
+  .sample-detail-toggle[open] .readmore-chevron {
+    transform: rotate(180deg);
+  }
+
+  .sample-content {
+    min-width: 0; /* allow content to shrink within grid */
+    overflow: hidden; /* contain children */
+  }
+
+  .sample-detail-body {
+    margin-top: 0.75rem;
+    font-size: 0.85rem; color: var(--text-secondary); line-height: 1.8;
+    overflow-wrap: break-word; word-wrap: break-word;
+  }
+
+  .sample-detail-body h4 {
+    font-family: var(--font-display);
+    font-size: 0.95rem; font-weight: 700;
+    color: var(--text-primary);
+    margin: 1.25rem 0 0.5rem;
+  }
+
+  .sample-detail-body h4:first-child { margin-top: 0; }
+
+  .sample-detail-body code {
+    font-family: var(--font-mono); font-size: 0.775rem;
+    background: rgba(0, 229, 255, 0.08);
+    color: var(--accent-cyan);
+    padding: 0.125rem 0.4rem; border-radius: 4px;
+  }
+
+  .sample-detail-body ul {
+    padding-left: 1.25rem; margin: 0.5rem 0;
+  }
+
+  .sample-detail-body li {
+    margin: 0.25rem 0;
+  }
+
+  .sample-detail-body p { margin: 0.5rem 0; }
+
+  .sample-code-wrap {
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius-md);
+    overflow: hidden; /* clips border-radius only */
+    min-width: 0; /* allow flex/grid child to shrink */
+  }
+
+  .sample-code-header {
+    background: rgba(255,255,255,0.03);
+    padding: 0.5rem 1rem;
+    font-family: var(--font-mono); font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .sample-code-header span {
+    display: flex; align-items: center; gap: 0.4rem;
+  }
+
+  .copy-btn {
+    display: flex; align-items: center; gap: 0.3rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--text-secondary);
+    font-family: var(--font-mono); font-size: 0.625rem;
+    padding: 0.25rem 0.625rem; border-radius: 4px;
+    cursor: pointer; transition: all 0.2s;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+
+  .copy-btn:hover {
+    background: rgba(255,255,255,0.1); color: var(--text-primary);
+  }
+
+  .sample-code-block {
+    max-height: 400px;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .sample-code-block :global(pre) {
+    margin: 0 !important;
+    border-radius: 0 !important;
+    padding: 1rem !important;
+    font-size: 0.775rem !important;
+    line-height: 1.7 !important;
+    overflow: visible !important; /* let parent handle scroll */
+  }
+
+  .sample-code-block :global(code) {
+    font-family: var(--font-mono) !important;
+    white-space: pre !important;
+    word-break: normal !important;
+    display: block !important;
+  }
+
+  .sample-links {
+    display: flex; flex-direction: column; gap: 0.375rem;
+  }
+
+  .sample-link {
+    font-size: 0.775rem; color: var(--accent-cyan);
+    display: flex; align-items: center; gap: 0.375rem;
+    text-decoration: underline;
+    text-decoration-color: rgba(0, 229, 255, 0.3);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.2s;
+  }
+
+  .sample-link:hover { text-decoration-color: var(--accent-cyan); }
+
+  @media (max-width: 768px) {
+    .sample-summary { flex-wrap: wrap; padding: 1rem; }
+    .sample-oneliner {
+      order: 3; flex-basis: 100%;
+      white-space: normal; margin-top: 0.25rem;
+    }
+    .sample-body { grid-template-columns: 1fr; padding: 0 1rem 1rem; }
+    .sample-media { max-width: 200px; }
+    .sample-code-block :global(pre) { font-size: 0.7rem !important; }
+  }
+</style>

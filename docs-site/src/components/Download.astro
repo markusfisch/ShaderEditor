@@ -1,0 +1,216 @@
+---
+---
+
+<section class="section download-section" id="download">
+  <div class="container">
+    <div class="download-card">
+      <div class="download-glow-1 gradient-orb"></div>
+      <div class="download-glow-2 gradient-orb"></div>
+
+      <span class="section-label">Download</span>
+      <h2 class="section-title">Get ShaderEditor</h2>
+      <p class="download-desc">
+        Free and open source. Available on F-Droid and Google Play.
+      </p>
+
+      <div class="download-badges">
+        <a
+          href="https://f-droid.org/en/packages/de.markusfisch.android.shadereditor/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="download-badge"
+        >
+          <img
+            src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+            alt="Get it on F-Droid"
+            height="72"
+          />
+        </a>
+        <a
+          href="https://play.google.com/store/apps/details?id=de.markusfisch.android.shadereditor"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="download-badge"
+        >
+          <img
+            src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png"
+            alt="Get it on Google Play"
+            height="72"
+          />
+        </a>
+      </div>
+
+      <div class="download-meta">
+        <div class="meta-item">
+          <span class="meta-label">Version</span>
+          <span class="meta-value">2.36.1</span>
+        </div>
+        <div class="meta-divider"></div>
+        <div class="meta-item">
+          <span class="meta-label">Android</span>
+          <span class="meta-value">6.0+ (API 23)</span>
+        </div>
+        <div class="meta-divider"></div>
+        <div class="meta-item">
+          <span class="meta-label">License</span>
+          <span class="meta-value">MIT</span>
+        </div>
+      </div>
+
+      <div class="download-support">
+        <p class="support-text">Support the developer:</p>
+        <div class="support-links">
+          <a href="https://www.buymeacoffee.com/markusfisch" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-small">
+            ☕ Buy me a coffee
+          </a>
+          <a href="https://liberapay.com/markusfisch/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-small">
+            ❤️ Liberapay
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .download-section {
+    padding-bottom: 6rem;
+  }
+
+  .download-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--radius-xl);
+    padding: clamp(2.5rem, 6vw, 4rem);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .download-card .section-label {
+    justify-content: center;
+  }
+
+  .download-card .section-label::before {
+    display: none;
+  }
+
+  .download-card .section-title {
+    text-align: center;
+  }
+
+  .download-glow-1 {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, var(--accent-cyan), transparent 70%);
+    top: -30%;
+    right: -10%;
+    opacity: 0.15;
+  }
+
+  .download-glow-2 {
+    width: 350px;
+    height: 350px;
+    background: radial-gradient(circle, var(--accent-violet), transparent 70%);
+    bottom: -30%;
+    left: -10%;
+    opacity: 0.15;
+  }
+
+  .download-desc {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+
+  .download-badges {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+
+  .download-badge {
+    transition: transform 0.3s, opacity 0.3s;
+    opacity: 0.9;
+  }
+
+  .download-badge:hover {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+
+  .download-meta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    position: relative;
+  }
+
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .meta-label {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+  }
+
+  .meta-value {
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .meta-divider {
+    width: 1px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .download-support {
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    padding-top: 1.5rem;
+    position: relative;
+  }
+
+  .support-text {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  .support-links {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-small {
+    padding: 0.625rem 1.25rem;
+    font-size: 0.8rem;
+  }
+
+  @media (max-width: 600px) {
+    .meta-divider {
+      display: none;
+    }
+
+    .download-meta {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+</style>

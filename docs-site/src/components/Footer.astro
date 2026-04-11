@@ -1,0 +1,105 @@
+---
+---
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-brand">
+      <div class="footer-logo">
+        <span class="footer-bracket">{</span><span class="footer-gl">GL</span><span class="footer-bracket">}</span>
+      </div>
+      <span class="footer-name">ShaderEditor</span>
+    </div>
+
+    <div class="footer-links">
+      <a href="https://github.com/markusfisch/ShaderEditor" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://github.com/markusfisch/ShaderEditor/issues" target="_blank" rel="noopener noreferrer">Issues</a>
+      <a href="https://github.com/markusfisch/ShaderEditor/blob/master/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributing</a>
+      <a href="https://github.com/markusfisch/ShaderEditor/blob/master/PRIVACY.md" target="_blank" rel="noopener noreferrer">Privacy</a>
+    </div>
+
+    <p class="footer-copy">
+      Made by <a href="https://github.com/markusfisch" target="_blank" rel="noopener noreferrer">Markus Fisch</a>.
+      Open source under MIT.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 3rem 0;
+    text-align: center;
+  }
+
+  .footer-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .footer-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .footer-logo {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .footer-bracket {
+    color: var(--text-muted);
+  }
+
+  .footer-gl {
+    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .footer-name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .footer-links a {
+    font-family: var(--font-mono);
+    font-size: 0.775rem;
+    color: var(--text-muted);
+    transition: color 0.2s;
+  }
+
+  .footer-links a:hover {
+    color: var(--accent-cyan);
+  }
+
+  .footer-copy {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .footer-copy a {
+    color: var(--text-secondary);
+    text-decoration: underline;
+    text-decoration-color: rgba(255,255,255,0.15);
+    text-underline-offset: 2px;
+    transition: color 0.2s;
+  }
+
+  .footer-copy a:hover {
+    color: var(--accent-cyan);
+  }
+</style>
