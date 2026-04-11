@@ -645,7 +645,7 @@ public class Lexer implements Iterable<Token> {
 			int mid = low + (high - low) / 2;
 			Token midToken = tokens.get(mid);
 
-			if (position >= midToken.startOffset() && position <= midToken.endOffset()) {
+			if (position >= midToken.startOffset() && position < midToken.endOffset()) {
 				return midToken;
 			} else if (position < midToken.startOffset()) {
 				high = mid - 1;
