@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.markusfisch.android.shadereditor.R;
@@ -49,8 +48,7 @@ public class CompletionsAdapter extends ListAdapter<String, CompletionsAdapter.V
 	}
 
 	public void submitCompletions(@NonNull List<String> completions, int position) {
-		List<String> committedCompletions = new ArrayList<>(completions);
-		submitList(committedCompletions, () -> this.position = position);
+		submitList(completions, () -> this.position = position);
 	}
 
 	public class ViewHolder extends RecyclerView.ViewHolder {
