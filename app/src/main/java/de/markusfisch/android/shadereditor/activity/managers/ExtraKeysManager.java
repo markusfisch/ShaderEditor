@@ -54,8 +54,7 @@ public class ExtraKeysManager implements ViewTreeObserver.OnGlobalLayoutListener
 	}
 
 	public void setCompletions(List<String> completions, int position) {
-		completionsAdapter.setPosition(position);
-		completionsAdapter.submitList(completions);
+		completionsAdapter.submitCompletions(completions, position);
 	}
 
 	public void updateVisibility() {

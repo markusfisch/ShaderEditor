@@ -72,10 +72,14 @@ public class ShaderEditor extends LineNumberEditText {
 		DEFAULT_COMPLETIONS.add("]");
 	}
 
+	private int revision = 0;
 	private final int[] colors = new int[Highlight.values().length];
 	private final TokenListUpdater tokenListUpdater = new TokenListUpdater(
-			(tokens, text) -> post(
-					() -> provideCompletions(tokens, text)));
+			(tokenRevision, tokens, text) -> post(() -> {
+				if (tokenRevision == revision) {
+					provideCompletions(tokens, text);
+				}
+			}));
 	private final Runnable updateRunnable = new Runnable() {
 		@Override
 		public void run() {
@@ -107,7 +111,6 @@ public class ShaderEditor extends LineNumberEditText {
 	private int tabWidthInCharacters = 0;
 	private int tabWidth = 0;
 	private List<Token> tokens = new ArrayList<>();
-	private int revision = 0;
 	private boolean isApplyingEdit = false;
 
 	public ShaderEditor(Context context) {
@@ -374,12 +377,13 @@ public class ShaderEditor extends LineNumberEditText {
 	protected void onSelectionChanged(int selStart, int selEnd) {
 		super.onSelectionChanged(selStart, selEnd);
 		Editable text = getText();
+		List<Token> completedTokens;
 		if (text != null &&
 				codeCompletionListener != null &&
 				getSelectionStart() == getSelectionEnd() &&
 				!isApplyingEdit &&
-				tokenListUpdater.isDone()) {
-			provideCompletions(tokens, text);
+				(completedTokens = tokenListUpdater.getCompletedTokens(revision)) != null) {
+			provideCompletions(completedTokens, text);
 		}
 	}
 
@@ -593,7 +597,10 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 		int start = getSelectionStart();
 		Token tok = Lexer.findToken(tokens, start);
-		if (tok == null || tok.endOffset() >= text.length()) {
+		if (tok == null && start > 0) {
+			tok = Lexer.findToken(tokens, start - 1);
+		}
+		if (tok == null) {
 			listener.onCodeCompletions(DEFAULT_COMPLETIONS, 0);
 			return;
 		}
@@ -731,7 +738,7 @@ public class ShaderEditor extends LineNumberEditText {
 
 	@FunctionalInterface
 	interface OnTokenized {
-		void onTokens(@NonNull List<Token> tokens, @NonNull CharSequence text);
+		void onTokens(int revision, @NonNull List<Token> tokens, @NonNull CharSequence text);
 	}
 
 	private static class TabWidthSpan
@@ -781,12 +788,15 @@ public class ShaderEditor extends LineNumberEditText {
 
 	static class TokenizeCalculation implements Callable<List<Token>> {
 		private final String text;
+		private final int revision;
 		@NonNull
 		private final OnTokenized onTokenized;
 
 		public TokenizeCalculation(
+				int revision,
 				@NonNull String text,
 				@NonNull OnTokenized onTokenized) {
+			this.revision = revision;
 			this.text = text;
 			this.onTokenized = onTokenized;
 		}
@@ -801,7 +811,7 @@ public class ShaderEditor extends LineNumberEditText {
 					break;
 				}
 			}
-			onTokenized.onTokens(tokens, text);
+			onTokenized.onTokens(revision, tokens, text);
 			return tokens;
 		}
 	}
@@ -813,48 +823,69 @@ public class ShaderEditor extends LineNumberEditText {
 		private final ExecutorService executor = Executors.newSingleThreadExecutor();
 		@Nullable
 		private FutureTask<List<Token>> task;
+		@NonNull
+		private List<Token> completedTokens = Collections.emptyList();
 		private int revision = -1;
+		private int completedRevision = -1;
 
 		public TokenListUpdater(@NonNull OnTokenized onTokenized) {
 			this.onTokenized = onTokenized;
 		}
 
+		@Nullable
+		public synchronized List<Token> getCompletedTokens(int revision) {
+			return revision == completedRevision ? completedTokens : null;
+		}
+
+		private synchronized void setCompleted(int revision, @NonNull List<Token> tokens) {
+			if (revision != this.revision) {
+				return;
+			}
+			completedRevision = revision;
+			completedTokens = tokens;
+		}
+
 		@NonNull
 		public List<Token> ensureUpdated(@NonNull CharSequence text, int revision) {
-			if (task != null && revision == this.revision) {
-				try {
-					return task.get();
-				} catch (ExecutionException | InterruptedException e) {
-					throw new RuntimeException(e);
+			FutureTask<List<Token>> futureTask;
+			synchronized (this) {
+				if (task == null || revision != this.revision) {
+					update(text, revision);
 				}
+				futureTask = task;
 			}
-			update(text, revision);
-			FutureTask<List<Token>> futureTask = task;
 			if (futureTask == null) {
 				return Collections.emptyList();
 			}
 			try {
-				return futureTask.get();
+				List<Token> tokens = futureTask.get();
+				setCompleted(revision, tokens);
+				return tokens;
 			} catch (ExecutionException | InterruptedException e) {
 				throw new RuntimeException(e);
 			}
 		}
 
 		public void update(@NonNull CharSequence text, int revision) {
-			if (revision == this.revision && task != null) {
-				return;
-			} else if (task != null) {
-				task.cancel(false);
+			FutureTask<List<Token>> currentTask;
+			synchronized (this) {
+				if (revision == this.revision && task != null) {
+					return;
+				}
+				currentTask = task;
+				this.revision = revision;
+				task = new FutureTask<>(new TokenizeCalculation(
+						revision,
+						text.toString(),
+						(tokenRevision, tokens, tokenText) -> {
+							setCompleted(tokenRevision, tokens);
+							onTokenized.onTokens(tokenRevision, tokens, tokenText);
+						}));
 			}
-
-			this.revision = revision;
-			task = new FutureTask<>(new TokenizeCalculation(
-					text.toString(), onTokenized));
+			if (currentTask != null) {
+				currentTask.cancel(false);
+			}
 			executor.submit(task);
-		}
-
-		public boolean isDone() {
-			return task != null && task.isDone();
 		}
 
 		public void shutdown() {
