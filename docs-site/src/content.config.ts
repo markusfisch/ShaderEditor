@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { faqLoader } from './loaders/faq';
 
 const accent = z.enum(['cyan', 'magenta', 'violet', 'lime', 'orange']);
 const icon = z.enum([
@@ -54,10 +55,12 @@ const walkthroughs = defineCollection({
 	}),
 });
 
-const faqPage = defineCollection({
-	loader: glob({
-		base: '..',
-		pattern: 'FAQ.md',
+const faq = defineCollection({
+	loader: faqLoader(),
+	schema: z.object({
+		order: z.number().int().positive(),
+		question: z.string(),
+		questionHtml: z.string(),
 	}),
 });
 
@@ -99,7 +102,7 @@ const gallery = defineCollection({
 
 export const collections = {
 	walkthroughs,
-	faqPage,
+	faq,
 	features,
 	gallery,
 };
