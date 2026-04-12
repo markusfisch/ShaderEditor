@@ -1,0 +1,11 @@
+{
+  "group": "editing",
+  "order": 3,
+  "title": "Error highlighting",
+  "desc": "GLSL compile errors marked inline. Tap the snackbar for a full error list.",
+  "icon": "alert-triangle",
+  "accent": "violet",
+  "src": "media/screen-errors.webm",
+  "type": "video",
+  "poster": "media/screen-errors.webp"
+}

@@ -1,0 +1,11 @@
+{
+  "order": 2,
+  "icon": "palette",
+  "title": "Syntax & Error Highlighting",
+  "desc": "Full GLSL syntax highlighting with rich token coloring.",
+  "detail": "Keywords, types, built-in functions, qualifiers, and more — each highlighted distinctly. Compile errors are underlined inline and tapping the error bar opens a jump-to-line list for quick fixing.",
+  "media": "media/feat-highlighting.webm",
+  "mediaType": "video",
+  "poster": "media/feat-highlighting.webp",
+  "accent": "magenta"
+}

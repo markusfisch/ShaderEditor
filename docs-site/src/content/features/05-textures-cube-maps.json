@@ -1,0 +1,10 @@
+{
+  "order": 5,
+  "icon": "layers",
+  "title": "Textures & Cube Maps",
+  "desc": "Import any image as a 2D texture or compose a cube map from 6 faces.",
+  "detail": "Full sampler control — wrap mode, min/mag filter, and mipmap settings. Imported textures are stored with your shaders so they travel with database exports.",
+  "media": "media/feat-textures.webp",
+  "mediaType": "image",
+  "accent": "orange"
+}

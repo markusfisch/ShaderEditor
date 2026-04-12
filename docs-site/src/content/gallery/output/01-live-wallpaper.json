@@ -1,0 +1,11 @@
+{
+  "group": "output",
+  "order": 1,
+  "title": "Live wallpaper",
+  "desc": "Your shader as a real Android wallpaper. Responds to touch and sensors.",
+  "icon": "wallpaper",
+  "accent": "orange",
+  "src": "media/screen-wallpaper.webm",
+  "type": "video",
+  "poster": "media/screen-wallpaper.webp"
+}

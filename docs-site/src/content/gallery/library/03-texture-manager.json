@@ -1,0 +1,11 @@
+{
+  "group": "library",
+  "order": 3,
+  "title": "Texture manager",
+  "desc": "Import images as 2D textures or compose cube maps from 6 faces.",
+  "icon": "image",
+  "accent": "magenta",
+  "src": "media/screen-textures.webm",
+  "type": "video",
+  "poster": "media/screen-textures.webp"
+}

@@ -1,0 +1,11 @@
+{
+  "order": 1,
+  "icon": "zap",
+  "title": "Live Preview",
+  "desc": "Your shader renders behind the code as you type — zero compile buttons.",
+  "detail": "Choose how shaders update: instantly as you type, on manual tap, or in a separate preview window. An FPS counter in the toolbar helps you optimize. Adjustable render quality lets you balance detail against performance on any device.",
+  "media": "media/feat-live-preview.webm",
+  "mediaType": "video",
+  "poster": "media/feat-live-preview.webp",
+  "accent": "cyan"
+}

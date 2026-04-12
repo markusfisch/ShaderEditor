@@ -1,0 +1,11 @@
+{
+  "order": 8,
+  "icon": "volume-2",
+  "title": "Audio Reactive",
+  "desc": "Microphone amplitude and media volume drive your visuals.",
+  "detail": "Read microphone input as a 0–1 amplitude value, or tap into the current media volume each frame. Build music visualizers, audio-reactive art, or live VJ tools.",
+  "media": "media/feat-audio.webm",
+  "mediaType": "video",
+  "poster": "media/feat-audio.webp",
+  "accent": "violet"
+}

@@ -1,0 +1,11 @@
+{
+  "group": "library",
+  "order": 2,
+  "title": "Uniform picker",
+  "desc": "Browse 40+ built-in uniforms. Sampler uniforms open a parameters panel.",
+  "icon": "sliders-horizontal",
+  "accent": "cyan",
+  "src": "media/screen-uniforms.webm",
+  "type": "video",
+  "poster": "media/screen-uniforms.webp"
+}

@@ -1,535 +1,492 @@
 ---
+import { getCollection } from 'astro:content';
 import Icon from './Icon.astro';
+
 const base = import.meta.env.BASE_URL;
+const accentVars = {
+	cyan: 'var(--accent-cyan)',
+	magenta: 'var(--accent-magenta)',
+	violet: 'var(--accent-violet)',
+	lime: 'var(--accent-lime)',
+	orange: 'var(--accent-orange)',
+} as const;
+const groupMeta = [
+	{ id: 'editing', label: 'Editing' },
+	{ id: 'library', label: 'Library' },
+	{ id: 'output', label: 'Output' },
+] as const;
 
-interface GalleryItem {
-  src: string;
-  type: 'image' | 'video';
-  poster?: string;
-  title: string;
-  desc: string;
-  accent: string;
-  icon: string;
-}
+const entries = (await getCollection('gallery'))
+	.map(entry => ({
+		id: entry.id,
+		...entry.data,
+		src: `${base}${entry.data.src}`,
+		poster: entry.data.poster ? `${base}${entry.data.poster}` : undefined,
+		accentVar: accentVars[entry.data.accent],
+	}))
+	.sort((a, b) => a.order - b.order);
 
-interface GalleryGroup {
-  label: string;
-  items: GalleryItem[];
-}
+const groups = groupMeta
+	.map(group => ({
+		...group,
+		items: entries.filter(entry => entry.group === group.id),
+	}))
+	.filter(group => group.items.length > 0);
 
-const groups: GalleryGroup[] = [
-  {
-    label: 'Editing',
-    items: [
-      {
-        src: `${base}media/screen-editor.webm`, type: 'video',
-        poster: `${base}media/screen-editor.webp`,
-        title: 'Live editing',
-        desc: 'Type GLSL and watch the shader update behind the editor in real-time.',
-        accent: 'var(--accent-cyan)',
-        icon: 'code',
-      },
-      {
-        src: `${base}media/screen-keyboard.webm`, type: 'video',
-        poster: `${base}media/screen-keyboard.webp`,
-        title: 'Smart completions',
-        desc: 'Context-aware completions above the keyboard with bracket keys and identifiers.',
-        accent: 'var(--accent-magenta)',
-        icon: 'keyboard',
-      },
-      {
-        src: `${base}media/screen-errors.webm`, type: 'video',
-        poster: `${base}media/screen-errors.webp`,
-        title: 'Error highlighting',
-        desc: 'GLSL compile errors marked inline. Tap the snackbar for a full error list.',
-        accent: 'var(--accent-violet)',
-        icon: 'alert-triangle',
-      },
-    ],
-  },
-  {
-    label: 'Library',
-    items: [
-      {
-        src: `${base}media/screen-shaderlist.webm`, type: 'video',
-        poster: `${base}media/screen-shaderlist.webp`,
-        title: 'Shader library',
-        desc: 'Side drawer with saved shaders and live-rendered thumbnails.',
-        accent: 'var(--accent-lime)',
-        icon: 'library',
-      },
-      {
-        src: `${base}media/screen-uniforms.webm`, type: 'video',
-        poster: `${base}media/screen-uniforms.webp`,
-        title: 'Uniform picker',
-        desc: 'Browse 40+ built-in uniforms. Sampler uniforms open a parameters panel.',
-        accent: 'var(--accent-cyan)',
-        icon: 'sliders-horizontal',
-      },
-      {
-        src: `${base}media/screen-textures.webm`, type: 'video',
-        poster: `${base}media/screen-textures.webp`,
-        title: 'Texture manager',
-        desc: 'Import images as 2D textures or compose cube maps from 6 faces.',
-        accent: 'var(--accent-magenta)',
-        icon: 'image',
-      },
-    ],
-  },
-  {
-    label: 'Output',
-    items: [
-      {
-        src: `${base}media/screen-wallpaper.webm`, type: 'video',
-        poster: `${base}media/screen-wallpaper.webp`,
-        title: 'Live wallpaper',
-        desc: 'Your shader as a real Android wallpaper. Responds to touch and sensors.',
-        accent: 'var(--accent-orange)',
-        icon: 'wallpaper',
-      },
-      {
-        src: `${base}media/screen-settings.webm`, type: 'video',
-        poster: `${base}media/screen-settings.webp`,
-        title: 'Settings',
-        desc: 'Fonts, ligatures, tab width, line numbers, run mode, and more.',
-        accent: 'var(--accent-violet)',
-        icon: 'settings',
-      },
-    ],
-  },
-];
-
-const flatItems = groups.flatMap(g => g.items);
-
-const itemsJson = JSON.stringify(flatItems.map(i => ({
-  src: i.src, type: i.type, poster: i.poster, title: i.title, desc: i.desc
+const flatItems = groups.flatMap(group => group.items);
+const itemsJson = JSON.stringify(flatItems.map(item => ({
+	src: item.src,
+	type: item.type,
+	poster: item.poster,
+	title: item.title,
+	desc: item.desc,
 })));
 
 let globalIndex = 0;
 ---
 
 <section class="section" id="gallery">
-  <div class="container">
-    <span class="section-label">Gallery</span>
-    <h2 class="section-title">See it in action</h2>
-    <p class="section-desc">
-      Tap any card to view the full screenshot or video.
-      Use the arrows or swipe to browse.
-    </p>
+	<div class="container">
+		<span class="section-label">Gallery</span>
+		<h2 class="section-title">See it in action</h2>
+		<p class="section-desc">
+			Tap any card to view the full screenshot or video.
+			Use the arrows or swipe to browse.
+		</p>
 
-    <div class="gallery-scroll-wrap">
-      <button class="gallery-arrow gallery-arrow-left" aria-label="Scroll left">
-        <Icon name="chevron-left" size={20} />
-      </button>
+		<div class="gallery-scroll-wrap">
+			<button class="gallery-arrow gallery-arrow-left" aria-label="Scroll left">
+				<Icon name="chevron-left" size={20} />
+			</button>
 
-      <div class="gallery-scroll">
-        {groups.map((group) => (
-          <div class="gallery-group">
-            <span class="gallery-group-label">{group.label}</span>
-            <div class="gallery-group-cards">
-              {group.items.map((item) => {
-                const idx = globalIndex++;
-                return (
-                  <button
-                    class="gallery-card"
-                    style={`--card-accent: ${item.accent};`}
-                    data-index={idx}
-                    aria-label={`View: ${item.title}`}
-                  >
-                    <div class="gallery-phone">
-                      <div class="gallery-screen">
-                        <video class="lazy-video" loop muted playsinline preload="none" poster={item.poster} data-src={item.src}>
-                          <source data-src={item.src} type="video/webm" />
-                        </video>
-                        <div class="gallery-play-badge">
-                          <Icon name="play" size={10} /> Video
-                        </div>
-                      </div>
-                    </div>
-                    <div class="gallery-meta">
-                      <span class="gallery-icon">
-                        <Icon name={item.icon} size={14} />
-                      </span>
-                      <h3 class="gallery-title">{item.title}</h3>
-                    </div>
-                    <p class="gallery-desc">{item.desc}</p>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
+			<div class="gallery-scroll">
+				{groups.map(group => (
+					<div class="gallery-group">
+						<span class="gallery-group-label">{group.label}</span>
+						<div class="gallery-group-cards">
+							{group.items.map(item => {
+								const idx = globalIndex++;
+								return (
+									<button
+										class="gallery-card"
+										style={`--card-accent: ${item.accentVar};`}
+										data-index={idx}
+										aria-label={`View: ${item.title}`}
+									>
+										<div class="gallery-phone">
+											<div class="gallery-screen">
+												{item.type === 'video' ? (
+													<>
+														<video class="lazy-video" loop muted playsinline preload="none" poster={item.poster} data-src={item.src}>
+															<source data-src={item.src} type="video/webm" />
+														</video>
+														<div class="gallery-play-badge">
+															<Icon name="play" size={10} /> Video
+														</div>
+													</>
+												) : (
+													<img src={item.src} alt={item.title} loading="lazy" />
+												)}
+											</div>
+										</div>
+										<div class="gallery-meta">
+											<span class="gallery-icon">
+												<Icon name={item.icon} size={14} />
+											</span>
+											<h3 class="gallery-title">{item.title}</h3>
+										</div>
+										<p class="gallery-desc">{item.desc}</p>
+									</button>
+								);
+							})}
+						</div>
+					</div>
+				))}
+			</div>
 
-      <button class="gallery-arrow gallery-arrow-right" aria-label="Scroll right">
-        <Icon name="chevron-right" size={20} />
-      </button>
-    </div>
-  </div>
+			<button class="gallery-arrow gallery-arrow-right" aria-label="Scroll right">
+				<Icon name="chevron-right" size={20} />
+			</button>
+		</div>
+	</div>
 
-  <!-- Lightbox -->
-  <div class="lightbox" id="lightbox" style="display:none">
-    <button class="lightbox-close" aria-label="Close">
-      <Icon name="x" size={22} />
-    </button>
-    <button class="lightbox-prev" aria-label="Previous">
-      <Icon name="chevron-left" size={24} />
-    </button>
-    <button class="lightbox-next" aria-label="Next">
-      <Icon name="chevron-right" size={24} />
-    </button>
-    <div class="lightbox-content" id="lightboxContent"></div>
-    <div class="lightbox-caption" id="lightboxCaption"></div>
-  </div>
+	<div class="lightbox" id="lightbox" style="display:none">
+		<button class="lightbox-close" aria-label="Close">
+			<Icon name="x" size={22} />
+		</button>
+		<button class="lightbox-prev" aria-label="Previous">
+			<Icon name="chevron-left" size={24} />
+		</button>
+		<button class="lightbox-next" aria-label="Next">
+			<Icon name="chevron-right" size={24} />
+		</button>
+		<div class="lightbox-content" id="lightboxContent"></div>
+		<div class="lightbox-caption" id="lightboxCaption"></div>
+	</div>
 </section>
 
 <script define:vars={{ itemsJson }}>
-  const gallery = JSON.parse(itemsJson);
-  let currentIndex = 0;
-  const lightbox = document.getElementById('lightbox');
-  const content = document.getElementById('lightboxContent');
-  const caption = document.getElementById('lightboxCaption');
+	const gallery = JSON.parse(itemsJson);
+	let currentIndex = 0;
+	const lightbox = document.getElementById('lightbox');
+	const content = document.getElementById('lightboxContent');
+	const caption = document.getElementById('lightboxCaption');
 
-  function openLightbox() {
-    lightbox.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-  }
+	function openLightbox() {
+		if (!lightbox) return;
+		lightbox.style.display = 'flex';
+		document.body.style.overflow = 'hidden';
+	}
 
-  function closeLightbox() {
-    lightbox.style.display = 'none';
-    document.body.style.overflow = '';
-    content.innerHTML = '';
-  }
+	function closeLightbox() {
+		if (!lightbox) return;
+		lightbox.style.display = 'none';
+		document.body.style.overflow = '';
+		content?.replaceChildren();
+		caption?.replaceChildren();
+	}
 
-  function showItem(idx) {
-    currentIndex = ((idx % gallery.length) + gallery.length) % gallery.length;
-    const item = gallery[currentIndex];
-    content.innerHTML = '';
-    if (item.type === 'video') {
-      const v = document.createElement('video');
-      v.autoplay = true; v.loop = true; v.muted = true; v.playsInline = true;
-      v.controls = true;
-      if (item.poster) v.poster = item.poster;
-      const s = document.createElement('source');
-      s.src = item.src; s.type = 'video/webm';
-      v.appendChild(s); content.appendChild(v);
-    } else {
-      const img = document.createElement('img');
-      img.src = item.src; img.alt = item.title;
-      content.appendChild(img);
-    }
-    caption.innerHTML = '<strong>' + item.title + '</strong> — ' + item.desc;
-  }
+	function showItem(idx) {
+		if (!content || !caption || gallery.length === 0) return;
+		currentIndex = ((idx % gallery.length) + gallery.length) % gallery.length;
+		const item = gallery[currentIndex];
+		content.replaceChildren();
+		caption.replaceChildren();
+		if (item.type === 'video') {
+			const video = document.createElement('video');
+			video.autoplay = true;
+			video.loop = true;
+			video.muted = true;
+			video.playsInline = true;
+			video.controls = true;
+			if (item.poster) {
+				video.poster = item.poster;
+			}
+			const source = document.createElement('source');
+			source.src = item.src;
+			source.type = 'video/webm';
+			video.appendChild(source);
+			content.appendChild(video);
+		} else {
+			const img = document.createElement('img');
+			img.src = item.src;
+			img.alt = item.title;
+			content.appendChild(img);
+		}
+		const title = document.createElement('strong');
+		title.textContent = item.title;
+		caption.append(title, document.createTextNode(` — ${item.desc}`));
+	}
 
-  document.querySelectorAll('.gallery-card').forEach(card => {
-    card.addEventListener('click', () => {
-      showItem(parseInt(card.getAttribute('data-index') || '0'));
-      openLightbox();
-    });
-  });
+	document.querySelectorAll('.gallery-card').forEach(card => {
+		card.addEventListener('click', () => {
+			showItem(parseInt(card.getAttribute('data-index') || '0', 10));
+			openLightbox();
+		});
+	});
 
-  document.querySelector('.lightbox-close')?.addEventListener('click', closeLightbox);
-  document.querySelector('.lightbox-prev')?.addEventListener('click', () => showItem(currentIndex - 1));
-  document.querySelector('.lightbox-next')?.addEventListener('click', () => showItem(currentIndex + 1));
+	document.querySelector('.lightbox-close')?.addEventListener('click', closeLightbox);
+	document.querySelector('.lightbox-prev')?.addEventListener('click', () => showItem(currentIndex - 1));
+	document.querySelector('.lightbox-next')?.addEventListener('click', () => showItem(currentIndex + 1));
 
-  lightbox?.addEventListener('click', (e) => {
-    if (e.target === lightbox) closeLightbox();
-  });
+	lightbox?.addEventListener('click', e => {
+		if (e.target === lightbox) {
+			closeLightbox();
+		}
+	});
 
-  document.addEventListener('keydown', (e) => {
-    if (lightbox?.style.display === 'none') return;
-    if (e.key === 'Escape') closeLightbox();
-    if (e.key === 'ArrowLeft') showItem(currentIndex - 1);
-    if (e.key === 'ArrowRight') showItem(currentIndex + 1);
-  });
+	document.addEventListener('keydown', e => {
+		if (lightbox?.style.display === 'none') return;
+		if (e.key === 'Escape') closeLightbox();
+		if (e.key === 'ArrowLeft') showItem(currentIndex - 1);
+		if (e.key === 'ArrowRight') showItem(currentIndex + 1);
+	});
 
-  // Gallery scroll arrows
-  const scrollEl = document.querySelector('#gallery .gallery-scroll');
-  const leftArr = document.querySelector('.gallery-arrow-left');
-  const rightArr = document.querySelector('.gallery-arrow-right');
+	const scrollEl = document.querySelector('#gallery .gallery-scroll');
+	const leftArr = document.querySelector('.gallery-arrow-left');
+	const rightArr = document.querySelector('.gallery-arrow-right');
 
-  function updateArrows() {
-    if (!scrollEl) return;
-    leftArr?.classList.toggle('hidden', scrollEl.scrollLeft <= 4);
-    rightArr?.classList.toggle('hidden',
-      scrollEl.scrollLeft >= scrollEl.scrollWidth - scrollEl.clientWidth - 4);
-  }
+	function updateArrows() {
+		if (!scrollEl) return;
+		leftArr?.classList.toggle('hidden', scrollEl.scrollLeft <= 4);
+		rightArr?.classList.toggle(
+			'hidden',
+			scrollEl.scrollLeft >= scrollEl.scrollWidth - scrollEl.clientWidth - 4,
+		);
+	}
 
-  leftArr?.addEventListener('click', () => {
-    scrollEl?.scrollBy({ left: -320, behavior: 'smooth' });
-  });
-  rightArr?.addEventListener('click', () => {
-    scrollEl?.scrollBy({ left: 320, behavior: 'smooth' });
-  });
+	leftArr?.addEventListener('click', () => {
+		scrollEl?.scrollBy({ left: -320, behavior: 'smooth' });
+	});
+	rightArr?.addEventListener('click', () => {
+		scrollEl?.scrollBy({ left: 320, behavior: 'smooth' });
+	});
 
-  scrollEl?.addEventListener('scroll', updateArrows, { passive: true });
-  window.addEventListener('resize', updateArrows);
-  updateArrows();
+	scrollEl?.addEventListener('scroll', updateArrows, { passive: true });
+	window.addEventListener('resize', updateArrows);
+	updateArrows();
 
-  // Lazy-load gallery videos
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      const video = entry.target;
-      if (entry.isIntersecting) {
-        const source = video.querySelector('source[data-src]');
-        if (source) {
-          source.setAttribute('src', source.getAttribute('data-src'));
-          source.removeAttribute('data-src');
-          video.load();
-        }
-        video.play().catch(() => {});
-      } else {
-        video.pause();
-      }
-    });
-  }, { threshold: 0.2 });
+	const observer = new IntersectionObserver(entries => {
+		entries.forEach(entry => {
+			const video = entry.target;
+			if (!(video instanceof HTMLVideoElement)) {
+				return;
+			}
+			if (entry.isIntersecting) {
+				const source = video.querySelector('source[data-src]');
+				if (source) {
+					const src = source.getAttribute('data-src');
+					if (src) {
+						source.setAttribute('src', src);
+						source.removeAttribute('data-src');
+						video.load();
+					}
+				}
+				video.play().catch(() => {});
+			} else {
+				video.pause();
+			}
+		});
+	}, { threshold: 0.2 });
 
-  document.querySelectorAll('#gallery .lazy-video').forEach(v => observer.observe(v));
+	document.querySelectorAll('#gallery .lazy-video').forEach(v => observer.observe(v));
 </script>
 
 <style>
-  /* Wrapper for arrows + scroll area */
-  .gallery-scroll-wrap {
-    position: relative;
-    margin-top: 3rem;
-  }
+	.gallery-scroll-wrap {
+		position: relative;
+		margin-top: 3rem;
+	}
 
-  /* Navigation arrows */
-  .gallery-arrow {
-    position: absolute;
-    top: 40%;
-    transform: translateY(-50%);
-    z-index: 10;
-    width: 40px; height: 40px;
-    border-radius: 50%;
-    background: rgba(12, 14, 20, 0.85);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: var(--text-primary);
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.25s;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
-  }
+	.gallery-arrow {
+		position: absolute;
+		top: 40%;
+		transform: translateY(-50%);
+		z-index: 10;
+		width: 40px; height: 40px;
+		border-radius: 50%;
+		background: rgba(12, 14, 20, 0.85);
+		backdrop-filter: blur(8px);
+		border: 1px solid rgba(255,255,255,0.1);
+		color: var(--text-primary);
+		cursor: pointer;
+		display: flex; align-items: center; justify-content: center;
+		transition: all 0.25s;
+		box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+	}
 
-  .gallery-arrow:hover {
-    background: rgba(20, 24, 36, 0.95);
-    border-color: rgba(255,255,255,0.2);
-    box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
-  }
+	.gallery-arrow:hover {
+		background: rgba(20, 24, 36, 0.95);
+		border-color: rgba(255,255,255,0.2);
+		box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
+	}
 
-  .gallery-arrow.hidden { opacity: 0; pointer-events: none; }
-  .gallery-arrow-left { left: -20px; }
-  .gallery-arrow-right { right: -20px; }
+	.gallery-arrow.hidden { opacity: 0; pointer-events: none; }
+	.gallery-arrow-left { left: -20px; }
+	.gallery-arrow-right { right: -20px; }
 
-  /* Horizontal scroll strip */
-  .gallery-scroll {
-    display: flex;
-    gap: 2.5rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding: 0 0.5rem 1.5rem;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.08) transparent;
-  }
+	.gallery-scroll {
+		display: flex;
+		gap: 2.5rem;
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		-webkit-overflow-scrolling: touch;
+		padding: 0 0.5rem 1.5rem;
+		scrollbar-width: thin;
+		scrollbar-color: rgba(255,255,255,0.08) transparent;
+	}
 
-  .gallery-scroll::-webkit-scrollbar { height: 6px; }
-  .gallery-scroll::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.1); border-radius: 3px;
-  }
+	.gallery-scroll::-webkit-scrollbar { height: 6px; }
+	.gallery-scroll::-webkit-scrollbar-thumb {
+		background: rgba(255,255,255,0.1); border-radius: 3px;
+	}
 
-  /* Groups */
-  .gallery-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    flex-shrink: 0;
-    scroll-snap-align: start;
-  }
+	.gallery-group {
+		display: flex;
+		flex-direction: column;
+		gap: 0.75rem;
+		flex-shrink: 0;
+		scroll-snap-align: start;
+	}
 
-  .gallery-group-label {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    font-weight: 600;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    padding-left: 0.25rem;
-  }
+	.gallery-group-label {
+		font-family: var(--font-mono);
+		font-size: 0.6rem;
+		font-weight: 600;
+		letter-spacing: 0.15em;
+		text-transform: uppercase;
+		color: var(--text-muted);
+		padding-left: 0.25rem;
+	}
 
-  .gallery-group-cards {
-    display: flex;
-    gap: 1.25rem;
-  }
+	.gallery-group-cards {
+		display: flex;
+		gap: 1.25rem;
+	}
 
-  /* Cards */
-  .gallery-card {
-    flex: 0 0 170px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    text-align: center;
-    color: inherit;
-    font: inherit;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.625rem;
-    transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
-  }
+	.gallery-card {
+		flex: 0 0 170px;
+		background: none;
+		border: none;
+		cursor: pointer;
+		text-align: center;
+		color: inherit;
+		font: inherit;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.625rem;
+		transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+	}
 
-  .gallery-card:hover { transform: translateY(-6px); }
+	.gallery-card:hover { transform: translateY(-6px); }
 
-  /* Phone frame */
-  .gallery-phone {
-    width: 100%;
-    background: #1a1d2b;
-    border-radius: 20px;
-    padding: 6px;
-    box-shadow:
-      0 0 0 1px rgba(255,255,255,0.06),
-      0 8px 30px rgba(0,0,0,0.4);
-    transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
-    position: relative;
-  }
+	.gallery-phone {
+		width: 100%;
+		background: #1a1d2b;
+		border-radius: 20px;
+		padding: 6px;
+		box-shadow:
+			0 0 0 1px rgba(255,255,255,0.06),
+			0 8px 30px rgba(0,0,0,0.4);
+		transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+		position: relative;
+	}
 
-  .gallery-phone::before {
-    content: '';
-    position: absolute;
-    top: -1px; left: 15%; right: 15%; height: 1px;
-    background: linear-gradient(90deg, transparent, var(--card-accent), transparent);
-    opacity: 0; transition: opacity 0.35s;
-    border-radius: 1px;
-  }
+	.gallery-phone::before {
+		content: '';
+		position: absolute;
+		top: -1px; left: 15%; right: 15%; height: 1px;
+		background: linear-gradient(90deg, transparent, var(--card-accent), transparent);
+		opacity: 0; transition: opacity 0.35s;
+		border-radius: 1px;
+	}
 
-  .gallery-card:hover .gallery-phone {
-    box-shadow:
-      0 0 0 1px rgba(255,255,255,0.1),
-      0 12px 40px rgba(0,0,0,0.5),
-      0 0 30px color-mix(in srgb, var(--card-accent) 10%, transparent);
-  }
+	.gallery-card:hover .gallery-phone {
+		box-shadow:
+			0 0 0 1px rgba(255,255,255,0.1),
+			0 12px 40px rgba(0,0,0,0.5),
+			0 0 30px color-mix(in srgb, var(--card-accent) 10%, transparent);
+	}
 
-  .gallery-card:hover .gallery-phone::before { opacity: 0.6; }
+	.gallery-card:hover .gallery-phone::before { opacity: 0.6; }
 
-  .gallery-screen {
-    border-radius: 15px;
-    overflow: hidden;
-    aspect-ratio: 9/19;
-    background: var(--bg-surface);
-    position: relative;
-  }
+	.gallery-screen {
+		border-radius: 15px;
+		overflow: hidden;
+		aspect-ratio: 9/19;
+		background: var(--bg-surface);
+		position: relative;
+	}
 
-  .gallery-screen video,
-  .gallery-screen img {
-    width: 100%; height: 100%; object-fit: cover;
-  }
+	.gallery-screen video,
+	.gallery-screen img {
+		width: 100%; height: 100%; object-fit: cover;
+	}
 
-  .gallery-play-badge {
-    position: absolute;
-    bottom: 0.5rem; right: 0.5rem;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(8px);
-    color: var(--accent-cyan);
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    font-weight: 600;
-    padding: 0.15rem 0.4rem;
-    border-radius: 999px;
-    display: flex; align-items: center; gap: 0.2rem;
-    letter-spacing: 0.05em;
-  }
+	.gallery-play-badge {
+		position: absolute;
+		bottom: 0.5rem; right: 0.5rem;
+		background: rgba(0,0,0,0.7);
+		backdrop-filter: blur(8px);
+		color: var(--accent-cyan);
+		font-family: var(--font-mono);
+		font-size: 0.55rem;
+		font-weight: 600;
+		padding: 0.15rem 0.4rem;
+		border-radius: 999px;
+		display: flex; align-items: center; gap: 0.2rem;
+		letter-spacing: 0.05em;
+	}
 
-  /* Card meta with icon */
-  .gallery-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-  }
+	.gallery-meta {
+		display: flex;
+		align-items: center;
+		gap: 0.35rem;
+	}
 
-  .gallery-icon {
-    color: var(--card-accent);
-    display: flex;
-    align-items: center;
-    opacity: 0.8;
-  }
+	.gallery-icon {
+		color: var(--card-accent);
+		display: flex;
+		align-items: center;
+		opacity: 0.8;
+	}
 
-  .gallery-title {
-    font-family: var(--font-display);
-    font-size: 0.8rem;
-    font-weight: 700;
-  }
+	.gallery-title {
+		font-family: var(--font-display);
+		font-size: 0.8rem;
+		font-weight: 700;
+	}
 
-  .gallery-desc {
-    font-size: 0.675rem;
-    color: var(--text-muted);
-    line-height: 1.45;
-    max-width: 170px;
-  }
+	.gallery-desc {
+		font-size: 0.675rem;
+		color: var(--text-muted);
+		line-height: 1.45;
+		max-width: 170px;
+	}
 
-  /* Lightbox */
-  .lightbox {
-    position: fixed; inset: 0; z-index: 2000;
-    background: rgba(0,0,0,0.92);
-    backdrop-filter: blur(16px);
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem;
-  }
+	.lightbox {
+		position: fixed; inset: 0; z-index: 2000;
+		background: rgba(0,0,0,0.92);
+		backdrop-filter: blur(16px);
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 2rem;
+	}
 
-  .lightbox-content {
-    max-width: 380px;
-    max-height: 80vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+	.lightbox-content {
+		max-width: 380px;
+		max-height: 80vh;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
 
-  .lightbox-content :global(img),
-  .lightbox-content :global(video) {
-    max-width: 100%;
-    max-height: 80vh;
-    border-radius: var(--radius-lg);
-    box-shadow: 0 0 80px rgba(0,229,255,0.08);
-  }
+	.lightbox-content :global(img),
+	.lightbox-content :global(video) {
+		max-width: 100%;
+		max-height: 80vh;
+		border-radius: var(--radius-lg);
+		box-shadow: 0 0 80px rgba(0,229,255,0.08);
+	}
 
-  .lightbox-caption {
-    margin-top: 1.25rem;
-    font-size: 0.875rem;
-    color: var(--text-secondary);
-    text-align: center;
-    max-width: 500px;
-    line-height: 1.5;
-  }
+	.lightbox-caption {
+		margin-top: 1.25rem;
+		font-size: 0.875rem;
+		color: var(--text-secondary);
+		text-align: center;
+		max-width: 500px;
+		line-height: 1.5;
+	}
 
-  .lightbox-caption :global(strong) { color: var(--text-primary); }
+	.lightbox-caption :global(strong) { color: var(--text-primary); }
 
-  .lightbox-close, .lightbox-prev, .lightbox-next {
-    position: absolute;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: white; cursor: pointer; border-radius: 50%;
-    width: 44px; height: 44px;
-    display: flex; align-items: center; justify-content: center;
-    transition: background 0.2s;
-  }
+	.lightbox-close, .lightbox-prev, .lightbox-next {
+		position: absolute;
+		background: rgba(255,255,255,0.06);
+		border: 1px solid rgba(255,255,255,0.1);
+		color: white; cursor: pointer; border-radius: 50%;
+		width: 44px; height: 44px;
+		display: flex; align-items: center; justify-content: center;
+		transition: background 0.2s;
+	}
 
-  .lightbox-close:hover, .lightbox-prev:hover, .lightbox-next:hover {
-    background: rgba(255,255,255,0.12);
-  }
+	.lightbox-close:hover, .lightbox-prev:hover, .lightbox-next:hover {
+		background: rgba(255,255,255,0.12);
+	}
 
-  .lightbox-close { top: 1.5rem; right: 1.5rem; }
-  .lightbox-prev { left: 1.5rem; top: 50%; transform: translateY(-50%); }
-  .lightbox-next { right: 1.5rem; top: 50%; transform: translateY(-50%); }
+	.lightbox-close { top: 1.5rem; right: 1.5rem; }
+	.lightbox-prev { left: 1.5rem; top: 50%; transform: translateY(-50%); }
+	.lightbox-next { right: 1.5rem; top: 50%; transform: translateY(-50%); }
 
-  @media (max-width: 768px) {
-    .gallery-arrow { display: none; }
-    .gallery-card { flex: 0 0 145px; }
-    .gallery-desc { display: none; }
-    .gallery-scroll { gap: 2rem; }
-    .gallery-group-cards { gap: 1rem; }
-    .lightbox { padding: 1rem; }
-    .lightbox-content { max-width: 85vw; }
-  }
+	@media (max-width: 768px) {
+		.gallery-arrow { display: none; }
+		.gallery-card { flex: 0 0 145px; }
+		.gallery-desc { display: none; }
+		.gallery-scroll { gap: 2rem; }
+		.gallery-group-cards { gap: 1rem; }
+		.lightbox { padding: 1rem; }
+		.lightbox-content { max-width: 85vw; }
+	}
 </style>

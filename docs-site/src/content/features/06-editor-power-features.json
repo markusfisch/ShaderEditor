@@ -1,0 +1,11 @@
+{
+  "order": 6,
+  "icon": "code",
+  "title": "Editor Power Features",
+  "desc": "Undo/redo, completions, bracket pairing, and ShaderToy import.",
+  "detail": "Completions appear above the keyboard as you type. Auto-indenting and bracket pairing keep your code tidy. Paste ShaderToy code and it auto-converts to ShaderEditor uniforms. Several coding fonts with ligature support are included.",
+  "media": "media/feat-editor.webm",
+  "mediaType": "video",
+  "poster": "media/feat-editor.webp",
+  "accent": "cyan"
+}

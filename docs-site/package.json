@@ -12,8 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@lucide/astro": "^1.8.0",
     "astro": "^6.1.5",
-    "lucide-static": "^1.8.0",
     "typescript": "^6.0.2"
   }
 }
