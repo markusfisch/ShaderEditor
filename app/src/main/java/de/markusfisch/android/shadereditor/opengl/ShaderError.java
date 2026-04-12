@@ -50,10 +50,19 @@ public class ShaderError {
 	public static List<ShaderError> parseAll(
 			@NonNull String infoLog,
 			int silentlyAddedExtraLines) {
+		return parseAll(
+				infoLog,
+				ShaderLineMapping.withLeadingInsertedLines(silentlyAddedExtraLines));
+	}
+
+	@NonNull
+	static List<ShaderError> parseAll(
+			@NonNull String infoLog,
+			@NonNull ShaderLineMapping lineMapping) {
 		String[] messages = infoLog.split("\n");
 		List<ShaderError> shaderErrors = new ArrayList<>(messages.length);
 		for (String message : messages) {
-			shaderErrors.add(parse(message, silentlyAddedExtraLines));
+			shaderErrors.add(parse(message, lineMapping));
 		}
 		return shaderErrors;
 	}
@@ -67,6 +76,15 @@ public class ShaderError {
 	public static ShaderError parse(
 			@NonNull String message,
 			int silentlyAddedExtraLines) {
+		return parse(
+				message,
+				ShaderLineMapping.withLeadingInsertedLines(silentlyAddedExtraLines));
+	}
+
+	@NonNull
+	static ShaderError parse(
+			@NonNull String message,
+			@NonNull ShaderLineMapping lineMapping) {
 		Matcher matcher = ERROR_PATTERN.matcher(message);
 		if (!matcher.matches()) {
 			return ShaderError.createGeneral(message);
@@ -80,9 +98,8 @@ public class ShaderError {
 		if (errorLineString == null) {
 			return ShaderError.createGeneral(message);
 		}
-		int errorLine = Math.max(
-				Integer.parseInt(errorLineString) - silentlyAddedExtraLines,
-				-1);
+		int errorLine = lineMapping.toSourceLine(
+				Integer.parseInt(errorLineString));
 		String infoLog = Objects.requireNonNull(matcher.group(3));
 		return new ShaderError(sourceStringNumber, errorLine, infoLog);
 	}

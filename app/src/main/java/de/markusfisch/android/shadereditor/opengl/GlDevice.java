@@ -286,11 +286,11 @@ final class GlDevice {
 	GlProgramBuildResult createProgram(
 			@NonNull String vertexSource,
 			@NonNull String fragmentSource,
-			int fragmentExtraLines) {
+			@NonNull ShaderLineMapping fragmentLineMapping) {
 		ShaderCompileResult vertexCompile = compileShader(
 				GLES20.GL_VERTEX_SHADER,
 				vertexSource,
-				0);
+				ShaderLineMapping.identity());
 		if (vertexCompile.shader == null) {
 			return GlProgramBuildResult.failure(vertexCompile.infoLog);
 		}
@@ -298,7 +298,7 @@ final class GlDevice {
 		ShaderCompileResult fragmentCompile = compileShader(
 				GLES20.GL_FRAGMENT_SHADER,
 				fragmentSource,
-				fragmentExtraLines);
+				fragmentLineMapping);
 		if (fragmentCompile.shader == null) {
 			deleteShader(vertexCompile.shader);
 			return GlProgramBuildResult.failure(fragmentCompile.infoLog);
@@ -324,7 +324,7 @@ final class GlDevice {
 		if (linkStatus[0] != GLES20.GL_TRUE) {
 			List<ShaderError> infoLog = ShaderError.parseAll(
 					GLES20.glGetProgramInfoLog(programId),
-					fragmentExtraLines);
+					fragmentLineMapping);
 			GLES20.glDeleteProgram(programId);
 			return GlProgramBuildResult.failure(infoLog);
 		}
@@ -522,7 +522,7 @@ final class GlDevice {
 	@Nullable
 	private ShaderCompileResult compileShader(int type,
 			@NonNull String source,
-			int extraLines) {
+			@NonNull ShaderLineMapping lineMapping) {
 		int shaderId = GLES20.glCreateShader(type);
 		if (shaderId == 0) {
 			return new ShaderCompileResult(
@@ -538,7 +538,7 @@ final class GlDevice {
 		if (compiled[0] == 0) {
 			List<ShaderError> infoLog = ShaderError.parseAll(
 					GLES20.glGetShaderInfoLog(shaderId),
-					extraLines);
+					lineMapping);
 			GLES20.glDeleteShader(shaderId);
 			return new ShaderCompileResult(null, infoLog);
 		}
