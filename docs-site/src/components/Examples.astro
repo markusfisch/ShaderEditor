@@ -1,0 +1,411 @@
+---
+import { Code } from 'astro:components';
+import { getCollection, render } from 'astro:content';
+import Icon from './Icon.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const groupMeta = [
+	{ id: 'basics', label: 'Basics', icon: 'clock', badge: 'badge-cyan' },
+	{ id: 'input', label: 'Input & Sensors', icon: 'hand', badge: 'badge-magenta' },
+	{ id: 'camera', label: 'Camera & System', icon: 'camera', badge: 'badge-violet' },
+	{ id: 'backbuffer', label: 'Backbuffer', icon: 'layers', badge: 'badge-cyan' },
+	{ id: 'advanced', label: 'Advanced', icon: 'sparkles', badge: 'badge-magenta' },
+] as const;
+
+const entries = await getCollection('walkthroughs');
+const items = await Promise.all(entries.map(async entry => {
+	const { Content } = await render(entry);
+	return {
+		id: entry.id,
+		...entry.data,
+		Content,
+		video: entry.data.video ? `${base}${entry.data.video}` : undefined,
+		poster: entry.data.poster ? `${base}${entry.data.poster}` : undefined,
+	};
+}));
+
+const groups = groupMeta
+	.map(meta => ({
+		...meta,
+		items: items
+			.filter(item => item.group === meta.id)
+			.sort((a, b) => a.order - b.order),
+	}))
+	.filter(group => group.items.length > 0);
+---
+
+<div class="examples-content" id="examples-content">
+	<div class="container">
+		<div class="ex-tabs" role="tablist">
+			{groups.map((g, i) => (
+				<button
+					class={`ex-tab ${i === 0 ? 'active' : ''}`}
+					role="tab"
+					data-tab={g.id}
+					aria-selected={i === 0 ? 'true' : 'false'}
+				>
+					<Icon name={g.icon} size={15} />
+					<span class={`badge ${g.badge}`}>{g.label}</span>
+					<span class="ex-tab-count">{g.items.length}</span>
+				</button>
+			))}
+		</div>
+
+		<div class="ex-panels">
+			{groups.map((g, i) => (
+				<div
+					class={`ex-panel ${i === 0 ? 'active' : ''}`}
+					role="tabpanel"
+					data-panel={g.id}
+				>
+					{g.items.map(item => {
+						const Walkthrough = item.Content;
+						return (
+							<details class="ex-card">
+								<summary class="ex-summary">
+									{item.poster && (
+										<div class="ex-thumb">
+											<img src={item.poster} alt="" loading="lazy" />
+										</div>
+									)}
+									<div class="ex-meta">
+										<code class="ex-name">{item.name}</code>
+										<p class="ex-desc">{item.desc}</p>
+									</div>
+									<span class="ex-chevron"><Icon name="chevron-down" size={16} /></span>
+								</summary>
+
+								<div class="ex-body">
+									<div class={`ex-layout ${item.video ? 'has-preview' : ''}`}>
+										{item.video && (
+											<div class="ex-preview-col">
+												<video
+													class="ex-video"
+													loop muted playsinline preload="none"
+													poster={item.poster}
+													data-src={item.video}
+												>
+													<source data-src={item.video} type="video/webm" />
+												</video>
+											</div>
+										)}
+										<div class="ex-main-col">
+											<div class="ex-walkthrough">
+												<Walkthrough />
+											</div>
+
+											{item.links.length > 0 && (
+												<div class="ex-links">
+													{item.links.map(link => (
+														<a href={link.href} target="_blank" rel="noopener noreferrer" class="ex-link">
+															<Icon name="external-link" size={12} />
+															{link.label}
+														</a>
+													))}
+												</div>
+											)}
+
+											<div class="ex-code-col">
+												<div class="ex-code-wrap">
+													<div class="ex-code-header">
+														<span><Icon name="file-code" size={13} /> Fragment Shader</span>
+														<button class="ex-copy" data-code={item.code} aria-label="Copy">
+															<Icon name="copy" size={12} />
+															<span class="ex-copy-label" data-copy-label>Copy</span>
+														</button>
+													</div>
+													<div class="ex-code-block">
+														<Code code={item.code} lang="glsl" theme="github-dark" />
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</details>
+						);
+					})}
+				</div>
+			))}
+		</div>
+	</div>
+</div>
+
+<script>
+	document.querySelectorAll('.ex-tab').forEach(tab => {
+		tab.addEventListener('click', () => {
+			const id = tab.getAttribute('data-tab');
+			document.querySelectorAll('.ex-tab').forEach(t => {
+				t.classList.remove('active');
+				t.setAttribute('aria-selected', 'false');
+			});
+			document.querySelectorAll('.ex-panel').forEach(p => p.classList.remove('active'));
+			tab.classList.add('active');
+			tab.setAttribute('aria-selected', 'true');
+			document.querySelector(`[data-panel="${id}"]`)?.classList.add('active');
+		});
+	});
+
+	document.querySelectorAll('.ex-copy').forEach(btn => {
+		btn.addEventListener('click', async e => {
+			e.stopPropagation();
+			const button = e.currentTarget;
+			if (!(button instanceof HTMLButtonElement)) {
+				return;
+			}
+			const code = button.getAttribute('data-code') || '';
+			await navigator.clipboard.writeText(code);
+			const label = button.querySelector('[data-copy-label]');
+			if (!label) return;
+			const resetId = button.dataset.resetId;
+			if (resetId) {
+				window.clearTimeout(Number(resetId));
+			}
+			label.textContent = 'Copied!';
+			button.dataset.copied = 'true';
+			button.dataset.resetId = String(window.setTimeout(() => {
+				label.textContent = 'Copy';
+				delete button.dataset.copied;
+				delete button.dataset.resetId;
+			}, 1500));
+		});
+	});
+
+	document.querySelectorAll('.ex-card').forEach(det => {
+		det.addEventListener('toggle', () => {
+			if (!det.open) return;
+			const video = det.querySelector('.ex-video');
+			if (!(video instanceof HTMLVideoElement)) return;
+			const source = video.querySelector('source[data-src]');
+			if (source) {
+				const src = source.getAttribute('data-src');
+				if (src) {
+					source.setAttribute('src', src);
+					source.removeAttribute('data-src');
+					video.load();
+				}
+			}
+			video.play().catch(() => {});
+		});
+	});
+</script>
+
+<style>
+	.examples-content { margin-top: 2rem; }
+
+	/* ── Tabs ── */
+	.ex-tabs {
+		display: flex; gap: 0.375rem; flex-wrap: wrap;
+		border-bottom: 1px solid rgba(255,255,255,0.06);
+		margin-bottom: 1.25rem;
+	}
+	.ex-tab {
+		display: flex; align-items: center; gap: 0.5rem;
+		padding: 0.75rem 1rem;
+		background: none; border: none;
+		border-bottom: 2px solid transparent;
+		cursor: pointer; transition: all 0.2s;
+		color: var(--text-secondary);
+		position: relative; bottom: -1px;
+	}
+	.ex-tab:hover { color: var(--text-primary); }
+	.ex-tab.active { border-bottom-color: var(--accent-cyan); color: var(--text-primary); }
+	.ex-tab-count {
+		font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted);
+	}
+
+	/* ── Panels ── */
+	.ex-panel { display: none; }
+	.ex-panel.active { display: flex; flex-direction: column; gap: 0.625rem; }
+
+	/* ── Card (collapsed) ── */
+	.ex-card {
+		background: var(--bg-card);
+		border: 1px solid rgba(255,255,255,0.04);
+		border-radius: var(--radius-md);
+		transition: border-color 0.2s;
+	}
+	.ex-card:hover { border-color: rgba(255,255,255,0.08); }
+	.ex-card[open] { border-color: rgba(0, 229, 255, 0.1); }
+
+	.ex-summary {
+		display: flex; align-items: center; gap: 0.875rem;
+		padding: 0.875rem 1.125rem;
+		cursor: pointer; list-style: none;
+		transition: background 0.2s;
+	}
+	.ex-summary::-webkit-details-marker { display: none; }
+	.ex-summary:hover { background: rgba(255,255,255,0.015); }
+
+	.ex-thumb {
+		width: 32px; flex-shrink: 0;
+		border-radius: 6px; overflow: hidden;
+		aspect-ratio: 9/16;
+		background: var(--bg-surface);
+		box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 2px 6px rgba(0,0,0,0.25);
+	}
+	.ex-thumb img { width: 100%; height: 100%; object-fit: cover; }
+	.ex-card[open] .ex-thumb { display: none; }
+
+	.ex-meta { flex: 1; min-width: 0; }
+	.ex-name {
+		font-family: var(--font-mono); font-size: 0.85rem;
+		font-weight: 600; color: var(--accent-cyan);
+		display: block; margin-bottom: 0.125rem;
+	}
+	.ex-desc {
+		font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;
+		overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+	}
+	.ex-card[open] .ex-desc { white-space: normal; }
+
+	.ex-chevron {
+		color: var(--text-muted); flex-shrink: 0;
+		transition: transform 0.3s;
+	}
+	.ex-card[open] .ex-chevron { transform: rotate(180deg); color: var(--accent-cyan); }
+
+	/* ── Body (expanded) ── */
+	.ex-body {
+		border-top: 1px solid rgba(255,255,255,0.04);
+		padding: 1.25rem 1.125rem;
+	}
+
+	/* ── Walkthrough ── */
+	.ex-walkthrough {
+		font-size: 0.825rem; color: var(--text-secondary); line-height: 1.8;
+	}
+	.ex-walkthrough :global(p) { margin: 0 0 0.6rem; }
+	.ex-walkthrough :global(p:last-child) { margin-bottom: 0; }
+	.ex-walkthrough :global(strong) { color: var(--text-primary); font-weight: 600; }
+	.ex-walkthrough :global(code) {
+		font-family: var(--font-mono); font-size: 0.75rem;
+		background: rgba(0, 229, 255, 0.07);
+		color: var(--accent-cyan);
+		padding: 0.1rem 0.35rem; border-radius: 3px;
+	}
+	.ex-walkthrough :global(ul),
+	.ex-walkthrough :global(ol) {
+		margin: 0.25rem 0 0.75rem;
+		padding-left: 1.25rem;
+	}
+	.ex-walkthrough :global(li) { margin: 0 0 0.35rem; }
+	.ex-walkthrough :global(li:last-child) { margin-bottom: 0; }
+	.ex-walkthrough :global(a) {
+		color: var(--accent-cyan);
+		text-decoration: underline;
+		text-decoration-color: rgba(0, 229, 255, 0.25);
+		text-underline-offset: 2px;
+	}
+
+	/* ── Links ── */
+	.ex-links {
+		display: flex; gap: 0.5rem 1.25rem; flex-wrap: wrap;
+	}
+	.ex-link {
+		font-size: 0.725rem; color: var(--accent-cyan);
+		display: inline-flex; align-items: center; gap: 0.3rem;
+		text-decoration: underline;
+		text-decoration-color: rgba(0, 229, 255, 0.25);
+		text-underline-offset: 2px;
+		transition: text-decoration-color 0.2s;
+	}
+	.ex-link:hover { text-decoration-color: var(--accent-cyan); }
+
+	/* ── Media: video + code ── */
+	.ex-layout.has-preview {
+		display: grid;
+		grid-template-columns: 180px 1fr;
+		gap: 1.25rem;
+		align-items: start;
+	}
+	.ex-preview-col {
+		position: sticky;
+		top: 88px;
+	}
+	.ex-preview-col video {
+		width: 100%;
+		aspect-ratio: 9/16;
+		object-fit: cover;
+		border-radius: var(--radius-sm);
+		box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+	}
+	.ex-main-col {
+		min-width: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+	}
+	.ex-code-col { min-width: 0; }
+
+	/* ── Code block ── */
+	.ex-code-wrap {
+		border: 1px solid rgba(255,255,255,0.06);
+		border-radius: var(--radius-sm);
+		overflow: hidden;
+	}
+	.ex-code-header {
+		background: rgba(255,255,255,0.03);
+		padding: 0.4rem 0.75rem;
+		font-family: var(--font-mono); font-size: 0.575rem;
+		color: var(--text-muted);
+		text-transform: uppercase; letter-spacing: 0.08em;
+		border-bottom: 1px solid rgba(255,255,255,0.04);
+		display: flex; align-items: center; justify-content: space-between;
+	}
+	.ex-code-header span {
+		display: flex; align-items: center; gap: 0.35rem;
+	}
+	.ex-copy {
+		display: flex; align-items: center; gap: 0.25rem;
+		background: rgba(255,255,255,0.05);
+		border: 1px solid rgba(255,255,255,0.08);
+		color: var(--text-secondary);
+		font-family: var(--font-mono); font-size: 0.55rem;
+		padding: 0.175rem 0.45rem; border-radius: 4px;
+		cursor: pointer; transition: all 0.2s;
+		text-transform: uppercase; letter-spacing: 0.05em;
+	}
+	.ex-copy:hover {
+		background: rgba(255,255,255,0.1); color: var(--text-primary);
+	}
+	.ex-copy[data-copied='true'] {
+		color: var(--accent-cyan);
+		border-color: rgba(0, 229, 255, 0.25);
+	}
+	.ex-code-block {
+		max-height: 380px; overflow: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+	.ex-code-block :global(pre) {
+		margin: 0 !important; border-radius: 0 !important;
+		padding: 0.75rem 1rem !important;
+		font-size: 0.725rem !important; line-height: 1.7 !important;
+		overflow-x: auto !important;
+	}
+	.ex-code-block :global(code) {
+		font-family: var(--font-mono) !important;
+		white-space: pre !important;
+		word-break: normal !important;
+		display: block !important;
+		width: max-content !important;
+		min-width: 100% !important;
+	}
+
+	/* ── Responsive ── */
+	@media (max-width: 768px) {
+		.ex-tab { padding: 0.5rem 0.6rem; }
+		.ex-tab .badge { font-size: 0.575rem; padding: 0.175rem 0.35rem; }
+		.ex-tab .icon { display: none; }
+		.ex-layout.has-preview {
+			grid-template-columns: 1fr;
+		}
+		.ex-preview-col {
+			position: static;
+			max-width: 180px;
+			order: -1;
+		}
+		.ex-code-block :global(pre) { font-size: 0.65rem !important; }
+	}
+</style>

@@ -1,0 +1,11 @@
+{
+  "order": 7,
+  "icon": "hand",
+  "title": "Multi-Touch & Interaction",
+  "desc": "Up to 10 simultaneous touch points as vec3 uniforms.",
+  "detail": "Each pointer provides (x, y, size). Plus touch, touchStart, mouse uniforms. Use for painting, sculpting, or interactive art.",
+  "media": "media/feat-touch.webm",
+  "mediaType": "video",
+  "poster": "media/feat-touch.webp",
+  "accent": "magenta"
+}

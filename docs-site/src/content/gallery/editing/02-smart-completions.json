@@ -1,0 +1,11 @@
+{
+  "group": "editing",
+  "order": 2,
+  "title": "Smart completions",
+  "desc": "Context-aware completions above the keyboard with bracket keys and identifiers.",
+  "icon": "keyboard",
+  "accent": "magenta",
+  "src": "media/screen-keyboard.webm",
+  "type": "video",
+  "poster": "media/screen-keyboard.webp"
+}

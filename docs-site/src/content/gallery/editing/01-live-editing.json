@@ -1,0 +1,11 @@
+{
+  "group": "editing",
+  "order": 1,
+  "title": "Live editing",
+  "desc": "Type GLSL and watch the shader update behind the editor in real-time.",
+  "icon": "code",
+  "accent": "cyan",
+  "src": "media/screen-editor.webm",
+  "type": "video",
+  "poster": "media/screen-editor.webp"
+}

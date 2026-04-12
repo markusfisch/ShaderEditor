@@ -1,0 +1,11 @@
+{
+  "order": 4,
+  "icon": "camera",
+  "title": "Camera as Texture",
+  "desc": "Front and back camera feeds as live shader textures.",
+  "detail": "Automatic orientation correction for portrait and landscape. Use the camera feed as input for edge detection, color grading, distortion, or AR-style effects — all in real time.",
+  "media": "media/feat-camera.webm",
+  "mediaType": "video",
+  "poster": "media/feat-camera.webp",
+  "accent": "lime"
+}

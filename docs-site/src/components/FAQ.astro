@@ -1,0 +1,193 @@
+---
+import { getCollection, render } from 'astro:content';
+
+const faq = await Promise.all(
+	(await getCollection('faq'))
+		.sort((a, b) => a.data.order - b.data.order)
+		.map(async entry => ({
+			...entry.data,
+			Content: (await render(entry)).Content,
+		})),
+);
+---
+
+<section class="section" id="faq">
+	<div class="container">
+		<span class="section-label">FAQ</span>
+		<h2 class="section-title">Common questions</h2>
+		<div class="faq-doc">
+			{faq.map((item, index) => {
+				const Answer = item.Content;
+				return (
+					<details class="faq-item" open={index === 0}>
+						<summary set:html={item.questionHtml} />
+						<div class="faq-answer">
+							<Answer />
+						</div>
+					</details>
+				);
+			})}
+		</div>
+	</div>
+</section>
+
+<style>
+	.faq-doc {
+		max-width: 800px;
+		margin-top: 3rem;
+		color: var(--text-secondary);
+		font-size: 0.875rem;
+		line-height: 1.8;
+	}
+
+	.faq-item {
+		background: var(--bg-card);
+		border: 1px solid rgba(255, 255, 255, 0.05);
+		border-radius: var(--radius-md);
+		padding: 0 1.5rem;
+		overflow: hidden;
+		transition: border-color 0.3s;
+	}
+
+	.faq-item + .faq-item {
+		margin-top: 0.5rem;
+	}
+
+	.faq-item[open] {
+		border-color: rgba(0, 229, 255, 0.15);
+		padding-bottom: 1.25rem;
+	}
+
+	.faq-item summary {
+		display: block;
+		position: relative;
+		margin: 0 -1.5rem;
+		padding: 1.125rem 3.25rem 1.125rem 1.5rem;
+		cursor: pointer;
+		list-style: none;
+		transition: background 0.2s;
+	}
+
+	.faq-item summary:hover {
+		background: rgba(255, 255, 255, 0.02);
+	}
+
+	.faq-item summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.faq-item summary::marker {
+		content: '';
+	}
+
+	.faq-item summary::after {
+		content: '';
+		position: absolute;
+		right: 1.5rem;
+		top: 50%;
+		width: 1rem;
+		height: 1rem;
+		transform: translateY(-50%);
+		background-color: var(--text-muted);
+		transition: transform 0.3s, background-color 0.3s;
+		-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+		mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") center / contain no-repeat;
+	}
+
+	.faq-item[open] summary::after {
+		transform: translateY(-50%) rotate(180deg);
+		background-color: var(--accent-cyan);
+	}
+
+	.faq-item[open] summary {
+		margin-bottom: 1rem;
+	}
+
+	.faq-item summary {
+		font-family: var(--font-display);
+		font-size: 0.9rem;
+		line-height: 1.5;
+		font-weight: 600;
+		color: var(--text-primary);
+	}
+
+	.faq-item summary :global(code) {
+		display: inline;
+		white-space: nowrap;
+		vertical-align: baseline;
+		font-family: var(--font-mono);
+		font-size: 0.8rem;
+		background: rgba(0, 229, 255, 0.08);
+		color: var(--accent-cyan);
+		padding: 0.15rem 0.5rem;
+		border-radius: 4px;
+	}
+
+	.faq-answer :global(h3) {
+		font-family: var(--font-mono);
+		font-size: 0.75rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--accent-cyan);
+		margin: 1.25rem 0 0.5rem;
+	}
+
+	.faq-answer :global(p) {
+		margin: 0 0 0.85rem;
+	}
+
+	.faq-answer :global(p:last-child) {
+		margin-bottom: 0;
+	}
+
+	.faq-answer :global(ul),
+	.faq-answer :global(ol) {
+		margin: 0.25rem 0 1rem;
+		padding-left: 1.25rem;
+	}
+
+	.faq-answer :global(li) {
+		margin: 0 0 0.35rem;
+	}
+
+	.faq-answer :global(li:last-child) {
+		margin-bottom: 0;
+	}
+
+	.faq-answer :global(pre) {
+		margin: 0.85rem 0 1rem;
+		border-radius: var(--radius-sm);
+		overflow: auto;
+	}
+
+	.faq-answer :global(code) {
+		font-family: var(--font-mono);
+		font-size: 0.775rem;
+		background: rgba(0, 229, 255, 0.08);
+		color: var(--accent-cyan);
+		padding: 0.15rem 0.5rem;
+		border-radius: 4px;
+	}
+
+	.faq-answer :global(pre code) {
+		background: transparent;
+		padding: 0;
+		border-radius: 0;
+	}
+
+	.faq-answer :global(a) {
+		color: var(--accent-cyan);
+		text-decoration: underline;
+		text-decoration-color: rgba(0, 229, 255, 0.3);
+		text-underline-offset: 3px;
+	}
+
+	.faq-answer :global(a:hover) {
+		text-decoration-color: var(--accent-cyan);
+	}
+
+	.faq-answer :global(strong) {
+		color: var(--text-primary);
+	}
+</style>

@@ -1,0 +1,11 @@
+{
+  "group": "library",
+  "order": 1,
+  "title": "Shader library",
+  "desc": "Side drawer with saved shaders and live-rendered thumbnails.",
+  "icon": "library",
+  "accent": "lime",
+  "src": "media/screen-shaderlist.webm",
+  "type": "video",
+  "poster": "media/screen-shaderlist.webp"
+}

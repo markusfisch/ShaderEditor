@@ -1,0 +1,11 @@
+{
+  "order": 3,
+  "icon": "wallpaper",
+  "title": "Live Wallpaper",
+  "desc": "Set any shader as your Android live wallpaper with one tap.",
+  "detail": "Battery-aware rendering automatically pauses when power is low. Your wallpaper responds to home screen paging via the offset uniform, and you can keep editing while your wallpaper runs.",
+  "media": "media/feat-wallpaper.webm",
+  "mediaType": "video",
+  "poster": "media/feat-wallpaper.webp",
+  "accent": "violet"
+}

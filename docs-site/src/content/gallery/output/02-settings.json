@@ -1,0 +1,11 @@
+{
+  "group": "output",
+  "order": 2,
+  "title": "Settings",
+  "desc": "Fonts, ligatures, tab width, line numbers, run mode, and more.",
+  "icon": "settings",
+  "accent": "violet",
+  "src": "media/screen-settings.webm",
+  "type": "video",
+  "poster": "media/screen-settings.webp"
+}

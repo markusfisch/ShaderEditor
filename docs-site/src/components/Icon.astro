@@ -1,0 +1,74 @@
+---
+import Zap from '@lucide/astro/icons/zap';
+import Palette from '@lucide/astro/icons/palette';
+import Wallpaper from '@lucide/astro/icons/wallpaper';
+import Camera from '@lucide/astro/icons/camera';
+import Layers from '@lucide/astro/icons/layers';
+import Code from '@lucide/astro/icons/code';
+import Hand from '@lucide/astro/icons/hand';
+import Volume2 from '@lucide/astro/icons/volume-2';
+import Clock from '@lucide/astro/icons/clock';
+import Cpu from '@lucide/astro/icons/cpu';
+import Settings from '@lucide/astro/icons/settings';
+import Download from '@lucide/astro/icons/download';
+import Play from '@lucide/astro/icons/play';
+import ChevronDown from '@lucide/astro/icons/chevron-down';
+import ChevronLeft from '@lucide/astro/icons/chevron-left';
+import ChevronRight from '@lucide/astro/icons/chevron-right';
+import X from '@lucide/astro/icons/x';
+import Copy from '@lucide/astro/icons/copy';
+import ExternalLink from '@lucide/astro/icons/external-link';
+import BookOpen from '@lucide/astro/icons/book-open';
+import FileCode from '@lucide/astro/icons/file-code';
+import Terminal from '@lucide/astro/icons/terminal';
+import Keyboard from '@lucide/astro/icons/keyboard';
+import TriangleAlert from '@lucide/astro/icons/triangle-alert';
+import Library from '@lucide/astro/icons/library';
+import Image from '@lucide/astro/icons/image';
+import SlidersHorizontal from '@lucide/astro/icons/sliders-horizontal';
+import Sparkles from '@lucide/astro/icons/sparkles';
+
+const icons = {
+	zap: Zap,
+	palette: Palette,
+	wallpaper: Wallpaper,
+	camera: Camera,
+	layers: Layers,
+	code: Code,
+	hand: Hand,
+	'volume-2': Volume2,
+	clock: Clock,
+	cpu: Cpu,
+	settings: Settings,
+	download: Download,
+	play: Play,
+	'chevron-down': ChevronDown,
+	'chevron-left': ChevronLeft,
+	'chevron-right': ChevronRight,
+	x: X,
+	copy: Copy,
+	'external-link': ExternalLink,
+	'book-open': BookOpen,
+	'file-code': FileCode,
+	terminal: Terminal,
+	keyboard: Keyboard,
+	'alert-triangle': TriangleAlert,
+	library: Library,
+	image: Image,
+	'sliders-horizontal': SlidersHorizontal,
+	sparkles: Sparkles,
+} as const;
+
+interface Props {
+	name: keyof typeof icons;
+	size?: number;
+	class?: string;
+	strokeWidth?: number;
+}
+
+const { name, size = 24, class: cls = '', strokeWidth = 2 } = Astro.props;
+const SvgIcon = icons[name];
+const className = cls ? `icon ${cls}` : 'icon';
+---
+
+{SvgIcon && <SvgIcon size={size} class={className} stroke-width={strokeWidth} aria-hidden="true" />}
