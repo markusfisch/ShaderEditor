@@ -264,7 +264,7 @@ h1, h2, h3, h4, h5, h6 {
   position: relative;
 }
 
-/* Shiki code blocks */
+/* Shiki code blocks — ensure background extends with scrollable content */
 :global(.astro-code) {
   overflow-x: auto !important;
   -webkit-overflow-scrolling: touch;
@@ -274,6 +274,9 @@ h1, h2, h3, h4, h5, h6 {
   white-space: pre !important;
   word-break: normal !important;
   overflow-wrap: normal !important;
+  display: block !important;
+  width: max-content !important;
+  min-width: 100% !important;
 }
 
 /* ─── Lucide icons ─── */
@@ -353,6 +356,11 @@ h1, h2, h3, h4, h5, h6 {
 ::selection {
   background: rgba(0, 229, 255, 0.3);
   color: white;
+}
+
+/* ─── Unified Examples Section ─── */
+.examples-section {
+  background: linear-gradient(180deg, transparent, rgba(0, 229, 255, 0.008) 30%, rgba(0, 229, 255, 0.008) 70%, transparent);
 }
 
 /* ─── Responsive ─── */

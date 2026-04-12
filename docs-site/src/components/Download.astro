@@ -1,4 +1,5 @@
 ---
+const base = import.meta.env.BASE_URL;
 ---
 
 <section class="section download-section" id="download">
@@ -18,24 +19,22 @@
           href="https://f-droid.org/en/packages/de.markusfisch.android.shadereditor/"
           target="_blank"
           rel="noopener noreferrer"
-          class="download-badge"
+          class="download-badge download-badge-fdroid"
         >
           <img
-            src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png"
+            src={`${base}media/badge-fdroid.svg`}
             alt="Get it on F-Droid"
-            height="72"
           />
         </a>
         <a
           href="https://play.google.com/store/apps/details?id=de.markusfisch.android.shadereditor"
           target="_blank"
           rel="noopener noreferrer"
-          class="download-badge"
+          class="download-badge download-badge-gplay"
         >
           <img
-            src="https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png"
+            src={`${base}media/badge-google-play.svg`}
             alt="Get it on Google Play"
-            height="72"
           />
         </a>
       </div>
@@ -48,7 +47,7 @@
         <div class="meta-divider"></div>
         <div class="meta-item">
           <span class="meta-label">Android</span>
-          <span class="meta-value">6.0+ (API 23)</span>
+          <span class="meta-value">Android 6.0+</span>
         </div>
         <div class="meta-divider"></div>
         <div class="meta-item">
@@ -131,6 +130,11 @@
     flex-wrap: wrap;
     margin-bottom: 2.5rem;
     position: relative;
+  }
+
+  .download-badge img {
+    height: 54px;
+    width: auto;
   }
 
   .download-badge {

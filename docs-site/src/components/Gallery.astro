@@ -9,66 +9,103 @@ interface GalleryItem {
   title: string;
   desc: string;
   accent: string;
+  icon: string;
 }
 
-const items: GalleryItem[] = [
+interface GalleryGroup {
+  label: string;
+  items: GalleryItem[];
+}
+
+const groups: GalleryGroup[] = [
   {
-    src: `${base}media/screen-editor.webm`, type: 'video',
-    poster: `${base}media/screen-editor.webp`,
-    title: 'Live editing',
-    desc: 'Type GLSL and watch the shader update behind the editor in real-time.',
-    accent: 'var(--accent-cyan)',
+    label: 'Editing',
+    items: [
+      {
+        src: `${base}media/screen-editor.webm`, type: 'video',
+        poster: `${base}media/screen-editor.webp`,
+        title: 'Live editing',
+        desc: 'Type GLSL and watch the shader update behind the editor in real-time.',
+        accent: 'var(--accent-cyan)',
+        icon: 'code',
+      },
+      {
+        src: `${base}media/screen-keyboard.webm`, type: 'video',
+        poster: `${base}media/screen-keyboard.webp`,
+        title: 'Smart completions',
+        desc: 'Context-aware completions above the keyboard with bracket keys and identifiers.',
+        accent: 'var(--accent-magenta)',
+        icon: 'keyboard',
+      },
+      {
+        src: `${base}media/screen-errors.webm`, type: 'video',
+        poster: `${base}media/screen-errors.webp`,
+        title: 'Error highlighting',
+        desc: 'GLSL compile errors marked inline. Tap the snackbar for a full error list.',
+        accent: 'var(--accent-violet)',
+        icon: 'alert-triangle',
+      },
+    ],
   },
   {
-    src: `${base}media/screen-keyboard.webm`, type: 'video',
-    poster: `${base}media/screen-keyboard.webp`,
-    title: 'Smart completions',
-    desc: 'Context-aware completions bar above the keyboard with bracket keys and identifiers.',
-    accent: 'var(--accent-magenta)',
+    label: 'Library',
+    items: [
+      {
+        src: `${base}media/screen-shaderlist.webm`, type: 'video',
+        poster: `${base}media/screen-shaderlist.webp`,
+        title: 'Shader library',
+        desc: 'Side drawer with saved shaders and live-rendered thumbnails.',
+        accent: 'var(--accent-lime)',
+        icon: 'library',
+      },
+      {
+        src: `${base}media/screen-uniforms.webm`, type: 'video',
+        poster: `${base}media/screen-uniforms.webp`,
+        title: 'Uniform picker',
+        desc: 'Browse 40+ built-in uniforms. Sampler uniforms open a parameters panel.',
+        accent: 'var(--accent-cyan)',
+        icon: 'sliders-horizontal',
+      },
+      {
+        src: `${base}media/screen-textures.webm`, type: 'video',
+        poster: `${base}media/screen-textures.webp`,
+        title: 'Texture manager',
+        desc: 'Import images as 2D textures or compose cube maps from 6 faces.',
+        accent: 'var(--accent-magenta)',
+        icon: 'image',
+      },
+    ],
   },
   {
-    src: `${base}media/screen-errors.webm`, type: 'video',
-    poster: `${base}media/screen-errors.webp`,
-    title: 'Error highlighting',
-    desc: 'GLSL compile errors marked inline. Tap the snackbar for a full error list.',
-    accent: 'var(--accent-violet)',
-  },
-  {
-    src: `${base}media/screen-shaderlist.webp`, type: 'image',
-    title: 'Shader library',
-    desc: 'Side drawer with saved shaders and live-rendered thumbnails.',
-    accent: 'var(--accent-lime)',
-  },
-  {
-    src: `${base}media/screen-wallpaper.webm`, type: 'video',
-    poster: `${base}media/screen-wallpaper.webp`,
-    title: 'Live wallpaper',
-    desc: 'Your shader as a real Android wallpaper. Responds to touch and sensors.',
-    accent: 'var(--accent-orange)',
-  },
-  {
-    src: `${base}media/screen-uniforms.webp`, type: 'image',
-    title: 'Uniform picker',
-    desc: 'Browse 40+ preset uniforms. Sampler uniforms open parameter config.',
-    accent: 'var(--accent-cyan)',
-  },
-  {
-    src: `${base}media/screen-textures.webp`, type: 'image',
-    title: 'Texture manager',
-    desc: 'Import images as 2D textures or compose cube maps from 6 faces.',
-    accent: 'var(--accent-magenta)',
-  },
-  {
-    src: `${base}media/screen-settings.webp`, type: 'image',
-    title: 'Settings',
-    desc: 'Fonts, ligatures, tab width, line numbers, run mode, and more.',
-    accent: 'var(--accent-violet)',
+    label: 'Output',
+    items: [
+      {
+        src: `${base}media/screen-wallpaper.webm`, type: 'video',
+        poster: `${base}media/screen-wallpaper.webp`,
+        title: 'Live wallpaper',
+        desc: 'Your shader as a real Android wallpaper. Responds to touch and sensors.',
+        accent: 'var(--accent-orange)',
+        icon: 'wallpaper',
+      },
+      {
+        src: `${base}media/screen-settings.webm`, type: 'video',
+        poster: `${base}media/screen-settings.webp`,
+        title: 'Settings',
+        desc: 'Fonts, ligatures, tab width, line numbers, run mode, and more.',
+        accent: 'var(--accent-violet)',
+        icon: 'settings',
+      },
+    ],
   },
 ];
 
-const itemsJson = JSON.stringify(items.map(i => ({
+const flatItems = groups.flatMap(g => g.items);
+
+const itemsJson = JSON.stringify(flatItems.map(i => ({
   src: i.src, type: i.type, poster: i.poster, title: i.title, desc: i.desc
 })));
+
+let globalIndex = 0;
 ---
 
 <section class="section" id="gallery">
@@ -77,36 +114,56 @@ const itemsJson = JSON.stringify(items.map(i => ({
     <h2 class="section-title">See it in action</h2>
     <p class="section-desc">
       Tap any card to view the full screenshot or video.
+      Use the arrows or swipe to browse.
     </p>
 
-    <div class="gallery-scroll">
-      {items.map((item, i) => (
-        <button
-          class="gallery-card"
-          style={`--card-accent: ${item.accent};`}
-          data-index={i}
-          aria-label={`View: ${item.title}`}
-        >
-          <div class="gallery-phone">
-            <div class="gallery-screen">
-              {item.type === 'video' ? (
-                <video class="lazy-video" loop muted playsinline preload="none" poster={item.poster} data-src={item.src}>
-                  <source data-src={item.src} type="video/webm" />
-                </video>
-              ) : (
-                <img src={item.src} alt={item.title} loading="lazy" />
-              )}
-              {item.type === 'video' && (
-                <div class="gallery-play-badge">
-                  <Icon name="play" size={10} /> Video
-                </div>
-              )}
+    <div class="gallery-scroll-wrap">
+      <button class="gallery-arrow gallery-arrow-left" aria-label="Scroll left">
+        <Icon name="chevron-left" size={20} />
+      </button>
+
+      <div class="gallery-scroll">
+        {groups.map((group) => (
+          <div class="gallery-group">
+            <span class="gallery-group-label">{group.label}</span>
+            <div class="gallery-group-cards">
+              {group.items.map((item) => {
+                const idx = globalIndex++;
+                return (
+                  <button
+                    class="gallery-card"
+                    style={`--card-accent: ${item.accent};`}
+                    data-index={idx}
+                    aria-label={`View: ${item.title}`}
+                  >
+                    <div class="gallery-phone">
+                      <div class="gallery-screen">
+                        <video class="lazy-video" loop muted playsinline preload="none" poster={item.poster} data-src={item.src}>
+                          <source data-src={item.src} type="video/webm" />
+                        </video>
+                        <div class="gallery-play-badge">
+                          <Icon name="play" size={10} /> Video
+                        </div>
+                      </div>
+                    </div>
+                    <div class="gallery-meta">
+                      <span class="gallery-icon">
+                        <Icon name={item.icon} size={14} />
+                      </span>
+                      <h3 class="gallery-title">{item.title}</h3>
+                    </div>
+                    <p class="gallery-desc">{item.desc}</p>
+                  </button>
+                );
+              })}
             </div>
           </div>
-          <h3 class="gallery-title">{item.title}</h3>
-          <p class="gallery-desc">{item.desc}</p>
-        </button>
-      ))}
+        ))}
+      </div>
+
+      <button class="gallery-arrow gallery-arrow-right" aria-label="Scroll right">
+        <Icon name="chevron-right" size={20} />
+      </button>
     </div>
   </div>
 
@@ -186,6 +243,29 @@ const itemsJson = JSON.stringify(items.map(i => ({
     if (e.key === 'ArrowRight') showItem(currentIndex + 1);
   });
 
+  // Gallery scroll arrows
+  const scrollEl = document.querySelector('#gallery .gallery-scroll');
+  const leftArr = document.querySelector('.gallery-arrow-left');
+  const rightArr = document.querySelector('.gallery-arrow-right');
+
+  function updateArrows() {
+    if (!scrollEl) return;
+    leftArr?.classList.toggle('hidden', scrollEl.scrollLeft <= 4);
+    rightArr?.classList.toggle('hidden',
+      scrollEl.scrollLeft >= scrollEl.scrollWidth - scrollEl.clientWidth - 4);
+  }
+
+  leftArr?.addEventListener('click', () => {
+    scrollEl?.scrollBy({ left: -320, behavior: 'smooth' });
+  });
+  rightArr?.addEventListener('click', () => {
+    scrollEl?.scrollBy({ left: 320, behavior: 'smooth' });
+  });
+
+  scrollEl?.addEventListener('scroll', updateArrows, { passive: true });
+  window.addEventListener('resize', updateArrows);
+  updateArrows();
+
   // Lazy-load gallery videos
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -208,32 +288,84 @@ const itemsJson = JSON.stringify(items.map(i => ({
 </script>
 
 <style>
-  /* Horizontal scroll strip of phone-framed cards */
+  /* Wrapper for arrows + scroll area */
+  .gallery-scroll-wrap {
+    position: relative;
+    margin-top: 3rem;
+  }
+
+  /* Navigation arrows */
+  .gallery-arrow {
+    position: absolute;
+    top: 40%;
+    transform: translateY(-50%);
+    z-index: 10;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: rgba(12, 14, 20, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.25s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  }
+
+  .gallery-arrow:hover {
+    background: rgba(20, 24, 36, 0.95);
+    border-color: rgba(255,255,255,0.2);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.1);
+  }
+
+  .gallery-arrow.hidden { opacity: 0; pointer-events: none; }
+  .gallery-arrow-left { left: -20px; }
+  .gallery-arrow-right { right: -20px; }
+
+  /* Horizontal scroll strip */
   .gallery-scroll {
     display: flex;
-    gap: 1.5rem;
-    margin-top: 3rem;
+    gap: 2.5rem;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 1.5rem;
-    /* Hide scrollbar but keep scrollable */
+    padding: 0 0.5rem 1.5rem;
     scrollbar-width: thin;
     scrollbar-color: rgba(255,255,255,0.08) transparent;
   }
 
-  .gallery-scroll::-webkit-scrollbar {
-    height: 6px;
-  }
-
+  .gallery-scroll::-webkit-scrollbar { height: 6px; }
   .gallery-scroll::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.1);
-    border-radius: 3px;
+    background: rgba(255,255,255,0.1); border-radius: 3px;
   }
 
-  .gallery-card {
+  /* Groups */
+  .gallery-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex-shrink: 0;
     scroll-snap-align: start;
-    flex: 0 0 190px;
+  }
+
+  .gallery-group-label {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding-left: 0.25rem;
+  }
+
+  .gallery-group-cards {
+    display: flex;
+    gap: 1.25rem;
+  }
+
+  /* Cards */
+  .gallery-card {
+    flex: 0 0 170px;
     background: none;
     border: none;
     cursor: pointer;
@@ -243,13 +375,11 @@ const itemsJson = JSON.stringify(items.map(i => ({
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.625rem;
     transition: transform 0.35s cubic-bezier(0.23, 1, 0.32, 1);
   }
 
-  .gallery-card:hover {
-    transform: translateY(-6px);
-  }
+  .gallery-card:hover { transform: translateY(-6px); }
 
   /* Phone frame */
   .gallery-phone {
@@ -292,9 +422,7 @@ const itemsJson = JSON.stringify(items.map(i => ({
 
   .gallery-screen video,
   .gallery-screen img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 100%; height: 100%; object-fit: cover;
   }
 
   .gallery-play-badge {
@@ -308,23 +436,35 @@ const itemsJson = JSON.stringify(items.map(i => ({
     font-weight: 600;
     padding: 0.15rem 0.4rem;
     border-radius: 999px;
+    display: flex; align-items: center; gap: 0.2rem;
+    letter-spacing: 0.05em;
+  }
+
+  /* Card meta with icon */
+  .gallery-meta {
     display: flex;
     align-items: center;
-    gap: 0.2rem;
-    letter-spacing: 0.05em;
+    gap: 0.35rem;
+  }
+
+  .gallery-icon {
+    color: var(--card-accent);
+    display: flex;
+    align-items: center;
+    opacity: 0.8;
   }
 
   .gallery-title {
     font-family: var(--font-display);
-    font-size: 0.825rem;
+    font-size: 0.8rem;
     font-weight: 700;
   }
 
   .gallery-desc {
-    font-size: 0.7rem;
+    font-size: 0.675rem;
     color: var(--text-muted);
     line-height: 1.45;
-    max-width: 180px;
+    max-width: 170px;
   }
 
   /* Lightbox */
@@ -383,9 +523,12 @@ const itemsJson = JSON.stringify(items.map(i => ({
   .lightbox-prev { left: 1.5rem; top: 50%; transform: translateY(-50%); }
   .lightbox-next { right: 1.5rem; top: 50%; transform: translateY(-50%); }
 
-  @media (max-width: 600px) {
-    .gallery-card { flex: 0 0 150px; }
+  @media (max-width: 768px) {
+    .gallery-arrow { display: none; }
+    .gallery-card { flex: 0 0 145px; }
     .gallery-desc { display: none; }
+    .gallery-scroll { gap: 2rem; }
+    .gallery-group-cards { gap: 1rem; }
     .lightbox { padding: 1rem; }
     .lightbox-content { max-width: 85vw; }
   }

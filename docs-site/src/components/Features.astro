@@ -18,7 +18,7 @@ const features: Feature[] = [
     icon: 'zap',
     title: 'Live Preview',
     desc: 'Your shader renders behind the code as you type — zero compile buttons.',
-    detail: 'Four run modes: auto (recompiles on pause), manual, manual on extra screen, or manual in new window. FPS counter in the toolbar. Quality slider from 1/32 to 2× resolution.',
+    detail: 'Choose how shaders update: instantly as you type, on manual tap, or in a separate preview window. An FPS counter in the toolbar helps you optimize. Adjustable render quality lets you balance detail against performance on any device.',
     media: `${base}media/feat-live-preview.webm`,
     mediaType: 'video',
     poster: `${base}media/feat-live-preview.webp`,
@@ -27,8 +27,8 @@ const features: Feature[] = [
   {
     icon: 'palette',
     title: 'Syntax & Error Highlighting',
-    desc: 'Full lexer-based GLSL tokenizer with 20 distinct token colors.',
-    detail: 'Keywords, types, built-in functions, qualifiers, control flow, samplers, numbers, and booleans each get distinct colors. Compile errors highlighted inline with a tap-to-jump error sheet.',
+    desc: 'Full GLSL syntax highlighting with rich token coloring.',
+    detail: 'Keywords, types, built-in functions, qualifiers, and more — each highlighted distinctly. Compile errors are underlined inline and tapping the error bar opens a jump-to-line list for quick fixing.',
     media: `${base}media/feat-highlighting.webm`,
     mediaType: 'video',
     poster: `${base}media/feat-highlighting.webp`,
@@ -38,7 +38,7 @@ const features: Feature[] = [
     icon: 'wallpaper',
     title: 'Live Wallpaper',
     desc: 'Set any shader as your Android live wallpaper with one tap.',
-    detail: 'Battery-aware rendering switches to RENDERMODE_WHEN_DIRTY on low battery. Wallpaper offset uniform tracks home screen paging. Edit while your wallpaper shines.',
+    detail: 'Battery-aware rendering automatically pauses when power is low. Your wallpaper responds to home screen paging via the offset uniform, and you can keep editing while your wallpaper runs.',
     media: `${base}media/feat-wallpaper.webm`,
     mediaType: 'video',
     poster: `${base}media/feat-wallpaper.webp`,
@@ -47,8 +47,8 @@ const features: Feature[] = [
   {
     icon: 'camera',
     title: 'Camera as Texture',
-    desc: 'Front and back camera feeds as live samplerExternalOES textures.',
-    detail: 'CameraX-powered with automatic orientation correction. Use the camera feed as input for edge detection, color grading, or AR-style effects.',
+    desc: 'Front and back camera feeds as live shader textures.',
+    detail: 'Automatic orientation correction for portrait and landscape. Use the camera feed as input for edge detection, color grading, distortion, or AR-style effects — all in real time.',
     media: `${base}media/feat-camera.webm`,
     mediaType: 'video',
     poster: `${base}media/feat-camera.webp`,
@@ -58,7 +58,7 @@ const features: Feature[] = [
     icon: 'layers',
     title: 'Textures & Cube Maps',
     desc: 'Import any image as a 2D texture or compose a cube map from 6 faces.',
-    detail: 'Full sampler control: wrap mode (repeat, mirror, clamp), min/mag filter (nearest, linear, mipmap variants). Textures travel with database exports.',
+    detail: 'Full sampler control — wrap mode, min/mag filter, and mipmap settings. Imported textures are stored with your shaders so they travel with database exports.',
     media: `${base}media/feat-textures.webp`,
     mediaType: 'image',
     accent: 'var(--accent-orange)',
@@ -66,8 +66,8 @@ const features: Feature[] = [
   {
     icon: 'code',
     title: 'Editor Power Features',
-    desc: 'Undo/redo, auto-completions, bracket matching, ShaderToy import.',
-    detail: 'Completions from the lexer above the keyboard. Auto-indenting. Paste ShaderToy code and it auto-converts. Six font choices with ligature support.',
+    desc: 'Undo/redo, completions, bracket pairing, and ShaderToy import.',
+    detail: 'Completions appear above the keyboard as you type. Auto-indenting and bracket pairing keep your code tidy. Paste ShaderToy code and it auto-converts to ShaderEditor uniforms. Several coding fonts with ligature support are included.',
     media: `${base}media/feat-editor.webm`,
     mediaType: 'video',
     poster: `${base}media/feat-editor.webp`,
@@ -87,7 +87,7 @@ const features: Feature[] = [
     icon: 'volume-2',
     title: 'Audio Reactive',
     desc: 'Microphone amplitude and media volume drive your visuals.',
-    detail: 'micAmplitude samples the mic via AudioRecord (0.0–1.0). mediaVolume reads system volume each frame. Build music visualizers or VJ tools.',
+    detail: 'Read microphone input as a 0–1 amplitude value, or tap into the current media volume each frame. Build music visualizers, audio-reactive art, or live VJ tools.',
     media: `${base}media/feat-audio.webm`,
     mediaType: 'video',
     poster: `${base}media/feat-audio.webp`,
@@ -101,8 +101,8 @@ const features: Feature[] = [
     <span class="section-label">Features</span>
     <h2 class="section-title">Everything you need to create</h2>
     <p class="section-desc">
-      A complete GLSL development environment in your pocket — from code editing
-      to live wallpaper, no PC required.
+      A complete GLSL development environment in your pocket &mdash; write, preview,
+      and ship shaders without leaving your phone.
     </p>
 
     <div class="features-list">

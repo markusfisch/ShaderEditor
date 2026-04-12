@@ -19,8 +19,9 @@ const base = import.meta.env.BASE_URL;
       </h1>
 
       <p class="hero-desc animate-in delay-1">
-        A full GLSL editor on Android with live preview, syntax highlighting,
-        40+ hardware uniforms, and live wallpaper support. Free &amp; open source.
+        A full GLSL editor for Android with instant preview, syntax highlighting,
+        40+ built-in uniforms for sensors, camera, touch and more &mdash;
+        plus live wallpaper support. Free &amp; open source.
       </p>
 
       <div class="hero-actions animate-in delay-2">
@@ -41,18 +42,18 @@ const base = import.meta.env.BASE_URL;
         </div>
         <div class="hero-stat-sep"></div>
         <div class="hero-stat">
-          <span class="hero-stat-value">13</span>
-          <span class="hero-stat-label">Sample Shaders</span>
+          <span class="hero-stat-value">10+</span>
+          <span class="hero-stat-label">Sensors</span>
         </div>
         <div class="hero-stat-sep"></div>
         <div class="hero-stat">
-          <span class="hero-stat-value">6</span>
-          <span class="hero-stat-label">Fonts</span>
+          <span class="hero-stat-value">GLES 2–3.2</span>
+          <span class="hero-stat-label">Supported</span>
         </div>
         <div class="hero-stat-sep"></div>
         <div class="hero-stat">
-          <span class="hero-stat-value">3</span>
-          <span class="hero-stat-label">Languages</span>
+          <span class="hero-stat-value">MIT</span>
+          <span class="hero-stat-label">Open Source</span>
         </div>
       </div>
     </div>
@@ -78,7 +79,7 @@ const base = import.meta.env.BASE_URL;
     justify-content: center;
     position: relative;
     padding-top: 72px;
-    overflow: hidden;
+    overflow-x: clip;
   }
 
   .hero-noise {
@@ -185,11 +186,12 @@ const base = import.meta.env.BASE_URL;
   }
 
   @media (max-width: 900px) {
-    .hero-content { grid-template-columns: 1fr; text-align: center; gap: 3rem; }
+    .hero { min-height: auto; padding-top: 96px; padding-bottom: 3rem; }
+    .hero-content { grid-template-columns: 1fr; text-align: center; gap: 2rem; }
     .hero-desc { margin-left: auto; margin-right: auto; }
     .hero-actions { justify-content: center; }
     .hero-stats { justify-content: center; }
     .hero-visual { order: -1; }
-    .hero-phone { width: 220px; }
+    .hero-phone { width: 200px; }
   }
 </style>

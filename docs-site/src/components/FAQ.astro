@@ -11,23 +11,23 @@ const faq: FAQItem[] = [
   },
   {
     q: 'How many FPS do I need for a live wallpaper?',
-    a: 'At least ~30 FPS with the soft keyboard hidden and power cord unplugged. Some devices throttle GPU when on battery. Use the quality spinner (1/2, 1/4, etc.) to reduce resolution and gain FPS.',
+    a: 'Aim for at least ~30 FPS with the keyboard hidden and no charger plugged in. Some devices throttle the GPU on battery. Use the quality spinner (1/2, 1/4, etc.) to lower the render resolution and gain FPS.',
   },
   {
     q: 'How much battery does a live wallpaper use?',
-    a: 'Only renders when visible, so normal usage has negligible impact. When "Save battery" is enabled (default), rendering switches to <code>RENDERMODE_WHEN_DIRTY</code> on low battery — drawing stops almost completely.',
+    a: 'Only renders when visible, so normal usage has negligible impact. When "Save battery" is enabled (default), rendering pauses on low battery — drawing stops almost completely.',
   },
   {
     q: 'Errors are not highlighted on my device?',
-    a: 'Some GPUs (e.g. certain Huawei, Asus models) disable GL error reporting at the driver level. Error highlighting can\'t work on those devices. The shader still compiles — you just won\'t see inline markers.',
+    a: 'Some GPU drivers don\'t report compile errors back to apps. On those devices error highlighting won\'t work, but your shader still compiles and runs normally.',
   },
   {
     q: '"Set wallpaper" doesn\'t work?',
-    a: 'You must first set ShaderEditor as your live wallpaper provider: <strong>System Settings → Display → Wallpaper → Live Wallpapers → Shader Editor</strong>. After that, "Set as wallpaper" and "Update wallpaper" in the app menu will work.',
+    a: 'You must first set ShaderEditor as your live wallpaper provider: <strong>System Settings → Display → Wallpaper → Live Wallpapers → Shader Editor</strong>. After that, \u201cSet as wallpaper\u201d and \u201cUpdate wallpaper\u201d in the app menu will work.',
   },
   {
     q: 'The time uniform loses precision after a while?',
-    a: 'This is a <code>mediump float</code> precision issue (~6 significant digits). Solutions: use <code>highp float</code> if your GPU supports it, or switch to <code>second</code> + <code>subsecond</code> uniforms which don\'t accumulate, or use <code>ftime</code> with <code>#define FTIME_PERIOD</code> for cyclic animations.',
+    a: 'This is a floating-point precision issue — <code>mediump float</code> only has ~6 significant digits. Solutions: use <code>highp float</code> if your GPU supports it, switch to the <code>second</code> + <code>subsecond</code> uniforms which don\'t accumulate, or use <code>ftime</code> with <code>#define FTIME_PERIOD</code> for cyclic animations.',
   },
   {
     q: 'How does the backbuffer work?',
@@ -39,7 +39,7 @@ const faq: FAQItem[] = [
   },
   {
     q: 'How do I import/export shaders?',
-    a: 'On Android &lt; 10: Settings → Import/Export saves .glsl files to <code>Downloads/ShaderEditor</code>. On all versions: use Settings → Import/Export Database to backup the entire shader database via SAF (Storage Access Framework).',
+    a: 'Use Settings → Import/Export Database to backup and restore your entire shader collection, including textures. On older Android versions (below 10) you can also export individual <code>.glsl</code> files to <code>Downloads/ShaderEditor</code>.',
   },
   {
     q: 'Can I use custom textures?',
@@ -51,7 +51,7 @@ const faq: FAQItem[] = [
   },
   {
     q: 'What fonts are available?',
-    a: 'Six fonts: System Monospace, Fira Code, IBM Plex Mono, JetBrains Mono, Roboto Mono, and Source Code Pro. Ligature support can be toggled independently. Set in Settings → Editor → Font.',
+    a: 'Several popular coding fonts are built in, including JetBrains Mono, Fira Code, and Source Code Pro. Ligature support can be toggled independently. Set your preferred font in Settings → Editor → Font.',
   },
   {
     q: 'How do I change render resolution?',
@@ -59,7 +59,7 @@ const faq: FAQItem[] = [
   },
   {
     q: 'Can both cameras be used at the same time?',
-    a: 'No — this is an Android system limitation. No app can open front and back cameras simultaneously.',
+    a: 'No — Android only allows one camera at a time. You can switch between front and back, but not use both simultaneously.',
   },
   {
     q: 'Where can I learn more about shaders?',

@@ -1,0 +1,944 @@
+---
+import { Code } from 'astro:components';
+import Icon from './Icon.astro';
+const base = import.meta.env.BASE_URL;
+
+interface LearnLink {
+  label: string;
+  href: string;
+}
+
+interface ExampleItem {
+  name: string;
+  desc: string;
+  code: string;
+  walkthrough: string;
+  links: LearnLink[];
+  video?: string;
+  poster?: string;
+}
+
+interface ExampleGroup {
+  id: string;
+  label: string;
+  icon: string;
+  badge: string;
+  items: ExampleItem[];
+}
+
+const p = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+`;
+
+const groups: ExampleGroup[] = [
+  {
+    id: 'basics', label: 'Basics', icon: 'clock', badge: 'badge-cyan',
+    items: [
+      {
+        name: 'Rainbow Gradient',
+        desc: 'Animated color gradient — the "hello world" of fragment shaders.',
+        video: `${base}media/sample-rainbow.webm`,
+        poster: `${base}media/sample-rainbow.webp`,
+        walkthrough: `Every fragment shader runs once per pixel, every frame. <code>gl_FragCoord.xy</code> gives the pixel's position, and dividing by <code>resolution</code> normalizes it to 0–1 — this is called <strong>UV coordinates</strong>.
+
+The color formula <code>0.5 + 0.5 * cos(time + uv.xyx + vec3(0, 2, 4))</code> is a classic trick by Inigo Quilez: it produces smooth, cycling rainbow hues by phase-shifting cosine waves across the RGB channels. The <code>vec3(0, 2, 4)</code> offsets red, green, and blue so they peak at different UV positions.
+
+<strong>Uniforms used:</strong> <code>time</code> (float, seconds since shader started) and <code>resolution</code> (vec2, viewport size in pixels). These are the two most fundamental ShaderEditor uniforms — almost every shader needs them.
+
+<strong>Try this:</strong> Change <code>vec3(0, 2, 4)</code> to <code>vec3(0, 0.5, 1)</code> for a warmer palette, or multiply <code>uv.xyx</code> by <code>3.0</code> for more color bands.`,
+        links: [
+          { label: 'Inigo Quilez — Color palettes', href: 'https://iquilezles.org/articles/palettes/' },
+          { label: 'The Book of Shaders — Colors', href: 'https://thebookofshaders.com/06/' },
+        ],
+        code: p + `
+uniform float time;
+uniform vec2 resolution;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution;
+\tvec3 col = 0.5 + 0.5 * cos(time + uv.xyx + vec3(0, 2, 4));
+\tgl_FragColor = vec4(col, 1.0);
+}`,
+      },
+      {
+        name: 'Concentric Circles',
+        desc: 'Expanding rings from the screen center using distance functions.',
+        video: `${base}media/sample-circles.webm`,
+        poster: `${base}media/sample-circles.webp`,
+        walkthrough: `This shader computes the <code>distance()</code> from every pixel to the center of the screen, then feeds it into <code>sin()</code> to create concentric rings. Multiplying the distance by <code>255.0</code> packs many rings tightly together.
+
+<strong>Aspect-ratio handling:</strong> Instead of dividing by <code>resolution</code> directly (which would stretch the circles on non-square screens), both the UV and the center are divided by <code>max(resolution.x, resolution.y)</code>. This keeps circles perfectly round regardless of screen shape.
+
+<strong>Uniforms used:</strong> <code>resolution</code> (vec2) and <code>time</code> (float). Time is multiplied by 10 to animate the rings outward.
+
+<strong>Try this:</strong> Replace <code>sin(...) * 0.2</code> with <code>step(0.0, sin(...))</code> for sharp black-and-white rings. Add color by using separate frequencies per channel: <code>vec3(sin(t - d*200.), sin(t - d*255.), sin(t - d*300.))</code>.`,
+        links: [
+          { label: 'The Book of Shaders — Shapes', href: 'https://thebookofshaders.com/07/' },
+          { label: 'Inigo Quilez — 2D Distance Functions', href: 'https://iquilezles.org/articles/distfunctions2d/' },
+        ],
+        code: p + `
+uniform vec2 resolution;
+uniform float time;
+
+void main(void) {
+\tfloat mx = max(resolution.x, resolution.y);
+\tvec2 uv = gl_FragCoord.xy / mx;
+\tvec2 center = resolution / mx * 0.5;
+\tfloat t = time * 10.0;
+
+\tgl_FragColor = vec4(
+\t\tvec3(sin(t - distance(uv, center) * 255.0)) * 0.2,
+\t\t1.0);
+}`,
+      },
+      {
+        name: 'Texture Sampling',
+        desc: 'Load an image into the shader and animate it with time.',
+        video: `${base}media/sample-texture.webm`,
+        poster: `${base}media/sample-texture.webp`,
+        walkthrough: `ShaderEditor lets you import images as <code>sampler2D</code> uniforms. To add a texture, tap the menu → "Add uniform" → choose a 2D texture or pick one of the built-in presets like <code>noise</code>.
+
+The shader reads pixel colors from the texture with <code>texture2D(sampler, uv)</code>. Adding <code>sin(time)</code> to the UV coordinates shifts the sampling position over time, creating a panning animation through the texture.
+
+<strong>Aspect-ratio note:</strong> Dividing by <code>max(resolution.x, resolution.y)</code> instead of <code>resolution</code> keeps the texture's aspect ratio — dividing by <code>resolution</code> directly would stretch it to fill the screen.
+
+<strong>Try this:</strong> Distort the texture: replace <code>uv + sin(time)</code> with <code>uv + 0.05 * vec2(sin(time + uv.y * 10.0), cos(time + uv.x * 10.0))</code> for a wavy water effect.`,
+        links: [
+          { label: 'The Book of Shaders — Textures', href: 'https://thebookofshaders.com/12/' },
+          { label: 'Khronos — texture2D reference', href: 'https://registry.khronos.org/OpenGL-Refpages/es3.0/html/texture.xhtml' },
+        ],
+        code: p + `
+uniform float time;
+uniform vec2 resolution;
+uniform sampler2D noise;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / max(resolution.x, resolution.y);
+
+\tgl_FragColor = vec4(
+\t\ttexture2D(noise, uv + sin(time)).rgb,
+\t\t1.0);
+}`,
+      },
+    ],
+  },
+  {
+    id: 'input', label: 'Input & Sensors', icon: 'hand', badge: 'badge-magenta',
+    items: [
+      {
+        name: 'Touch Ripples',
+        desc: 'Multi-touch creates rippling waves across a gradient background.',
+        video: `${base}media/sample-touch.webm`,
+        poster: `${base}media/sample-touch.webp`,
+        walkthrough: `ShaderEditor provides up to 10 simultaneous touch points through the <code>pointers[10]</code> array (each a <code>vec3</code> with x, y in pixels, z = pressure) and <code>pointerCount</code> (how many are active).
+
+The background is a smooth UV gradient animated by <code>time</code>. For each active pointer, the shader computes the <code>distance()</code> from the current pixel to the touch position, wraps it through <code>sin()</code> to create rings, then blends it into the background using <code>mix()</code> with a <strong>negative factor</strong> (<code>-0.5</code>). Negative mix factors extrapolate rather than interpolate, creating the characteristic dark ripple inversion.
+
+<strong>Uniforms used:</strong> <code>pointerCount</code> (int), <code>pointers[10]</code> (vec3 array), <code>time</code>, <code>resolution</code>.
+
+<strong>Try this:</strong> Change <code>8.0</code> to <code>30.0</code> for tighter rings. Change <code>-0.5</code> to <code>0.5</code> for a bright glow instead of dark ripples. Add <code>+ time * 5.0</code> inside the <code>sin()</code> to animate the rings outward from each finger.`,
+        links: [
+          { label: 'The Book of Shaders — Shapes', href: 'https://thebookofshaders.com/07/' },
+          { label: 'Khronos — mix() reference', href: 'https://registry.khronos.org/OpenGL-Refpages/gl4/html/mix.xhtml' },
+        ],
+        code: p + `
+uniform float time;
+uniform int pointerCount;
+uniform vec3 pointers[10];
+uniform vec2 resolution;
+
+void main(void) {
+\tfloat mx = max(resolution.x, resolution.y);
+\tvec2 uv = gl_FragCoord.xy / mx;
+\tvec3 color = vec3(uv, 0.25 + 0.5 * sin(time));
+
+\tfor (int n = 0; n < pointerCount; ++n) {
+\t\tvec3 hole = vec3(sin(1.5 - distance(
+\t\t\tuv, pointers[n].xy / mx) * 8.0));
+\t\tcolor = mix(color, hole, -0.5);
+\t}
+\tgl_FragColor = vec4(color, 1.0);
+}`,
+      },
+      {
+        name: 'Swirl Distortion',
+        desc: 'Touch a texture to warp it with vortex distortions.',
+        video: `${base}media/sample-swirl.webm`,
+        poster: `${base}media/sample-swirl.webp`,
+        walkthrough: `This shader applies a <strong>rotation matrix</strong> to UV coordinates based on distance from each touch point. Near a finger, the rotation angle is large (creating a swirl); far away, <code>exp(20.0 * length(st))</code> makes the denominator huge, so the angle drops to zero — no distortion.
+
+The <code>mat2(c, s, -s, c)</code> is a 2D rotation matrix. Subtracting 1 from cosine (<code>cos(angle) - 1.0</code>) makes the distortion additive — the identity matrix gives zero displacement. Each touch point contributes its own swirl and they <strong>accumulate</strong>.
+
+<strong>How to use:</strong> This shader requires a texture uniform. Tap menu → "Add uniform" → pick any 2D texture or use the <code>noise</code> preset. Then touch the screen to create swirls.
+
+<strong>Try this:</strong> Change <code>20.</code> to <code>5.</code> for wider, softer swirls. Remove <code>sin(time * 10.)</code> to make the swirl direction constant instead of oscillating.`,
+        links: [
+          { label: 'The Book of Shaders — 2D Matrices', href: 'https://thebookofshaders.com/08/' },
+          { label: 'Wikipedia — Rotation matrix', href: 'https://en.wikipedia.org/wiki/Rotation_matrix' },
+        ],
+        code: p + `
+uniform float time;
+uniform vec2 resolution;
+uniform vec3 pointers[10];
+uniform sampler2D noise;
+uniform int pointerCount;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution.xy;
+\tvec2 distortion;
+
+\tfor (int i = 0; i < pointerCount; i++) {
+\t\tvec2 pc = pointers[i].xy / resolution.xy;
+\t\tvec2 st = uv - pc;
+\t\tfloat angle = 6.2831 /
+\t\t\t(exp(20. * length(st)) + 1.) *
+\t\t\tsin(time * 10.);
+\t\tfloat s = sin(angle);
+\t\tfloat c = cos(angle) - 1.;
+\t\tdistortion += mat2(c, s, -s, c) * st;
+\t}
+
+\tgl_FragColor = vec4(
+\t\ttexture2D(noise, uv + distortion).rgb,
+\t\t1.0
+\t);
+}`,
+      },
+      {
+        name: 'Gravity Tilt',
+        desc: 'Colors respond to real device tilt using the gravity sensor.',
+        video: `${base}media/sample-gravity.webm`,
+        poster: `${base}media/sample-gravity.webp`,
+        walkthrough: `The <code>gravity</code> uniform is a <code>vec3</code> reporting the device's gravity vector in m/s². When the phone is flat on a table, gravity ≈ <code>(0, 0, 9.81)</code>. Tilting shifts values into the x and y components.
+
+The expression <code>9.80665 / abs(gravity - 4.90332)</code> creates a non-linear color response: when a gravity component is near 4.9 (half of Earth gravity), the division approaches infinity and the color channel saturates. This produces vivid color pops as you tilt through specific angles.
+
+<strong>Uniforms used:</strong> <code>gravity</code> (vec3, m/s²) and <code>resolution</code> (vec2). The gravity sensor must be present on the device — most Android phones have one.
+
+<strong>Try this:</strong> For a smoother response, replace the formula with <code>vec3(uv, 1.0) * gravity * 0.1</code>. To make a tilt-controlled spotlight, compute <code>vec2 tilt = gravity.xy / 9.81</code> and use it as a center point for a radial gradient.`,
+        links: [
+          { label: 'Android — Sensor types', href: 'https://developer.android.com/develop/sensors-and-location/sensors/sensors_motion' },
+        ],
+        code: p + `
+uniform vec2 resolution;
+uniform vec3 gravity;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution.xy;
+
+\tgl_FragColor = vec4(
+\t\tvec3(uv, 1.0) * 9.80665 / abs(gravity - 4.90332),
+\t\t1.0);
+}`,
+      },
+      {
+        name: 'Orientation Grid',
+        desc: 'A tiled pattern that rotates with the device orientation.',
+        video: `${base}media/sample-orientation.webm`,
+        poster: `${base}media/sample-orientation.webp`,
+        walkthrough: `The <code>orientation</code> uniform is a <code>vec3</code> containing azimuth, pitch, and roll in radians. This shader uses <code>orientation.z</code> (roll) to build a 3×3 rotation matrix that spins the UV coordinate space.
+
+The UVs are first centered (<code>uv * 2.0 - 1.0</code>), then rotated using <code>mat3(cos, sin, 0, -sin, cos, 0, 0, 0, 1)</code> — a standard Z-axis rotation. After rotation, <code>mod(uv, 0.2) * 5.0</code> tiles the space into a repeating 5×5 grid and maps tile-local coordinates to color. The result is a checkered pattern that tilts with your device.
+
+<strong>Uniforms used:</strong> <code>orientation</code> (vec3, radians) and <code>resolution</code>. Dividing by <code>min(resolution.x, resolution.y)</code> ensures uniform scaling in both directions.
+
+<strong>Try this:</strong> Use <code>orientation.x</code> (azimuth) instead of <code>.z</code> to react to compass heading. Change <code>0.2</code> to <code>0.1</code> for a finer grid. Add a time component: <code>float a = orientation.z + time * 0.5;</code> for auto-spin.`,
+        links: [
+          { label: 'Android — Position sensors', href: 'https://developer.android.com/develop/sensors-and-location/sensors/sensors_position' },
+          { label: 'The Book of Shaders — 2D Matrices', href: 'https://thebookofshaders.com/08/' },
+        ],
+        code: p + `
+uniform vec2 resolution;
+uniform vec3 orientation;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy /
+\t\tmin(resolution.x, resolution.y);
+
+\tuv = uv * 2.0 - 1.0;
+
+\tvec3 uv3 = vec3(uv, 0.0);
+\tfloat a = orientation.z;
+\tfloat ac = cos(a);
+\tfloat as = sin(a);
+\tuv3 *= mat3(
+\t\tac, as, 0.0,
+\t\t-as, ac, 0.0,
+\t\t0.0, 0.0, 1.0);
+\tuv.x = uv3.x;
+\tuv.y = uv3.y;
+
+\tuv = mod(uv, 0.2) * 5.0;
+
+\tgl_FragColor = vec4(uv, 1.0, 1.0);
+}`,
+      },
+    ],
+  },
+  {
+    id: 'camera', label: 'Camera & System', icon: 'camera', badge: 'badge-violet',
+    items: [
+      {
+        name: 'Back Camera',
+        desc: 'Use the live camera feed as a shader texture.',
+        video: `${base}media/sample-camera.webm`,
+        poster: `${base}media/sample-camera.webp`,
+        walkthrough: `ShaderEditor can stream the device camera directly into your shader as a texture. The back camera appears as <code>cameraBack</code> (front as <code>cameraFront</code>). These use <code>samplerExternalOES</code> instead of <code>sampler2D</code> because Android camera frames are external GL textures.
+
+The catch: the camera's orientation doesn't always match the screen. ShaderEditor provides <code>cameraOrientation</code> (a mat2 rotation matrix) and <code>cameraAddent</code> (a vec2 offset) to correct the mapping. The formula <code>cameraAddent + uv * cameraOrientation</code> handles portrait/landscape and front/back differences automatically.
+
+<strong>How to use:</strong> Add the camera uniform via menu → "Add uniform" → scroll down to "cameraBack" (needs camera permission).
+
+<strong>Try this:</strong> Convert to grayscale: <code>vec3 c = texture2D(cameraBack, st).rgb; float g = dot(c, vec3(0.299, 0.587, 0.114));</code>. Or edge-detect by sampling neighboring pixels and comparing differences.`,
+        links: [
+          { label: 'Khronos — OES_EGL_image_external', href: 'https://registry.khronos.org/OpenGL/extensions/OES/OES_EGL_image_external.txt' },
+          { label: 'Android — CameraX overview', href: 'https://developer.android.com/media/camera/camerax' },
+        ],
+        code: p + `
+uniform vec2 resolution;
+uniform vec2 cameraAddent;
+uniform mat2 cameraOrientation;
+uniform samplerExternalOES cameraBack;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution.xy;
+\tvec2 st = cameraAddent + uv * cameraOrientation;
+
+\tgl_FragColor = vec4(
+\t\ttexture2D(cameraBack, st).rgb,
+\t\t1.0);
+}`,
+      },
+      {
+        name: 'Battery Gauge',
+        desc: 'A horizontal bar showing real-time battery level, color-coded from red to green.',
+        video: `${base}media/sample-battery.webm`,
+        poster: `${base}media/sample-battery.webp`,
+        walkthrough: `This shader turns the screen into a live battery indicator. The <code>battery</code> uniform is a float from 0.0 (empty) to 1.0 (full), updated in real time by the system.
+
+<code>step(uv.x, battery)</code> is the key: it returns 1.0 for all pixels whose x-coordinate is less than the battery level, and 0.0 for the rest. This creates a hard-edged bar whose width matches the charge percentage.
+
+<code>mix(vec3(1, 0.2, 0.2), vec3(0.2, 1, 0.3), battery)</code> interpolates the bar's color from red (low) to green (full) based on the same battery value. The bar gets greener as you charge.
+
+<strong>Uniforms used:</strong> <code>battery</code> (float, 0–1) and <code>resolution</code>. Also available: <code>powerConnected</code> (bool, true when charging) and <code>nightMode</code> (bool, system dark mode).
+
+<strong>Try this:</strong> Replace <code>step()</code> with <code>smoothstep(battery - 0.01, battery + 0.01, uv.x)</code> for a soft edge. Add a glow: <code>float glow = 0.005 / abs(uv.x - battery);</code> for a bright line at the battery edge.`,
+        links: [
+          { label: 'Khronos — step() reference', href: 'https://registry.khronos.org/OpenGL-Refpages/gl4/html/step.xhtml' },
+          { label: 'Khronos — smoothstep() reference', href: 'https://registry.khronos.org/OpenGL-Refpages/gl4/html/smoothstep.xhtml' },
+        ],
+        code: p + `
+uniform vec2 resolution;
+uniform float battery;
+
+void main(void) {
+\tvec2 uv = gl_FragCoord.xy / resolution;
+\tvec3 bar = vec3(step(uv.x, battery));
+\tbar *= mix(vec3(1.0, 0.2, 0.2), vec3(0.2, 1.0, 0.3), battery);
+\tgl_FragColor = vec4(bar, 1.0);
+}`,
+      },
+    ],
+  },
+  {
+    id: 'backbuffer', label: 'Backbuffer', icon: 'layers', badge: 'badge-cyan',
+    items: [
+      {
+        name: "Game of Life",
+        desc: "Conway's cellular automaton running on the GPU — touch to seed cells.",
+        video: `${base}media/sample-gol.webm`,
+        poster: `${base}media/sample-gol.webp`,
+        walkthrough: `The <code>backbuffer</code> uniform is a <code>sampler2D</code> that contains the <strong>previous frame's output</strong>. This lets each frame build on the last — essential for simulations, trails, and feedback effects.
+
+Each pixel samples its 8 neighbors from the backbuffer and sums their red channel values. Conway's rules are encoded using <code>step()</code>: the <code>oneIfZero()</code> helper returns 1.0 only when the input equals zero (within a 0.1 tolerance). A cell is born if it has exactly 3 neighbors (<code>has3</code>), or survives if it has 2 and was already alive (<code>has2 * get(0,0)</code>).
+
+Touch input acts as a "brush" — when any pointer is within <code>tap</code> distance, the neighbor sum is forced to 3.0, birthing new cells.
+
+<strong>Uniforms used:</strong> <code>backbuffer</code> (sampler2D), <code>pointerCount</code>, <code>pointers[10]</code>, <code>resolution</code>.
+
+<strong>Try this:</strong> Map alive-time to color by storing age in the green channel. Change the <code>0.05</code> multiplier for a bigger or smaller touch brush. Add <code>* 0.99</code> to the output to make cells fade and create trails.`,
+        links: [
+          { label: 'Wikipedia — Conway\'s Game of Life', href: 'https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life' },
+          { label: 'The Book of Shaders — Cellular patterns', href: 'https://thebookofshaders.com/12/' },
+        ],
+        code: p + `
+uniform vec2 resolution;
+uniform int pointerCount;
+uniform vec3 pointers[10];
+uniform sampler2D backbuffer;
+
+float get(float x, float y) {
+\treturn texture2D(backbuffer,
+\t\t(gl_FragCoord.xy + vec2(x, y)) / resolution).r;
+}
+
+float oneIfZero(float value) {
+\treturn step(abs(value), 0.1);
+}
+
+vec3 evaluate(float sum) {
+\tfloat has3 = oneIfZero(sum - 3.0);
+\tfloat has2 = oneIfZero(sum - 2.0);
+\t// alive if 3 neighbors, or 2 + was alive
+\treturn vec3(has3 + has2 * get(0.0, 0.0));
+}
+
+void main() {
+\tfloat sum =
+\t\tget(-1.0, -1.0) + get(-1.0, 0.0) + get(-1.0, 1.0) +
+\t\tget( 0.0, -1.0) +                   get( 0.0, 1.0) +
+\t\tget( 1.0, -1.0) + get( 1.0, 0.0) + get( 1.0, 1.0);
+
+\tfloat tap = min(resolution.x, resolution.y) * 0.05;
+\tfor (int n = 0; n < pointerCount; ++n) {
+\t\tif (distance(pointers[n].xy, gl_FragCoord.xy) < tap) {
+\t\t\tsum = 3.0;
+\t\t\tbreak;
+\t\t}
+\t}
+
+\tgl_FragColor = vec4(evaluate(sum), 1.0);
+}`,
+      },
+      {
+        name: 'Cloudy Conway',
+        desc: 'Game of Life variant with colorful afterglow trails when cells die.',
+        video: `${base}media/sample-cloudy.webm`,
+        poster: `${base}media/sample-cloudy.webp`,
+        walkthrough: `This builds on the Game of Life by using <strong>all four RGBA channels</strong> to track cell state over time, not just alive/dead. The alpha channel stores whether the cell is alive. The blue channel stores "afterglow" — a value that jumps to 1.0 when a cell dies, then slowly decays (<code>afterglow * 0.99</code> each frame).
+
+The <code>evaluate()</code> function routes afterglow through red and green based on alive/dead status, creating a two-tone color trail: living cells glow one color, recently-dead cells fade through another. The <code>0.99</code> decay factor means trails persist for hundreds of frames.
+
+<strong>vec4 channel mapping:</strong> R = afterglow × alive (living cell color), G = afterglow × dead (trail color), B = max(decay, justDied) (afterglow tracker), A = alive flag.
+
+<strong>Try this:</strong> Change <code>0.99</code> to <code>0.95</code> for faster-fading trails, or <code>0.999</code> for very long persistence. Swap the red and green assignments in the return statement to change the color scheme.`,
+        links: [
+          { label: 'Vexorian — Cloudy Conway', href: 'http://www.vexorian.com/2015/05/cloudy-conway.html' },
+        ],
+        code: p + `
+/* Cloudy Conway
+ * http://www.vexorian.com/2015/05/cloudy-conway.html
+ */
+
+uniform vec2 resolution;
+uniform int pointerCount;
+uniform vec3 pointers[10];
+uniform sampler2D backbuffer;
+
+float oneIfZero(float value) {
+\treturn step(abs(value), 0.1);
+}
+
+vec4 get4(float x, float y) {
+\treturn texture2D(backbuffer,
+\t\t(gl_FragCoord.xy + vec2(x, y)) / resolution);
+}
+
+vec4 evaluate(float sum) {
+\tvec4 cell = get4(0.0, 0.0);
+\tfloat wasAlive = cell[3];
+\tfloat has3 = oneIfZero(sum - 3.0);
+\tfloat has2 = oneIfZero(sum - 2.0);
+\tfloat isAlive = min(1.0, has3 + has2 * wasAlive);
+\tfloat justDied = (1.0 - isAlive) * wasAlive;
+\tfloat afterglow = cell[2];
+\treturn vec4(
+\t\tafterglow * isAlive,
+\t\tafterglow * (1.0 - isAlive),
+\t\tmax(afterglow * 0.99, justDied),
+\t\tisAlive);
+}
+
+float get(float x, float y) {
+\treturn get4(x, y).a;
+}
+
+void main() {
+\tfloat sum =
+\t\tget(-1.0, -1.0) + get(-1.0, 0.0) + get(-1.0, 1.0) +
+\t\tget( 0.0, -1.0) +                   get( 0.0, 1.0) +
+\t\tget( 1.0, -1.0) + get( 1.0, 0.0) + get( 1.0, 1.0);
+
+\tfloat tapSize = min(resolution.x, resolution.y) * 0.05;
+\tfor (int n = 0; n < pointerCount; ++n) {
+\t\tif (distance(pointers[n].xy, gl_FragCoord.xy) < tapSize) {
+\t\t\tsum = 3.0;
+\t\t\tbreak;
+\t\t}
+\t}
+
+\tgl_FragColor = evaluate(sum);
+}`,
+      },
+      {
+        name: 'Electric Fade',
+        desc: 'Cloudy Conway with a noise-seeded backbuffer for instant patterns.',
+        video: `${base}media/sample-electric.webm`,
+        poster: `${base}media/sample-electric.webp`,
+        walkthrough: `This is a Cloudy Conway variant with one crucial difference: the <code>backbuffer</code> declaration includes <code>///p:noise</code> — a ShaderEditor directive that <strong>pre-fills the backbuffer with a noise texture</strong> instead of starting blank.
+
+Because the noise provides random initial alive/dead states, the simulation ignites immediately with complex patterns instead of requiring you to touch-seed cells manually. The color channel mapping is also swapped (alive → red, afterglow routing → green/alpha), producing an electric blue-to-cyan palette.
+
+<strong>The <code>///p:</code> syntax:</strong> When you declare <code>uniform sampler2D backbuffer;///p:noise</code>, ShaderEditor initializes the backbuffer's first frame from the named preset texture. This is a ShaderEditor-specific extension — it won't work in other GLSL environments.
+
+<strong>Try this:</strong> Change <code>///p:noise</code> to just <code>backbuffer;</code> (no preset) and compare — you'll get a blank start that requires touch seeding. Try other presets by importing your own textures through "Add uniform".`,
+        links: [
+          { label: 'Vexorian — Cloudy Conway', href: 'http://www.vexorian.com/2015/05/cloudy-conway.html' },
+          { label: 'Wikipedia — Cellular automaton', href: 'https://en.wikipedia.org/wiki/Cellular_automaton' },
+        ],
+        code: p + `
+/* Based on Cloudy Conway
+ * http://www.vexorian.com/2015/05/cloudy-conway.html
+ */
+
+uniform vec2 resolution;
+uniform int pointerCount;
+uniform vec3 pointers[10];
+uniform sampler2D backbuffer;///p:noise
+
+float oneIfZero(float value) {
+\treturn step(abs(value), 0.1);
+}
+
+vec4 get4(float x, float y) {
+\treturn texture2D(backbuffer,
+\t\t(gl_FragCoord.xy + vec2(x, y)) / resolution);
+}
+
+vec4 evaluate(float sum) {
+\tvec4 cell = get4(0.0, 0.0);
+\tfloat wasAlive = cell[0];
+\tfloat has3 = oneIfZero(sum - 3.0);
+\tfloat has2 = oneIfZero(sum - 2.0);
+\tfloat isAlive = min(1.0, has3 + has2 * wasAlive);
+\tfloat justDied = (1.0 - isAlive) * wasAlive;
+\tfloat afterglow = cell[2];
+\treturn vec4(
+\t\tisAlive,
+\t\tafterglow * isAlive,
+\t\tmax(afterglow * 0.99, justDied),
+\t\tafterglow * (1.0 - isAlive));
+}
+
+float get(float x, float y) {
+\treturn get4(x, y).a;
+}
+
+void main() {
+\tfloat sum =
+\t\tget(-1.0, -1.0) + get(-1.0, 0.0) + get(-1.0, 1.0) +
+\t\tget( 0.0, -1.0) +                   get( 0.0, 1.0) +
+\t\tget( 1.0, -1.0) + get( 1.0, 0.0) + get( 1.0, 1.0);
+
+\tfloat tapSize = min(resolution.x, resolution.y) * 0.05;
+\tfor (int n = 0; n < pointerCount; ++n) {
+\t\tif (distance(pointers[n].xy, gl_FragCoord.xy) < tapSize) {
+\t\t\tsum = 3.0;
+\t\t\tbreak;
+\t\t}
+\t}
+
+\tgl_FragColor = evaluate(sum);
+}`,
+      },
+    ],
+  },
+  {
+    id: 'advanced', label: 'Advanced', icon: 'sparkles', badge: 'badge-magenta',
+    items: [
+      {
+        name: 'GLES 3.0 Syntax',
+        desc: 'The same touch ripple shader ported to modern #version 300 es.',
+        video: `${base}media/sample-gles3.webm`,
+        poster: `${base}media/sample-gles3.webp`,
+        walkthrough: `GLES 3.0 (OpenGL ES 3.0) is supported on most Android devices from 2013 onward. ShaderEditor detects the <code>#version 300 es</code> directive and automatically creates a GLES 3.0 rendering context.
+
+<strong>Key syntax differences from GLES 2.0:</strong>
+• <code>#version 300 es</code> must be the <strong>very first line</strong> — no comments or blank lines before it.
+• <code>gl_FragColor</code> is removed — you declare your own output: <code>out vec4 fragColor;</code>
+• <code>texture2D()</code> becomes <code>texture()</code>.
+• You gain integer textures, bitwise operators, flat interpolation, and <code>layout</code> qualifiers.
+
+This example is intentionally the same Touch Ripples shader, rewritten for GLES 3.0, so you can compare the two side by side. The logic is identical — only the boilerplate changes.
+
+<strong>Try this:</strong> Once in GLES 3.0, try integer operations: <code>int px = int(gl_FragCoord.x); if ((px & 1) == 0) fragColor = vec4(0);</code> creates a scanline effect impossible in GLES 2.0.`,
+        links: [
+          { label: 'Khronos — OpenGL ES 3.0 spec', href: 'https://registry.khronos.org/OpenGL/specs/es/3.0/GLSL_ES_Specification_3.00.pdf' },
+          { label: 'Android — OpenGL ES versions', href: 'https://developer.android.com/develop/ui/views/graphics/opengl/about-opengl' },
+        ],
+        code: `#version 300 es
+` + p + `
+out vec4 fragColor;
+
+uniform float time;
+uniform int pointerCount;
+uniform vec3 pointers[10];
+uniform vec2 resolution;
+
+void main() {
+\tfloat mx = max(resolution.x, resolution.y);
+\tvec2 uv = gl_FragCoord.xy / mx;
+\tvec3 color = vec3(uv, 0.25 + 0.5 * sin(time));
+
+\tfor (int n = 0; n < pointerCount; ++n) {
+\t\tvec3 hole = vec3(sin(1.5 - distance(
+\t\t\tuv, pointers[n].xy / mx) * 8.0));
+\t\tcolor = mix(color, hole, -0.5);
+\t}
+\tfragColor = vec4(color, 1.0);
+}`,
+      },
+    ],
+  },
+];
+---
+
+<div class="examples-content" id="examples-content">
+  <div class="container">
+    <div class="ex-tabs" role="tablist">
+      {groups.map((g, i) => (
+        <button
+          class={`ex-tab ${i === 0 ? 'active' : ''}`}
+          role="tab"
+          data-tab={g.id}
+          aria-selected={i === 0 ? 'true' : 'false'}
+        >
+          <Icon name={g.icon} size={15} />
+          <span class={`badge ${g.badge}`}>{g.label}</span>
+          <span class="ex-tab-count">{g.items.length}</span>
+        </button>
+      ))}
+    </div>
+
+    <div class="ex-panels">
+      {groups.map((g, i) => (
+        <div
+          class={`ex-panel ${i === 0 ? 'active' : ''}`}
+          role="tabpanel"
+          data-panel={g.id}
+        >
+          {g.items.map(item => (
+            <details class="ex-card">
+              <summary class="ex-summary">
+                {item.poster && (
+                  <div class="ex-thumb">
+                    <img src={item.poster} alt="" loading="lazy" />
+                  </div>
+                )}
+                <div class="ex-meta">
+                  <code class="ex-name">{item.name}</code>
+                  <p class="ex-desc">{item.desc}</p>
+                </div>
+                <span class="ex-chevron"><Icon name="chevron-down" size={16} /></span>
+              </summary>
+
+              <div class="ex-body">
+                <div class={`ex-layout ${item.video ? 'has-preview' : ''}`}>
+                  {item.video && (
+                    <div class="ex-preview-col">
+                      <video
+                        class="ex-video"
+                        loop muted playsinline preload="none"
+                        poster={item.poster}
+                        data-src={item.video}
+                      >
+                        <source data-src={item.video} type="video/webm" />
+                      </video>
+                    </div>
+                  )}
+                  <div class="ex-main-col">
+                    <div class="ex-walkthrough" set:html={
+                      item.walkthrough
+                        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/`([^`]+)`/g, '<code>$1</code>')
+                        .replace(/\n\n/g, '</p><p>')
+                        .replace(/^/, '<p>').replace(/$/, '</p>')
+                        .replace(/• /g, '<span class="ex-bullet">•</span> ')
+                    } />
+
+                    {item.links.length > 0 && (
+                      <div class="ex-links">
+                        {item.links.map(link => (
+                          <a href={link.href} target="_blank" rel="noopener noreferrer" class="ex-link">
+                            <Icon name="external-link" size={12} />
+                            {link.label}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+
+                    <div class="ex-code-col">
+                      <div class="ex-code-wrap">
+                        <div class="ex-code-header">
+                          <span><Icon name="file-code" size={13} /> Fragment Shader</span>
+                          <button class="ex-copy" data-code={item.code} aria-label="Copy">
+                            <Icon name="copy" size={12} />
+                            Copy
+                          </button>
+                        </div>
+                        <div class="ex-code-block">
+                          <Code code={item.code} lang="glsl" theme="github-dark" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </details>
+          ))}
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.ex-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const id = tab.getAttribute('data-tab');
+      document.querySelectorAll('.ex-tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      document.querySelectorAll('.ex-panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      document.querySelector(`[data-panel="${id}"]`)?.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.ex-copy').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const code = btn.getAttribute('data-code') || '';
+      await navigator.clipboard.writeText(code);
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<svg class="icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+      setTimeout(() => { btn.innerHTML = orig; }, 1500);
+    });
+  });
+
+  document.querySelectorAll('.ex-card').forEach(det => {
+    det.addEventListener('toggle', () => {
+      if (!det.open) return;
+      const video = det.querySelector('.ex-video');
+      if (!video) return;
+      const source = video.querySelector('source[data-src]');
+      if (source) {
+        source.setAttribute('src', source.getAttribute('data-src')!);
+        source.removeAttribute('data-src');
+        video.load();
+      }
+      video.play().catch(() => {});
+    });
+  });
+</script>
+
+<style>
+  .examples-content { margin-top: 2rem; }
+
+  /* ── Tabs ── */
+  .ex-tabs {
+    display: flex; gap: 0.375rem; flex-wrap: wrap;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 1.25rem;
+  }
+  .ex-tab {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: none; border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer; transition: all 0.2s;
+    color: var(--text-secondary);
+    position: relative; bottom: -1px;
+  }
+  .ex-tab:hover { color: var(--text-primary); }
+  .ex-tab.active { border-bottom-color: var(--accent-cyan); color: var(--text-primary); }
+  .ex-tab-count {
+    font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted);
+  }
+
+  /* ── Panels ── */
+  .ex-panel { display: none; }
+  .ex-panel.active { display: flex; flex-direction: column; gap: 0.625rem; }
+
+  /* ── Card (collapsed) ── */
+  .ex-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.04);
+    border-radius: var(--radius-md);
+    transition: border-color 0.2s;
+  }
+  .ex-card:hover { border-color: rgba(255,255,255,0.08); }
+  .ex-card[open] { border-color: rgba(0, 229, 255, 0.1); }
+
+  .ex-summary {
+    display: flex; align-items: center; gap: 0.875rem;
+    padding: 0.875rem 1.125rem;
+    cursor: pointer; list-style: none;
+    transition: background 0.2s;
+  }
+  .ex-summary::-webkit-details-marker { display: none; }
+  .ex-summary:hover { background: rgba(255,255,255,0.015); }
+
+  .ex-thumb {
+    width: 32px; flex-shrink: 0;
+    border-radius: 6px; overflow: hidden;
+    aspect-ratio: 9/16;
+    background: var(--bg-surface);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 2px 6px rgba(0,0,0,0.25);
+  }
+  .ex-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .ex-card[open] .ex-thumb { display: none; }
+
+  .ex-meta { flex: 1; min-width: 0; }
+  .ex-name {
+    font-family: var(--font-mono); font-size: 0.85rem;
+    font-weight: 600; color: var(--accent-cyan);
+    display: block; margin-bottom: 0.125rem;
+  }
+  .ex-desc {
+    font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .ex-card[open] .ex-desc { white-space: normal; }
+
+  .ex-chevron {
+    color: var(--text-muted); flex-shrink: 0;
+    transition: transform 0.3s;
+  }
+  .ex-card[open] .ex-chevron { transform: rotate(180deg); color: var(--accent-cyan); }
+
+  /* ── Body (expanded) ── */
+  .ex-body {
+    border-top: 1px solid rgba(255,255,255,0.04);
+    padding: 1.25rem 1.125rem;
+  }
+
+  /* ── Walkthrough ── */
+  .ex-walkthrough {
+    font-size: 0.825rem; color: var(--text-secondary); line-height: 1.8;
+  }
+  .ex-walkthrough :global(p) { margin: 0 0 0.6rem; }
+  .ex-walkthrough :global(p:last-child) { margin-bottom: 0; }
+  .ex-walkthrough :global(strong) { color: var(--text-primary); font-weight: 600; }
+  .ex-walkthrough :global(code) {
+    font-family: var(--font-mono); font-size: 0.75rem;
+    background: rgba(0, 229, 255, 0.07);
+    color: var(--accent-cyan);
+    padding: 0.1rem 0.35rem; border-radius: 3px;
+  }
+  .ex-walkthrough :global(.ex-bullet) {
+    color: var(--accent-cyan); font-weight: 700;
+    margin-left: 0.25rem;
+  }
+
+  /* ── Links ── */
+  .ex-links {
+    display: flex; gap: 0.5rem 1.25rem; flex-wrap: wrap;
+  }
+  .ex-link {
+    font-size: 0.725rem; color: var(--accent-cyan);
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    text-decoration: underline;
+    text-decoration-color: rgba(0, 229, 255, 0.25);
+    text-underline-offset: 2px;
+    transition: text-decoration-color 0.2s;
+  }
+  .ex-link:hover { text-decoration-color: var(--accent-cyan); }
+
+  /* ── Media: video + code ── */
+  .ex-layout.has-preview {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 1.25rem;
+    align-items: start;
+  }
+  .ex-preview-col {
+    position: sticky;
+    top: 88px;
+  }
+  .ex-preview-col video {
+    width: 100%;
+    aspect-ratio: 9/16;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+  .ex-main-col {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .ex-code-col { min-width: 0; }
+
+  /* ── Code block ── */
+  .ex-code-wrap {
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+  .ex-code-header {
+    background: rgba(255,255,255,0.03);
+    padding: 0.4rem 0.75rem;
+    font-family: var(--font-mono); font-size: 0.575rem;
+    color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ex-code-header span {
+    display: flex; align-items: center; gap: 0.35rem;
+  }
+  .ex-copy {
+    display: flex; align-items: center; gap: 0.25rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--text-secondary);
+    font-family: var(--font-mono); font-size: 0.55rem;
+    padding: 0.175rem 0.45rem; border-radius: 4px;
+    cursor: pointer; transition: all 0.2s;
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .ex-copy:hover {
+    background: rgba(255,255,255,0.1); color: var(--text-primary);
+  }
+  .ex-code-block {
+    max-height: 380px; overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ex-code-block :global(pre) {
+    margin: 0 !important; border-radius: 0 !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.725rem !important; line-height: 1.7 !important;
+    overflow-x: auto !important;
+  }
+  .ex-code-block :global(code) {
+    font-family: var(--font-mono) !important;
+    white-space: pre !important;
+    word-break: normal !important;
+    display: block !important;
+    width: max-content !important;
+    min-width: 100% !important;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .ex-tab { padding: 0.5rem 0.6rem; }
+    .ex-tab .badge { font-size: 0.575rem; padding: 0.175rem 0.35rem; }
+    .ex-tab .icon { display: none; }
+    .ex-layout.has-preview {
+      grid-template-columns: 1fr;
+    }
+    .ex-preview-col {
+      position: static;
+      max-width: 180px;
+      order: -1;
+    }
+    .ex-code-block :global(pre) { font-size: 0.65rem !important; }
+  }
+</style>

@@ -1,12 +1,11 @@
 ---
+const base = import.meta.env.BASE_URL;
 ---
 
 <footer class="footer">
   <div class="container footer-inner">
     <div class="footer-brand">
-      <div class="footer-logo">
-        <span class="footer-bracket">{</span><span class="footer-gl">GL</span><span class="footer-bracket">}</span>
-      </div>
+      <img src={`${base}media/app-icon.png`} alt="ShaderEditor" class="footer-icon" width="28" height="28" />
       <span class="footer-name">ShaderEditor</span>
     </div>
 
@@ -44,21 +43,9 @@
     gap: 0.6rem;
   }
 
-  .footer-logo {
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    font-weight: 700;
-  }
-
-  .footer-bracket {
-    color: var(--text-muted);
-  }
-
-  .footer-gl {
-    background: linear-gradient(135deg, var(--accent-cyan), var(--accent-magenta));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+  .footer-icon {
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
   }
 
   .footer-name {
