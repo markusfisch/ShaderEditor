@@ -8,11 +8,15 @@ import android.service.wallpaper.WallpaperService;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 
+import androidx.annotation.Nullable;
+
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.DataRecords;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.preference.Preferences;
+import de.markusfisch.android.shadereditor.project.LegacyShaderProjectSource;
+import de.markusfisch.android.shadereditor.project.ShaderProjectSession;
 import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 
@@ -133,6 +137,16 @@ public class ShaderWallpaperService extends WallpaperService {
 		}
 
 		private void setShader() {
+			ShaderProjectSession projectSession = openWallpaperProjectSession();
+			if (view != null && projectSession != null) {
+				view.getRenderer().setFragmentShader(
+						projectSession.getEntryPointSource(),
+						projectSession.getQuality());
+			}
+		}
+
+		@Nullable
+		private ShaderProjectSession openWallpaperProjectSession() {
 			DataSource dataSource = Database.getInstance(
 					ShaderWallpaperService.this).getDataSource();
 
@@ -145,18 +159,14 @@ public class ShaderWallpaperService extends WallpaperService {
 
 				// If there are no shaders at all, we can't do anything.
 				if (shader == null) {
-					return;
+					return null;
 				}
 
 				// Update the preferences to store the new random shader ID.
 				ShaderEditorApp.preferences.setWallpaperShader(shader.id());
 			}
 
-			if (view != null) {
-				view.getRenderer().setFragmentShader(
-						shader.fragmentShader(),
-						shader.quality());
-			}
+			return new LegacyShaderProjectSource(shader).openSession();
 		}
 
 		private class ShaderWallpaperView extends ShaderView {
