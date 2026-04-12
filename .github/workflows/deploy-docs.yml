@@ -5,6 +5,7 @@ on:
     branches: [main, master]
     paths:
       - 'docs-site/**'
+      - 'FAQ.md'
   workflow_dispatch:
 
 permissions:

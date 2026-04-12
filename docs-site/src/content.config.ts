@@ -1,7 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
-import { faqLoader } from './loaders/faq';
+import { faqLoader } from './loaders/faq.ts';
 
 const accent = z.enum(['cyan', 'magenta', 'violet', 'lime', 'orange']);
 const icon = z.enum([
