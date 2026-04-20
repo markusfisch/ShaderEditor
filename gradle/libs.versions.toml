@@ -1,5 +1,5 @@
 [versions]
-agp = "9.1.0"
+agp = "8.12.3"
 appcompat = "1.7.1"
 camerax = "1.5.3"
 leakcanary = "2.14"
