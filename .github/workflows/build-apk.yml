@@ -69,7 +69,10 @@ jobs:
         run: |
           set -euo pipefail
           apk_path="app/build/outputs/apk/release/app-release.apk"
-          test -f "$apk_path"
+          if [ ! -f "$apk_path" ]; then
+            echo "Release APK not found at $apk_path" >&2
+            exit 1
+          fi
           timestamp="$(date -u +'%Y%m%dT%H%M%SZ')"
           mkdir -p releases
           release_file="releases/shadereditor-release-${timestamp}.apk"
@@ -82,7 +85,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$release_file"
-          git diff --cached --quiet && exit 0
+          if git diff --cached --quiet; then
+            echo "No release APK changes to commit."
+            exit 0
+          fi
           git commit -m "Add release APK ${release_file##*/}"
           git push
 
