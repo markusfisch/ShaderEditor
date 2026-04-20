@@ -2,6 +2,11 @@ name: Build Android APK
 
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag, or commit SHA to build
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -16,6 +21,7 @@ jobs:
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          ref: ${{ inputs.ref || github.ref }}
 
       - name: Set up JDK 17
         uses: actions/setup-java@v5
@@ -81,11 +87,30 @@ jobs:
       - name: Commit release APK
         run: |
           set -euo pipefail
+          target_ref="${{ inputs.ref || github.ref_name }}"
+
+          case "$target_ref" in
+            refs/heads/*)
+              target_branch="${target_ref#refs/heads/}"
+              ;;
+            refs/tags/*)
+              echo "Skipping APK commit for tag ref $target_ref."
+              exit 0
+              ;;
+            *)
+              if ! git show-ref --verify --quiet "refs/remotes/origin/$target_ref"; then
+                echo "Skipping APK commit for non-branch ref $target_ref."
+                exit 0
+              fi
+              target_branch="$target_ref"
+              ;;
+          esac
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$release_file"
           git commit -m "Add release APK ${release_file##*/}"
-          git push
+          git push origin HEAD:"refs/heads/$target_branch"
 
       - name: Upload release APK
         uses: actions/upload-artifact@v4
