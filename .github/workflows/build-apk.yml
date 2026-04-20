@@ -87,7 +87,7 @@ jobs:
       - name: Commit release APK
         run: |
           set -euo pipefail
-          target_ref="${{ inputs.ref || github.ref_name }}"
+          target_ref="${{ inputs.ref || github.ref }}"
 
           case "$target_ref" in
             refs/heads/*)
@@ -98,11 +98,15 @@ jobs:
               exit 0
               ;;
             *)
-              if ! git show-ref --verify --quiet "refs/remotes/origin/$target_ref"; then
+              if git show-ref --verify --quiet "refs/remotes/origin/$target_ref"; then
+                target_branch="$target_ref"
+              elif git rev-parse --verify --quiet "$target_ref^{commit}" >/dev/null; then
+                echo "Skipping APK commit for commit ref $target_ref."
+                exit 0
+              else
                 echo "Skipping APK commit for non-branch ref $target_ref."
                 exit 0
               fi
-              target_branch="$target_ref"
               ;;
           esac
 
