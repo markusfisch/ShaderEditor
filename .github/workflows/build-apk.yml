@@ -37,6 +37,9 @@ jobs:
           key_password="$(openssl rand -hex 16)"
           keystore_path="$RUNNER_TEMP/ci-release.keystore"
 
+          echo "::add-mask::$store_password"
+          echo "::add-mask::$key_password"
+
           {
             echo "ci_keystore_path=$keystore_path"
             echo "ci_store_password=$store_password"
