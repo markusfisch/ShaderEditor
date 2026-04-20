@@ -33,28 +33,38 @@ jobs:
 
       - name: Generate CI release keystore
         run: |
+          store_password="$(openssl rand -hex 16)"
+          key_password="$(openssl rand -hex 16)"
+          keystore_path="$RUNNER_TEMP/ci-release.keystore"
+
+          {
+            echo "ci_keystore_path=$keystore_path"
+            echo "ci_store_password=$store_password"
+            echo "ci_key_password=$key_password"
+          } >> "$GITHUB_ENV"
+
           keytool -genkeypair \
             -alias ci-release \
             -keyalg RSA \
             -keysize 2048 \
             -validity 3650 \
             -storetype PKCS12 \
-            -keystore "$RUNNER_TEMP/ci-release.keystore" \
-            -storepass android \
-            -keypass android \
+            -keystore "$keystore_path" \
+            -storepass "$store_password" \
+            -keypass "$key_password" \
             -dname "CN=ShaderEditor CI,O=ShaderEditor,C=US"
 
       - name: Build release APK
         env:
           ANDROID_KEY_ALIAS: ci-release
-          ANDROID_KEY_PASSWORD: android
-          ANDROID_STORE_PASSWORD: android
-          ANDROID_KEYFILE: ${{ runner.temp }}/ci-release.keystore
+          ANDROID_KEY_PASSWORD: ${{ env.ci_key_password }}
+          ANDROID_STORE_PASSWORD: ${{ env.ci_store_password }}
+          ANDROID_KEYFILE: ${{ env.ci_keystore_path }}
         run: ./gradlew assembleRelease
 
       - name: Archive release APK in repository
         run: |
-          timestamp="$(date -u +'%Y%m%d-%H%M%S')"
+          timestamp="$(date -u +'%Y%m%dT%H%M%SZ')"
           mkdir -p releases
           release_file="releases/shadereditor-release-${timestamp}.apk"
           cp app/build/outputs/apk/release/app-release.apk "$release_file"
