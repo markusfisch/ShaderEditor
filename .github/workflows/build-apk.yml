@@ -9,7 +9,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build-apk:
@@ -20,6 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
+          fetch-depth: 0
           ref: ${{ inputs.ref || github.ref }}
 
       - name: Set up JDK 17
@@ -35,12 +36,89 @@ jobs:
       - name: Install Android SDK packages
         run: sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;36.0.0"
 
-      - name: Build debug APK
-        run: ./gradlew assembleDebug
+      - name: Generate CI release keystore
+        run: |
+          store_password="$(openssl rand -hex 16)"
+          key_password="$(openssl rand -hex 16)"
+          keystore_path="$RUNNER_TEMP/ci-release.keystore"
 
-      - name: Upload debug APK
+          echo "::add-mask::$store_password"
+          echo "::add-mask::$key_password"
+
+          {
+            echo "ci_keystore_path=$keystore_path"
+            echo "ci_store_password=$store_password"
+            echo "ci_key_password=$key_password"
+          } >> "$GITHUB_ENV"
+
+          keytool -genkeypair \
+            -alias ci-release \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 3650 \
+            -storetype PKCS12 \
+            -keystore "$keystore_path" \
+            -storepass "$store_password" \
+            -keypass "$key_password" \
+            -dname "CN=ShaderEditor CI,O=ShaderEditor,C=US"
+
+      - name: Build release APK
+        env:
+          ANDROID_KEY_ALIAS: ci-release
+          ANDROID_KEY_PASSWORD: ${{ env.ci_key_password }}
+          ANDROID_STORE_PASSWORD: ${{ env.ci_store_password }}
+          ANDROID_KEYFILE: ${{ env.ci_keystore_path }}
+        run: ./gradlew assembleRelease
+
+      - name: Archive release APK in repository
+        run: |
+          set -euo pipefail
+          apk_path="app/build/outputs/apk/release/app-release.apk"
+          if [ ! -f "$apk_path" ]; then
+            echo "Release APK not found at $apk_path" >&2
+            exit 1
+          fi
+          timestamp="$(date -u +'%Y%m%dT%H%M%SZ')"
+          mkdir -p releases
+          release_file="releases/shadereditor-release-${timestamp}.apk"
+          cp "$apk_path" "$release_file"
+          echo "release_file=$release_file" >> "$GITHUB_ENV"
+
+      - name: Commit release APK
+        run: |
+          set -euo pipefail
+          target_ref="${{ inputs.ref || github.ref }}"
+
+          case "$target_ref" in
+            refs/heads/*)
+              target_branch="${target_ref#refs/heads/}"
+              ;;
+            refs/tags/*)
+              echo "Skipping APK commit for tag ref $target_ref."
+              exit 0
+              ;;
+            *)
+              if git show-ref --verify --quiet "refs/remotes/origin/$target_ref"; then
+                target_branch="$target_ref"
+              elif git rev-parse --verify --quiet "$target_ref^{commit}" >/dev/null; then
+                echo "Skipping APK commit for commit ref $target_ref."
+                exit 0
+              else
+                echo "Skipping APK commit for non-branch ref $target_ref."
+                exit 0
+              fi
+              ;;
+          esac
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$release_file"
+          git commit -m "Add release APK ${release_file##*/}"
+          git push origin HEAD:"refs/heads/$target_branch"
+
+      - name: Upload release APK
         uses: actions/upload-artifact@v4
         with:
-          name: shadereditor-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
+          name: shadereditor-release-apk
+          path: ${{ env.release_file }}
           if-no-files-found: error
