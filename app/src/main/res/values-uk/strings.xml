@@ -284,4 +284,24 @@
 	<string name="storage_not_writeable">Не вдається записати в базу даних</string>
 	<string name="successfully_exported">Експортовано до Завантаження</string>
 	<string name="successfully_imported">Базу даних імпортовано</string>
+	<string name="ai">AI</string>
+	<string name="ai_assistant">AI assistant</string>
+	<string name="ai_model">Model</string>
+	<string name="reasoning_effort">Reasoning effort</string>
+	<string name="ai_prompt_hint">Describe how to update the current shader…</string>
+	<string name="ai_ready">Ready</string>
+	<string name="ai_generating">Generating shader…</string>
+	<string name="ai_done">Shader updated</string>
+	<string name="ai_failed">AI request failed: %1$s</string>
+	<string name="new_chat">New chat</string>
+	<string name="send">Send</string>
+	<string name="ai_new_chat_started">Started a new chat</string>
+	<string name="codex_sign_in_with_chatgpt">Sign in to Codex with ChatGPT</string>
+	<string name="codex_not_signed_in">Not signed in</string>
+	<string name="codex_signed_in">Signed in</string>
+	<string name="codex_signed_out">Signed out</string>
+	<string name="codex_sign_in_required">Sign in to Codex in Settings first.</string>
+	<string name="codex_signing_in">Sign in with your ChatGPT account…</string>
+	<string name="codex_exchanging_token">Finalizing sign-in…</string>
+	<string name="codex_auth_failed">Codex sign-in failed: %1$s</string>
 </resources>

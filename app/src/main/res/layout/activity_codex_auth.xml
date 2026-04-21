@@ -1,0 +1,19 @@
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+
+	<TextView
+		android:id="@+id/codex_auth_status"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="12dp"
+		android:text="@string/codex_signing_in" />
+
+	<WebView
+		android:id="@+id/codex_auth_webview"
+		android:layout_width="match_parent"
+		android:layout_height="0dp"
+		android:layout_weight="1" />
+</LinearLayout>

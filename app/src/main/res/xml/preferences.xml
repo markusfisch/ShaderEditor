@@ -122,6 +122,12 @@
 			android:entryValues="@array/sensor_delay_values"
 			android:defaultValue="Normal"/>
 	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/ai">
+		<Preference
+			android:key="codex_sign_in"
+			android:title="@string/codex_sign_in_with_chatgpt"
+			android:summary="@string/codex_not_signed_in"/>
+	</PreferenceCategory>
 	<PreferenceCategory
 			android:key="import_export"
 			android:title="@string/import_export">

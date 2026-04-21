@@ -24,6 +24,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 
 import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.activity.CodexAuthActivity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.DataRecords;
 import de.markusfisch.android.shadereditor.database.DataSource;
@@ -39,6 +40,7 @@ public class PreferencesFragment
 		extends PreferenceFragmentCompat
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
 	private ActivityResultLauncher<Intent> pickFileLauncher;
+	private ActivityResultLauncher<Intent> codexAuthLauncher;
 	private ActivityResultLauncher<String> requestReadPermissionLauncher;
 	private ActivityResultLauncher<String> requestWritePermissionLauncher;
 	private DataSource dataSource;
@@ -85,12 +87,35 @@ public class PreferencesFragment
 								Toast.LENGTH_LONG).show();
 					}
 				});
+
+		codexAuthLauncher = registerForActivityResult(
+				new ActivityResultContracts.StartActivityForResult(),
+				result -> {
+					if (result.getResultCode() != Activity.RESULT_OK ||
+							result.getData() == null) {
+						return;
+					}
+					String apiKey = result.getData().getStringExtra(
+							CodexAuthActivity.EXTRA_CODEX_API_KEY);
+					ShaderEditorApp.preferences.setCodexApiKey(apiKey);
+					Preference preference = findPreference(Preferences.CODEX_SIGN_IN);
+					if (preference != null) {
+						setSummary(preference);
+					}
+					Context context = getContext();
+					if (context != null) {
+						Toast.makeText(context,
+								R.string.codex_signed_in,
+								Toast.LENGTH_SHORT).show();
+					}
+				});
 	}
 
 	@Override
 	public void onCreatePreferences(Bundle state, String rootKey) {
 		setPreferencesFromResource(R.xml.preferences, rootKey);
 		wireImportExport();
+		wireCodexAuth();
 	}
 
 	@Override
@@ -164,6 +189,10 @@ public class PreferencesFragment
 			preference.setSummary(getShaderSummary(id));
 		} else if (preference instanceof ListPreference) {
 			preference.setSummary(((ListPreference) preference).getEntry());
+		} else if (Preferences.CODEX_SIGN_IN.equals(preference.getKey())) {
+			preference.setSummary(ShaderEditorApp.preferences.hasCodexApiKey()
+					? getString(R.string.codex_signed_in)
+					: getString(R.string.codex_not_signed_in));
 		} else if (preference instanceof PreferenceGroup) {
 			setSummaries((PreferenceGroup) preference);
 		}
@@ -259,5 +288,28 @@ public class PreferencesFragment
 				return true;
 			});
 		}
+	}
+
+	private void wireCodexAuth() {
+		Preference codexSignIn = findPreference(Preferences.CODEX_SIGN_IN);
+		if (codexSignIn == null) {
+			return;
+		}
+		codexSignIn.setOnPreferenceClickListener(preference -> {
+			Context context = getContext();
+			if (context == null) {
+				return true;
+			}
+			if (ShaderEditorApp.preferences.hasCodexApiKey()) {
+				ShaderEditorApp.preferences.setCodexApiKey(null);
+				setSummary(preference);
+				Toast.makeText(context,
+						R.string.codex_signed_out,
+						Toast.LENGTH_SHORT).show();
+			} else {
+				codexAuthLauncher.launch(new Intent(context, CodexAuthActivity.class));
+			}
+			return true;
+		});
 	}
 }

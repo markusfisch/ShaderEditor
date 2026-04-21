@@ -8,6 +8,7 @@
 	<!-- Camera textures are only supported from API > 14 -->
 	<uses-permission android:name="android.permission.CAMERA"/>
 	<uses-permission android:name="android.permission.RECORD_AUDIO"/>
+	<uses-permission android:name="android.permission.INTERNET"/>
 	<!-- Required to import textures on API < 19 from gallery apps
 		that do not use grantUriPermission(); later API's will not
 		see that permission -->
@@ -121,6 +122,10 @@
 			android:name=".activity.PreferencesActivity"
 			android:label="@string/preferences"
 			android:exported="true"/>
+		<activity
+			android:name=".activity.CodexAuthActivity"
+			android:label="@string/codex_sign_in_with_chatgpt"
+			android:exported="false"/>
 		<activity
 			android:name=".activity.AddUniformActivity"
 			android:label="@string/add_uniform"

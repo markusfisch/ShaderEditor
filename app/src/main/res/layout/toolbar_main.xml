@@ -50,6 +50,16 @@
 		app:icon="@drawable/ic_error"
 		app:iconSize="24dp" />
 
+	<Button
+		android:id="@+id/ai_btn"
+		style="@style/IconButton"
+		android:layout_width="48dp"
+		android:layout_height="48dp"
+		android:layout_gravity="end"
+		android:layout_marginEnd="4dp"
+		app:icon="@drawable/ic_auto_awesome"
+		app:iconSize="24dp" />
+
 	<Spinner
 		android:id="@+id/quality"
 		android:layout_width="wrap_content"

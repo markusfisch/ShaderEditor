@@ -25,6 +25,7 @@ import java.util.List;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.activity.managers.ExtraKeysManager;
+import de.markusfisch.android.shadereditor.activity.managers.CodexAiManager;
 import de.markusfisch.android.shadereditor.activity.managers.MainMenuManager;
 import de.markusfisch.android.shadereditor.activity.managers.NavigationManager;
 import de.markusfisch.android.shadereditor.activity.managers.ShaderListManager;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
 	private ShaderListManager shaderListManager;
 	private ShaderViewManager shaderViewManager;
 	private NavigationManager navigationManager;
+	private CodexAiManager codexAiManager;
 	private DataSource dataSource;
 	private boolean isInitialLoad = false;
 
@@ -97,6 +99,10 @@ public class MainActivity extends AppCompatActivity {
 				uiManager,
 				dataSource,
 				createShaderViewListener());
+		codexAiManager = new CodexAiManager(this,
+				editorFragment,
+				shaderManager,
+				shaderViewManager);
 
 		MainMenuManager mainMenuManager = new MainMenuManager(
 				this,
@@ -107,7 +113,8 @@ public class MainActivity extends AppCompatActivity {
 		uiManager.setupToolbar(mainMenuManager::show,
 				v -> this.runShader(),
 				v -> uiManager.toggleCodeVisibility(),
-				v -> editorFragment.showErrors());
+				v -> editorFragment.showErrors(),
+				v -> codexAiManager.show());
 
 		shaderManager.handleSendText(getIntent());
 
@@ -169,6 +176,9 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	protected void onDestroy() {
+		if (codexAiManager != null) {
+			codexAiManager.destroy();
+		}
 		if (shaderListManager != null) {
 			shaderListManager.destroy();
 		}

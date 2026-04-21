@@ -38,6 +38,8 @@ public class Preferences {
 	public static final String EXPORT_TO_DIRECTORY = "export_to_directory";
 	public static final String IMPORT_DATABASE = "import_database";
 	public static final String EXPORT_DATABASE = "export_database";
+	public static final String CODEX_SIGN_IN = "codex_sign_in";
+	public static final String CODEX_API_KEY = "codex_api_key";
 	public static final String SHOW_LINE_NUMBERS = "show_line_numbers";
 	public static final String SHOW_EXTRA_KEYS = "show_extra_keys";
 	public static final String AUTO_HIDE_EXTRA_KEYS = "auto_hide_extra_keys";
@@ -87,6 +89,7 @@ public class Preferences {
 	private boolean hideNativeSuggestions = true;
 	private String defaultFont;
 	private long pendingCrashShaderId = 0;
+	private @Nullable String codexApiKey;
 
 	public void init(Context context) {
 		systemBarColor = ContextCompat.getColor(
@@ -178,6 +181,7 @@ public class Preferences {
 		pendingCrashShaderId = preferences.getLong(
 				PENDING_CRASH_SHADER,
 				pendingCrashShaderId);
+		codexApiKey = preferences.getString(CODEX_API_KEY, null);
 	}
 
 	public boolean autoHideExtraKeys() {
@@ -366,6 +370,26 @@ public class Preferences {
 		showExtraKeys = !showExtraKeys;
 		preferences.edit().putBoolean(SHOW_EXTRA_KEYS, this.showExtraKeys).apply();
 		return showExtraKeys;
+	}
+
+	public boolean hasCodexApiKey() {
+		return codexApiKey != null && !codexApiKey.isEmpty();
+	}
+
+	@Nullable
+	public String getCodexApiKey() {
+		return codexApiKey;
+	}
+
+	public void setCodexApiKey(@Nullable String apiKey) {
+		codexApiKey = apiKey;
+		SharedPreferences.Editor editor = preferences.edit();
+		if (apiKey == null || apiKey.isEmpty()) {
+			editor.remove(CODEX_API_KEY);
+		} else {
+			editor.putString(CODEX_API_KEY, apiKey);
+		}
+		editor.apply();
 	}
 
 	private void putString(String key, String value) {
