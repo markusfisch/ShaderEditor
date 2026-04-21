@@ -169,7 +169,7 @@ public class CodexAuthActivity extends AppCompatActivity {
 			while ((read = input.read(buffer)) != -1) {
 				out.write(buffer, 0, read);
 			}
-			return out.toString(StandardCharsets.UTF_8);
+			return out.toString("UTF-8");
 		}
 	}
 
@@ -186,8 +186,8 @@ public class CodexAuthActivity extends AppCompatActivity {
 			if (e < 0) {
 				continue;
 			}
-			String key = java.net.URLDecoder.decode(pair.substring(0, e), StandardCharsets.UTF_8);
-			String value = java.net.URLDecoder.decode(pair.substring(e + 1), StandardCharsets.UTF_8);
+			String key = urlDecode(pair.substring(0, e));
+			String value = urlDecode(pair.substring(e + 1));
 			map.put(key, value);
 		}
 		return map;
@@ -214,6 +214,19 @@ public class CodexAuthActivity extends AppCompatActivity {
 
 	@NonNull
 	private static String urlEncode(@NonNull String value) {
-		return java.net.URLEncoder.encode(value, StandardCharsets.UTF_8);
+		try {
+			return java.net.URLEncoder.encode(value, "UTF-8");
+		} catch (Exception e) {
+			return value;
+		}
+	}
+
+	@NonNull
+	private static String urlDecode(@NonNull String value) {
+		try {
+			return java.net.URLDecoder.decode(value, "UTF-8");
+		} catch (Exception e) {
+			return value;
+		}
 	}
 }

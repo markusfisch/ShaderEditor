@@ -221,7 +221,7 @@ public class CodexAiManager {
 			while ((read = input.read(buffer)) != -1) {
 				out.write(buffer, 0, read);
 			}
-			return out.toString(StandardCharsets.UTF_8);
+			return out.toString("UTF-8");
 		}
 	}
 
