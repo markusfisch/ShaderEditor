@@ -1,0 +1,5 @@
+* Improve editing
+* Use display refresh rate for FPS cap
+* Ensure non-premultiplied alpha for textures
+* Add Simplified and Traditional Chinese translation
+

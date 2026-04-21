@@ -1,0 +1,4 @@
+* Detect crash loops and disable bad shaders
+* Improve loading fonts and shaders
+* Fix database migration
+

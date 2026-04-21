@@ -1,0 +1,2 @@
+* Fix main layout for old Androids
+

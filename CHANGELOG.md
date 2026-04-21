@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.36.2
+* Improve editing
+* Use display refresh rate for FPS cap
+* Ensure non-premultiplied alpha for textures
+* Add Simplified and Traditional Chinese translation
+
 ## 2.36.1
 * Fix main layout for old Androids
 

@@ -1,0 +1,3 @@
+* Move error SnackBar on top of ActionBar
+* Add RGBA noise texture
+
