@@ -11,11 +11,11 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.adapter.ShaderAdapter;
@@ -43,6 +43,7 @@ public class ShaderListManager {
 	// Use an ExecutorService for background tasks and a Handler for the main thread.
 	private final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private final Handler handler = new Handler(Looper.getMainLooper());
+	private final CoalescingReloadGate reloadGate = new CoalescingReloadGate();
 
 	public ShaderListManager(@NonNull Activity activity,
 			@NonNull ListView listView,
@@ -72,36 +73,11 @@ public class ShaderListManager {
 	 * Loads shaders from the database asynchronously.
 	 */
 	public void loadShadersAsync() {
-		if (executor.isShutdown()) {
+		if (executor.isShutdown() ||
+				!reloadGate.request()) {
 			return;
 		}
-		// Use a WeakReference to avoid leaking the context if the activity
-		// is destroyed.
-		WeakReference<ShaderListManager> managerRef = new WeakReference<>(this);
-
-		executor.execute(() -> {
-			ShaderListManager manager = managerRef.get();
-			if (manager == null) {
-				return;
-			}
-
-			// Perform the long-running database query on a background thread.
-			List<ShaderInfo> shaders = manager.dataSource.shader.getShaders(
-					ShaderEditorApp.preferences.sortByLastModification());
-
-			// Post the result back to the main thread.
-			manager.handler.post(() -> {
-				ShaderListManager finalManager = managerRef.get();
-				// Ensure the manager and its activity are still valid.
-				if (finalManager != null && !finalManager.activity.isFinishing()) {
-					List<ShaderInfo> shaderList = shaders != null
-							? shaders
-							: new ArrayList<>();
-					finalManager.listener.onShadersLoaded(shaderList);
-					finalManager.updateAdapter(shaderList);
-				}
-			});
-		});
+		submitLoad();
 	}
 
 	public void destroy() {
@@ -109,9 +85,43 @@ public class ShaderListManager {
 		handler.removeCallbacksAndMessages(null);
 	}
 
+	private void submitLoad() {
+		try {
+			executor.execute(() -> {
+				List<ShaderInfo> shaders = dataSource.shader.getShaders(
+						ShaderEditorApp.preferences.sortByLastModification());
+				handler.post(() -> onShadersLoaded(shaders));
+			});
+		} catch (RejectedExecutionException ignored) {
+			reloadGate.abort();
+		}
+	}
+
+	private void onShadersLoaded(List<ShaderInfo> shaders) {
+		if (reloadGate.finish()) {
+			if (!executor.isShutdown() && isActivityAlive()) {
+				submitLoad();
+			} else {
+				reloadGate.abort();
+			}
+			return;
+		}
+		if (!isActivityAlive()) {
+			return;
+		}
+		List<ShaderInfo> shaderList = shaders != null
+				? shaders
+				: new ArrayList<>();
+		listener.onShadersLoaded(shaderList);
+		updateAdapter(shaderList);
+	}
+
+	private boolean isActivityAlive() {
+		return !activity.isFinishing() && !activity.isDestroyed();
+	}
+
 	private void updateAdapter(List<ShaderInfo> shaders) {
-		// The isFinishing() check is already here, making it robust.
-		if (activity.isFinishing()) {
+		if (!isActivityAlive()) {
 			return;
 		}
 
