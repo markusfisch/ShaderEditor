@@ -1,7 +1,7 @@
 [versions]
 agp = "9.1.1"
 appcompat = "1.7.1"
-camerax = "1.5.3"
+camerax = "1.6.0"
 leakcanary = "2.14"
 preference = "1.2.1"
 material = "1.13.0"
