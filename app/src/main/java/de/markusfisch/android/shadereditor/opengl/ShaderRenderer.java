@@ -1,9 +1,15 @@
 package de.markusfisch.android.shadereditor.opengl;
 
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.hardware.display.DisplayManager;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
+import android.view.Display;
 import android.view.MotionEvent;
+import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -65,6 +71,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private static final int MAX_TEXTURES = 32;
 	private static final long FPS_UPDATE_FREQUENCY_NS = 200000000L;
 	private static final float NS_PER_SECOND = 1000000000f;
+	private static final float DEFAULT_REFRESH_RATE = 60f;
 
 	private final GlDevice device = new GlDevice(MAX_TEXTURES);
 	private final RendererProgramManager programManager =
@@ -87,6 +94,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	private volatile float sum;
 	private volatile float samples;
 	private volatile int lastFps;
+	private volatile float refreshRate = DEFAULT_REFRESH_RATE;
 
 	public ShaderRenderer(Context context) {
 		this.context = context;
@@ -146,6 +154,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 		long now = System.nanoTime();
 		lastRender = now;
+		refreshRate = getRefreshRate(context);
 		surfaceState = builtinUniforms.updateSurface(width, height, now);
 		if (surfaceState.renderTargetsChanged()) {
 			renderPipeline.releaseTargets();
@@ -281,7 +290,7 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		long delta = now - lastRender;
 
 		synchronized (this) {
-			sum += Math.min(NS_PER_SECOND / delta, 60f);
+			sum += Math.min(NS_PER_SECOND / delta, refreshRate);
 
 			if (++samples > 0xffff) {
 				sum = sum / samples;
@@ -299,5 +308,40 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 		}
 
 		lastRender = now;
+	}
+
+	private static float getRefreshRate(Context context) {
+		float refreshRate = DEFAULT_REFRESH_RATE;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+			Display display = getDisplay(context);
+			if (display != null && display.getMode() != null) {
+				refreshRate = display.getMode().getRefreshRate();
+			}
+		} else {
+			WindowManager windowManager = (WindowManager) context
+					.getSystemService(Context.WINDOW_SERVICE);
+			if (windowManager != null) {
+				refreshRate = windowManager.getDefaultDisplay()
+						.getRefreshRate();
+			}
+		}
+		return refreshRate > 0f ? refreshRate : DEFAULT_REFRESH_RATE;
+	}
+
+	@SuppressLint("UseRequiresApi")
+	@TargetApi(Build.VERSION_CODES.R)
+	private static Display getDisplay(Context context) {
+		try {
+			return context.getDisplay();
+		} catch (UnsupportedOperationException e) {
+			// Fall through. Thrown when the context isn't associated
+			// with a display.
+		}
+		DisplayManager displayManager = context.getSystemService(
+				DisplayManager.class);
+		if (displayManager == null) {
+			return null;
+		}
+		return displayManager.getDisplay(Display.DEFAULT_DISPLAY);
 	}
 }
