@@ -46,7 +46,7 @@ public final class GpuBitmapTransformer {
 			#else
 			precision mediump float;
 			#endif
-
+			
 			uniform sampler2D frame;
 			varying vec2 uv;
 			void main(void) {
