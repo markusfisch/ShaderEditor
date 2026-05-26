@@ -14,6 +14,7 @@ import java.util.List;
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.opengl.ShaderError;
 import de.markusfisch.android.shadereditor.opengl.ShaderRenderer;
+import de.markusfisch.android.shadereditor.project.ShaderProjectSession;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 
 public class ShaderViewManager {
@@ -61,6 +62,13 @@ public class ShaderViewManager {
 
 	public void setFragmentShader(@Nullable String src) {
 		shaderView.setFragmentShader(src, quality);
+	}
+
+	public void setProjectSession(@NonNull ShaderProjectSession projectSession) {
+		setQuality(projectSession.getQuality());
+		shaderView.setFragmentShader(
+				projectSession.getEntryPointSource(),
+				projectSession.getQuality());
 	}
 
 	public void setVisibility(boolean visible) {

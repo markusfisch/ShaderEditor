@@ -24,6 +24,9 @@ import de.markusfisch.android.shadereditor.activity.PreviewActivity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
+import de.markusfisch.android.shadereditor.project.LegacyShaderProjectSource;
+import de.markusfisch.android.shadereditor.project.LooseShaderFileProjectSource;
+import de.markusfisch.android.shadereditor.project.ShaderProjectSession;
 
 public class ShaderManager {
 	public final ActivityResultLauncher<Intent> addUniformLauncher;
@@ -43,6 +46,8 @@ public class ShaderManager {
 	private long selectedShaderId = NO_SHADER;
 	private float quality = 1f;
 	private boolean isModified = false;
+	@Nullable
+	private ShaderProjectSession currentProjectSession;
 
 	public ShaderManager(@NonNull AppCompatActivity activity,
 			EditorFragment editorFragment,
@@ -119,6 +124,9 @@ public class ShaderManager {
 
 	public void setQuality(float quality) {
 		this.quality = quality;
+		if (currentProjectSession != null) {
+			currentProjectSession = currentProjectSession.withQuality(quality);
+		}
 		setModified(true);
 	}
 
@@ -144,6 +152,19 @@ public class ShaderManager {
 				SELECTED_SHADER_ID, NO_SHADER);
 	}
 
+	@NonNull
+	public ShaderProjectSession getEditedProjectSession() {
+		return getEditedProjectSession(editorFragment.getText());
+	}
+
+	@NonNull
+	public ShaderProjectSession getEditedProjectSession(
+			@NonNull String entryPointSource) {
+		return getCurrentProjectSession()
+				.withEntryPointSource(entryPointSource)
+				.withQuality(quality);
+	}
+
 	public void selectShader(long id) {
 		if (isModified()) {
 			saveShader();
@@ -151,31 +172,22 @@ public class ShaderManager {
 
 		PreviewActivity.renderStatus.reset();
 		var shader = dataSource.shader.getShader(id);
-
 		if (shader == null) {
-			selectedShaderId = NO_SHADER;
-			editorFragment.setText(activity.getString(
-					R.string.new_shader_template));
-			uiManager.setToolbarTitle(activity.getString(R.string.add_shader));
-			quality = 1f;
-		} else {
-			selectedShaderId = id;
-			ShaderEditorApp.preferences.setLastOpenedShader(id);
-			editorFragment.setText(shader.fragmentShader());
-			uiManager.setToolbarTitle(shader.getTitle());
-			quality = shader.quality();
+			applyProjectSession(
+					NO_SHADER,
+					createScratchProjectSession(
+							activity.getString(R.string.new_shader_template),
+							1f),
+					activity.getString(R.string.add_shader));
+			return;
 		}
 
-		ShaderEditorApp.preferences.setPendingCrashShaderId(
-				ShaderEditorApp.preferences.doesRunInBackground() &&
-						selectedShaderId > 0
-						? selectedShaderId
-						: 0);
-
-		shaderListManager.setSelectedShaderId(selectedShaderId);
-		shaderViewManager.setQuality(quality);
-		shaderViewManager.setFragmentShader(editorFragment.getText());
-		setModified(false);
+		ShaderProjectSession projectSession =
+				new LegacyShaderProjectSource(shader).openSession();
+		ShaderEditorApp.preferences.setLastOpenedShader(id);
+		applyProjectSession(id,
+				projectSession,
+				projectSession.getProject().getTitle());
 	}
 
 	public void saveShader() {
@@ -193,7 +205,6 @@ public class ShaderManager {
 		}
 
 		byte[] thumbnail = getThumbnail();
-
 		if (selectedShaderId > 0) {
 			dataSource.shader.updateShader(
 					selectedShaderId, src, thumbnail, quality);
@@ -203,6 +214,8 @@ public class ShaderManager {
 			shaderListManager.setSelectedShaderId(selectedShaderId);
 		}
 
+		currentProjectSession = loadSavedProjectSession(selectedShaderId, src);
+		updatePendingCrashShaderId();
 		setModified(false);
 		shaderListManager.loadShadersAsync();
 		Toast.makeText(activity, R.string.shader_saved,
@@ -239,10 +252,14 @@ public class ShaderManager {
 			while ((len = in.read(buffer)) != -1) {
 				sb.append(new String(buffer, 0, len, StandardCharsets.UTF_8));
 			}
+			ShaderProjectSession projectSession =
+					new LooseShaderFileProjectSource(uri, sb.toString(), 1f)
+							.openSession();
 			PreviewActivity.renderStatus.reset();
 			intent.setAction(null);
-			selectShader(NO_SHADER);
-			editorFragment.setText(sb.toString());
+			applyProjectSession(NO_SHADER,
+					projectSession,
+					projectSession.getProject().getTitle());
 			setModified(true);
 		} catch (IOException e) {
 			Toast.makeText(activity, R.string.unsuitable_text,
@@ -267,6 +284,54 @@ public class ShaderManager {
 		dataSource.shader.removeShader(shaderId);
 		if (shaderId == selectedShaderId) {
 			selectedShaderId = NO_SHADER;
+			currentProjectSession = null;
+			updatePendingCrashShaderId();
 		}
+	}
+
+	@NonNull
+	private ShaderProjectSession getCurrentProjectSession() {
+		return currentProjectSession != null
+				? currentProjectSession
+				: createScratchProjectSession(editorFragment.getText(), quality);
+	}
+
+	@NonNull
+	private ShaderProjectSession createScratchProjectSession(
+			@NonNull String source,
+			float quality) {
+		return new LooseShaderFileProjectSource(null, source, quality)
+				.openSession();
+	}
+
+	@NonNull
+	private ShaderProjectSession loadSavedProjectSession(long shaderId,
+			@NonNull String fallbackSource) {
+		var shader = dataSource.shader.getShader(shaderId);
+		return shader != null
+				? new LegacyShaderProjectSource(shader).openSession()
+				: createScratchProjectSession(fallbackSource, quality);
+	}
+
+	private void applyProjectSession(long shaderId,
+			@NonNull ShaderProjectSession projectSession,
+			@NonNull String toolbarTitle) {
+		selectedShaderId = shaderId;
+		currentProjectSession = projectSession;
+		quality = projectSession.getQuality();
+		editorFragment.setText(projectSession.getEntryPointSource());
+		uiManager.setToolbarTitle(toolbarTitle);
+		shaderListManager.setSelectedShaderId(selectedShaderId);
+		shaderViewManager.setProjectSession(projectSession);
+		updatePendingCrashShaderId();
+		setModified(false);
+	}
+
+	private void updatePendingCrashShaderId() {
+		ShaderEditorApp.preferences.setPendingCrashShaderId(
+				ShaderEditorApp.preferences.doesRunInBackground() &&
+						selectedShaderId > 0
+						? selectedShaderId
+						: 0);
 	}
 }
