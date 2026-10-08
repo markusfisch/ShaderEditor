@@ -45,6 +45,8 @@ public class Preferences {
 	public static final String LAST_OPENED_SHADER = "last_opened_shader";
 	public static final String PENDING_CRASH_SHADER = "pending_crash_shader";
 
+	private static final String WALLPAPER_RUNTIME = "wallpaper_runtime_";
+
 	private static final int RUN_AUTO = 1;
 	private static final int RUN_MANUALLY = 2;
 	private static final int RUN_MANUALLY_EXTRA = 3;
@@ -296,6 +298,16 @@ public class Preferences {
 
 	public boolean doesSaveOnRun() {
 		return saveOnRun;
+	}
+
+	public long getWallpaperRuntimeNanos(long shaderId) {
+		return preferences.getLong(WALLPAPER_RUNTIME + shaderId, 0);
+	}
+
+	public void setWallpaperRuntimeNanos(long shaderId, long nanos) {
+		preferences.edit()
+				.putLong(WALLPAPER_RUNTIME + shaderId, nanos)
+				.apply();
 	}
 
 	public long getWallpaperShader() {

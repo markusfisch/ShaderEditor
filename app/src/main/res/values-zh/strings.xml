@@ -114,6 +114,7 @@
 
 	<string name="uniform_format">%1$s (%2$s)</string>
 	<string name="resolution_in_pixels">渲染表面的像素分辨率</string>
+	<string name="rendered_runtime">渲染运行时间（秒），不含暂停时间</string>
 	<string name="time_in_seconds_since_load">自加载以来的运行时间（秒）</string>
 	<string name="int_seconds_since_load">自加载以来的整秒时间</string>
 	<string name="fractional_part_of_seconds_since_load">运行时间的小数部分</string>

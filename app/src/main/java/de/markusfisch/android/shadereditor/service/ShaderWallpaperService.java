@@ -60,6 +60,8 @@ public class ShaderWallpaperService extends WallpaperService {
 			extends Engine
 			implements SharedPreferences.OnSharedPreferenceChangeListener {
 		private ShaderWallpaperView view;
+		private long runtimeShaderId;
+		private boolean hasRuntimeShader;
 
 		@Override
 		public void onSharedPreferenceChanged(
@@ -84,6 +86,8 @@ public class ShaderWallpaperService extends WallpaperService {
 			ShaderEditorApp.preferences.getSharedPreferences()
 					.unregisterOnSharedPreferenceChangeListener(this);
 			if (view != null) {
+				view.onPause();
+				saveRuntime();
 				view.destroy();
 				view = null;
 			}
@@ -99,6 +103,7 @@ public class ShaderWallpaperService extends WallpaperService {
 				view.onResume();
 			} else {
 				view.onPause();
+				saveRuntime();
 			}
 		}
 
@@ -136,12 +141,30 @@ public class ShaderWallpaperService extends WallpaperService {
 			}
 		}
 
+		private void saveRuntime() {
+			if (view != null && hasRuntimeShader && !isPreview()) {
+				ShaderEditorApp.preferences.setWallpaperRuntimeNanos(
+						runtimeShaderId, view.getRenderer().getRuntimeNanos());
+			}
+		}
+
 		private void setShader() {
 			ShaderProjectSession projectSession = openWallpaperProjectSession();
 			if (view != null && projectSession != null) {
+				view.onPause();
+				saveRuntime();
+				runtimeShaderId = ShaderEditorApp.preferences.getWallpaperShader();
+				hasRuntimeShader = true;
 				view.getRenderer().setFragmentShader(
 						projectSession.getEntryPointSource(),
 						projectSession.getQuality());
+				if (!isPreview()) {
+					view.getRenderer().setRuntimeNanos(
+							ShaderEditorApp.preferences.getWallpaperRuntimeNanos(runtimeShaderId));
+				}
+				if (isVisible()) {
+					view.onResume();
+				}
 			}
 		}
 

@@ -122,6 +122,7 @@
 	<!-- UniformPresetPageFragment -->
 	<string name="uniform_format">%1$s (%2$s)</string>
 	<string name="resolution_in_pixels">Размер поверхности в пикселях</string>
+	<string name="rendered_runtime">Время отрисовки в секундах без учёта пауз</string>
 	<string name="time_in_seconds_since_load">Время с начала исполнения (в секундах)</string>
 	<string name="int_seconds_since_load">Время с начала исполнения (целочисленное)</string>
 	<string name="fractional_part_of_seconds_since_load">Fractional part of seconds since load</string>

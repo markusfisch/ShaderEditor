@@ -122,6 +122,7 @@
 	<!-- UniformPresetPageFragment -->
 	<string name="uniform_format">%1$s (%2$s)</string>
 	<string name="resolution_in_pixels">Surface resolution in pixels</string>
+	<string name="rendered_runtime">Rendered time in seconds, excluding pauses</string>
 	<string name="time_in_seconds_since_load">Time in seconds since load</string>
 	<string name="int_seconds_since_load">Time in integer seconds since load</string>
 	<string name="fractional_part_of_seconds_since_load">Fractional part of seconds since load</string>

@@ -188,6 +188,10 @@ public class PresetUniformAdapter extends BaseAdapter implements Filterable {
 						ShaderRenderer.UNIFORM_ROTATION_VECTOR,
 						context.getString(R.string.device_rotation_vector)),
 				new Uniform(
+						"float",
+						ShaderRenderer.UNIFORM_RUNTIME,
+						context.getString(R.string.rendered_runtime)),
+				new Uniform(
 						"int",
 						ShaderRenderer.UNIFORM_SECOND,
 						context.getString(R.string.int_seconds_since_load)),

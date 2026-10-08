@@ -69,6 +69,22 @@ precision mediump float;
 Or use `second`, `subsecond`, or `ftime` uniforms instead.
 See issue [#10](https://github.com/markusfisch/ShaderEditor/issues/10#issuecomment-160463706) for details.
 
+## How can wallpaper animations continue after a pause?
+
+Use `uniform highp float runtime;` instead of `time` for animation time.
+`runtime` counts seconds between rendered frames and excludes pauses.
+The first frame after a pause uses the same value as the last frame before it.
+Unlike `time`, it survives surface and OpenGL context recreation.
+
+The active wallpaper saves its runtime per shader when hidden, changed, or
+stopped, and restores it when loaded again. Editor and wallpaper previews
+have separate, temporary runtimes which reset when a shader is loaded.
+An abrupt process termination can lose time since the last save.
+
+This preserves animation time, not backbuffer contents, random values, or
+sensor input. As with `time`, floating-point precision decreases over time;
+use high precision where supported.
+
 ## How does backbuffer work?
 
 Declare backbuffer like this:

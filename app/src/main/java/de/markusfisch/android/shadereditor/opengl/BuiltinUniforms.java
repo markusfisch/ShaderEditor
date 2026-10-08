@@ -26,6 +26,7 @@ final class BuiltinUniforms {
 	private static final float DEFAULT_FTIME_MAX = 3f;
 	private static final int MAX_POINTERS = 10;
 
+	private final RuntimeClock runtimeClock = new RuntimeClock();
 	private final float[] surfaceResolution = new float[]{0, 0};
 	private final float[] resolution = new float[]{0, 0};
 	private final float[] touch = new float[]{0, 0};
@@ -61,6 +62,14 @@ final class BuiltinUniforms {
 		cameraUniforms = new BuiltinCameraUniforms(context);
 	}
 
+	long getRuntimeNanos() {
+		return runtimeClock.getElapsedNanos();
+	}
+
+	void setRuntimeNanos(long nanos) {
+		runtimeClock.setElapsedNanos(nanos);
+	}
+
 	void setQuality(float quality) {
 		this.quality = quality;
 	}
@@ -82,6 +91,7 @@ final class BuiltinUniforms {
 
 	@NonNull
 	SurfaceState updateSurface(int width, int height, long now) {
+		runtimeClock.pause();
 		startTime = now;
 		startRandom = (float) Math.random();
 		frameNum = 0;
@@ -155,6 +165,8 @@ final class BuiltinUniforms {
 
 		bindings.clear();
 		bindFrameUniforms(bindings, delta);
+		bindings.setFloat(ShaderRenderer.UNIFORM_RUNTIME,
+				(float) (runtimeClock.advance(now) / 1000000000.0));
 		systemUniforms.apply(bindings, now);
 		sensorUniforms.apply(bindings);
 		if (backBufferTexture != null) {
@@ -175,6 +187,7 @@ final class BuiltinUniforms {
 	}
 
 	void clearConfiguration() {
+		runtimeClock.pause();
 		fTimeMax = DEFAULT_FTIME_MAX;
 		textureResources = ShaderTextureResources.empty();
 		programBindings = null;
