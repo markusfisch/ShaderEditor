@@ -1,5 +1,8 @@
 # Change Log
 
+## 2.36.3
+* Add persistent runtime uniform for wallpapers
+
 ## 2.36.2
 * Improve editing
 * Use display refresh rate for FPS cap
