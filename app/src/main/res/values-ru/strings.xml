@@ -264,9 +264,9 @@
 	</plurals>
 	<string name="n_shaders_export_failed">Ошибка при экспортировании: %1$s</string>
 	<plurals name="n_shaders_successfully_imported">
-		<item quantity="one">%1$d шейдер успешно экспортирован</item>
-		<item quantity="few">%1$d шейдера успешно экспортированы, %2$d не удалось</item>
-		<item quantity="many">%1$d шейдеров успешно экспортированы, %2$d не удалось</item>
+		<item quantity="one">%1$d шейдер успешно импортирован</item>
+		<item quantity="few">%1$d шейдера успешно импортированы</item>
+		<item quantity="many">%1$d шейдеров успешно импортированы</item>
 	</plurals>
 	<plurals name="n_shaders_successfully_imported_m_failed">
 		<item quantity="one">%1$d шейдер успешно экспортирован, %2$d не удалось</item>
