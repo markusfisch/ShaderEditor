@@ -55,10 +55,6 @@ public class ShaderEditor extends LineNumberEditText {
 			Pattern.MULTILINE);
 	private static final Pattern PATTERN_ENDIF = Pattern.compile(
 			"(#endif)\\b");
-	private static final Pattern PATTERN_SHADER_TOY = Pattern.compile(
-			".*void\\s+mainImage\\s*\\(.*");
-	private static final Pattern PATTERN_MAIN = Pattern.compile(
-			".*void\\s+main\\s*\\(.*");
 	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
 			"\\xA0");
 	private static final ArrayList<String> DEFAULT_COMPLETIONS = new ArrayList<>();
@@ -138,8 +134,7 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	private static String convertShaderToySource(String src) {
-		if (!PATTERN_SHADER_TOY.matcher(src).find() ||
-				PATTERN_MAIN.matcher(src).find()) {
+		if (!ShaderToySource.needsConversion(src)) {
 			return null;
 		}
 		// Only include and translate uniforms that have an equivalent.
