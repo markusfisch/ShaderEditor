@@ -41,6 +41,7 @@ import java.util.regex.Pattern;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
+import de.markusfisch.android.shadereditor.highlighter.EditedRange;
 import de.markusfisch.android.shadereditor.highlighter.Highlight;
 import de.markusfisch.android.shadereditor.highlighter.Lexer;
 import de.markusfisch.android.shadereditor.highlighter.Token;
@@ -111,6 +112,7 @@ public class ShaderEditor extends LineNumberEditText {
 	private int tabWidthInCharacters = 0;
 	private int tabWidth = 0;
 	private List<Token> tokens = new ArrayList<>();
+	private final EditedRange editedRange = new EditedRange();
 	private boolean isApplyingEdit = false;
 
 	public ShaderEditor(Context context) {
@@ -259,6 +261,7 @@ public class ShaderEditor extends LineNumberEditText {
 		// `setText` can't be overridden
 		tokenListUpdater.update(text, ++revision);
 		setText(highlight(new SpannableStringBuilder(text), true));
+		editedRange.reset();
 		isUserInteraction = true;
 
 		Editable e = getText();
@@ -449,6 +452,7 @@ public class ShaderEditor extends LineNumberEditText {
 					int count) {
 				this.start = start;
 				this.count = count;
+				editedRange.replace(start, before, count);
 			}
 
 			@Override
@@ -537,6 +541,7 @@ public class ShaderEditor extends LineNumberEditText {
 
 		if (length == 0) {
 			tokens = new ArrayList<>();
+			editedRange.reset();
 			return e;
 		}
 
@@ -566,13 +571,12 @@ public class ShaderEditor extends LineNumberEditText {
 				}
 			}
 		} else {
-			Lexer.Diff diff = Lexer.diff(tokens, newTokens);
-			if (diff.start <= diff.deleteEnd) {
-				int startOffset = newTokens.get(diff.start).startOffset();
-				int endOffset = newTokens.get(diff.insertEnd).endOffset();
-				clearSpans(e, startOffset, endOffset, ForegroundColorSpan.class);
+			EditedRange.Restyle restyle = editedRange.restyle(newTokens,
+					Lexer.diff(tokens, newTokens));
+			if (restyle.start < restyle.end) {
+				clearSpans(e, restyle.start, restyle.end, ForegroundColorSpan.class);
 			}
-			for (int i = diff.start; i <= diff.insertEnd; ++i) {
+			for (int i = restyle.firstToken; i < restyle.endToken; ++i) {
 				Token token = newTokens.get(i);
 				e.setSpan(
 						new ForegroundColorSpan(
@@ -584,6 +588,7 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 
 		tokens = newTokens;
+		editedRange.reset();
 
 		return e;
 	}
