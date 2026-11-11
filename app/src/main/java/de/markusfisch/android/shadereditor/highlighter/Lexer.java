@@ -478,8 +478,9 @@ public class Lexer implements Iterable<Token> {
 			start++;
 		}
 
-		// Find the longest common suffix
-		while (end < max && original.get(original.size() - end).equals(edited.get(edited.size() - end))) {
+		// Find the longest common suffix that does not overlap the prefix
+		while (end < max && end <= max - start &&
+				original.get(original.size() - end).equals(edited.get(edited.size() - end))) {
 			end++;
 		}
 
