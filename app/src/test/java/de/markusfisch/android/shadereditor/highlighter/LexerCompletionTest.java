@@ -107,11 +107,16 @@ public class LexerCompletionTest {
 	}
 
 	/**
-	 * The text the editor completes.
+	 * The text the editor completes: from the start of the token at the
+	 * cursor, or of the token just before it, to the cursor.
 	 */
 	@NonNull
 	private static String prefixAt(@NonNull String text, int cursor) {
-		Token token = Lexer.findCompletionToken(Styles.tokens(text), cursor);
+		List<Token> tokens = Styles.tokens(text);
+		Token token = Lexer.findToken(tokens, cursor);
+		if (token == null && cursor > 0) {
+			token = Lexer.findToken(tokens, cursor - 1);
+		}
 		if (token == null) {
 			return "";
 		}
