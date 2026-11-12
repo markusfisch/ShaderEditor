@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -16,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.activity.AddUniformActivity;
@@ -42,6 +46,8 @@ public class ShaderManager {
 	private final ShaderListManager shaderListManager;
 	private final UIManager uiManager;
 	private final DataSource dataSource;
+	private final ExecutorService executor = Executors.newSingleThreadExecutor();
+	private final Handler handler = new Handler(Looper.getMainLooper());
 
 	private long selectedShaderId = NO_SHADER;
 	private float quality = 1f;
@@ -80,7 +86,7 @@ public class ShaderManager {
 						if (isModified()) {
 							saveShader();
 						}
-						long newId = dataSource.shader.insertShaderFromResource(activity,
+						createShaderFromResource(
 								Objects.requireNonNull(result.getData().getStringExtra(
 										LoadSampleActivity.NAME)),
 								result.getData().getIntExtra(LoadSampleActivity.RESOURCE_ID,
@@ -88,7 +94,6 @@ public class ShaderManager {
 								result.getData().getIntExtra(LoadSampleActivity.THUMBNAIL_ID,
 										R.drawable.thumbnail_new_shader),
 								result.getData().getFloatExtra(LoadSampleActivity.QUALITY, 1f));
-						selectShader(newId);
 					}
 				});
 
@@ -116,6 +121,26 @@ public class ShaderManager {
 
 	public long getSelectedShaderId() {
 		return selectedShaderId;
+	}
+
+	public void destroy() {
+		executor.shutdownNow();
+		handler.removeCallbacksAndMessages(null);
+	}
+
+	public void createShaderFromResource(@Nullable String name,
+			int sourceId, int thumbId, float quality) {
+		executor.execute(() -> {
+			long newId = dataSource.shader.insertShaderFromResource(
+					activity.getApplicationContext(), name, sourceId, thumbId, quality);
+			handler.post(() -> {
+				if (activity.isFinishing() || activity.isDestroyed()) {
+					return;
+				}
+				selectShader(newId);
+				shaderListManager.loadShadersAsync();
+			});
+		});
 	}
 
 	public float getQuality() {
