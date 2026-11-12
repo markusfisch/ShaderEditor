@@ -109,8 +109,6 @@ public class MainActivity extends AppCompatActivity {
 				v -> uiManager.toggleCodeVisibility(),
 				v -> editorFragment.showErrors());
 
-		shaderManager.handleSendText(getIntent());
-
 		if (state == null) {
 			Intent intent = getIntent();
 			String action = intent != null ? intent.getAction() : null;
@@ -188,6 +186,10 @@ public class MainActivity extends AppCompatActivity {
 	@Override
 	protected void onPostCreate(Bundle state) {
 		super.onPostCreate(state);
+		// The editor has no view before onStart().
+		if (state == null) {
+			shaderManager.handleSendText(getIntent());
+		}
 		if (uiManager.drawerToggle != null) {
 			uiManager.drawerToggle.syncState();
 		}
