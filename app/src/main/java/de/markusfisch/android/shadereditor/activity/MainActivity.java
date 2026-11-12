@@ -160,10 +160,10 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	protected void onPause() {
-		ShaderEditorApp.preferences.setPendingCrashShaderId(0);
 		if (ShaderEditorApp.preferences.autoSave()) {
 			shaderManager.saveShader();
 		}
+		ShaderEditorApp.preferences.setPendingCrashShaderId(0);
 		super.onPause();
 		shaderViewManager.onPause();
 	}
