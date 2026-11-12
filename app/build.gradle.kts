@@ -62,4 +62,6 @@ dependencies {
 	compileOnly(libs.androidx.concurrent.futures)
 
 	debugImplementation(libs.leakcanary.android)
+
+	testImplementation(libs.junit)
 }
