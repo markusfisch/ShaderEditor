@@ -5,10 +5,10 @@ all: debug install start
 debug:
 	./gradlew assembleDebug
 
-release: lint
+release: test lint
 	./gradlew assembleRelease
 
-bundle: lint
+bundle: test lint
 	./gradlew bundleRelease
 
 lint:
@@ -16,6 +16,9 @@ lint:
 
 infer: clean
 	infer -- ./gradlew assembleDebug
+
+test:
+	./gradlew test
 
 install:
 	adb $(TARGET) install -r app/build/outputs/apk/debug/app-debug.apk
