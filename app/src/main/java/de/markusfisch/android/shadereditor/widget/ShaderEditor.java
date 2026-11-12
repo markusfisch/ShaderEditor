@@ -591,12 +591,13 @@ public class ShaderEditor extends LineNumberEditText {
 			return;
 		}
 		int start = getSelectionStart();
-		Token tok = Lexer.findToken(tokens, start);
-		if (tok == null && start > 0) {
-			tok = Lexer.findToken(tokens, start - 1);
-		}
+		Token tok = Lexer.findCompletionToken(tokens, start);
 		if (tok == null) {
 			listener.onCodeCompletions(DEFAULT_COMPLETIONS, 0);
+			return;
+		}
+		if (Lexer.isInComment(tok, text, start)) {
+			listener.onCodeCompletions(Collections.emptyList(), 0);
 			return;
 		}
 		int positionInToken = start - tok.startOffset();

@@ -1,7 +1,9 @@
 package de.markusfisch.android.shadereditor.highlighter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import androidx.annotation.NonNull;
 
@@ -72,6 +74,33 @@ public class LexerCompletionTest {
 		assertEquals("fl", prefixAt("x = fl ", 6));
 	}
 
+	@Test
+	public void prefixBeforeAClosingParenthesis() {
+		assertEquals("no", prefixAt("vec3(no)", 7));
+	}
+
+	@Test
+	public void prefixBeforeASemicolon() {
+		assertEquals("fl", prefixAt("x = fl;", 6));
+	}
+
+	@Test
+	public void insideAComment() {
+		assertTrue(inComment("// fl", 5));
+		assertTrue(inComment("x; // fl\ny", 8));
+		assertTrue(inComment("/* fl", 5));
+		assertTrue(inComment("/* fl */ x", 5));
+		assertTrue(inComment("/*", 2));
+	}
+
+	@Test
+	public void notInsideAComment() {
+		assertFalse(inComment("x = fl", 6));
+		assertFalse(inComment("/* a */", 7));
+		assertFalse(inComment("/* a */fl", 9));
+		assertFalse(inComment("// a\nfl", 7));
+	}
+
 	@NonNull
 	private static List<String> complete(@NonNull String prefix) {
 		return Lexer.completeKeyword(prefix, Token.Category.NORMAL);
@@ -94,5 +123,10 @@ public class LexerCompletionTest {
 		return Lexer.tokenSource(token, text)
 				.subSequence(0, cursor - token.startOffset())
 				.toString();
+	}
+
+	private static boolean inComment(@NonNull String text, int cursor) {
+		Token token = Lexer.findCompletionToken(Styles.tokens(text), cursor);
+		return token != null && Lexer.isInComment(token, text, cursor);
 	}
 }
