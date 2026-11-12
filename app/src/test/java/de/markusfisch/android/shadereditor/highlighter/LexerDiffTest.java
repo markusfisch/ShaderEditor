@@ -68,6 +68,24 @@ public class LexerDiffTest {
 				0, 1, 0, "");
 	}
 
+	@Test
+	public void insertedArgumentLikeItsNeighbours() {
+		assertDiff("vec3(1.0, 1.0)", "vec3(1.0, 1.0, 1.0)",
+				5, 4, 6, ", 1.0");
+	}
+
+	@Test
+	public void deletedArgumentLikeItsNeighbours() {
+		assertDiff("vec3(1.0, 1.0, 1.0)", "vec3(1.0, 1.0)",
+				5, 6, 4, "");
+	}
+
+	@Test
+	public void insertedLineLikeTheLineAbove() {
+		assertDiff("x = 1.0;", "x = 1.0;\ny = 2.0;",
+				4, 3, 7, "y = 2.0;");
+	}
+
 	private static void assertDiff(
 			@NonNull String before,
 			@NonNull String after,
