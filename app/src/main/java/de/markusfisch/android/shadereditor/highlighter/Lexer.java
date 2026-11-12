@@ -658,6 +658,39 @@ public class Lexer implements Iterable<Token> {
 		return null; // No token contains the position
 	}
 
+	/**
+	 * Finds the word to complete: the token that contains the character
+	 * before the cursor. The text to complete runs from its start to the
+	 * cursor.
+	 *
+	 * @param tokens List of tokens sorted by their start offsets.
+	 * @param cursor The offset of the cursor.
+	 * @return The token, or null if there is none.
+	 */
+	@Nullable
+	public static Token findCompletionToken(@NonNull List<Token> tokens, int cursor) {
+		return cursor > 0 ? findToken(tokens, cursor - 1) : null;
+	}
+
+	/**
+	 * @return True if the cursor is inside the comment {@code token}, which
+	 * holds the character before the cursor.
+	 */
+	public static boolean isInComment(@NonNull Token token, @NonNull CharSequence text,
+			int cursor) {
+		switch (token.type()) {
+			case LINE_COMMENT:
+				return true;
+			case BLOCK_COMMENT:
+				return cursor < token.endOffset() ||
+						token.endOffset() - token.startOffset() < 4 ||
+						text.charAt(token.endOffset() - 2) != '*' ||
+						text.charAt(token.endOffset() - 1) != '/';
+			default:
+				return false;
+		}
+	}
+
 	@Nullable
 	private static TrieNode tokenRoot(@NonNull Token.Category type) {
 		switch (type) {

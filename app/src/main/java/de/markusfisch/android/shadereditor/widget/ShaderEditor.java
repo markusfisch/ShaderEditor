@@ -56,10 +56,6 @@ public class ShaderEditor extends LineNumberEditText {
 			Pattern.MULTILINE);
 	private static final Pattern PATTERN_ENDIF = Pattern.compile(
 			"(#endif)\\b");
-	private static final Pattern PATTERN_SHADER_TOY = Pattern.compile(
-			".*void\\s+mainImage\\s*\\(.*");
-	private static final Pattern PATTERN_MAIN = Pattern.compile(
-			".*void\\s+main\\s*\\(.*");
 	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
 			"\\xA0");
 	private static final ArrayList<String> DEFAULT_COMPLETIONS = new ArrayList<>();
@@ -140,8 +136,7 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	private static String convertShaderToySource(String src) {
-		if (!PATTERN_SHADER_TOY.matcher(src).find() ||
-				PATTERN_MAIN.matcher(src).find()) {
+		if (!ShaderToySource.needsConversion(src)) {
 			return null;
 		}
 		// Only include and translate uniforms that have an equivalent.
@@ -601,12 +596,13 @@ public class ShaderEditor extends LineNumberEditText {
 			return;
 		}
 		int start = getSelectionStart();
-		Token tok = Lexer.findToken(tokens, start);
-		if (tok == null && start > 0) {
-			tok = Lexer.findToken(tokens, start - 1);
-		}
+		Token tok = Lexer.findCompletionToken(tokens, start);
 		if (tok == null) {
 			listener.onCodeCompletions(DEFAULT_COMPLETIONS, 0);
+			return;
+		}
+		if (Lexer.isInComment(tok, text, start)) {
+			listener.onCodeCompletions(Collections.emptyList(), 0);
 			return;
 		}
 		int positionInToken = start - tok.startOffset();
