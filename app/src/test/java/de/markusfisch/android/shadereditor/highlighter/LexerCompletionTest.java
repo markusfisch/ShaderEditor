@@ -113,7 +113,10 @@ public class LexerCompletionTest {
 	@NonNull
 	private static String prefixAt(@NonNull String text, int cursor) {
 		List<Token> tokens = Styles.tokens(text);
-		Token token = Lexer.findCompletionToken(tokens, cursor);
+		Token token = Lexer.findToken(tokens, cursor);
+		if (token == null && cursor > 0) {
+			token = Lexer.findToken(tokens, cursor - 1);
+		}
 		if (token == null) {
 			return "";
 		}
