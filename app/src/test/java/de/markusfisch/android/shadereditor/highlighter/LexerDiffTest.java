@@ -17,7 +17,7 @@ public class LexerDiffTest {
 	@Test
 	public void unchangedText() {
 		assertDiff("float x = 1.0;", "float x = 1.0;",
-				6, 5, 5, "");
+				6, 0, 0, "");
 	}
 
 	@Test
