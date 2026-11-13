@@ -80,8 +80,9 @@ public class TextureViewFragment extends Fragment {
 		TextureInfo textureInfo = dataSource.texture.getTextureInfo(textureId);
 
 		if (nonPremultipliedBitmap == null || textureInfo == null) {
-			// Automatically remove defective textures.
-			dataSource.texture.removeTexture(textureId);
+			if (nonPremultipliedBitmap != null) {
+				nonPremultipliedBitmap.recycle();
+			}
 			Toast.makeText(activity, R.string.removed_invalid_texture,
 					Toast.LENGTH_LONG).show();
 			activity.finish();
