@@ -328,7 +328,9 @@ public class ShaderDao {
 					String modifiedDate = CursorHelpers.getString(cursor,
 							DatabaseContract.ShaderColumns.MODIFIED);
 					if (createdDate == null || modifiedDate == null ||
-							shaderExists(dst, createdDate, modifiedDate)) {
+							shaderExists(dst, createdDate, modifiedDate,
+								cursor.getString(shaderIndex), cursor.getString(nameIndex),
+								cursor.getFloat(qualityIndex))) {
 						continue;
 					}
 					long shaderId = insertShader(dst,
@@ -351,13 +353,20 @@ public class ShaderDao {
 	private static boolean shaderExists(
 			SQLiteDatabase db,
 			String createdDate,
-			String modifiedDate) {
+			String modifiedDate,
+			String source,
+			String name,
+			float quality) {
 		try (Cursor cursor = db.rawQuery(
 				"SELECT " + DatabaseContract.ShaderColumns._ID +
 						" FROM " + DatabaseContract.ShaderColumns.TABLE_NAME +
 						" WHERE " + DatabaseContract.ShaderColumns.CREATED + " = ?" +
-						" AND " + DatabaseContract.ShaderColumns.MODIFIED + " = ?",
-				new String[]{createdDate, modifiedDate})) {
+						" AND " + DatabaseContract.ShaderColumns.MODIFIED + " = ?" +
+						" AND " + DatabaseContract.ShaderColumns.FRAGMENT_SHADER + " = ?" +
+						" AND " + DatabaseContract.ShaderColumns.NAME + " IS ?" +
+						" AND " + DatabaseContract.ShaderColumns.QUALITY + " = ?",
+				new String[]{createdDate, modifiedDate, source, name,
+						Float.toString(quality)})) {
 			return cursor != null && cursor.moveToFirst() && cursor.getCount() > 0;
 		}
 	}
