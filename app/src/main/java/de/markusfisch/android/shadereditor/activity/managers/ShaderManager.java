@@ -230,18 +230,18 @@ public class ShaderManager {
 				projectSession.getProject().getTitle());
 	}
 
-	public void saveShader() {
-		saveShader(false);
+	public boolean saveShader() {
+		return saveShader(false);
 	}
 
-	public void saveShader(boolean force) {
+	public boolean saveShader(boolean force) {
 		if (!force && !isModified()) {
-			return;
+			return true;
 		}
 
 		String src = editorFragment.getText();
 		if (src.trim().isEmpty() && selectedShaderId <= 0) {
-			return;
+			return true;
 		}
 
 		byte[] thumbnail = getThumbnail();
@@ -249,8 +249,14 @@ public class ShaderManager {
 			dataSource.shader.updateShader(
 					selectedShaderId, src, thumbnail, quality);
 		} else {
-			selectedShaderId = dataSource.shader.insertShader(
+			long newId = dataSource.shader.insertShader(
 					src, null, thumbnail, quality);
+			if (newId <= 0) {
+				Toast.makeText(activity, R.string.storage_not_writeable,
+						Toast.LENGTH_LONG).show();
+				return false;
+			}
+			selectedShaderId = newId;
 			shaderListManager.setSelectedShaderId(selectedShaderId);
 		}
 
@@ -260,6 +266,7 @@ public class ShaderManager {
 		shaderListManager.loadShadersAsync();
 		Toast.makeText(activity, R.string.shader_saved,
 				Toast.LENGTH_SHORT).show();
+		return true;
 	}
 
 	private byte[] getThumbnail() {
@@ -295,6 +302,9 @@ public class ShaderManager {
 			ShaderProjectSession projectSession =
 					new LooseShaderFileProjectSource(uri, sb.toString(), 1f)
 							.openSession();
+			if (isModified() && !saveShader()) {
+				return;
+			}
 			PreviewActivity.renderStatus.reset();
 			intent.setAction(null);
 			applyProjectSession(NO_SHADER,
