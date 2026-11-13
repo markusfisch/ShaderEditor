@@ -13,9 +13,10 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.IntentCompat;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -285,22 +286,25 @@ public class ShaderManager {
 		}
 
 		Uri uri = intent.getData();
-		if (uri == null) {
-			return;
+		if (uri == null && Intent.ACTION_SEND.equals(intent.getAction())) {
+			uri = IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri.class);
 		}
 
-		try (InputStream in = activity.getContentResolver().openInputStream(uri)) {
-			if (in == null) {
+		try {
+			String source;
+			if (uri != null) {
+				source = readShaderSource(uri);
+			} else if (Intent.ACTION_SEND.equals(intent.getAction())) {
+				CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+				source = text != null ? text.toString() : null;
+			} else {
+				source = null;
+			}
+			if (source == null) {
 				return;
 			}
-			byte[] buffer = new byte[4096];
-			int len;
-			var sb = new StringBuilder();
-			while ((len = in.read(buffer)) != -1) {
-				sb.append(new String(buffer, 0, len, StandardCharsets.UTF_8));
-			}
 			ShaderProjectSession projectSession =
-					new LooseShaderFileProjectSource(uri, sb.toString(), 1f)
+					new LooseShaderFileProjectSource(uri, source, 1f)
 							.openSession();
 			if (isModified() && !saveShader()) {
 				return;
@@ -311,9 +315,27 @@ public class ShaderManager {
 					projectSession,
 					projectSession.getProject().getTitle());
 			setModified(true);
-		} catch (IOException e) {
+		} catch (IOException | SecurityException e) {
 			Toast.makeText(activity, R.string.unsuitable_text,
 					Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	@Nullable
+	private String readShaderSource(@NonNull Uri uri) throws IOException {
+		try (var in = activity.getContentResolver().openInputStream(uri)) {
+			if (in == null) {
+				return null;
+			}
+			try (var reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
+				char[] buffer = new char[4096];
+				int len;
+				var source = new StringBuilder();
+				while ((len = reader.read(buffer)) != -1) {
+					source.append(buffer, 0, len);
+				}
+				return source.toString();
+			}
 		}
 	}
 
