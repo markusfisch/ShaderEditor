@@ -32,6 +32,18 @@ public class UniformPresetPageFragment extends AddUniformPageFragment {
 
 		Activity activity = requireActivity();
 		listView = view.findViewById(R.id.uniforms);
+		// AbsListView ignores taps after an attach until its next layout.
+		listView.addOnAttachStateChangeListener(
+				new View.OnAttachStateChangeListener() {
+					@Override
+					public void onViewAttachedToWindow(@NonNull View v) {
+						v.requestLayout();
+					}
+
+					@Override
+					public void onViewDetachedFromWindow(@NonNull View v) {
+					}
+				});
 		initListView(activity);
 
 		return view;
