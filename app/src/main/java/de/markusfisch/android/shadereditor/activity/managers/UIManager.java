@@ -92,7 +92,7 @@ public class UIManager {
 	}
 
 	public void setToolbarTitle(String name) {
-		toolbar.setTitle(name);
+		activity.setTitle(name);
 		toolbar.setSubtitle(null);
 	}
 
