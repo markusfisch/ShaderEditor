@@ -323,23 +323,26 @@ public class ShaderDao {
 			boolean success = true;
 			if (cursor.moveToFirst()) {
 				do {
+					String source = cursor.getString(shaderIndex);
+					String name = nameIndex >= 0 ? cursor.getString(nameIndex) : null;
+					float quality = qualityIndex >= 0 && !cursor.isNull(qualityIndex)
+							? cursor.getFloat(qualityIndex) : 1f;
 					String createdDate = CursorHelpers.getString(cursor,
 							DatabaseContract.ShaderColumns.CREATED);
 					String modifiedDate = CursorHelpers.getString(cursor,
 							DatabaseContract.ShaderColumns.MODIFIED);
 					if (createdDate == null || modifiedDate == null ||
 							shaderExists(dst, createdDate, modifiedDate,
-								cursor.getString(shaderIndex), cursor.getString(nameIndex),
-								cursor.getFloat(qualityIndex))) {
+								source, name, quality)) {
 						continue;
 					}
 					long shaderId = insertShader(dst,
-							cursor.getString(shaderIndex),
-							cursor.getString(nameIndex),
+							source,
+							name,
 							createdDate,
 							modifiedDate,
 							cursor.getBlob(thumbIndex),
-							cursor.getFloat(qualityIndex));
+							quality);
 					if (shaderId < 1) {
 						success = false;
 						break;
