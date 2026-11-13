@@ -38,6 +38,8 @@ public class ShaderManager {
 	public final ActivityResultLauncher<Intent> previewShaderLauncher;
 
 	private static final String SELECTED_SHADER_ID = "selected_shader_id";
+	private static final String PROJECT_SESSION = "project_session";
+	private static final String MODIFIED = "modified";
 	private static final long NO_SHADER = 0;
 
 	private final AppCompatActivity activity;
@@ -170,11 +172,24 @@ public class ShaderManager {
 
 	public void saveState(@NonNull Bundle outState) {
 		outState.putLong(SELECTED_SHADER_ID, selectedShaderId);
+		outState.putSerializable(PROJECT_SESSION, getEditedProjectSession());
+		outState.putBoolean(MODIFIED, isModified);
 	}
 
+	@SuppressWarnings("deprecation")
 	public void restoreState(@NonNull Bundle savedInstanceState) {
 		selectedShaderId = savedInstanceState.getLong(
 				SELECTED_SHADER_ID, NO_SHADER);
+		if (savedInstanceState.getSerializable(PROJECT_SESSION) instanceof
+				ShaderProjectSession projectSession) {
+			currentProjectSession = projectSession;
+			quality = projectSession.getQuality();
+			uiManager.setToolbarTitle(projectSession.getProject().getTitle());
+			shaderListManager.setSelectedShaderId(selectedShaderId);
+			shaderViewManager.setProjectSession(projectSession);
+			updatePendingCrashShaderId();
+		}
+		setModified(savedInstanceState.getBoolean(MODIFIED));
 	}
 
 	@NonNull
