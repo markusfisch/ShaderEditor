@@ -312,10 +312,10 @@ public class CubeMapView extends ScalingImageView {
 		}
 
 		Face face = faces[idx];
-		face.bitmap = BitmapEditor.crop(
+		face.bitmap = getDisplayBitmap(BitmapEditor.crop(
 				bitmap,
 				from.clip,
-				from.rotation);
+				from.rotation));
 		face.uri = from.uri;
 		face.clip = from.clip;
 		face.rotation = from.rotation;
@@ -441,10 +441,10 @@ public class CubeMapView extends ScalingImageView {
 
 		if (selectedBitmap != null) {
 			Face face = faces[selectedFace];
-			face.bitmap = BitmapEditor.crop(
+			face.bitmap = getDisplayBitmap(BitmapEditor.crop(
 					selectedBitmap,
 					face.clip,
-					face.rotation);
+					face.rotation));
 		}
 
 		selectedFace = n;
@@ -479,10 +479,23 @@ public class CubeMapView extends ScalingImageView {
 
 	private void setImageFromUri(Uri uri) {
 		selectedBitmap = uri != null
-				? BitmapEditor.getBitmapFromUri(getContext(), uri, PREVIEW_SIZE)
+				? getDisplayBitmap(BitmapEditor.getBitmapFromUri(
+						getContext(), uri, PREVIEW_SIZE))
 				: null;
 
 		setImageBitmap(selectedBitmap);
+	}
+
+	// A Canvas cannot draw the non-premultiplied bitmaps used for textures.
+	private static Bitmap getDisplayBitmap(Bitmap bitmap) {
+		if (bitmap == null) {
+			return null;
+		}
+		Bitmap displayBitmap = BitmapEditor.createDisplayBitmap(bitmap);
+		if (displayBitmap != bitmap) {
+			bitmap.recycle();
+		}
+		return displayBitmap;
 	}
 
 	private static class SavedState extends BaseSavedState {
