@@ -83,9 +83,8 @@ public class BackBufferParametersView extends LinearLayout {
 
 		long id = textureInfo.id();
 
-		// The preset is stored as a stringified ID.
 		if (id > 0) {
-			tp.setPreset(String.valueOf(id));
+			tp.setPreset(textureInfo.name());
 		} else {
 			// If "(no preset)" is selected, clear the preset.
 			tp.setPreset(null);
