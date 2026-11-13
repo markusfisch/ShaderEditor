@@ -28,6 +28,7 @@ import de.markusfisch.android.shadereditor.database.Database;
 public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 	protected String searchQuery;
 
+	private int loadGeneration;
 	private ListView listView;
 	private TextureAdapter texturesAdapter;
 	private View progressBar;
@@ -103,19 +104,26 @@ public class UniformSampler2dPageFragment extends AddUniformPageFragment {
 			return;
 		}
 		Handler handler = new Handler(Looper.getMainLooper());
-		try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
+		View loadingView = getView();
+		int generation = ++loadGeneration;
+		String query = searchQuery;
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		try {
 			executor.execute(() -> {
 				DataSource dataSource = Database.getInstance(context).getDataSource();
 				// Call the new overridable method to get the textures.
 				final List<DataRecords.TextureInfo> textures = getTextures(dataSource,
-						searchQuery);
+						query);
 
 				handler.post(() -> {
-					if (isAdded()) {
+					if (isAdded() && getView() == loadingView &&
+							loadingView != null && generation == loadGeneration) {
 						updateAdapter(textures);
 					}
 				});
 			});
+		} finally {
+			executor.shutdown();
 		}
 	}
 

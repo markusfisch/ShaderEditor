@@ -32,7 +32,7 @@ public class CropImageFragment extends Fragment {
 	}
 
 	public static final String IMAGE_URI = "image_uri";
-	private static boolean inProgress = false;
+	private boolean inProgress = false;
 	private CropImageView cropImageView;
 	private View progressView;
 	private Uri imageUri;
@@ -107,22 +107,36 @@ public class CropImageFragment extends Fragment {
 		loadBitmapAsync();
 	}
 
+	@Override
+	public void onDestroyView() {
+		inProgress = false;
+		super.onDestroyView();
+	}
+
 	private void loadBitmapAsync() {
 		final Activity activity = getActivity();
 		if (activity == null || inProgress) {
 			return;
 		}
 
+		View loadingView = getView();
 		inProgress = true;
 		progressView.setVisibility(View.VISIBLE);
 		Handler handler = new Handler(Looper.getMainLooper());
-		try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		try {
 			executor.execute(() -> {
 				Bitmap b = BitmapEditor.getBitmapFromUri(
 						activity,
 						imageUri,
 						1024);
 				handler.post(() -> {
+					if (getView() != loadingView || loadingView == null) {
+						if (b != null) {
+							b.recycle();
+						}
+						return;
+					}
 					inProgress = false;
 					progressView.setVisibility(View.GONE);
 
@@ -145,6 +159,8 @@ public class CropImageFragment extends Fragment {
 					}
 				});
 			});
+		} finally {
+			executor.shutdown();
 		}
 	}
 
@@ -157,6 +173,9 @@ public class CropImageFragment extends Fragment {
 	}
 
 	private void cropImage() {
+		if (bitmap == null || inProgress) {
+			return;
+		}
 		AbstractSubsequentActivity.addFragment(
 				getParentFragmentManager(),
 				Sampler2dPropertiesFragment.newInstance(

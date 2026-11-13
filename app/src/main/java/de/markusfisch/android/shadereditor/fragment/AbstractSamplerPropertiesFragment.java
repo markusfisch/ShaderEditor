@@ -170,15 +170,20 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 
 		final int size = getPower(sizeBarView.getProgress());
 
+		View savingView = getView();
 		inProgress = true;
 		progressView.setVisibility(View.VISIBLE);
 
 		Handler handler = new Handler(Looper.getMainLooper());
-		try (ExecutorService executor = Executors.newSingleThreadExecutor()) {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		try {
 			executor.execute(() -> {
 				int messageId = saveSampler(context, name, size);
 				handler.post(() -> {
 					inProgress = false;
+					if (getView() != savingView || savingView == null) {
+						return;
+					}
 					progressView.setVisibility(View.GONE);
 
 					Activity activity = getActivity();
@@ -205,6 +210,8 @@ public abstract class AbstractSamplerPropertiesFragment extends Fragment {
 					activity.finish();
 				});
 			});
+		} finally {
+			executor.shutdown();
 		}
 	}
 
