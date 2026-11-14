@@ -11,7 +11,6 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Preview;
@@ -41,7 +40,10 @@ public class CameraListener {
 	@NonNull
 	private final Size frameSize;
 	@Nullable
-	private Camera camera;
+	private ProcessCameraProvider cameraProvider;
+	@Nullable
+	private Preview preview;
+	private volatile boolean registered;
 
 	public CameraListener(
 			int cameraTextureId,
@@ -63,9 +65,16 @@ public class CameraListener {
 	}
 
 	public void register(@NonNull LifecycleOwner lifecycleOwner) {
+		// Called by the renderer with its GL context current.
+		SurfaceTexture texture = new SurfaceTexture(cameraTextureId);
+		synchronized (this) {
+			surfaceTexture = texture;
+		}
+		registered = true;
 		Handler mainHandler = new Handler(Looper.getMainLooper());
 		mainHandler.post(() -> {
-			if (!lifecycleOwner.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED) ||
+			if (!registered ||
+					!lifecycleOwner.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED) ||
 					ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA) !=
 							PackageManager.PERMISSION_GRANTED) {
 				return;
@@ -73,8 +82,12 @@ public class CameraListener {
 			ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
 					ProcessCameraProvider.getInstance(context);
 			cameraProviderFuture.addListener(() -> {
+				if (!registered ||
+						!lifecycleOwner.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+					return;
+				}
 				try {
-					ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+					cameraProvider = cameraProviderFuture.get();
 					CameraSelector cameraSelector = new CameraSelector.Builder()
 							.requireLensFacing(facing)
 							.build();
@@ -82,20 +95,22 @@ public class CameraListener {
 						Log.w("CameraListener", "Requested camera is unavailable");
 						return;
 					}
-					cameraProvider.unbindAll();
-					Preview preview = new Preview.Builder()
+					preview = new Preview.Builder()
 							.setTargetResolution(frameSize)
 							.build();
 					preview.setSurfaceProvider(surfaceRequest -> {
-						surfaceTexture = new SurfaceTexture(cameraTextureId);
+						if (!registered) {
+							surfaceRequest.willNotProvideSurface();
+							return;
+						}
 						Size size = surfaceRequest.getResolution();
-						surfaceTexture.setDefaultBufferSize(size.getWidth(), size.getHeight());
-						Surface surface = new Surface(surfaceTexture);
+						texture.setDefaultBufferSize(size.getWidth(), size.getHeight());
+						Surface surface = new Surface(texture);
 						surfaceRequest.provideSurface(surface,
 								ContextCompat.getMainExecutor(context),
 								result -> surface.release());
 					});
-					camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector,
+					cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector,
 							preview);
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
@@ -108,18 +123,15 @@ public class CameraListener {
 	}
 
 	public void unregister() {
+		registered = false;
 		Handler mainHandler = new Handler(Looper.getMainLooper());
 		mainHandler.post(() -> {
-			if (camera != null) {
-				ProcessCameraProvider cameraProvider;
-				try {
-					cameraProvider = ProcessCameraProvider.getInstance(context).get();
-				} catch (ExecutionException | InterruptedException ignored) {
-					return;
-				}
-				cameraProvider.unbindAll();
-				camera = null;
-
+			if (cameraProvider != null && preview != null) {
+				cameraProvider.unbind(preview);
+			}
+			cameraProvider = null;
+			preview = null;
+			synchronized (this) {
 				if (surfaceTexture != null) {
 					surfaceTexture.release();
 					surfaceTexture = null;
