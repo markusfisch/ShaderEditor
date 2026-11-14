@@ -1,12 +1,13 @@
 package de.markusfisch.android.shadereditor.activity.managers;
 
 import android.app.Activity;
-import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewTreeObserver;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -80,16 +81,9 @@ public class ExtraKeysManager implements ViewTreeObserver.OnGlobalLayoutListener
 			return;
 		}
 
-		Rect r = new Rect();
-		extraKeysView.getWindowVisibleDisplayFrame(r);
-		int screenHeight = extraKeysView.getRootView().getHeight();
-
-		// r.bottom is the position above soft keypad or device button.
-		// if keypad is shown, the r.bottom is smaller than that before.
-		int keypadHeight = screenHeight - r.bottom;
-		// 0.15 ratio is perhaps enough to determine keypad height.
-		extraKeysView.setVisibility(getVisibility(
-				keypadHeight > screenHeight * 0.15));
+		WindowInsetsCompat insets = ViewCompat.getRootWindowInsets(extraKeysView);
+		extraKeysView.setVisibility(getVisibility(insets != null &&
+				insets.isVisible(WindowInsetsCompat.Type.ime())));
 	}
 
 	private static int getVisibility(boolean isVisible) {
