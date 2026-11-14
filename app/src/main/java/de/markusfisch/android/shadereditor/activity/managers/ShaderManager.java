@@ -117,7 +117,7 @@ public class ShaderManager {
 					if (getSelectedShaderId() > 0 &&
 							status.getThumbnail() != null &&
 							ShaderEditorApp.preferences.doesSaveOnRun()) {
-						saveShader();
+						saveShader(true);
 					}
 				});
 	}
