@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -22,6 +24,10 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceCategory;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
+
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
@@ -38,6 +44,10 @@ import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
 public class PreferencesFragment
 		extends PreferenceFragmentCompat
 		implements SharedPreferences.OnSharedPreferenceChangeListener {
+	// Keep imports serialized across fragment recreation: they share import.db.
+	private static final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
+	private final Handler handler = new Handler(Looper.getMainLooper());
+	private boolean databaseOperationInProgress;
 	private ActivityResultLauncher<Intent> pickFileLauncher;
 	private ActivityResultLauncher<String> requestReadPermissionLauncher;
 	private ActivityResultLauncher<String> requestWritePermissionLauncher;
@@ -55,9 +65,10 @@ public class PreferencesFragment
 					if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
 						Context context = getContext();
 						if (context != null) {
-							String message = DatabaseImporter.importDatabase(
-									context, result.getData().getData());
-							Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+							Context appContext = context.getApplicationContext();
+							var uri = result.getData().getData();
+							runDatabaseOperation(() -> DatabaseImporter.importDatabase(
+									appContext, uri), R.string.import_failed);
 						}
 					}
 				});
@@ -91,6 +102,7 @@ public class PreferencesFragment
 	public void onCreatePreferences(Bundle state, String rootKey) {
 		setPreferencesFromResource(R.xml.preferences, rootKey);
 		wireImportExport();
+		setDatabaseOperationInProgress(databaseOperationInProgress);
 	}
 
 	@Override
@@ -252,12 +264,49 @@ public class PreferencesFragment
 			exportDatabase.setOnPreferenceClickListener(preference -> {
 				Context context = getContext();
 				if (context != null) {
-					Toast.makeText(context,
-							DatabaseExporter.exportDatabase(context),
-							Toast.LENGTH_LONG).show();
+					Context appContext = context.getApplicationContext();
+					runDatabaseOperation(() -> appContext.getString(
+							DatabaseExporter.exportDatabase(appContext)),
+							R.string.n_shaders_export_failed);
 				}
 				return true;
 			});
+		}
+	}
+
+	private void runDatabaseOperation(Callable<String> operation, int failureMessageId) {
+		if (databaseOperationInProgress) {
+			return;
+		}
+		Context context = requireContext().getApplicationContext();
+		setDatabaseOperationInProgress(true);
+		databaseExecutor.execute(() -> {
+			String message;
+			try {
+				message = operation.call();
+			} catch (Exception e) {
+				message = context.getString(failureMessageId, e.getMessage());
+			}
+			String result = message;
+			handler.post(() -> {
+				databaseOperationInProgress = false;
+				if (!isAdded()) {
+					return;
+				}
+				setDatabaseOperationInProgress(false);
+				setSummaries(getPreferenceScreen());
+				Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+			});
+		});
+	}
+
+	private void setDatabaseOperationInProgress(boolean inProgress) {
+		databaseOperationInProgress = inProgress;
+		for (String key : new String[]{Preferences.IMPORT_DATABASE, Preferences.EXPORT_DATABASE}) {
+			Preference preference = findPreference(key);
+			if (preference != null) {
+				preference.setEnabled(!inProgress);
+			}
 		}
 	}
 }

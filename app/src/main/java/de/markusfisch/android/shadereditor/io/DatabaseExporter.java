@@ -1,6 +1,8 @@
 package de.markusfisch.android.shadereditor.io;
 
 import android.content.Context;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,6 +13,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import de.markusfisch.android.shadereditor.R;
+import de.markusfisch.android.shadereditor.database.Database;
 import de.markusfisch.android.shadereditor.database.DatabaseContract;
 
 public class DatabaseExporter {
@@ -26,8 +29,22 @@ public class DatabaseExporter {
 				new SimpleDateFormat("yyyy-MM-dd",
 						Locale.getDefault()).format(new Date()));
 
-		// Use try-with-resources to automatically close streams.
-		try (FileInputStream in = new FileInputStream(current);
+		File snapshot = null;
+		try {
+			snapshot = File.createTempFile("shader-backup-", ".db", context.getCacheDir());
+			Database.getInstance(context).createSnapshot(snapshot);
+			return exportSnapshot(context, snapshot, fileName);
+		} catch (IOException | SQLException e) {
+			return R.string.storage_not_writeable;
+		} finally {
+			if (snapshot != null) {
+				SQLiteDatabase.deleteDatabase(snapshot);
+			}
+		}
+	}
+
+	private static int exportSnapshot(Context context, File snapshot, String fileName) throws IOException {
+		try (FileInputStream in = new FileInputStream(snapshot);
 				OutputStream out = ExternalFile.openExternalOutputStream(
 						context,
 						fileName,
@@ -40,8 +57,6 @@ public class DatabaseExporter {
 			}
 
 			return R.string.successfully_exported;
-		} catch (IOException e) {
-			return R.string.storage_not_writeable;
 		}
 	}
 }

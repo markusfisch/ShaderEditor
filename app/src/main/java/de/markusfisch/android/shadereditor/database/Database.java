@@ -56,6 +56,30 @@ public final class Database {
 		return dataSource;
 	}
 
+	public void createSnapshot(@NonNull File destination) {
+		SQLiteDatabase db = dbHelper.getWritableDatabase();
+		db.execSQL("ATTACH DATABASE ? AS backup", new Object[]{destination.getAbsolutePath()});
+		try {
+			db.beginTransaction();
+			try (var tables = db.rawQuery(
+					"SELECT name, sql FROM main.sqlite_master WHERE type = 'table'" +
+							" AND name NOT LIKE 'sqlite_%'", null)) {
+				while (tables.moveToNext()) {
+					String name = "\"" + tables.getString(0).replace("\"", "\"\"") + "\"";
+					String schema = tables.getString(1);
+					db.execSQL(schema.replaceFirst("(?i)^CREATE TABLE\\s+", "CREATE TABLE backup."));
+					db.execSQL("INSERT INTO backup." + name + " SELECT * FROM main." + name);
+				}
+				db.execSQL("PRAGMA backup.user_version = " + db.getVersion());
+				db.setTransactionSuccessful();
+			} finally {
+				db.endTransaction();
+			}
+		} finally {
+			db.execSQL("DETACH DATABASE backup");
+		}
+	}
+
 	@Nullable
 	public String importDatabase(String tempFileName, @NonNull Uri originalUri) {
 		SQLiteDatabase db = dbHelper.getWritableDatabase();
