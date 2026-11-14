@@ -369,6 +369,21 @@ final class GlDevice {
 		return getUniformLocation(program, name) > -1;
 	}
 
+	int getUniformType(@NonNull GlProgram program, @NonNull String name) {
+		int[] count = new int[1];
+		GLES20.glGetProgramiv(program.getId(), GLES20.GL_ACTIVE_UNIFORMS, count, 0);
+		int[] size = new int[1];
+		int[] type = new int[1];
+		for (int i = 0; i < count[0]; ++i) {
+			String uniformName = GLES20.glGetActiveUniform(
+					program.getId(), i, size, 0, type, 0);
+			if (name.equals(uniformName)) {
+				return type[0];
+			}
+		}
+		return 0;
+	}
+
 	int getAttribLocation(@NonNull GlProgram program, @NonNull String name) {
 		Integer location = program.getAttribLocations().get(name);
 		if (location != null) {

@@ -1,6 +1,7 @@
 package de.markusfisch.android.shadereditor.opengl;
 
 import android.content.Context;
+import android.opengl.GLES20;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
@@ -32,6 +33,7 @@ final class BuiltinUniforms {
 	private final float[] touch = new float[]{0, 0};
 	private final float[] touchStart = new float[]{0, 0};
 	private final float[] mouse = new float[]{0, 0};
+	private final float[] shaderToyMouse = new float[]{0, 0, 0, 0};
 	private final float[] pointers = new float[MAX_POINTERS * 3];
 	private final float[] offset = new float[]{0, 0};
 	@NonNull
@@ -54,6 +56,7 @@ final class BuiltinUniforms {
 	private float fTimeMax = DEFAULT_FTIME_MAX;
 	private float quality = 1f;
 	private float startRandom;
+	private boolean hasShaderToyMouse;
 
 	BuiltinUniforms(@NonNull Context context) {
 		this.context = context;
@@ -83,6 +86,8 @@ final class BuiltinUniforms {
 		this.fTimeMax = fTimeMax;
 		this.textureResources = textureResources;
 		programBindings = new ProgramBindings(program);
+		hasShaderToyMouse = device.getUniformType(program,
+				ShaderRenderer.UNIFORM_MOUSE) == GLES20.GL_FLOAT_VEC4;
 
 		sensorUniforms.configure(device, program);
 		systemUniforms.configure(device, program);
@@ -126,14 +131,20 @@ final class BuiltinUniforms {
 
 		mouse[0] = x / resolution[0];
 		mouse[1] = 1 - y / resolution[1];
+		shaderToyMouse[0] = touch[0];
+		shaderToyMouse[1] = touch[1];
 
 		switch (e.getActionMasked()) {
 			case MotionEvent.ACTION_DOWN:
 				touchStart[0] = touch[0];
 				touchStart[1] = touch[1];
+				shaderToyMouse[2] = touch[0];
+				shaderToyMouse[3] = touch[1];
 				break;
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
+				shaderToyMouse[2] = -Math.abs(shaderToyMouse[2]);
+				shaderToyMouse[3] = -Math.abs(shaderToyMouse[3]);
 				pointerCount = 0;
 				return;
 			default:
@@ -213,7 +224,11 @@ final class BuiltinUniforms {
 		bindings.setFloat2(ShaderRenderer.UNIFORM_RESOLUTION, resolution);
 		bindings.setFloat2(ShaderRenderer.UNIFORM_TOUCH, touch);
 		bindings.setFloat2(ShaderRenderer.UNIFORM_TOUCH_START, touchStart);
-		bindings.setFloat2(ShaderRenderer.UNIFORM_MOUSE, mouse);
+		if (hasShaderToyMouse) {
+			bindings.setFloat4(ShaderRenderer.UNIFORM_MOUSE, shaderToyMouse);
+		} else {
+			bindings.setFloat2(ShaderRenderer.UNIFORM_MOUSE, mouse);
+		}
 		bindings.setInt(ShaderRenderer.UNIFORM_POINTER_COUNT, pointerCount);
 		if (pointerCount > 0) {
 			bindings.setFloat3(
