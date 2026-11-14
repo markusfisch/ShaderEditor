@@ -1,15 +1,18 @@
 package de.markusfisch.android.shadereditor.hardware;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.Camera;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -62,7 +65,9 @@ public class CameraListener {
 	public void register(@NonNull LifecycleOwner lifecycleOwner) {
 		Handler mainHandler = new Handler(Looper.getMainLooper());
 		mainHandler.post(() -> {
-			if (!lifecycleOwner.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+			if (!lifecycleOwner.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED) ||
+					ContextCompat.checkSelfPermission(context, android.Manifest.permission.CAMERA) !=
+							PackageManager.PERMISSION_GRANTED) {
 				return;
 			}
 			ListenableFuture<ProcessCameraProvider> cameraProviderFuture =
@@ -70,6 +75,13 @@ public class CameraListener {
 			cameraProviderFuture.addListener(() -> {
 				try {
 					ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+					CameraSelector cameraSelector = new CameraSelector.Builder()
+							.requireLensFacing(facing)
+							.build();
+					if (!cameraProvider.hasCamera(cameraSelector)) {
+						Log.w("CameraListener", "Requested camera is unavailable");
+						return;
+					}
 					cameraProvider.unbindAll();
 					Preview preview = new Preview.Builder()
 							.setTargetResolution(frameSize)
@@ -83,13 +95,13 @@ public class CameraListener {
 								ContextCompat.getMainExecutor(context),
 								result -> surface.release());
 					});
-					CameraSelector cameraSelector = new CameraSelector.Builder()
-							.requireLensFacing(facing)
-							.build();
 					camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector,
 							preview);
-				} catch (ExecutionException | InterruptedException e) {
-					// Handle exceptions
+				} catch (InterruptedException e) {
+					Thread.currentThread().interrupt();
+				} catch (ExecutionException | CameraInfoUnavailableException |
+						IllegalArgumentException | SecurityException e) {
+					Log.w("CameraListener", "Cannot open requested camera", e);
 				}
 			}, ContextCompat.getMainExecutor(context));
 		});
