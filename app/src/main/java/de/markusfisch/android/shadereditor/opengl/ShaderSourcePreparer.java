@@ -121,7 +121,14 @@ final class ShaderSourcePreparer {
 			if (matcher.find() &&
 					matcher.groupCount() > 0 &&
 					(period = matcher.group(1)) != null) {
-				return Float.parseFloat(period);
+				try {
+					float value = Float.parseFloat(period);
+					if (value > 0f && value < Float.POSITIVE_INFINITY) {
+						return value;
+					}
+				} catch (NumberFormatException e) {
+					// Use the default while the period is incomplete or invalid.
+				}
 			}
 		}
 		return 3f;
