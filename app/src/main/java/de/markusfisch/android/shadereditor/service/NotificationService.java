@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.service;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -76,7 +77,14 @@ public class NotificationService extends NotificationListenerService {
 	}
 
 	private static void requestNotificationPermission(@NonNull Context context) {
-		new Handler(Looper.getMainLooper()).post(() -> new MaterialAlertDialogBuilder(context)
+		if (!(context instanceof Activity activity)) {
+			return;
+		}
+		new Handler(Looper.getMainLooper()).post(() -> {
+			if (activity.isFinishing() || activity.isDestroyed()) {
+				return;
+			}
+			new MaterialAlertDialogBuilder(activity)
 				.setTitle(R.string.enable_notification_listener_title)
 				.setMessage(R.string.enable_notification_listener)
 				.setPositiveButton(R.string.go_to_settings, (dialog, id) -> {
@@ -85,7 +93,8 @@ public class NotificationService extends NotificationListenerService {
 					context.startActivity(intent);
 				})
 				.setNegativeButton(android.R.string.cancel, (dialog, id) -> dialog.dismiss())
-				.show());
+				.show();
+		});
 	}
 
 
