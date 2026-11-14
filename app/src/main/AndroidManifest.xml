@@ -8,12 +8,10 @@
 	<!-- Camera textures are only supported from API > 14 -->
 	<uses-permission android:name="android.permission.CAMERA"/>
 	<uses-permission android:name="android.permission.RECORD_AUDIO"/>
-	<!-- Required to import textures on API < 19 from gallery apps
-		that do not use grantUriPermission(); later API's will not
-		see that permission -->
+	<!-- Required below API 29 for importing shaders from Downloads -->
 	<uses-permission
 		android:name="android.permission.READ_EXTERNAL_STORAGE"
-		android:maxSdkVersion="19"/>
+		android:maxSdkVersion="28"/>
 	<!-- Required below API < 28 for exporting shaders -->
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
 		android:maxSdkVersion="28"/>
