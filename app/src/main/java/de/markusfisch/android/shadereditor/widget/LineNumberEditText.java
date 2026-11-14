@@ -85,22 +85,14 @@ public class LineNumberEditText extends AppCompatEditText {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		if (!showLineNumbers) {
-			super.setPadding(
-					paddingLeft,
-					getPaddingTop(),
-					getPaddingRight(),
-					getPaddingBottom());
+			setPaddingLeft(paddingLeft);
 			super.onDraw(canvas);
 			return;
 		}
 		int lineCount = getLineCount();
 		final int lineCountNumDigits = numDigits(lineCount);
 		int editTextPaddingLeft = (int) (bigChar * lineCountNumDigits + lineNumberPadding);
-		super.setPadding(
-				(int) (editTextPaddingLeft + lineNumberSpacing),
-				getPaddingTop(),
-				getPaddingRight(),
-				getPaddingBottom());
+		setPaddingLeft((int) (editTextPaddingLeft + lineNumberSpacing));
 		super.onDraw(canvas);
 		for (int i = 0, lineNumber = 1; i < lineCount; ++i) {
 			int baseline = getLineBounds(i, null);
@@ -110,6 +102,18 @@ public class LineNumberEditText extends AppCompatEditText {
 					baseline,
 					lineNumberPaint);
 			++lineNumber;
+		}
+	}
+
+	// TextView.setPadding() always invalidates, so calling it from
+	// onDraw() would redraw this view forever.
+	private void setPaddingLeft(int left) {
+		if (left != getPaddingLeft()) {
+			super.setPadding(
+					left,
+					getPaddingTop(),
+					getPaddingRight(),
+					getPaddingBottom());
 		}
 	}
 
