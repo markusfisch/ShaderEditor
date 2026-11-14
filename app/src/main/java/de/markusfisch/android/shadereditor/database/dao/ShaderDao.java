@@ -366,10 +366,10 @@ public class ShaderDao {
 						" WHERE " + DatabaseContract.ShaderColumns.CREATED + " = ?" +
 						" AND " + DatabaseContract.ShaderColumns.MODIFIED + " = ?" +
 						" AND " + DatabaseContract.ShaderColumns.FRAGMENT_SHADER + " = ?" +
-						" AND " + DatabaseContract.ShaderColumns.NAME + " IS ?" +
+						" AND IFNULL(" + DatabaseContract.ShaderColumns.NAME + ", '') = ?" +
 						" AND " + DatabaseContract.ShaderColumns.QUALITY + " = ?",
-				new String[]{createdDate, modifiedDate, source, name,
-						Float.toString(quality)})) {
+				new String[]{createdDate, modifiedDate, source,
+						name != null ? name : "", Float.toString(quality)})) {
 			return cursor != null && cursor.moveToFirst() && cursor.getCount() > 0;
 		}
 	}
