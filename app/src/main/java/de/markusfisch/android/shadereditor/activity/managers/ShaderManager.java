@@ -357,6 +357,7 @@ public class ShaderManager {
 		if (shaderId == selectedShaderId) {
 			selectedShaderId = NO_SHADER;
 			currentProjectSession = null;
+			setModified(false);
 			updatePendingCrashShaderId();
 		}
 	}
