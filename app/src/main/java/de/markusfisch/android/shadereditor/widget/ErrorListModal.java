@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,6 +30,11 @@ public class ErrorListModal extends BottomSheetDialogFragment {
 	@NonNull
 	final List<ShaderError> errors;
 
+	public ErrorListModal() {
+		this(Collections.emptyList(), lineNumber -> {
+		});
+	}
+
 	public ErrorListModal(@NonNull List<ShaderError> errors,
 			@NonNull ErrorAdapter.OnItemClickListener onItemClickListener) {
 		this.errors = errors;
@@ -36,6 +42,16 @@ public class ErrorListModal extends BottomSheetDialogFragment {
 			onItemClickListener.onItemClick(lineNumber);
 			dismiss();
 		};
+	}
+
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		// Recreated without its errors, which may have changed anyway.
+		if (savedInstanceState != null) {
+			setShowsDialog(false);
+			dismiss();
+		}
 	}
 
 	@Nullable
