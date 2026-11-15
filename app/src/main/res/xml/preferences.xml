@@ -3,7 +3,9 @@
 		xmlns:app="http://schemas.android.com/apk/res-auto"
 		android:title="@string/preferences"
 	android:key="preferences">
-	<PreferenceCategory android:title="@string/wallpaper">
+	<PreferenceCategory
+		android:key="wallpaper"
+		android:title="@string/wallpaper">
 		<de.markusfisch.android.shadereditor.preference.ShaderListPreference
 			android:key="shader"
 			android:title="@string/shader"/>
