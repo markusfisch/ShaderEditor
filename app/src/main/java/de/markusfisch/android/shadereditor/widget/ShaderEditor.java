@@ -57,6 +57,10 @@ public class ShaderEditor extends LineNumberEditText {
 			Pattern.MULTILINE);
 	private static final Pattern PATTERN_ENDIF = Pattern.compile(
 			"(#endif)\\b");
+	private static final Pattern PATTERN_PREAMBLE = Pattern.compile(
+			"\\G(?:\\s+|//[^\\n]*(?:\\n|$)|/\\*[\\s\\S]*?\\*/|" +
+					"#[^\\n]*(?:\\n|$)|" +
+					"precision\\s+(?:lowp|mediump|highp)\\s+\\w+\\s*;)");
 	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
 			"\\xA0");
 	private static final ArrayList<String> DEFAULT_COMPLETIONS = new ArrayList<>();
@@ -387,11 +391,13 @@ public class ShaderEditor extends LineNumberEditText {
 			// and the now following uniform.
 			if ((start = endIndexOfLastEndIf(e)) > -1) {
 				statement = "\n" + statement;
+				++start;
+			} else {
+				start = endIndexOfPreamble(e);
+				if (start > 0 && e.charAt(start - 1) != '\n') {
+					statement = "\n" + statement;
+				}
 			}
-
-			// Move index past line break or to the start
-			// of the text when no #endif was found.
-			++start;
 		}
 
 		e.insert(start, statement);
@@ -459,6 +465,34 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 
 		return idx;
+	}
+
+	static int endIndexOfPreamble(CharSequence source) {
+		Matcher matcher = PATTERN_PREAMBLE.matcher(source);
+		int end = 0;
+		while (matcher.find()) {
+			end = matcher.end();
+			while (end < source.length() && hasLineContinuation(source, end)) {
+				int next = end;
+				while (next < source.length() && source.charAt(next) != '\n') {
+					++next;
+				}
+				end = next < source.length() ? next + 1 : next;
+			}
+			matcher.region(end, source.length());
+		}
+		return end;
+	}
+
+	private static boolean hasLineContinuation(CharSequence source, int end) {
+		if (end < 2 || source.charAt(end - 1) != '\n') {
+			return false;
+		}
+		int last = end - 2;
+		if (source.charAt(last) == '\r') {
+			--last;
+		}
+		return last >= 0 && source.charAt(last) == '\\';
 	}
 
 	private void init(@NonNull Context context) {
