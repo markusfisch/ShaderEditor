@@ -10,9 +10,12 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
@@ -26,9 +29,21 @@ import de.markusfisch.android.shadereditor.widget.ShaderEditor;
 public class EditorFragment extends Fragment {
 	public static final String TAG = "EditorFragment";
 
+	private static final String DRAFT_KEY = "draft_key";
+	private static final String SELECTION_START = "selection_start";
+	private static final String SELECTION_END = "selection_end";
+
+	public static class Draft extends ViewModel {
+		private String key;
+		private String text;
+	}
+
 	private View editorContainer;
 	private ShaderEditor shaderEditor;
 	private UndoRedo undoRedo;
+	private EditorDraft editorDraft;
+	private boolean textRestored;
+	private boolean hasDraftFile;
 
 	@Nullable
 	private ShaderEditor.OnEditPausedListener editPausedListener;
@@ -60,8 +75,60 @@ public class EditorFragment extends Fragment {
 		});
 		setShowLineNumbers(ShaderEditorApp.preferences.showLineNumbers());
 		undoRedo = new UndoRedo(shaderEditor, ShaderEditorApp.editHistory);
+		shaderEditor.setUndoRedo(undoRedo);
+		editorDraft = new EditorDraft(requireContext().getNoBackupFilesDir());
+		if (state != null) {
+			restoreText(state);
+		}
 
 		return view;
+	}
+
+	@Override
+	public void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		Draft draft = new ViewModelProvider(this).get(Draft.class);
+		String key = UUID.randomUUID().toString();
+		String text = String.valueOf(shaderEditor.getText());
+		draft.key = key;
+		draft.text = text;
+		// A configuration change keeps the view model. Otherwise write
+		// now: the process may be killed as soon as this returns.
+		if (!requireActivity().isChangingConfigurations()) {
+			editorDraft.write(key, text);
+			hasDraftFile = true;
+		}
+		outState.putString(DRAFT_KEY, key);
+		outState.putInt(SELECTION_START, shaderEditor.getSelectionStart());
+		outState.putInt(SELECTION_END, shaderEditor.getSelectionEnd());
+	}
+
+	public boolean isTextRestored() {
+		return textRestored;
+	}
+
+	private void restoreText(@NonNull Bundle state) {
+		String key = state.getString(DRAFT_KEY);
+		if (key == null) {
+			return;
+		}
+		Draft draft = new ViewModelProvider(this).get(Draft.class);
+		String text = draft.text;
+		if (!key.equals(draft.key)) {
+			text = editorDraft.read(key);
+			hasDraftFile = true;
+		}
+		if (text == null) {
+			return;
+		}
+		shaderEditor.setTextHighlighted(text);
+		int start = state.getInt(SELECTION_START);
+		int end = state.getInt(SELECTION_END);
+		if (start >= 0 && end >= 0 && start <= text.length() &&
+				end <= text.length()) {
+			shaderEditor.setSelection(start, end);
+		}
+		textRestored = true;
 	}
 
 	public void setOnTextModifiedListener(@Nullable ShaderEditor.OnTextModifiedListener listener) {
@@ -89,6 +156,10 @@ public class EditorFragment extends Fragment {
 		// Only start listening after EditText restored its content
 		// to make sure the initial change is not recorded.
 		undoRedo.listenForChanges();
+		if (hasDraftFile) {
+			editorDraft.delete();
+			hasDraftFile = false;
+		}
 	}
 
 	public void undo() {

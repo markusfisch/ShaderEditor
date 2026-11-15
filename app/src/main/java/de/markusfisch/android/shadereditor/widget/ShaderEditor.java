@@ -46,6 +46,7 @@ import de.markusfisch.android.shadereditor.highlighter.Highlight;
 import de.markusfisch.android.shadereditor.highlighter.Lexer;
 import de.markusfisch.android.shadereditor.highlighter.Token;
 import de.markusfisch.android.shadereditor.opengl.ShaderError;
+import de.markusfisch.android.shadereditor.view.UndoRedo;
 
 public class ShaderEditor extends LineNumberEditText {
 	private static final Pattern PATTERN_TRAILING_WHITE_SPACE = Pattern.compile(
@@ -99,6 +100,8 @@ public class ShaderEditor extends LineNumberEditText {
 	private OnEditPausedListener onEditPausedListener;
 	@Nullable
 	private CodeCompletionListener codeCompletionListener;
+	@Nullable
+	private UndoRedo undoRedo;
 	private int updateDelay = 1000;
 	@NonNull
 	private List<ShaderError> shaderErrors = Collections.emptyList();
@@ -173,6 +176,39 @@ public class ShaderEditor extends LineNumberEditText {
 	public void setOnCompletionsListener(
 			@Nullable CodeCompletionListener listener) {
 		codeCompletionListener = listener;
+	}
+
+	public void setUndoRedo(@Nullable UndoRedo undoRedo) {
+		this.undoRedo = undoRedo;
+	}
+
+	@Override
+	public boolean onKeyShortcut(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_Z &&
+				event.hasModifiers(KeyEvent.META_CTRL_ON)) {
+			return onTextContextMenuItem(android.R.id.undo);
+		}
+		if ((keyCode == KeyEvent.KEYCODE_Z && event.hasModifiers(
+				KeyEvent.META_CTRL_ON | KeyEvent.META_SHIFT_ON)) ||
+				(keyCode == KeyEvent.KEYCODE_Y &&
+						event.hasModifiers(KeyEvent.META_CTRL_ON))) {
+			return onTextContextMenuItem(android.R.id.redo);
+		}
+		return super.onKeyShortcut(keyCode, event);
+	}
+
+	@Override
+	public boolean onTextContextMenuItem(int id) {
+		// Keyboards ask for undo and redo through this too.
+		if (undoRedo != null && id == android.R.id.undo) {
+			undoRedo.undo();
+			return true;
+		}
+		if (undoRedo != null && id == android.R.id.redo) {
+			undoRedo.redo();
+			return true;
+		}
+		return super.onTextContextMenuItem(id);
 	}
 
 	public void setUpdateDelay(int ms) {
@@ -417,6 +453,9 @@ public class ShaderEditor extends LineNumberEditText {
 	private void init(@NonNull Context context) {
 		// Setting this through XML does not work
 		setHorizontallyScrolling(true);
+		// EditorFragment saves text and selection because the view state
+		// would include all spans and the undo history and get too big.
+		setSaveEnabled(false);
 
 		setFilters(new InputFilter[]{(source,
 				start, end,
