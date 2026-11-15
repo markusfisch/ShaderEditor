@@ -220,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onAllShadersDeleted() {
 				isInitialLoad = false;
-				shaderManager.selectShader(0);
+				shaderManager.onAllShadersDeleted();
 			}
 
 			@Override

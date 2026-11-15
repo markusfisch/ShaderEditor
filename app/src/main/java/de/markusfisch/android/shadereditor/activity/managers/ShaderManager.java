@@ -14,6 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.IntentCompat;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -29,6 +32,7 @@ import de.markusfisch.android.shadereditor.activity.PreviewActivity;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.DataSource;
 import de.markusfisch.android.shadereditor.fragment.EditorFragment;
+import de.markusfisch.android.shadereditor.io.ShaderSourceReader;
 import de.markusfisch.android.shadereditor.project.LegacyShaderProjectSource;
 import de.markusfisch.android.shadereditor.project.LooseShaderFileProjectSource;
 import de.markusfisch.android.shadereditor.project.ShaderProjectSession;
@@ -41,6 +45,7 @@ public class ShaderManager {
 	private static final String SELECTED_SHADER_ID = "selected_shader_id";
 	private static final String PROJECT_SESSION = "project_session";
 	private static final String MODIFIED = "modified";
+	private static final String PENDING_SHADER_URI = "pending_shader_uri";
 	private static final long NO_SHADER = 0;
 
 	private final AppCompatActivity activity;
@@ -55,6 +60,11 @@ public class ShaderManager {
 	private long selectedShaderId = NO_SHADER;
 	private float quality = 1f;
 	private boolean isModified = false;
+	private long importRequest;
+	@Nullable
+	private Uri pendingShaderUri;
+	@Nullable
+	private Runnable pendingImportResult;
 	@Nullable
 	private ShaderProjectSession currentProjectSession;
 
@@ -71,6 +81,16 @@ public class ShaderManager {
 		this.shaderListManager = shaderListManager;
 		this.uiManager = uiManager;
 		this.dataSource = dataSource;
+		activity.getLifecycle().addObserver(new DefaultLifecycleObserver() {
+			@Override
+			public void onResume(@NonNull LifecycleOwner owner) {
+				Runnable result = pendingImportResult;
+				pendingImportResult = null;
+				if (result != null) {
+					result.run();
+				}
+			}
+		});
 
 		addUniformLauncher = activity.registerForActivityResult(
 				new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -127,12 +147,15 @@ public class ShaderManager {
 	}
 
 	public void destroy() {
+		cancelShaderImport();
 		executor.shutdownNow();
 		handler.removeCallbacksAndMessages(null);
 	}
 
 	public void createShaderFromResource(@Nullable String name,
 			int sourceId, int thumbId, float quality) {
+		cancelShaderImport();
+		long request = importRequest;
 		executor.execute(() -> {
 			long newId = dataSource.shader.insertShaderFromResource(
 					activity.getApplicationContext(), name, sourceId, thumbId, quality);
@@ -140,7 +163,9 @@ public class ShaderManager {
 				if (activity.isFinishing() || activity.isDestroyed()) {
 					return;
 				}
-				selectShader(newId);
+				if (request == importRequest) {
+					selectShader(newId);
+				}
 				shaderListManager.loadShadersAsync();
 			});
 		});
@@ -176,6 +201,7 @@ public class ShaderManager {
 		// The source is restored by the editor.
 		outState.putSerializable(PROJECT_SESSION, getEditedProjectSession(""));
 		outState.putBoolean(MODIFIED, isModified);
+		outState.putParcelable(PENDING_SHADER_URI, pendingShaderUri);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -184,6 +210,7 @@ public class ShaderManager {
 				SELECTED_SHADER_ID, NO_SHADER);
 		if (!editorFragment.isTextRestored()) {
 			selectShader(selectedShaderId);
+			restorePendingImport(savedInstanceState);
 			return;
 		}
 		if (savedInstanceState.getSerializable(PROJECT_SESSION) instanceof
@@ -198,6 +225,14 @@ public class ShaderManager {
 			updatePendingCrashShaderId();
 		}
 		setModified(savedInstanceState.getBoolean(MODIFIED));
+		restorePendingImport(savedInstanceState);
+	}
+
+	private void restorePendingImport(@NonNull Bundle state) {
+		Uri uri = state.getParcelable(PENDING_SHADER_URI);
+		if (uri != null) {
+			handleSendText(new Intent(Intent.ACTION_VIEW, uri));
+		}
 	}
 
 	@NonNull
@@ -214,6 +249,9 @@ public class ShaderManager {
 	}
 
 	public void selectShader(long id) {
+		if (currentProjectSession != null || id > 0) {
+			cancelShaderImport();
+		}
 		if (isModified()) {
 			saveShader();
 		}
@@ -297,35 +335,94 @@ public class ShaderManager {
 			uri = IntentCompat.getParcelableExtra(intent, Intent.EXTRA_STREAM, Uri.class);
 		}
 
-		try {
-			String source;
-			if (uri != null) {
-				source = readShaderSource(uri);
-			} else if (Intent.ACTION_SEND.equals(intent.getAction())) {
-				CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
-				source = text != null ? text.toString() : null;
-			} else {
-				source = null;
-			}
-			if (source == null) {
-				return;
-			}
-			ShaderProjectSession projectSession =
-					new LooseShaderFileProjectSource(uri, source, 1f)
-							.openSession();
-			if (isModified() && !saveShader()) {
-				return;
-			}
-			PreviewActivity.renderStatus.reset();
+		cancelShaderImport();
+		if (uri != null) {
+			pendingShaderUri = uri;
+			long request = importRequest;
+			Uri sourceUri = uri;
 			intent.setAction(null);
-			applyProjectSession(NO_SHADER,
-					projectSession,
-					projectSession.getProject().getTitle());
-			setModified(true);
-		} catch (IOException | SecurityException e) {
-			Toast.makeText(activity, R.string.unsuitable_text,
-					Toast.LENGTH_SHORT).show();
+			executor.execute(() -> {
+				try {
+					String source = readShaderSource(sourceUri);
+					handler.post(() -> deliverImportResult(request, () -> {
+						pendingShaderUri = null;
+						if (source != null) {
+							applyImportedShader(sourceUri, source);
+						} else {
+							showImportError();
+						}
+					}));
+				} catch (IOException | SecurityException e) {
+					handler.post(() -> deliverImportResult(request, () -> {
+						pendingShaderUri = null;
+						showImportError();
+					}));
+				}
+			});
+		} else if (Intent.ACTION_SEND.equals(intent.getAction())) {
+			CharSequence text = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+			if (text != null) {
+				if (text.length() > ShaderSourceReader.MAX_SOURCE_LENGTH) {
+					showImportError();
+					return;
+				}
+				intent.setAction(null);
+				applyImportedShader(null, text.toString());
+			}
 		}
+	}
+
+	private void cancelShaderImport() {
+		++importRequest;
+		pendingShaderUri = null;
+		pendingImportResult = null;
+	}
+
+	public void onAllShadersDeleted() {
+		// Empty-list refreshes must not cancel an incoming shader.
+		if (pendingShaderUri == null) {
+			selectShader(NO_SHADER);
+		}
+	}
+
+	private void deliverImportResult(long request, @NonNull Runnable result) {
+		if (!isCurrentImport(request)) {
+			return;
+		}
+		if (activity.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.RESUMED)) {
+			result.run();
+		} else {
+			pendingImportResult = () -> deliverImportResult(request, result);
+		}
+	}
+
+	private boolean isCurrentImport(long request) {
+		return request == importRequest &&
+				!activity.isFinishing() && !activity.isDestroyed();
+	}
+
+	private void applyImportedShader(@Nullable Uri uri, @NonNull String source) {
+		ShaderProjectSession projectSession;
+		try {
+			projectSession = new LooseShaderFileProjectSource(uri, source, 1f)
+					.openSession();
+		} catch (IllegalArgumentException e) {
+			showImportError();
+			return;
+		}
+		if (isModified() && !saveShader()) {
+			return;
+		}
+		PreviewActivity.renderStatus.reset();
+		applyProjectSession(NO_SHADER,
+				projectSession,
+				projectSession.getProject().getTitle());
+		setModified(true);
+	}
+
+	private void showImportError() {
+		Toast.makeText(activity, R.string.unsuitable_text,
+				Toast.LENGTH_SHORT).show();
 	}
 
 	@Nullable
@@ -335,13 +432,7 @@ public class ShaderManager {
 				return null;
 			}
 			try (var reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
-				char[] buffer = new char[4096];
-				int len;
-				var source = new StringBuilder();
-				while ((len = reader.read(buffer)) != -1) {
-					source.append(buffer, 0, len);
-				}
-				return source.toString();
+				return ShaderSourceReader.read(reader);
 			}
 		}
 	}
@@ -362,6 +453,7 @@ public class ShaderManager {
 	public void deleteShader(long shaderId) {
 		dataSource.shader.removeShader(shaderId);
 		if (shaderId == selectedShaderId) {
+			cancelShaderImport();
 			selectedShaderId = NO_SHADER;
 			currentProjectSession = null;
 			setModified(false);
