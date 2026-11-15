@@ -77,6 +77,15 @@ public class LineNumberEditText extends AppCompatEditText {
 	}
 
 	@Override
+	public void setTextSize(int unit, float size) {
+		super.setTextSize(unit, size);
+		if (lineNumberPaint != null) {
+			lineNumberPaint.setTextSize(getTextSize());
+			measureBigChar();
+		}
+	}
+
+	@Override
 	public void setPadding(int left, int top, int right, int bottom) {
 		this.paddingLeft = left;
 		super.setPadding(left, top, right, bottom);
