@@ -155,6 +155,7 @@
 	<string name="camera_front">Front camera (only on Ice Cream Sandwich or better)</string>
 	<string name="camera_addent">Addent to camera texture coordinate, see also cameraOrientation (only on Ice Cream Sandwich or better)</string>
 	<string name="camera_orientation">Multiply with texture coordinate with this matrix to rotate camera frame to device orientation (cameraAddent + uv * cameraOrientation; only on Ice Cream Sandwich or better)</string>
+	<string name="camera_access_required">Camera access is required to show the camera.</string>
 	<string name="date_time">Year, month, day and time in seconds</string>
 	<string name="daytime">Hour, minute and seconds</string>
 	<string name="start_random">Random value from 0.0 to 1.0, initialized at load</string>

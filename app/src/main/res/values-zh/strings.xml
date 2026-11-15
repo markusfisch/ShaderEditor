@@ -147,6 +147,7 @@
 	<string name="camera_front">前置摄像头（支持 Android 4.0+）</string>
 	<string name="camera_addent">摄像头纹理坐标增量</string>
 	<string name="camera_orientation">用于将摄像头帧旋转至设备方向的矩阵（cameraAddent + uv * cameraOrientation）</string>
+	<string name="camera_access_required">Camera access is required to show the camera.</string>
 	<string name="date_time">年、月、日和当前秒数</string>
 	<string name="daytime">时、分、秒</string>
 	<string name="start_random">加载时生成的 0.0 到 1.0 之间的随机值</string>

@@ -155,6 +155,7 @@
 	<string name="camera_front">Фронтальна камера (лише на Ice Cream Sandwich або краще)</string>
 	<string name="camera_addent">Доданок до координати текстури камери, див. також орієнтацію камери (лише на Ice Cream Sandwich або краще)</string>
 	<string name="camera_orientation">Помножте на координату текстури з цією матрицею, щоб повернути рамку камери до орієнтації пристрою (cameraAddent + uv * cameraOrientation; лише на Ice Cream Sandwich або краще)</string>
+	<string name="camera_access_required">Camera access is required to show the camera.</string>
 	<string name="date_time">Рік, місяць, день і час у секундах</string>
 	<string name="daytime">Година, хвилина і секунди</string>
 	<string name="start_random">Випадкове значення від 0,0 до 1,0, ініціалізується під час завантаження</string>
