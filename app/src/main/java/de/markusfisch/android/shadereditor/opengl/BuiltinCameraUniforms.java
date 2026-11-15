@@ -1,20 +1,24 @@
 package de.markusfisch.android.shadereditor.opengl;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.opengl.GLES11Ext;
+import android.widget.Toast;
 
+import androidx.activity.ComponentActivity;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 
+import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.hardware.CameraListener;
 
 final class BuiltinCameraUniforms {
+	private static boolean permissionRequested;
+
 	private final float[] cameraOrientation = new float[4];
 	@NonNull
 	private final Context context;
@@ -25,6 +29,7 @@ final class BuiltinCameraUniforms {
 	private ShaderTextureResources.SamplerTextureBinding cameraTextureBinding;
 	private boolean hasCameraOrientation;
 	private boolean hasCameraAddent;
+	private boolean permissionWarningShown;
 	private int renderWidth;
 	private int renderHeight;
 	private int deviceRotation;
@@ -132,12 +137,31 @@ final class BuiltinCameraUniforms {
 				PackageManager.PERMISSION_GRANTED) {
 			return;
 		}
-		if (!(context instanceof Activity activity)) {
+		if (!(context instanceof ComponentActivity activity)) {
 			return;
 		}
-		ActivityCompat.requestPermissions(
-				activity,
-				new String[]{permission},
-				1);
+		if (!permissionRequested) {
+			permissionRequested = true;
+			// This screen tells the answer.
+			permissionWarningShown = true;
+			activity.runOnUiThread(() -> activity.getActivityResultRegistry()
+					.register("camera_permission",
+							new ActivityResultContracts.RequestPermission(),
+							granted -> {
+								if (!granted) {
+									showPermissionWarning(activity);
+								}
+							})
+					.launch(permission));
+		} else if (!permissionWarningShown) {
+			permissionWarningShown = true;
+			activity.runOnUiThread(() -> showPermissionWarning(activity));
+		}
+	}
+
+	private static void showPermissionWarning(@NonNull Context context) {
+		Toast.makeText(context,
+				R.string.camera_access_required,
+				Toast.LENGTH_LONG).show();
 	}
 }
