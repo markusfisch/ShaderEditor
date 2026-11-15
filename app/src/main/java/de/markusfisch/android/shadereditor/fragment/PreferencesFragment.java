@@ -173,7 +173,16 @@ public class PreferencesFragment
 			long id = Preferences.WALLPAPER_SHADER.equals(preference.getKey())
 					? ShaderEditorApp.preferences.getWallpaperShader()
 					: ShaderEditorApp.preferences.getDefaultNewShader();
-			preference.setSummary(getShaderSummary(id));
+			databaseExecutor.execute(() -> {
+				String title = getShaderTitle(id);
+				handler.post(() -> {
+					if (isAdded()) {
+						preference.setSummary(title != null
+								? title
+								: getString(R.string.no_shader_selected));
+					}
+				});
+			});
 		} else if (preference instanceof ListPreference) {
 			preference.setSummary(((ListPreference) preference).getEntry());
 		} else if (preference instanceof PreferenceGroup) {
@@ -181,15 +190,13 @@ public class PreferencesFragment
 		}
 	}
 
-	private String getShaderSummary(long id) {
+	@Nullable
+	private String getShaderTitle(long id) {
 		if (id <= 0) {
-			return getString(R.string.no_shader_selected);
+			return null;
 		}
 		DataRecords.Shader shader = dataSource.shader.getShader(id);
-		if (shader == null) {
-			return getString(R.string.no_shader_selected);
-		}
-		return shader.getTitle();
+		return shader != null ? shader.getTitle() : null;
 	}
 
 	private boolean checkExternalStoragePermission(@NonNull String permission) {
