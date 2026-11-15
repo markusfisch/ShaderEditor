@@ -11,7 +11,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -176,13 +177,14 @@ public class ImportExportAsFiles {
 		return file;
 	}
 
-	private static String readFile(File file) throws IOException {
-		try (InputStream fis = new FileInputStream(file)) {
+	static String readFile(File file) throws IOException {
+		try (Reader reader = new InputStreamReader(
+				new FileInputStream(file), StandardCharsets.UTF_8)) {
 			StringBuilder sb = new StringBuilder();
-			byte[] buffer = new byte[1024];
+			char[] buffer = new char[1024];
 			int n;
-			while ((n = fis.read(buffer)) != -1) {
-				sb.append(new String(buffer, 0, n, StandardCharsets.UTF_8));
+			while ((n = reader.read(buffer)) != -1) {
+				sb.append(buffer, 0, n);
 			}
 			return sb.toString();
 		}
