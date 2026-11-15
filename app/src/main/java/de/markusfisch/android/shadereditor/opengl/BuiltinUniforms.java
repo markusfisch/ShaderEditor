@@ -57,6 +57,7 @@ final class BuiltinUniforms {
 	private float quality = 1f;
 	private float startRandom;
 	private boolean hasShaderToyMouse;
+	private boolean touchBegan;
 
 	BuiltinUniforms(@NonNull Context context) {
 		this.context = context;
@@ -139,12 +140,11 @@ final class BuiltinUniforms {
 				touchStart[0] = touch[0];
 				touchStart[1] = touch[1];
 				shaderToyMouse[2] = touch[0];
-				shaderToyMouse[3] = touch[1];
+				touchBegan = true;
 				break;
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_CANCEL:
 				shaderToyMouse[2] = -Math.abs(shaderToyMouse[2]);
-				shaderToyMouse[3] = -Math.abs(shaderToyMouse[3]);
 				pointerCount = 0;
 				return;
 			default:
@@ -224,6 +224,13 @@ final class BuiltinUniforms {
 		bindings.setFloat2(ShaderRenderer.UNIFORM_RESOLUTION, resolution);
 		bindings.setFloat2(ShaderRenderer.UNIFORM_TOUCH, touch);
 		bindings.setFloat2(ShaderRenderer.UNIFORM_TOUCH_START, touchStart);
+		// As on ShaderToy, w is positive only in the frame a touch began.
+		if (touchBegan) {
+			touchBegan = false;
+			shaderToyMouse[3] = touchStart[1];
+		} else {
+			shaderToyMouse[3] = -touchStart[1];
+		}
 		if (hasShaderToyMouse) {
 			bindings.setFloat4(ShaderRenderer.UNIFORM_MOUSE, shaderToyMouse);
 		} else {
