@@ -276,7 +276,7 @@ final class BuiltinSensorUniforms {
 
 	private void bindRotationUniforms(@NonNull ProgramBindings bindings) {
 		boolean haveInclination = false;
-		if (gravityListener != null &&
+		if (gravityValues != null &&
 				magneticFieldListener != null &&
 				SensorManager.getRotationMatrix(
 						rotationMatrix,
