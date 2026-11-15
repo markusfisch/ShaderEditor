@@ -49,6 +49,17 @@ public class LexerTokensTest {
 		assertEquals(0, tokens.get(0).endOffset());
 	}
 
+	@Test
+	public void hexadecimalNumbersTakeTheUnsignedSuffix() {
+		for (String number : new String[]{"0x7fu", "0X7FU", "7u", "0u"}) {
+			List<Token> tokens = Styles.tokens(number);
+			assertEquals(number, 2, tokens.size());
+			assertEquals(number, TokenType.UINTCONSTANT, tokens.get(0).type());
+			assertEquals(number, number.length(), tokens.get(0).endOffset());
+		}
+		assertEquals(TokenType.INTCONSTANT, Styles.tokens("0x7f").get(0).type());
+	}
+
 	private static File findRawDirectory() {
 		String relative = "src/main/res/raw";
 		for (String base : new String[]{".", "app"}) {

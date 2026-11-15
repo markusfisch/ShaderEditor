@@ -559,6 +559,10 @@ public class Lexer implements Iterable<Token> {
 					readNext();
 				}
 
+				if (getCurrentChar() == 'u' || getCurrentChar() == 'U') {
+					readNext();
+					return TokenType.UINTCONSTANT;
+				}
 				return TokenType.INTCONSTANT;
 			}
 		}
