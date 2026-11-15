@@ -3,7 +3,6 @@ package de.markusfisch.android.shadereditor.database.dao;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Bitmap;
@@ -329,8 +328,8 @@ public class TextureDao {
 								" FROM " + DatabaseContract.TextureColumns.TABLE_NAME +
 								" WHERE " + DatabaseContract.TextureColumns._ID + " = ?",
 						new String[]{String.valueOf(srcId)})) {
-					boolean success = true;
-					if (moveToFirstAndCatchOutOfMemory(cursor)) {
+					boolean success = false;
+					if (cursor.moveToFirst()) {
 						long textureId = TextureDao.insertTexture(dst,
 								CursorHelpers.getString(cursor,
 										DatabaseContract.TextureColumns.NAME),
@@ -344,19 +343,9 @@ public class TextureDao {
 										DatabaseContract.TextureColumns.THUMB)),
 								Objects.requireNonNull(CursorHelpers.getBlob(cursor,
 										DatabaseContract.TextureColumns.MATRIX)));
-						if (textureId < 1) {
-							success = false;
-						}
+						success = textureId > 0;
 					}
 					return success;
-				}
-			}
-
-			private static boolean moveToFirstAndCatchOutOfMemory(@NonNull Cursor cursor) {
-				try {
-					return cursor.moveToFirst();
-				} catch (SQLException e) {
-					return false;
 				}
 			}
 
