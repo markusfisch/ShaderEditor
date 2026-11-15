@@ -5,12 +5,15 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import java.util.Arrays;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.database.DataSource;
@@ -46,10 +49,11 @@ public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFrag
 		activity.setTitle(R.string.texture_properties);
 
 		Bundle args;
+		Parcelable[] savedFaces;
 		View view;
 
 		if ((args = getArguments()) == null ||
-				(faces = (CubeMapView.Face[]) args.getParcelableArray(
+				(savedFaces = args.getParcelableArray(
 						FACES)) == null ||
 				(view = initView(
 						activity,
@@ -58,6 +62,8 @@ public class SamplerCubePropertiesFragment extends AbstractSamplerPropertiesFrag
 			activity.finish();
 			return null;
 		}
+
+		faces = Arrays.copyOf(savedFaces, savedFaces.length, CubeMapView.Face[].class);
 
 		setSizeCaption(getString(R.string.face_size));
 		setMaxValue(7);
