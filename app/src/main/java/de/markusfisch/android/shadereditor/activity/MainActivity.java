@@ -493,6 +493,7 @@ public class MainActivity extends AppCompatActivity {
 		String src = editorFragment.getText();
 		var projectSession = shaderManager.getEditedProjectSession(src);
 		editorFragment.clearError();
+		findViewById(R.id.show_errors).setVisibility(View.GONE);
 		if (ShaderEditorApp.preferences.doesSaveOnRun()) {
 			PreviewActivity.renderStatus.reset();
 			shaderManager.saveShader();
