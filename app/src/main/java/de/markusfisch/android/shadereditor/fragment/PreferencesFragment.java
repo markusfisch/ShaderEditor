@@ -51,6 +51,7 @@ public class PreferencesFragment
 	private ActivityResultLauncher<Intent> pickFileLauncher;
 	private ActivityResultLauncher<String> requestReadPermissionLauncher;
 	private ActivityResultLauncher<String> requestWritePermissionLauncher;
+	private ActivityResultLauncher<String> requestDatabaseWritePermissionLauncher;
 	private DataSource dataSource;
 
 	@Override
@@ -90,6 +91,18 @@ public class PreferencesFragment
 				isGranted -> {
 					if (isGranted) {
 						ImportExportAsFiles.exportToDirectory(getContext());
+					} else {
+						Toast.makeText(getActivity(),
+								getString(R.string.write_access_required),
+								Toast.LENGTH_LONG).show();
+					}
+				});
+
+		requestDatabaseWritePermissionLauncher = registerForActivityResult(
+				new ActivityResultContracts.RequestPermission(),
+				isGranted -> {
+					if (isGranted) {
+						exportDatabase();
 					} else {
 						Toast.makeText(getActivity(),
 								getString(R.string.write_access_required),
@@ -269,15 +282,27 @@ public class PreferencesFragment
 				return true;
 			});
 			exportDatabase.setOnPreferenceClickListener(preference -> {
-				Context context = getContext();
-				if (context != null) {
-					Context appContext = context.getApplicationContext();
-					runDatabaseOperation(() -> appContext.getString(
-							DatabaseExporter.exportDatabase(appContext)),
-							R.string.n_shaders_export_failed);
+				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q &&
+						ContextCompat.checkSelfPermission(requireContext(),
+								Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
+								PackageManager.PERMISSION_GRANTED) {
+					requestDatabaseWritePermissionLauncher.launch(
+							Manifest.permission.WRITE_EXTERNAL_STORAGE);
+				} else {
+					exportDatabase();
 				}
 				return true;
 			});
+		}
+	}
+
+	private void exportDatabase() {
+		Context context = getContext();
+		if (context != null) {
+			Context appContext = context.getApplicationContext();
+			runDatabaseOperation(() -> appContext.getString(
+					DatabaseExporter.exportDatabase(appContext)),
+					R.string.n_shaders_export_failed);
 		}
 	}
 
