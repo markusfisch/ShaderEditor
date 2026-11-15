@@ -102,6 +102,7 @@ public class ShaderEditor extends LineNumberEditText {
 	private int updateDelay = 1000;
 	@NonNull
 	private List<ShaderError> shaderErrors = Collections.emptyList();
+	private boolean highlightErrorsAfterLayout;
 	private boolean isUserInteraction = true;
 	private int colorError;
 	private int textColor;
@@ -214,15 +215,30 @@ public class ShaderEditor extends LineNumberEditText {
 		clearSpans(e, 0, e.length(), BackgroundColorSpan.class);
 	}
 
+	@Override
+	protected void onLayout(boolean changed, int left, int top, int right,
+			int bottom) {
+		super.onLayout(changed, left, top, right, bottom);
+		if (highlightErrorsAfterLayout) {
+			highlightErrorsAfterLayout = false;
+			post(this::updateErrorHighlighting);
+		}
+	}
+
 	private void highlightErrors(List<ShaderError> shaderErrors) {
 		Spannable e = getText();
 		clearError(e);
 		if (e == null || e.length() == 0) {
 			return;
 		}
+		// Errors can arrive before the first layout.
+		Layout layout = getLayout();
+		if (layout == null) {
+			highlightErrorsAfterLayout = true;
+			return;
+		}
 		for (ShaderError shaderError : shaderErrors) {
 			int line = shaderError.getLine() - 1;
-			Layout layout = getLayout();
 			if (line < 0 || line >= layout.getLineCount()) {
 				continue;
 			}
