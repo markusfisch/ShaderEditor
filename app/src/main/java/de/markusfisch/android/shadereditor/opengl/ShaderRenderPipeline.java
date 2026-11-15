@@ -118,6 +118,9 @@ final class ShaderRenderPipeline {
 		device.setViewport(0, 0, targetTexture.getWidth(), targetTexture.getHeight());
 		device.applyBindings(bindings);
 		device.draw(fullScreenQuadMesh, program);
+		if (device.hasUniform(program, ShaderRenderer.UNIFORM_BACKBUFFER)) {
+			device.generateMipmap(targetTexture);
+		}
 	}
 
 	void renderSurfacePass(
@@ -256,7 +259,6 @@ final class ShaderRenderPipeline {
 		}
 
 		device.applyTextureParameters(texture, parameters);
-		device.generateMipmap(texture);
 
 		GlFramebuffer framebuffer = device.createFramebuffer();
 		framebuffers[index] = framebuffer;
@@ -272,5 +274,6 @@ final class ShaderRenderPipeline {
 			device.clear(GLES20.GL_COLOR_BUFFER_BIT |
 					GLES20.GL_DEPTH_BUFFER_BIT);
 		}
+		device.generateMipmap(texture);
 	}
 }
