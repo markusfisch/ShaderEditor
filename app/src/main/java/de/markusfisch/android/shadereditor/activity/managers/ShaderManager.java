@@ -106,8 +106,8 @@ public class ShaderManager {
 				new ActivityResultContracts.StartActivityForResult(), result -> {
 					if (result.getResultCode() == Activity.RESULT_OK &&
 							result.getData() != null) {
-						if (isModified()) {
-							saveShader();
+						if (isModified() && !saveShader()) {
+							return;
 						}
 						createShaderFromResource(
 								Objects.requireNonNull(result.getData().getStringExtra(
@@ -249,11 +249,11 @@ public class ShaderManager {
 	}
 
 	public void selectShader(long id) {
+		if (isModified() && !saveShader()) {
+			return;
+		}
 		if (currentProjectSession != null || id > 0) {
 			cancelShaderImport();
-		}
-		if (isModified()) {
-			saveShader();
 		}
 
 		PreviewActivity.renderStatus.reset();
