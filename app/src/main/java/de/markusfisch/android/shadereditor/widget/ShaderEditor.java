@@ -395,7 +395,8 @@ public class ShaderEditor extends LineNumberEditText {
 		if (p > -1) {
 			regex = regex.substring(0, p);
 		}
-		regex += ".*\\n)$";
+		// Only the whole name: adding time must not remove timeScale.
+		regex += "\\b.*\\n)$";
 
 		Matcher m = Pattern.compile(regex, Pattern.MULTILINE).matcher(e);
 		if (m.find()) {
