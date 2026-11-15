@@ -147,8 +147,9 @@ final class ShaderSourcePreparer {
 		String source = input.getSource();
 		ShaderLineMapping lineMapping = input.getLineMapping();
 		int insertedLines = countLines(directive);
-		if (source.trim().startsWith("#version")) {
-			int lineFeed = source.indexOf("\n");
+		int versionStart = skipLeadingComments(source);
+		if (source.startsWith("#version", versionStart)) {
+			int lineFeed = source.indexOf("\n", versionStart);
 			if (lineFeed < 0) {
 				return input;
 			}
@@ -165,6 +166,27 @@ final class ShaderSourcePreparer {
 		return new PreparedShaderInput(
 				directive + source,
 				lineMapping.addInsertedLinesAfterSourceLine(0, insertedLines));
+	}
+
+	private static int skipLeadingComments(@NonNull String source) {
+		int offset = 0;
+		while (offset < source.length()) {
+			if (Character.isWhitespace(source.charAt(offset))) {
+				++offset;
+			} else if (source.startsWith("//", offset)) {
+				int end = source.indexOf('\n', offset + 2);
+				offset = end < 0 ? source.length() : end + 1;
+			} else if (source.startsWith("/*", offset)) {
+				int end = source.indexOf("*/", offset + 2);
+				if (end < 0) {
+					return offset;
+				}
+				offset = end + 2;
+			} else {
+				break;
+			}
+		}
+		return offset;
 	}
 
 	private static int countSourceLines(@NonNull String source, int endExclusive) {
