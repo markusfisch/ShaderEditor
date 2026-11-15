@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,36 +24,19 @@ import de.markusfisch.android.shadereditor.opengl.ShaderError;
 
 public class ErrorListModal extends BottomSheetDialogFragment {
 	public static final String TAG = "ErrorListModal";
-	@NonNull
-	private final ErrorAdapter.OnItemClickListener onItemClickListener;
+	public static final String RESULT = "shader_error_line";
+	public static final String LINE = "line";
+	private static final String ERRORS = "errors";
 
-	@NonNull
-	final List<ShaderError> errors;
-
-	public ErrorListModal() {
-		this(Collections.emptyList(), lineNumber -> {
-		});
+	public static ErrorListModal newInstance(@NonNull List<ShaderError> errors) {
+		Bundle args = new Bundle();
+		args.putSerializable(ERRORS, new ArrayList<>(errors));
+		ErrorListModal modal = new ErrorListModal();
+		modal.setArguments(args);
+		return modal;
 	}
 
-	public ErrorListModal(@NonNull List<ShaderError> errors,
-			@NonNull ErrorAdapter.OnItemClickListener onItemClickListener) {
-		this.errors = errors;
-		this.onItemClickListener = (lineNumber) -> {
-			onItemClickListener.onItemClick(lineNumber);
-			dismiss();
-		};
-	}
-
-	@Override
-	public void onCreate(@Nullable Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		// Recreated without its errors, which may have changed anyway.
-		if (savedInstanceState != null) {
-			setShowsDialog(false);
-			dismiss();
-		}
-	}
-
+	@SuppressWarnings("deprecation")
 	@Nullable
 	@Override
 	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -67,7 +50,14 @@ public class ErrorListModal extends BottomSheetDialogFragment {
 		divider.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(requireContext(),
 				R.drawable.divider_with_padding_horizontal)));
 		errorList.addItemDecoration(divider);
-		ErrorAdapter adapter = new ErrorAdapter(onItemClickListener);
+		ErrorAdapter adapter = new ErrorAdapter(lineNumber -> {
+			Bundle result = new Bundle();
+			result.putInt(LINE, lineNumber);
+			getParentFragmentManager().setFragmentResult(RESULT, result);
+			dismiss();
+		});
+		@SuppressWarnings("unchecked")
+		List<ShaderError> errors = (List<ShaderError>) requireArguments().getSerializable(ERRORS);
 		adapter.submitList(errors);
 		errorList.setAdapter(adapter);
 		return view;

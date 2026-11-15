@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.opengl;
 
 import androidx.annotation.NonNull;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -9,7 +10,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ShaderError {
+public class ShaderError implements Serializable {
 	private static final Pattern ERROR_PATTERN = Pattern.compile(
 			"^.*(\\d+):(\\d+):\\s+(.*)$");
 

@@ -56,6 +56,10 @@ public class EditorFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle state) {
 		View view = inflater.inflate(R.layout.fragment_editor, container, false);
 
+		getChildFragmentManager().setFragmentResultListener(ErrorListModal.RESULT,
+				getViewLifecycleOwner(), (key, result) ->
+						navigateToLine(result.getInt(ErrorListModal.LINE)));
+
 		editorContainer = view.findViewById(R.id.editor_container);
 		shaderEditor = view.findViewById(R.id.editor);
 		shaderEditor.setOnEditPausedListener((text) -> {
@@ -201,7 +205,7 @@ public class EditorFragment extends Fragment {
 
 	public void showErrors() {
 		List<ShaderError> errors = shaderEditor.getErrors();
-		new ErrorListModal(errors, this::navigateToLine).show(getParentFragmentManager(),
+		ErrorListModal.newInstance(errors).show(getChildFragmentManager(),
 				ErrorListModal.TAG);
 	}
 
