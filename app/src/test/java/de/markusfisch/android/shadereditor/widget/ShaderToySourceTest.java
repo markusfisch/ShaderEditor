@@ -1,5 +1,6 @@
 package de.markusfisch.android.shadereditor.widget;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -46,5 +47,43 @@ public class ShaderToySourceTest {
 		assertTrue(ShaderToySource.needsConversion(
 				"void mainImage(out vec4 c, in vec2 p) { c = vec4(" +
 						"1.0 + ".repeat(10000) + "1.0); }"));
+	}
+
+	@Test
+	public void inputsWithAnEqualUniformAreRenamed() {
+		assertEquals("resolution time time frame mouse date",
+				ShaderToySource.rename(
+						"iResolution iTime iGlobalTime iFrame iMouse iDate"));
+	}
+
+	@Test
+	public void onlyWholeNamesAreRenamed() {
+		assertEquals("iTimeDelta iChannel0 iSampleRate myiTime iFrameRate",
+				ShaderToySource.rename(
+						"iTimeDelta iChannel0 iSampleRate myiTime iFrameRate"));
+	}
+
+	@Test
+	public void usedInputsAreDeclared() {
+		assertEquals("uniform vec2 resolution;\n" +
+						"uniform float time;\n" +
+						"uniform int frame;\n\n",
+				ShaderToySource.declarations(
+						"void mainImage(out vec4 c, in vec2 p) {\n" +
+								"\tc = vec4(p / iResolution.xy, " +
+								"sin(iTime) + float(iFrame), 1.0);\n}\n"));
+		assertEquals("uniform float time;\n\n",
+				ShaderToySource.declarations("iTime + iGlobalTime"));
+		assertEquals("", ShaderToySource.declarations("myiTime iTimeDelta"));
+	}
+
+	@Test
+	public void ownFrameAndTimeAreNotDeclared() {
+		String declarations = ShaderToySource.declarations(
+				"float time = 2.0;\n" +
+						"float frame(vec2 p) { return step(0.9, fract(p.x * 8.0)); }\n" +
+						"void mainImage(out vec4 c, in vec2 p) {\n" +
+						"\tc = vec4(frame(p / iResolution.xy), time, 0.0, 1.0);\n}\n");
+		assertEquals("uniform vec2 resolution;\n\n", declarations);
 	}
 }
