@@ -391,7 +391,6 @@ public class ShaderEditor extends LineNumberEditText {
 			// and the now following uniform.
 			if ((start = endIndexOfLastEndIf(e)) > -1) {
 				statement = "\n" + statement;
-				++start;
 			} else {
 				start = endIndexOfPreamble(e);
 				if (start > 0 && e.charAt(start - 1) != '\n') {
@@ -456,7 +455,7 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 	}
 
-	private int endIndexOfLastEndIf(Editable e) {
+	static int endIndexOfLastEndIf(CharSequence e) {
 		Matcher m = PATTERN_ENDIF.matcher(e);
 		int idx = -1;
 
@@ -464,6 +463,12 @@ public class ShaderEditor extends LineNumberEditText {
 			idx = m.end();
 		}
 
+		if (idx >= 0 && idx < e.length() && e.charAt(idx) == '\r') {
+			++idx;
+		}
+		if (idx >= 0 && idx < e.length() && e.charAt(idx) == '\n') {
+			++idx;
+		}
 		return idx;
 	}
 

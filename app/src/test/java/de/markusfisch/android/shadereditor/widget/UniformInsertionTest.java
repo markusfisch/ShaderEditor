@@ -61,4 +61,13 @@ public class UniformInsertionTest {
 		String source = "#version 300 es";
 		assertEquals(source.length(), ShaderEditor.endIndexOfPreamble(source));
 	}
+	@Test
+	public void insertionAfterEndifStaysWithinTheSource() {
+		for (String suffix : new String[]{"", "\n", "\r\n"}) {
+			String source = "#if 1\n#endif" + suffix;
+			assertEquals(source.length(), ShaderEditor.endIndexOfLastEndIf(source));
+		}
+		assertEquals(-1, ShaderEditor.endIndexOfLastEndIf("void main() {}"));
+	}
+
 }
