@@ -2,11 +2,14 @@ package de.markusfisch.android.shadereditor.activity.managers;
 
 import android.view.View;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
@@ -41,6 +44,28 @@ public class UIManager {
 				R.string.drawer_open, R.string.drawer_close);
 		drawerToggle.setDrawerIndicatorEnabled(true);
 		drawerLayout.addDrawerListener(drawerToggle);
+
+		OnBackPressedCallback closeDrawer = new OnBackPressedCallback(false) {
+			@Override
+			public void handleOnBackPressed() {
+				drawerLayout.closeDrawers();
+			}
+		};
+		activity.getOnBackPressedDispatcher().addCallback(activity, closeDrawer);
+		drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+			@Override
+			public void onDrawerOpened(@NonNull View drawerView) {
+				closeDrawer.setEnabled(true);
+			}
+
+			@Override
+			public void onDrawerClosed(@NonNull View drawerView) {
+				closeDrawer.setEnabled(false);
+			}
+		});
+		// A drawer that is restored open tells no listener.
+		drawerLayout.post(() -> closeDrawer.setEnabled(
+				drawerLayout.isDrawerOpen(GravityCompat.START)));
 	}
 
 	public void setupToolbar(View.OnClickListener menuClickListener,
