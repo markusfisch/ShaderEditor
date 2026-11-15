@@ -216,8 +216,8 @@ public class ShaderRenderer implements GLSurfaceView.Renderer {
 				surfaceProgram,
 				frame.surfaceWidth(),
 				frame.surfaceHeight());
-		renderPipeline.swapTargets();
 		captureThumbnail();
+		renderPipeline.swapTargets();
 
 		if (onRendererListener != null) {
 			updateFps(frame.now());
