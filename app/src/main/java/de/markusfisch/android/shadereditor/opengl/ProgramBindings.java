@@ -25,6 +25,8 @@ final class ProgramBindings {
 		float floatValue;
 		@Nullable
 		float[] values;
+		@Nullable
+		float[] transposedMatrix3;
 
 		UniformValue(String name, int type) {
 			this.name = name;
@@ -134,9 +136,22 @@ final class ProgramBindings {
 			boolean transpose,
 			@NonNull float[] values) {
 		var uniform = getOrCreateUniform(name, TYPE_MATRIX3);
-		uniform.transpose = transpose;
+		// OpenGL ES requires transpose=false for matrix uploads.
+		uniform.transpose = false;
 		uniform.count = 1;
-		uniform.values = values;
+		if (transpose) {
+			if (uniform.transposedMatrix3 == null) {
+				uniform.transposedMatrix3 = new float[9];
+			}
+			for (int row = 0; row < 3; ++row) {
+				for (int column = 0; column < 3; ++column) {
+					uniform.transposedMatrix3[column * 3 + row] = values[row * 3 + column];
+				}
+			}
+			uniform.values = uniform.transposedMatrix3;
+		} else {
+			uniform.values = values;
+		}
 	}
 
 	void setTexture(@NonNull String name, @Nullable GlTexture texture) {
