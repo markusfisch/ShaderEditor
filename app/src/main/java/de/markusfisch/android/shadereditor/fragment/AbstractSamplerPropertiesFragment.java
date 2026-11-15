@@ -29,12 +29,12 @@ import de.markusfisch.android.shadereditor.view.SoftKeyboard;
 import de.markusfisch.android.shadereditor.widget.TextureParametersView;
 
 public abstract class AbstractSamplerPropertiesFragment extends Fragment {
-	public static final String TEXTURE_NAME_PATTERN = "[a-zA-Z0-9_]+";
+	public static final String TEXTURE_NAME_PATTERN = "[a-zA-Z_][a-zA-Z0-9_]*";
 	public static final String SAMPLER_2D = "sampler2D";
 	public static final String SAMPLER_CUBE = "samplerCube";
 
 	private static final Pattern NAME_PATTERN = Pattern.compile(
-			"^" + TEXTURE_NAME_PATTERN + "$");
+			"^[a-zA-Z0-9_]+$");
 
 	private static boolean inProgress = false;
 
