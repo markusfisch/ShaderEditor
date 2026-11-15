@@ -146,14 +146,8 @@ public class ShaderEditor extends LineNumberEditText {
 				"#else\n" +
 				"precision mediump float;\n" +
 				"#endif\n\n" +
-				"uniform vec2 resolution;\n" +
-				"uniform float time;\n" +
-				"uniform vec4 mouse;\n" +
-				"uniform vec4 date;\n\n" +
-				src.replaceAll("iResolution", "resolution")
-						.replaceAll("iGlobalTime", "time")
-						.replaceAll("iMouse", "mouse")
-						.replaceAll("iDate", "date") +
+				ShaderToySource.declarations(src) +
+				ShaderToySource.rename(src) +
 				"\n\nvoid main() {\n" +
 				"\tvec4 fragment_color;\n" +
 				"\tmainImage(fragment_color, gl_FragCoord.xy);\n" +
