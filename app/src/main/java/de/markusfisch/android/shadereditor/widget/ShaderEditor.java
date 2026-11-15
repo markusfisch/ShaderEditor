@@ -139,8 +139,9 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 	}
 
-	private static String convertShaderToySource(String src) {
-		if (!ShaderToySource.needsConversion(src)) {
+	private static String convertShaderToySource(String src,
+			CharSequence inserted) {
+		if (!ShaderToySource.needsConversion(src, inserted)) {
 			return null;
 		}
 		// Only include and translate uniforms that have an equivalent.
@@ -513,7 +514,8 @@ public class ShaderEditor extends LineNumberEditText {
 				cancelUpdate();
 				convertTabs(e, start, count);
 
-				String converted = convertShaderToySource(e.toString());
+				String converted = convertShaderToySource(e.toString(),
+						e.subSequence(start, Math.min(start + count, e.length())));
 				if (converted != null) {
 					setTextHighlighted(converted);
 				}

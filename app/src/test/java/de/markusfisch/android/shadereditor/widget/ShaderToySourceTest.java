@@ -86,4 +86,25 @@ public class ShaderToySourceTest {
 						"\tc = vec4(frame(p / iResolution.xy), time, 0.0, 1.0);\n}\n");
 		assertEquals("uniform vec2 resolution;\n\n", declarations);
 	}
+
+	// #122: a converted shader must not be wrapped again when its
+	// main() is cut, and pasting a ShaderToy shader still converts it.
+	@Test
+	public void onlyAnInsertedMainImageNeedsConversion() {
+		String toy = "void mainImage(out vec4 c, in vec2 p) {\n" +
+				"\tc = vec4(1.0);\n}\n";
+		assertTrue(ShaderToySource.needsConversion(toy, toy));
+		String converted = "precision mediump float;\n\n" + toy +
+				"\n\nvoid main() {\n" +
+				"\tvec4 fragment_color;\n" +
+				"\tmainImage(fragment_color, gl_FragCoord.xy);\n" +
+				"\tgl_FragColor = fragment_color;\n" +
+				"}\n";
+		String cut = converted.substring(0, converted.indexOf("void main()"));
+		// The text alone looks like a ShaderToy shader again.
+		assertTrue(ShaderToySource.needsConversion(cut));
+		assertFalse(ShaderToySource.needsConversion(cut, ""));
+		assertFalse(ShaderToySource.needsConversion(cut + "x", "x"));
+		assertFalse(ShaderToySource.needsConversion(converted, converted));
+	}
 }
