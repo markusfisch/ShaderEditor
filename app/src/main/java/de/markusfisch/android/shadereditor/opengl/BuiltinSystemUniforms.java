@@ -44,6 +44,7 @@ final class BuiltinSystemUniforms {
 	private int nightMode;
 	private long lastBatteryUpdate;
 	private long lastDateUpdate;
+	private float secondOfDay;
 	private long lastMediaVolumeUpdate;
 	private float batteryLevel;
 	private float mediaVolumeLevel;
@@ -139,9 +140,10 @@ final class BuiltinSystemUniforms {
 					dateTime[0] = calendar.get(Calendar.YEAR);
 					dateTime[1] = calendar.get(Calendar.MONTH);
 					dateTime[2] = calendar.get(Calendar.DAY_OF_MONTH);
-					dateTime[3] = calendar.get(Calendar.HOUR_OF_DAY) * 3600f +
+					secondOfDay = calendar.get(Calendar.HOUR_OF_DAY) * 3600f +
 							calendar.get(Calendar.MINUTE) * 60f +
-							calendar.get(Calendar.SECOND);
+							calendar.get(Calendar.SECOND) +
+							calendar.get(Calendar.MILLISECOND) / 1000f;
 				}
 				if (hasDaytime) {
 					daytime[0] = calendar.get(Calendar.HOUR_OF_DAY);
@@ -151,6 +153,9 @@ final class BuiltinSystemUniforms {
 				lastDateUpdate = now;
 			}
 			if (hasDate) {
+				// With the fraction of a second, as on ShaderToy.
+				dateTime[3] = secondOfDay +
+						(now - lastDateUpdate) / 1000000000f;
 				bindings.setFloat4(ShaderRenderer.UNIFORM_DATE, dateTime);
 			}
 			if (hasDaytime) {
