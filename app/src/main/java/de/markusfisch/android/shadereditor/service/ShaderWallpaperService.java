@@ -15,6 +15,9 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.database.DataRecords;
 import de.markusfisch.android.shadereditor.database.DataSource;
@@ -26,16 +29,16 @@ import de.markusfisch.android.shadereditor.receiver.BatteryLevelReceiver;
 import de.markusfisch.android.shadereditor.widget.ShaderView;
 
 public class ShaderWallpaperService extends WallpaperService {
-	private static ShaderWallpaperEngine engine;
+	private static final Set<ShaderWallpaperEngine> engines = new HashSet<>();
 
 	private ComponentName batteryLevelComponent;
 
 	public static boolean isRunning() {
-		return engine != null;
+		return !engines.isEmpty();
 	}
 
 	public static void setRenderMode(int renderMode) {
-		if (engine != null) {
+		for (ShaderWallpaperEngine engine : engines) {
 			engine.setRenderMode(renderMode);
 		}
 	}
@@ -52,12 +55,13 @@ public class ShaderWallpaperService extends WallpaperService {
 	public void onDestroy() {
 		super.onDestroy();
 		enableComponent(batteryLevelComponent, false);
-		engine = null;
+		engines.clear();
 	}
 
 	@Override
 	public Engine onCreateEngine() {
-		engine = new ShaderWallpaperEngine();
+		ShaderWallpaperEngine engine = new ShaderWallpaperEngine();
+		engines.add(engine);
 		return engine;
 	}
 
@@ -88,6 +92,7 @@ public class ShaderWallpaperService extends WallpaperService {
 
 		@Override
 		public void onDestroy() {
+			engines.remove(this);
 			super.onDestroy();
 			// Unregister listener to prevent memory leaks.
 			ShaderEditorApp.preferences.getSharedPreferences()
