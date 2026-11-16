@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Locale;
 
 public class ExternalFile {
 	public static OutputStream openExternalOutputStream(
@@ -19,15 +20,11 @@ public class ExternalFile {
 			String fileName,
 			String mimeType) throws IOException {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-			File file = new File(
-					Environment.getExternalStoragePublicDirectory(
-							Environment.DIRECTORY_DOWNLOADS
-					),
-					fileName);
-			if (file.exists()) {
-				throw new IOException();
-			}
-			return new FileOutputStream(file);
+			File directory = Environment.getExternalStoragePublicDirectory(
+					Environment.DIRECTORY_DOWNLOADS);
+			// The directory may not exist yet.
+			directory.mkdirs();
+			return new FileOutputStream(uniqueFile(directory, fileName));
 		} else {
 			ContentResolver resolver = context.getContentResolver();
 			ContentValues cv = new ContentValues();
@@ -45,5 +42,19 @@ public class ExternalFile {
 			}
 			return out;
 		}
+	}
+
+	// Keeps an earlier file of the same name, as MediaStore does.
+	static File uniqueFile(File directory, String fileName) {
+		int dot = fileName.lastIndexOf('.');
+		if (dot < 0) {
+			dot = fileName.length();
+		}
+		File file = new File(directory, fileName);
+		for (int i = 1; file.exists(); ++i) {
+			file = new File(directory, String.format(Locale.US, "%s_%d%s",
+					fileName.substring(0, dot), i, fileName.substring(dot)));
+		}
+		return file;
 	}
 }
