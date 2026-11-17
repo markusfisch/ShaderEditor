@@ -10,7 +10,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.List;
+
+import de.markusfisch.android.shadereditor.syntax.GlslLexer;
+import de.markusfisch.android.shadereditor.syntax.Style;
+import de.markusfisch.android.shadereditor.syntax.Tokens;
 
 public class LexerTokensTest {
 	@Test
@@ -22,42 +25,30 @@ public class LexerTokensTest {
 			String source = new String(Files.readAllBytes(shader.toPath()),
 					StandardCharsets.UTF_8);
 			int previousEnd = 0;
-			for (Token token : Styles.tokens(source)) {
-				String where = shader.getName() + ": " + token;
-				assertTrue(where, token.startOffset() >= previousEnd);
-				assertTrue(where, token.endOffset() >= token.startOffset());
-				assertTrue(where, token.endOffset() <= source.length());
-				previousEnd = token.endOffset();
+			Tokens tokens = GlslLexer.lex(source);
+			for (int i = 0; i < tokens.size(); ++i) {
+				String where = shader.getName() + ": " + i;
+				assertTrue(where, tokens.start(i) >= previousEnd);
+				assertTrue(where, tokens.end(i) > tokens.start(i));
+				assertTrue(where, tokens.end(i) <= source.length());
+				previousEnd = tokens.end(i);
 			}
 		}
 	}
 
 	@Test
-	public void lastTokenIsAnEmptyEof() {
-		List<Token> tokens = Styles.tokens("x");
-		Token eof = tokens.get(tokens.size() - 1);
-		assertEquals(TokenType.EOF, eof.type());
-		assertEquals(1, eof.startOffset());
-		assertEquals(1, eof.endOffset());
-	}
-
-	@Test
-	public void emptyTextHasOnlyEof() {
-		List<Token> tokens = Styles.tokens("");
-		assertEquals(1, tokens.size());
-		assertEquals(TokenType.EOF, tokens.get(0).type());
-		assertEquals(0, tokens.get(0).endOffset());
+	public void emptyTextHasNoTokens() {
+		assertEquals(0, GlslLexer.lex("").size());
 	}
 
 	@Test
 	public void hexadecimalNumbersTakeTheUnsignedSuffix() {
-		for (String number : new String[]{"0x7fu", "0X7FU", "7u", "0u"}) {
-			List<Token> tokens = Styles.tokens(number);
-			assertEquals(number, 2, tokens.size());
-			assertEquals(number, TokenType.UINTCONSTANT, tokens.get(0).type());
-			assertEquals(number, number.length(), tokens.get(0).endOffset());
+		for (String number : new String[]{"0x7fu", "0X7FU", "7u", "0u", "0x7f"}) {
+			Tokens tokens = GlslLexer.lex(number);
+			assertEquals(number, 1, tokens.size());
+			assertEquals(number, Style.NUMBER, tokens.style(0));
+			assertEquals(number, number.length(), tokens.end(0));
 		}
-		assertEquals(TokenType.INTCONSTANT, Styles.tokens("0x7f").get(0).type());
 	}
 
 	private static File findRawDirectory() {

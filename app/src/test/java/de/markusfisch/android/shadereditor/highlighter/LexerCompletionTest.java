@@ -2,7 +2,6 @@ package de.markusfisch.android.shadereditor.highlighter;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import androidx.annotation.NonNull;
@@ -13,22 +12,27 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import de.markusfisch.android.shadereditor.syntax.GlslCompletion;
+import de.markusfisch.android.shadereditor.syntax.GlslLexer;
+import de.markusfisch.android.shadereditor.syntax.Style;
+import de.markusfisch.android.shadereditor.syntax.Tokens;
+
 public class LexerCompletionTest {
 	@Test
 	public void findTokenReturnsTheTokenContainingTheOffset() {
-		List<Token> tokens = Styles.tokens("float x;");
-		assertEquals(TokenType.FLOAT, Lexer.findToken(tokens, 0).type());
-		assertEquals(TokenType.FLOAT, Lexer.findToken(tokens, 4).type());
-		assertEquals(TokenType.IDENTIFIER, Lexer.findToken(tokens, 6).type());
-		assertEquals(TokenType.SEMICOLON, Lexer.findToken(tokens, 7).type());
+		Tokens tokens = GlslLexer.lex("float x;");
+		assertEquals(Style.PRIMITIVE, tokens.style(tokens.indexAt(0)));
+		assertEquals(Style.PRIMITIVE, tokens.style(tokens.indexAt(4)));
+		assertEquals(Style.IDENTIFIER, tokens.style(tokens.indexAt(6)));
+		assertEquals(Style.OPERATOR, tokens.style(tokens.indexAt(7)));
 	}
 
 	@Test
 	public void findTokenReturnsNullBetweenTokensAndAtTheEnd() {
-		List<Token> tokens = Styles.tokens("float x;");
-		assertNull(Lexer.findToken(tokens, 5));
-		assertNull(Lexer.findToken(tokens, 8));
-		assertNull(Lexer.findToken(Styles.tokens(""), 0));
+		Tokens tokens = GlslLexer.lex("float x;");
+		assertEquals(-1, tokens.indexAt(5));
+		assertEquals(-1, tokens.indexAt(8));
+		assertEquals(-1, GlslLexer.lex("").indexAt(0));
 	}
 
 	@Test
@@ -47,16 +51,14 @@ public class LexerCompletionTest {
 		assertEquals(Collections.emptyList(), complete(""));
 		assertEquals(Collections.emptyList(), complete("xyz"));
 		assertEquals(Collections.emptyList(), complete("Vec"));
-		assertEquals(Collections.emptyList(),
-				Lexer.completeKeyword("fl", Token.Category.TRIVIA));
 	}
 
 	@Test
 	public void completeDirectivesAndKeywordsInDirectives() {
 		assertEquals(Arrays.asList("pragma"),
-				Lexer.completeKeyword("prag", Token.Category.PREPROC));
+				GlslCompletion.words("prag", true));
 		assertEquals(Arrays.asList("define", "default", "degrees", "determinant"),
-				Lexer.completeKeyword("de", Token.Category.PREPROC));
+				GlslCompletion.words("de", true));
 	}
 
 	@Test
@@ -103,7 +105,7 @@ public class LexerCompletionTest {
 
 	@NonNull
 	private static List<String> complete(@NonNull String prefix) {
-		return Lexer.completeKeyword(prefix, Token.Category.NORMAL);
+		return GlslCompletion.words(prefix, false);
 	}
 
 	/**
@@ -112,18 +114,18 @@ public class LexerCompletionTest {
 	 */
 	@NonNull
 	private static String prefixAt(@NonNull String text, int cursor) {
-		List<Token> tokens = Styles.tokens(text);
-		Token token = Lexer.findCompletionToken(tokens, cursor);
-		if (token == null) {
+		Tokens tokens = GlslLexer.lex(text);
+		int index = GlslCompletion.tokenBefore(tokens, cursor);
+		if (index < 0) {
 			return "";
 		}
-		return Lexer.tokenSource(token, text)
-				.subSequence(0, cursor - token.startOffset())
-				.toString();
+		return text.substring(tokens.start(index), cursor);
 	}
 
 	private static boolean inComment(@NonNull String text, int cursor) {
-		Token token = Lexer.findCompletionToken(Styles.tokens(text), cursor);
-		return token != null && Lexer.isInComment(token, text, cursor);
+		Tokens tokens = GlslLexer.lex(text);
+		int index = GlslCompletion.tokenBefore(tokens, cursor);
+		return index > -1 &&
+				GlslCompletion.isInComment(tokens, text, index, cursor);
 	}
 }

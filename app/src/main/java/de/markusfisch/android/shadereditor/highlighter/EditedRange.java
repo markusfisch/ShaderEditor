@@ -1,6 +1,6 @@
 package de.markusfisch.android.shadereditor.highlighter;
 
-import java.util.List;
+import de.markusfisch.android.shadereditor.syntax.Tokens;
 
 /**
  * The smallest range of the current text that covers everything typed or
@@ -71,16 +71,16 @@ public final class EditedRange {
 	 * @param tokens The new tokens of the current text.
 	 * @param diff   The difference between the old and the new tokens.
 	 */
-	public Restyle restyle(List<Token> tokens, Lexer.Diff diff) {
+	public Restyle restyle(Tokens tokens, TokenDiff diff) {
 		int from = Integer.MAX_VALUE;
 		int to = Integer.MIN_VALUE;
 		if (!isEmpty()) {
 			from = start;
 			to = end;
 		}
-		if (diff.start <= diff.insertEnd) {
-			from = Math.min(from, tokens.get(diff.start).startOffset());
-			to = Math.max(to, tokens.get(diff.insertEnd).endOffset());
+		if (diff.start < diff.insertEnd) {
+			from = Math.min(from, tokens.start(diff.start));
+			to = Math.max(to, tokens.end(diff.insertEnd - 1));
 		}
 		if (from > to) {
 			return new Restyle(0, 0, 0, 0);
@@ -88,19 +88,17 @@ public final class EditedRange {
 		int firstToken = tokens.size();
 		int endToken = 0;
 		for (int i = 0, size = tokens.size(); i < size; ++i) {
-			Token token = tokens.get(i);
-			if (token.startOffset() > to) {
+			if (tokens.start(i) > to) {
 				break;
 			}
-			if (token.endOffset() >= from &&
-					token.endOffset() > token.startOffset()) {
+			if (tokens.end(i) >= from) {
 				firstToken = Math.min(firstToken, i);
 				endToken = i + 1;
 			}
 		}
 		if (firstToken < endToken) {
-			from = Math.min(from, tokens.get(firstToken).startOffset());
-			to = Math.max(to, tokens.get(endToken - 1).endOffset());
+			from = Math.min(from, tokens.start(firstToken));
+			to = Math.max(to, tokens.end(endToken - 1));
 		} else {
 			firstToken = endToken = 0;
 		}

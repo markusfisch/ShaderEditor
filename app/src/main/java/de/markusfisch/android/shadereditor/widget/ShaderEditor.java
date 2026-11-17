@@ -43,9 +43,12 @@ import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.app.ShaderEditorApp;
 import de.markusfisch.android.shadereditor.highlighter.EditedRange;
 import de.markusfisch.android.shadereditor.highlighter.Highlight;
-import de.markusfisch.android.shadereditor.highlighter.Lexer;
-import de.markusfisch.android.shadereditor.highlighter.Token;
+import de.markusfisch.android.shadereditor.highlighter.TokenDiff;
 import de.markusfisch.android.shadereditor.opengl.ShaderError;
+import de.markusfisch.android.shadereditor.syntax.GlslCompletion;
+import de.markusfisch.android.shadereditor.syntax.GlslLexer;
+import de.markusfisch.android.shadereditor.syntax.Style;
+import de.markusfisch.android.shadereditor.syntax.Tokens;
 import de.markusfisch.android.shadereditor.view.UndoRedo;
 
 public class ShaderEditor extends LineNumberEditText {
@@ -64,6 +67,7 @@ public class ShaderEditor extends LineNumberEditText {
 	private static final Pattern PATTERN_NO_BREAK_SPACE = Pattern.compile(
 			"\\xA0");
 	private static final ArrayList<String> DEFAULT_COMPLETIONS = new ArrayList<>();
+	private static final Tokens NO_TOKENS = GlslLexer.lex("");
 
 	static {
 		DEFAULT_COMPLETIONS.add("{");
@@ -75,7 +79,7 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	private int revision = 0;
-	private final int[] colors = new int[Highlight.values().length];
+	private final int[] colors = new int[Style.values().length];
 	private final TokenListUpdater tokenListUpdater = new TokenListUpdater(
 			(tokenRevision, tokens, text) -> post(() -> {
 				if (tokenRevision == revision) {
@@ -115,7 +119,7 @@ public class ShaderEditor extends LineNumberEditText {
 	private int textColor;
 	private int tabWidthInCharacters = 0;
 	private int tabWidth = 0;
-	private List<Token> tokens = new ArrayList<>();
+	private Tokens tokens = NO_TOKENS;
 	private final EditedRange editedRange = new EditedRange();
 	private boolean isApplyingEdit = false;
 
@@ -426,7 +430,7 @@ public class ShaderEditor extends LineNumberEditText {
 	protected void onSelectionChanged(int selStart, int selEnd) {
 		super.onSelectionChanged(selStart, selEnd);
 		Editable text = getText();
-		List<Token> completedTokens;
+		Tokens completedTokens;
 		if (text != null &&
 				codeCompletionListener != null &&
 				getSelectionStart() == getSelectionEnd() &&
@@ -591,9 +595,9 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	private void setSyntaxColors(Context context) {
-		for (Highlight highlight : Highlight.values()) {
-			colors[highlight.ordinal()] =
-					ContextCompat.getColor(context, highlight.id());
+		for (Style style : Style.values()) {
+			colors[style.ordinal()] =
+					ContextCompat.getColor(context, Highlight.colorOf(style));
 		}
 		textColor = ContextCompat.getColor(context, R.color.editor_text);
 		colorError = ContextCompat.getColor(
@@ -624,7 +628,7 @@ public class ShaderEditor extends LineNumberEditText {
 		clearError(e);
 
 		if (length == 0) {
-			tokens = new ArrayList<>();
+			tokens = NO_TOKENS;
 			editedRange.reset();
 			return e;
 		}
@@ -641,32 +645,31 @@ public class ShaderEditor extends LineNumberEditText {
 			clearSpans(e, 0, length, ForegroundColorSpan.class);
 			return e;
 		}
-		List<Token> newTokens = tokenListUpdater.ensureUpdated(e, revision);
+		Tokens newTokens = tokenListUpdater.ensureUpdated(e, revision);
 
 		if (complete) {
 			clearSpans(e, 0, length, ForegroundColorSpan.class);
-			for (Token token : newTokens) {
-				@ColorInt int color = colors[Highlight.from(token.type()).ordinal()];
+			for (int i = 0, size = newTokens.size(); i < size; ++i) {
+				@ColorInt int color = colors[newTokens.style(i).ordinal()];
 				if (color != textColor) {
 					e.setSpan(
 							new ForegroundColorSpan(color),
-							token.startOffset(), token.endOffset(),
+							newTokens.start(i), newTokens.end(i),
 							Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 				}
 			}
 		} else {
 			EditedRange.Restyle restyle = editedRange.restyle(newTokens,
-					Lexer.diff(tokens, newTokens));
+					TokenDiff.of(tokens, newTokens));
 			if (restyle.start < restyle.end) {
 				clearSpans(e, restyle.start, restyle.end, ForegroundColorSpan.class);
 			}
 			for (int i = restyle.firstToken; i < restyle.endToken; ++i) {
-				Token token = newTokens.get(i);
 				e.setSpan(
 						new ForegroundColorSpan(
-								colors[Highlight.from(token.type()).ordinal()]),
-						token.startOffset(),
-						token.endOffset(),
+								colors[newTokens.style(i).ordinal()]),
+						newTokens.start(i),
+						newTokens.end(i),
 						Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 			}
 		}
@@ -678,33 +681,33 @@ public class ShaderEditor extends LineNumberEditText {
 	}
 
 	private void provideCompletions(
-			@NonNull List<Token> tokens,
+			@NonNull Tokens tokens,
 			@NonNull CharSequence text) {
 		CodeCompletionListener listener = codeCompletionListener;
 		if (listener == null) {
 			return;
 		}
 		int start = getSelectionStart();
-		Token tok = Lexer.findCompletionToken(tokens, start);
-		if (tok == null) {
+		int index = GlslCompletion.tokenBefore(tokens, start);
+		if (index < 0) {
 			listener.onCodeCompletions(DEFAULT_COMPLETIONS, 0);
 			return;
 		}
-		if (Lexer.isInComment(tok, text, start)) {
+		if (GlslCompletion.isInComment(tokens, text, index, start)) {
 			listener.onCodeCompletions(Collections.emptyList(), 0);
 			return;
 		}
-		int positionInToken = start - tok.startOffset();
-		List<String> completions = Lexer.completeKeyword(
-				Lexer.tokenSource(tok, text).subSequence(0, positionInToken).toString(),
-				tok.category());
+		int positionInToken = start - tokens.start(index);
+		List<String> completions = GlslCompletion.words(
+				text.subSequence(tokens.start(index), start).toString(),
+				tokens.inDirective(index));
 
 		if (completions.isEmpty()) {
 			completions = DEFAULT_COMPLETIONS;
 			positionInToken = 0;
 		}
 		if (completions.size() == 1 && completions.get(0).contentEquals(
-				text.subSequence(tok.startOffset(), start))) {
+				text.subSequence(tokens.start(index), start))) {
 			completions = DEFAULT_COMPLETIONS;
 			positionInToken = 0;
 		}
@@ -828,7 +831,7 @@ public class ShaderEditor extends LineNumberEditText {
 
 	@FunctionalInterface
 	interface OnTokenized {
-		void onTokens(int revision, @NonNull List<Token> tokens, @NonNull CharSequence text);
+		void onTokens(int revision, @NonNull Tokens tokens, @NonNull CharSequence text);
 	}
 
 	private static class TabWidthSpan
@@ -876,7 +879,7 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 	}
 
-	static class TokenizeCalculation implements Callable<List<Token>> {
+	static class TokenizeCalculation implements Callable<Tokens> {
 		private final String text;
 		private final int revision;
 		@NonNull
@@ -892,15 +895,8 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 
 		@Override
-		public List<Token> call() {
-			Lexer lexer = new Lexer(text);
-			List<Token> tokens = new ArrayList<>();
-			for (Token token : lexer) {
-				tokens.add(token);
-				if (Thread.currentThread().isInterrupted()) {
-					break;
-				}
-			}
+		public Tokens call() {
+			Tokens tokens = GlslLexer.lex(text);
 			onTokenized.onTokens(revision, tokens, text);
 			return tokens;
 		}
@@ -912,9 +908,9 @@ public class ShaderEditor extends LineNumberEditText {
 		@NonNull
 		private final ExecutorService executor = Executors.newSingleThreadExecutor();
 		@Nullable
-		private FutureTask<List<Token>> task;
-		@NonNull
-		private List<Token> completedTokens = Collections.emptyList();
+		private FutureTask<Tokens> task;
+		@Nullable
+		private Tokens completedTokens;
 		private int revision = -1;
 		private int completedRevision = -1;
 
@@ -923,11 +919,11 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 
 		@Nullable
-		public synchronized List<Token> getCompletedTokens(int revision) {
+		public synchronized Tokens getCompletedTokens(int revision) {
 			return revision == completedRevision ? completedTokens : null;
 		}
 
-		private synchronized void setCompleted(int revision, @NonNull List<Token> tokens) {
+		private synchronized void setCompleted(int revision, @NonNull Tokens tokens) {
 			if (revision != this.revision) {
 				return;
 			}
@@ -936,8 +932,8 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 
 		@NonNull
-		public List<Token> ensureUpdated(@NonNull CharSequence text, int revision) {
-			FutureTask<List<Token>> futureTask;
+		public Tokens ensureUpdated(@NonNull CharSequence text, int revision) {
+			FutureTask<Tokens> futureTask;
 			synchronized (this) {
 				if (task == null || revision != this.revision) {
 					update(text, revision);
@@ -945,10 +941,10 @@ public class ShaderEditor extends LineNumberEditText {
 				futureTask = task;
 			}
 			if (futureTask == null) {
-				return Collections.emptyList();
+				return NO_TOKENS;
 			}
 			try {
-				List<Token> tokens = futureTask.get();
+				Tokens tokens = futureTask.get();
 				setCompleted(revision, tokens);
 				return tokens;
 			} catch (ExecutionException | InterruptedException e) {
@@ -957,7 +953,7 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 
 		public void update(@NonNull CharSequence text, int revision) {
-			FutureTask<List<Token>> currentTask;
+			FutureTask<Tokens> currentTask;
 			synchronized (this) {
 				if (revision == this.revision && task != null) {
 					return;
