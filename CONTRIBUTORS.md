@@ -9,3 +9,4 @@ Contributors
 * [waterdaan](https://github.com/waterdaan)
 * [KOLANICH](https://github.com/KOLANICH)
 * [cipold](https://github.com/cipold)
+* [Anton Pieper](https://github.com/AntonPieper)
