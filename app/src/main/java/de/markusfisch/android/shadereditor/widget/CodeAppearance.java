@@ -2,6 +2,7 @@ package de.markusfisch.android.shadereditor.widget;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.text.TextPaint;
@@ -33,6 +34,7 @@ final class CodeAppearance {
 	final int lineNumberColor;
 	final int selectionColor;
 	final int caretColor;
+	final int handleColor;
 	final float caretWidth;
 	final float underline;
 	final float padding;
@@ -55,6 +57,13 @@ final class CodeAppearance {
 		caretColor = ContextCompat.getColor(context, R.color.editor_caret);
 		selectionColor = ContextCompat.getColor(context,
 				R.color.code_selection);
+		TypedArray a = context.obtainStyledAttributes(new int[]{
+				androidx.appcompat.R.attr.colorPrimary});
+		try {
+			handleColor = a.getColor(0, caretColor);
+		} finally {
+			a.recycle();
+		}
 		caretWidth = res.getDimension(R.dimen.editor_caret_width);
 		underline = res.getDimension(R.dimen.editor_composing_underline);
 		padding = res.getDimension(R.dimen.editor_padding);

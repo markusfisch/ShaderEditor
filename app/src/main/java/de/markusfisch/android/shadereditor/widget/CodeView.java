@@ -18,10 +18,12 @@ import android.text.InputType;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.GestureDetector;
+import android.view.HapticFeedbackConstants;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
@@ -34,6 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -45,6 +48,7 @@ import de.markusfisch.android.shadereditor.editor.EditCommands;
 import de.markusfisch.android.shadereditor.editor.KeyCommands;
 import de.markusfisch.android.shadereditor.editor.LineStyles;
 import de.markusfisch.android.shadereditor.editor.LineStylesScheduler;
+import de.markusfisch.android.shadereditor.editor.Motion;
 import de.markusfisch.android.shadereditor.editor.Text;
 import de.markusfisch.android.shadereditor.editor.TextInput;
 
@@ -52,6 +56,13 @@ import de.markusfisch.android.shadereditor.editor.TextInput;
 // lines on screen are laid out, and from Android 10 on a line's drawing is
 // recorded once and replayed until its string or colours change. The app runs
 // from Android 6 on, so what later versions add is used behind version checks.
+//
+// The view keeps the state of a touch itself (what it started as, where the
+// finger is, what it selected, whether it scrolls), as drawing, scrolling,
+// focus, the toolbar and edits all read or reset it. What of the touch has a
+// boundary of its own is outside: TouchSelection, which text a gesture selects,
+// tested on its own; SelectionHandles, SelectionToolbar and DragMagnifier, one
+// widget each. Moving more out would pass that state back and forth.
 public class CodeView extends View {
 	// As the old editor with native suggestions hidden: TYPE_NULL tells a
 	// keyboard the field is no text editor, so Gboard sends raw key events.
@@ -69,12 +80,16 @@ public class CodeView extends View {
 				task.run();
 			}, "LineStyles"));
 	private static final long BLINK = 500;
+	// As the platform's insertion handle.
+	private static final long CARET_HANDLE = 4000;
 	// What the clipboard takes: a clip goes to the system, and from it
 	// to every app that reads it, in binder transactions of at most
 	// 1 MB, at up to two bytes a character.
 	private static final int MAX_CLIP = 400_000;
 	private static final int HORIZONTAL = 1;
 	private static final int VERTICAL = 2;
+	private static final int DRAG_WORDS = 1;
+	private static final int DRAG_HANDLE = 2;
 
 	private final CodeAppearance appearance;
 	private final LineGeometry lines = new LineGeometry();
@@ -85,17 +100,32 @@ public class CodeView extends View {
 	private final Document.Listener listener = new Document.Listener() {
 		@Override
 		public void onChange(Document.Change change, Text before) {
+			// A drag in progress goes on in the new text.
+			touch.map(change);
 			invalidate();
 		}
 
 		@Override
 		public void onUpdate() {
+			if (!selecting && touched != null &&
+					touched != document.selection()) {
+				touched = null;
+				toolbar.close();
+			}
+			toolbar.moved();
 			restartBlink();
 			scrollInside(getScrollX(), getScrollY());
 			invalidate();
 		}
 	};
 	private final Runnable blink = this::blink;
+	private final Runnable edgeScroll = this::edgeScroll;
+	private final Runnable hideCaretHandle = () -> {
+		caretHandle = false;
+		invalidate();
+	};
+	private final SelectionHandles handles;
+	private final TouchSelection touch = new TouchSelection(new Motion());
 	private final KeyCommands.Clipboard clipboard =
 			new KeyCommands.Clipboard() {
 				@Override
@@ -128,12 +158,30 @@ public class CodeView extends View {
 					return false;
 				}
 			};
+	private final SelectionToolbar toolbar = new SelectionToolbar(this);
 	private final OverScroller scroller;
 	private final GestureDetector gestures;
+	private final int touchSlop;
 	private final EdgeEffect edgeTop;
 	private final EdgeEffect edgeBottom;
 	private final EdgeEffect edgeLeft;
 	private final EdgeEffect edgeRight;
+	// The drag in progress, from the touch that started it to its drop.
+	private int dragging;
+	private float downX;
+	private float downY;
+	private boolean moved;
+	private float dragX;
+	private float dragY;
+	private boolean edgeScrolling;
+	private float pointDx;
+	private float pointDy;
+	private boolean caretHandle;
+	// A DragMagnifier from Android 9 on, once something was dragged.
+	private Object magnifier;
+	// The selection the last touch made, while it is the document's.
+	private Document.Selection touched;
+	private boolean selecting;
 	private boolean caretIntoViewWhenLaidOut;
 	private int axis;
 	private Document document;
@@ -183,6 +231,8 @@ public class CodeView extends View {
 		appearance = new CodeAppearance(context);
 		lines.setLineHeight(appearance.lineHeight);
 		cache = new LineCache(appearance);
+		handles = new SelectionHandles(context, appearance.handleColor,
+				getResources().getDimension(R.dimen.editor_tap_target));
 		setFocusable(true);
 		setFocusableInTouchMode(true);
 		scroller = new OverScroller(context);
@@ -190,6 +240,7 @@ public class CodeView extends View {
 		edgeBottom = new EdgeEffect(context);
 		edgeLeft = new EdgeEffect(context);
 		edgeRight = new EdgeEffect(context);
+		touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 		gestures = new GestureDetector(context,
 				new GestureDetector.SimpleOnGestureListener() {
 					@Override
@@ -203,6 +254,25 @@ public class CodeView extends View {
 					public boolean onSingleTapUp(@NonNull MotionEvent e) {
 						placeCaret(e.getX(), e.getY());
 						return true;
+					}
+
+					@Override
+					public boolean onDoubleTap(@NonNull MotionEvent e) {
+						dragWords(e.getX(), e.getY(), false);
+						return true;
+					}
+
+					@Override
+					public void onLongPress(@NonNull MotionEvent e) {
+						if (dragging != 0) {
+							// After a double tap.
+							return;
+						}
+						if (onText(e.getX(), e.getY())) {
+							dragWords(e.getX(), e.getY(), true);
+						} else {
+							dragCaret(e.getX(), e.getY());
+						}
 					}
 
 					@Override
@@ -233,6 +303,7 @@ public class CodeView extends View {
 			@NonNull LineStyles styles) {
 		disconnect();
 		closeInput();
+		toolbar.close();
 		this.document = document;
 		this.styles = styles;
 		commands = new EditCommands(document);
@@ -241,6 +312,8 @@ public class CodeView extends View {
 		keys = new KeyCommands(document, commands, clipboard);
 		deadChar = 0;
 		composingStart = composingEnd = -1;
+		touched = null;
+		dragging = 0;
 		forgetLines();
 		scrollTo(0, 0);
 		if (isAttachedToWindow()) {
@@ -381,7 +454,31 @@ public class CodeView extends View {
 
 	private boolean touch(MotionEvent event) {
 		int action = event.getActionMasked();
-		boolean handled = gestures.onTouchEvent(event);
+		if (action == MotionEvent.ACTION_DOWN) {
+			dragging = 0;
+			moved = false;
+			downX = event.getX();
+			downY = event.getY();
+			grabHandle(downX, downY);
+		}
+		boolean handled = dragging == DRAG_HANDLE ||
+				gestures.onTouchEvent(event);
+		if (dragging != 0 && document != null) {
+			dragX = event.getX();
+			dragY = event.getY();
+			if (action == MotionEvent.ACTION_MOVE) {
+				if (moved || Math.abs(dragX - downX) > touchSlop ||
+						Math.abs(dragY - downY) > touchSlop) {
+					moved = true;
+					toolbar.hide();
+				}
+				dragSelection();
+			} else if (action == MotionEvent.ACTION_UP ||
+					action == MotionEvent.ACTION_CANCEL) {
+				drop();
+			}
+			return true;
+		}
 		if (action == MotionEvent.ACTION_UP ||
 				action == MotionEvent.ACTION_CANCEL) {
 			edgeTop.onRelease();
@@ -455,6 +552,19 @@ public class CodeView extends View {
 		return key(keyCode, meta, typed) || super.onKeyDown(keyCode, event);
 	}
 
+	// Back closes the toolbar first while Back comes as a key: before Android
+	// 13, and later while predictive back is off for the app.
+	@Override
+	public boolean onKeyPreIme(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK && toolbar.isShown()) {
+			if (event.getAction() == KeyEvent.ACTION_UP) {
+				toolbar.dismiss();
+			}
+			return true;
+		}
+		return super.onKeyPreIme(keyCode, event);
+	}
+
 	@Override
 	public boolean onKeyMultiple(int keyCode, int count, KeyEvent event) {
 		String characters = event.getCharacters();
@@ -509,7 +619,14 @@ public class CodeView extends View {
 	protected void onDetachedFromWindow() {
 		disconnect();
 		closeInput();
+		toolbar.close();
 		super.onDetachedFromWindow();
+	}
+
+	@Override
+	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+		super.onScrollChanged(l, t, oldl, oldt);
+		toolbar.moved();
 	}
 
 	@Override
@@ -517,6 +634,10 @@ public class CodeView extends View {
 			@Nullable Rect previouslyFocusedRect) {
 		super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
 		deadChar = 0;
+		if (!gainFocus) {
+			touched = null;
+			toolbar.close();
+		}
 		restartBlink();
 		invalidate();
 	}
@@ -546,6 +667,7 @@ public class CodeView extends View {
 			drawText(canvas);
 		}
 		drawCaret(canvas);
+		drawHandles(canvas);
 	}
 
 	@RequiresApi(Build.VERSION_CODES.Q)
@@ -797,6 +919,132 @@ public class CodeView extends View {
 		return done;
 	}
 
+	// Returns whether the toolbar is done. Select all keeps it, and a copy
+	// leaves the caret behind the text, as the platform's do.
+	boolean toolbarAction(int id) {
+		KeyCommands.Command command = KeyCommands.contextMenuCommand(id);
+		boolean done;
+		selecting = true;
+		try {
+			done = command != null && menuCommand(command);
+		} finally {
+			selecting = false;
+		}
+		Document.Selection selection = document.selection();
+		if (command == KeyCommands.Command.SELECT_ALL) {
+			touched = selection;
+			invalidate();
+			toolbar.show();
+			return false;
+		}
+		if (done) {
+			// A paste puts the caret behind what it pasted.
+			if (command != KeyCommands.Command.PASTE) {
+				select(selection.end(), selection.end());
+			}
+			touched = null;
+			invalidate();
+		}
+		return done;
+	}
+
+	// Dismissed by the user (Back), it drops a selection as the platform's
+	// does.
+	void toolbarClosed(boolean dismissed) {
+		if (dismissed && touched != null) {
+			// The document's end: a change may have moved it since.
+			int end = document.selection().end();
+			select(end, end);
+			touched = null;
+			invalidate();
+		} else {
+			showCaretHandle();
+		}
+	}
+
+	// In the order the platform's EditText shows them.
+	int[] offered() {
+		Document.Selection selection = document.selection();
+		ClipboardManager manager = clipboardManager();
+		int[] ids = new int[4];
+		int n = 0;
+		if (!selection.isEmpty()) {
+			ids[n++] = android.R.id.cut;
+			ids[n++] = android.R.id.copy;
+		}
+		if (manager != null && manager.hasPrimaryClip()) {
+			ids[n++] = android.R.id.paste;
+		}
+		int length = document.text().length();
+		if (length > 0 && (selection.start() > 0 ||
+				selection.end() < length)) {
+			ids[n++] = android.R.id.selectAll;
+		}
+		return Arrays.copyOf(ids, n);
+	}
+
+	private void toggleToolbar() {
+		if (toolbar.isShown()) {
+			toolbar.close();
+		} else {
+			showToolbar();
+		}
+	}
+
+	// Shows the toolbar for a touch, and, as Editor does when it starts
+	// one for a selection, the keyboard, to type over the selection.
+	private void showToolbar() {
+		handler.removeCallbacks(hideCaretHandle);
+		if (dragging != 0) {
+			return;
+		}
+		boolean starting = !toolbar.isShown();
+		toolbar.show();
+		if (starting && toolbar.isShown() &&
+				!document.selection().isEmpty()) {
+			InputMethodManager imm = inputMethodManager();
+			if (imm != null) {
+				imm.showSoftInput(this, 0);
+			}
+		}
+	}
+
+	// Puts the part of the selection on screen, and the handles under
+	// it, into out, in the view's coordinates; above the view, which hides
+	// the toolbar, if none is.
+	void selectionRect(Rect out) {
+		Text text = document.text();
+		Document.Selection selection = document.selection();
+		int lineCount = text.lineCount();
+		int first = text.lineOf(selection.start());
+		int last = text.lineOf(selection.end());
+		int scrollX = getScrollX();
+		int scrollY = getScrollY();
+		float visibleLeft = textLeft(lineCount);
+		float left = visibleLeft;
+		float right = getWidth();
+		if (first == last) {
+			LineLayout layout = layoutOf(first);
+			int start = text.lineStart(first);
+			left += layout.xOf(selection.start() - start) - scrollX;
+			right = visibleLeft + layout.xOf(selection.end() - start) -
+					scrollX;
+		}
+		float top = lineTop(first) - scrollY;
+		float bottom = lineTop(last) + appearance.lineHeight - scrollY +
+				handles.height();
+		left = Math.max(left, visibleLeft);
+		right = Math.min(right, getWidth());
+		top = Math.max(top, 0);
+		bottom = Math.min(bottom, getHeight());
+		if (left > right || top >= bottom) {
+			out.set(0, -2, 0, -1);
+		} else {
+			out.set((int) left, (int) top, (int) Math.ceil(right),
+					(int) Math.ceil(bottom));
+		}
+	}
+
 	int pageLines() {
 		return Math.max(1, getHeight() / appearance.lineHeight - 1);
 	}
@@ -904,8 +1152,10 @@ public class CodeView extends View {
 		if (document == null) {
 			return;
 		}
+		toolbar.close();
 		int offset = offsetAt(x, y);
-		document.select(offset, offset);
+		select(offset, offset);
+		showCaretHandle();
 		requestFocus();
 		InputMethodManager imm = inputMethodManager();
 		if (imm != null) {
@@ -914,13 +1164,256 @@ public class CodeView extends View {
 		performClick();
 	}
 
+	private void dragWords(float x, float y, boolean pressed) {
+		if (document == null) {
+			return;
+		}
+		toolbar.close();
+		touch.dragWords(document.text(), offsetAt(x, y));
+		select(touch.anchor(), touch.head());
+		requestFocus();
+		if (pressed) {
+			performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+		}
+		startDrag(DRAG_WORDS);
+	}
+
+	private void grabHandle(float x, float y) {
+		int which = handles.at(x + getScrollX(), y + getScrollY());
+		if (which < 0) {
+			return;
+		}
+		Document.Selection shown = touch.handles(touched,
+				document.selection(), false);
+		if (shown == null) {
+			return;
+		}
+		int head = which == SelectionHandles.START
+				? shown.start()
+				: shown.end();
+		touch.dragHandle(shown.isEmpty() ? head : shown.start() +
+				shown.end() - head, head);
+		// The handle points at the bottom of a line; the drag at its
+		// middle.
+		pointDx = handles.x(which) - getScrollX() - x;
+		pointDy = handles.y(which) - getScrollY() -
+				appearance.lineHeight / 2f - y;
+		handler.removeCallbacks(hideCaretHandle);
+		startDrag(DRAG_HANDLE);
+	}
+
+	private void dragCaret(float x, float y) {
+		if (document == null) {
+			return;
+		}
+		toolbar.close();
+		int offset = offsetAt(x, y);
+		touch.dragHandle(offset, offset);
+		select(offset, offset);
+		requestFocus();
+		performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+		caretHandle = true;
+		startDrag(DRAG_WORDS);
+	}
+
+	// touch() sets dragX and dragY before dragSelection() reads them.
+	private void startDrag(int what) {
+		if (what != DRAG_HANDLE) {
+			pointDx = pointDy = 0;
+		}
+		dragging = what;
+		scroller.forceFinished(true);
+		if (getParent() != null) {
+			getParent().requestDisallowInterceptTouchEvent(true);
+		}
+	}
+
+	// The finger lifted from a drag. The toolbar shows for a selection,
+	// for the caret after a long press or a double tap (both drags of
+	// DRAG_WORDS, a caret's drag too), again if it showed before, and a tap
+	// on the caret's handle shows or hides it.
+	private void drop() {
+		boolean tapped = dragging == DRAG_HANDLE && !moved;
+		boolean pressed = dragging == DRAG_WORDS;
+		dragging = 0;
+		dismissMagnifier();
+		invalidate();
+		if (touched == null) {
+			return;
+		}
+		showCaretHandle();
+		if (tapped && touched.isEmpty()) {
+			toggleToolbar();
+		} else if (!touched.isEmpty() || pressed || toolbar.isShown()) {
+			showToolbar();
+		}
+	}
+
+	private void dragSelection() {
+		Text text = document.text();
+		if (touch.dragTo(text, offsetAt(dragX + pointDx, dragY + pointDy))) {
+			select(touch.anchor(), touch.head());
+		}
+		if (dragging == DRAG_WORDS || (dragging == DRAG_HANDLE && moved)) {
+			magnify();
+		}
+		// Not while the finger rests within the slop near an edge.
+		if (moved && !edgeScrolling &&
+				(edgeStepX() != 0 || edgeStepY() != 0)) {
+			edgeScrolling = true;
+			postOnAnimation(edgeScroll);
+		}
+	}
+
+	// As the platform's text views do: kept over the text of the line beyond
+	// the other end, hidden when the finger is far from it.
+	private void magnify() {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+			return;
+		}
+		if (magnifier == null) {
+			magnifier = new DragMagnifier(this);
+		}
+		DragMagnifier m = (DragMagnifier) magnifier;
+		Text text = document.text();
+		int head = touch.head();
+		int anchor = touch.anchor();
+		int n = text.lineOf(head);
+		int start = text.lineStart(n);
+		LineLayout layout = layoutOf(n);
+		float visibleLeft = textLeft(text.lineCount());
+		float left = visibleLeft - getScrollX();
+		float right = left + layout.width();
+		if (anchor != head && text.lineOf(anchor) == n) {
+			float x = left + layout.xOf(anchor - start);
+			if (head > anchor) {
+				left = x;
+			} else {
+				right = x;
+			}
+		}
+		float x = TouchSelection.magnifierX(dragX, Math.max(left,
+				visibleLeft), right, m.halfWidth());
+		float y = lineTop(n) + appearance.lineHeight / 2f - getScrollY();
+		if (Float.isNaN(x) || !m.fits(appearance.lineHeight) ||
+				y < 0 || y > getHeight()) {
+			m.dismiss();
+		} else {
+			m.show(x, y);
+		}
+	}
+
+	private void dismissMagnifier() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+				magnifier != null) {
+			((DragMagnifier) magnifier).dismiss();
+		}
+	}
+
+	private void edgeScroll() {
+		edgeScrolling = false;
+		if (dragging == 0 || document == null) {
+			return;
+		}
+		int x = getScrollX();
+		int y = getScrollY();
+		scrollInside(x + edgeStepX(), y + edgeStepY(), true);
+		if (x != getScrollX() || y != getScrollY()) {
+			dragSelection();
+		}
+	}
+
+	private int edgeStepX() {
+		return edgeStep(dragX, textLeft(document.text().lineCount()),
+				getWidth());
+	}
+
+	private int edgeStepY() {
+		return edgeStep(dragY, 0, getHeight());
+	}
+
+	// Returns how far to scroll in a frame for a finger at, from 0 when it
+	// is two lines from the edge low or high to a line beyond it.
+	private int edgeStep(float at, float low, float high) {
+		float zone = appearance.lineHeight * 2f;
+		float depth = at < low + zone
+				? at - low - zone
+				: at > high - zone ? at - high + zone : 0;
+		return Math.round(Math.max(-1, Math.min(1, depth / zone)) *
+				appearance.lineHeight);
+	}
+
+	private boolean onText(float x, float y) {
+		Text text = document.text();
+		int n = lineAt(y + getScrollY());
+		return y + getScrollY() < lineTop(n) + appearance.lineHeight &&
+				x + getScrollX() - textLeft(text.lineCount()) <
+						layoutOf(n).width();
+	}
+
 	private int offsetAt(float x, float y) {
 		Text text = document.text();
 		int n = lineAt(y + getScrollY());
-		int offset = layoutOf(n).offsetAt(x + getScrollX() -
-				textLeft(text.lineCount()));
-		return text.lineStart(n) + Math.max(0, Math.min(offset,
-				text.line(n).length()));
+		return touch.offsetAt(text, n,
+				x + getScrollX() - textLeft(text.lineCount()), layoutOf(n));
+	}
+
+	private void select(int anchor, int head) {
+		selecting = true;
+		try {
+			document.select(anchor, head);
+		} finally {
+			selecting = false;
+		}
+		touched = document.selection();
+	}
+
+	private void showCaretHandle() {
+		handler.removeCallbacks(hideCaretHandle);
+		if (touched != null && touched.isEmpty()) {
+			caretHandle = true;
+			handler.postDelayed(hideCaretHandle, CARET_HANDLE);
+			invalidate();
+		}
+	}
+
+	private void drawHandles(Canvas canvas) {
+		handles.clear();
+		Document.Selection shown = touch.handles(touched,
+				document.selection(), dragging != 0);
+		if (shown == null || (shown.isEmpty() && !caretHandle) ||
+				!isFocused()) {
+			return;
+		}
+		if (shown.isEmpty()) {
+			placeHandle(-1, shown.head());
+		} else {
+			placeHandle(SelectionHandles.START, shown.start());
+			placeHandle(SelectionHandles.END, shown.end());
+		}
+		handles.draw(canvas);
+	}
+
+	private void placeHandle(int which, int offset) {
+		Text text = document.text();
+		int n = text.lineOf(offset);
+		int scrollX = getScrollX();
+		int scrollY = getScrollY();
+		float textLeft = textLeft(text.lineCount());
+		float bottom = lineTop(n) + appearance.lineHeight;
+		if (bottom <= scrollY || bottom > scrollY + getHeight()) {
+			return;
+		}
+		float x = textLeft + layoutOf(n).xOf(offset - text.lineStart(n));
+		// Not under the line numbers.
+		if (x < scrollX + textLeft - 1 || x > scrollX + getWidth()) {
+			return;
+		}
+		if (which < 0) {
+			handles.caret(x, bottom);
+		} else {
+			handles.end(which, x, bottom);
+		}
 	}
 
 	private void scrollInside(int x, int y) {
@@ -1043,6 +1536,9 @@ public class CodeView extends View {
 
 	private void disconnect() {
 		handler.removeCallbacks(blink);
+		handler.removeCallbacks(hideCaretHandle);
+		caretHandle = false;
+		dismissMagnifier();
 		if (scheduler != null) {
 			document.removeListener(listener);
 			scheduler.close();
