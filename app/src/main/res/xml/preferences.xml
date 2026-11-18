@@ -110,6 +110,11 @@
 			android:summary="@string/hide_native_suggestions_summary"
 			android:checked="true"
 			android:defaultValue="true"/>
+		<androidx.preference.SwitchPreferenceCompat
+			android:key="new_editor"
+			android:title="@string/new_editor"
+			android:summary="@string/new_editor_summary"
+			android:defaultValue="false"/>
 		<de.markusfisch.android.shadereditor.preference.ShaderListPreference
 			android:key="default_new_shader"
 			android:title="@string/default_new_shader"/>

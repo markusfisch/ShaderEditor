@@ -147,7 +147,7 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 	}
 
-	private static String convertShaderToySource(String src) {
+	static String convertShaderToySource(String src) {
 		if (!ShaderToySource.needsConversion(src)) {
 			return null;
 		}
@@ -373,6 +373,10 @@ public class ShaderEditor extends LineNumberEditText {
 		if (e == null) {
 			return;
 		}
+		addUniform(e, statement);
+	}
+
+	static void addUniform(Editable e, String statement) {
 		removeUniform(e, statement);
 
 		Matcher m = PATTERN_INSERT_UNIFORM.matcher(e);
@@ -440,7 +444,7 @@ public class ShaderEditor extends LineNumberEditText {
 		}
 	}
 
-	private void removeUniform(Editable e, String statement) {
+	private static void removeUniform(Editable e, String statement) {
 		if (statement == null) {
 			return;
 		}
