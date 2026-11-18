@@ -151,6 +151,20 @@ public class LexerStylesTest {
 	}
 
 	@Test
+	public void directiveAfterABlockComment() {
+		assertStyles(
+				"/* a */ #define X 1",
+				"ccccccc.ddddddd...n");
+	}
+
+	@Test
+	public void continuedDirective() {
+		assertStyles(
+				"#define A 1 \\\n+ b c",
+				"ddddddd...n........");
+	}
+
+	@Test
 	public void hashInsideALine() {
 		assertStyles(
 				"x # y",
@@ -202,10 +216,17 @@ public class LexerStylesTest {
 	}
 
 	@Test
-	public void lineContinuationInsideAWord() {
+	public void typeGuessStopsAtALineEnd() {
 		assertStyles(
-				"fl\\\noat x;",
-				"ppppppp...");
+				"x = y\nz = 1;",
+				"..........n.");
+	}
+
+	@Test
+	public void carriageReturnEndsALineComment() {
+		assertStyles(
+				"// a\rfloat b;",
+				"cccc.ppppp...");
 	}
 
 	@Test
@@ -220,5 +241,12 @@ public class LexerStylesTest {
 		assertStyles(
 				"// 😀\nx = 😀;",
 				"ccccc.....xx.");
+	}
+
+	@Test
+	public void unpairedSurrogateAtTheEnd() {
+		assertStyles(
+				"x = \uD83D",
+				"....x");
 	}
 }

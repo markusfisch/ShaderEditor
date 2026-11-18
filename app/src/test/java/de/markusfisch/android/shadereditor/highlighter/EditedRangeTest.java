@@ -7,7 +7,8 @@ import androidx.annotation.NonNull;
 
 import org.junit.Test;
 
-import java.util.List;
+import de.markusfisch.android.shadereditor.syntax.GlslLexer;
+import de.markusfisch.android.shadereditor.syntax.Tokens;
 
 public class EditedRangeTest {
 	@Test
@@ -139,13 +140,13 @@ public class EditedRangeTest {
 			@NonNull EditedRange range,
 			@NonNull String before,
 			@NonNull String after) {
-		List<Token> tokens = Styles.tokens(after);
+		Tokens tokens = GlslLexer.lex(after);
 		EditedRange.Restyle restyle = range.restyle(tokens,
-				Lexer.diff(Styles.tokens(before), tokens));
+				TokenDiff.of(GlslLexer.lex(before), tokens));
 		String cleared = after.substring(restyle.start, restyle.end);
 		String coloured = restyle.firstToken < restyle.endToken
-				? after.substring(tokens.get(restyle.firstToken).startOffset(),
-				tokens.get(restyle.endToken - 1).endOffset())
+				? after.substring(tokens.start(restyle.firstToken),
+				tokens.end(restyle.endToken - 1))
 				: "";
 		return cleared.equals(coloured) ? cleared : cleared + " | " + coloured;
 	}

@@ -4,9 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import androidx.annotation.NonNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+
+import de.markusfisch.android.shadereditor.syntax.GlslLexer;
+import de.markusfisch.android.shadereditor.syntax.Style;
+import de.markusfisch.android.shadereditor.syntax.Tokens;
 
 /**
  * Turns a text into one letter per character for the colour the editor
@@ -30,74 +32,62 @@ final class Styles {
 		assertEquals(source, expected, of(source));
 	}
 
-	/**
-	 * Tokenizes like the editor does: all tokens are collected before any
-	 * is coloured, and a token covers its start to end offset.
-	 */
-	@NonNull
-	static List<Token> tokens(@NonNull String source) {
-		List<Token> tokens = new ArrayList<>();
-		for (Token token : new Lexer(source)) {
-			tokens.add(token);
-		}
-		return tokens;
-	}
-
 	@NonNull
 	static String of(@NonNull String source) {
 		char[] styles = new char[source.length()];
 		Arrays.fill(styles, '.');
-		for (Token token : tokens(source)) {
-			char letter = letter(Highlight.from(token.type()));
-			for (int i = token.startOffset(); i < token.endOffset(); ++i) {
+		Tokens tokens = GlslLexer.lex(source);
+		for (int t = 0; t < tokens.size(); ++t) {
+			char letter = letter(tokens.style(t));
+			for (int i = tokens.start(t); i < tokens.end(t); ++i) {
 				styles[i] = letter;
 			}
 		}
 		return new String(styles);
 	}
 
-	private static char letter(@NonNull Highlight highlight) {
-		switch (highlight) {
-			case HIGHLIGHT_IDENTIFIER:
-			case HIGHLIGHT_OPERATOR:
+	private static char letter(@NonNull Style style) {
+		switch (style) {
+			case IDENTIFIER:
+			case OPERATOR:
 				return '.';
-			case HIGHLIGHT_INVALID:
+			case INVALID:
 				return 'x';
-			case HIGHLIGHT_KEYWORD:
+			case KEYWORD:
 				return 'k';
-			case HIGHLIGHT_DIRECTIVE:
+			case DIRECTIVE:
 				return 'd';
-			case HIGHLIGHT_PRIMITIVE:
+			case PRIMITIVE:
 				return 'p';
-			case HIGHLIGHT_TYPE_VECTOR:
+			case TYPE_VECTOR:
 				return 'v';
-			case HIGHLIGHT_TYPE_MATRIX:
+			case TYPE_MATRIX:
 				return 'm';
-			case HIGHLIGHT_HIGHLIGHT_ATOMIC_COUNTER:
+			case ATOMIC_COUNTER:
 				return 'a';
-			case HIGHLIGHT_TYPE_SAMPLER:
+			case TYPE_SAMPLER:
 				return 's';
-			case HIGHLIGHT_TYPE_IMAGE:
+			case TYPE_IMAGE:
 				return 'i';
-			case HIGHLIGHT_TYPE:
+			case TYPE:
 				return 't';
-			case HIGHLIGHT_BUILTIN_FUNCTION:
+			case BUILTIN_FUNCTION:
 				return 'b';
-			case HIGHLIGHT_FIELD_SELECTION:
+			case FIELD_SELECTION:
 				return 'f';
-			case HIGHLIGHT_NUMBER_LITERAL:
+			case NUMBER:
 				return 'n';
-			case HIGHLIGHT_BOOL_LITERAL:
+			case BOOL:
 				return 'l';
-			case HIGHLIGHT_PRECISION:
+			case PRECISION:
 				return 'r';
-			case HIGHLIGHT_COMMENT:
+			case COMMENT:
 				return 'c';
-			case HIGHLIGHT_CONTROL_FLOW:
+			case CONTROL_FLOW:
 				return 'o';
-			case HIGHLIGHT_TYPE_QUALIFIER:
+			case TYPE_QUALIFIER:
 				return 'q';
 		}
-		throw new AssertionError("No letter for " + highlight);
+		throw new AssertionError("No letter for " + style);
 	}
 }
