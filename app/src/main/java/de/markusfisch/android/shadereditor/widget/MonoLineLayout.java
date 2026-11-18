@@ -33,6 +33,19 @@ final class MonoLineLayout implements LineLayout {
 				appearance.charWidth;
 	}
 
+	// One walk over the columns instead of one for each offset.
+	@Override
+	public void xsOf(int from, int to, float[] xs) {
+		int column = Columns.columnOf(text, from, appearance.tabWidth);
+		for (int i = from; i <= to; ++i) {
+			xs[i - from] = column * appearance.charWidth;
+			if (i < text.length()) {
+				column = Columns.next(text.charAt(i), column,
+						appearance.tabWidth);
+			}
+		}
+	}
+
 	@Override
 	public int offsetAt(float x) {
 		int offset = Columns.offsetAt(text, x / appearance.charWidth,

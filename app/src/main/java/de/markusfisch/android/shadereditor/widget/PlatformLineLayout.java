@@ -10,6 +10,8 @@ import android.text.TextDirectionHeuristics;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.TabStopSpan;
 
+import java.text.Bidi;
+
 import de.markusfisch.android.shadereditor.editor.LineStyles;
 
 // A StaticLayout of one line with colour spans: for any character but printable
@@ -23,13 +25,15 @@ final class PlatformLineLayout implements LineLayout {
 
 	private final StaticLayout layout;
 	private final CodeAppearance appearance;
+	private final CharSequence text;
 	// Moves the layout's baseline onto the line's.
 	private final float dy;
 
 	PlatformLineLayout(String text, LineStyles.Runs runs,
 			CodeAppearance appearance) {
 		this.appearance = appearance;
-		SpannableString spannable = new SpannableString(oneLine(text));
+		this.text = oneLine(text);
+		SpannableString spannable = new SpannableString(this.text);
 		for (int i = 0, n = runs == null ? 0 : runs.size(); i < n; ++i) {
 			int color = appearance.styleColors[runs.style(i).ordinal()];
 			if (color != appearance.textColor) {
@@ -50,6 +54,29 @@ final class PlatformLineLayout implements LineLayout {
 	@Override
 	public float xOf(int offset) {
 		return layout.getPrimaryHorizontal(offset);
+	}
+
+	// The advances of one measure add up to the places of a line in one
+	// direction without tab stops; any other asks the layout for each.
+	@Override
+	public void xsOf(int from, int to, float[] xs) {
+		String s = text.toString();
+		if (s.indexOf('\t') > -1 ||
+				Bidi.requiresBidi(s.toCharArray(), 0, s.length())) {
+			LineLayout.super.xsOf(from, to, xs);
+			return;
+		}
+		float[] advances = new float[s.length()];
+		appearance.paint.getTextWidths(s, 0, s.length(), advances);
+		float x = 0;
+		for (int i = 0; i <= to; ++i) {
+			if (i >= from) {
+				xs[i - from] = x;
+			}
+			if (i < advances.length) {
+				x += advances[i];
+			}
+		}
 	}
 
 	@Override

@@ -124,7 +124,16 @@ final class CodeInputConnection extends BaseInputConnection {
 
 	@Override
 	public boolean setSelection(int start, int end) {
-		return edit(() -> input().setSelection(start, end));
+		return edit(() -> {
+			if (!closed && view.selectsAll(start, end)) {
+				return view.contextMenuAction(android.R.id.selectAll);
+			}
+			int head = closed ? -1 : view.extendsTo(start, end);
+			return head < 0
+					? input().setSelection(start, end)
+					: input().setSelection(document.selection().anchor(),
+					head);
+		});
 	}
 
 	@Override

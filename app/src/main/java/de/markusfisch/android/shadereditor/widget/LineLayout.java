@@ -12,6 +12,13 @@ interface LineLayout extends TouchSelection.Line {
 
 	float xOf(int offset);
 
+	// The x of each offset from from to to into xs.
+	default void xsOf(int from, int to, float[] xs) {
+		for (int i = from; i <= to; ++i) {
+			xs[i - from] = xOf(i);
+		}
+	}
+
 	int offsetAt(float x);
 
 	float width();

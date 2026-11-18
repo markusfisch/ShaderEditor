@@ -87,6 +87,8 @@
 	<string name="hide_native_suggestions">Приховати рідні пропозиції</string>
 	<string name="hide_native_suggestions_summary">Приховує підказки екранної клавіатури. Якщо виникають проблеми, вимкніть цей параметр.</string>
 	<string name="copy_failed">Couldn\'t copy to clipboard</string>
+	<string name="a11y_code_line">Line %1$d of %2$d</string>
+	<string name="a11y_selected">Selected %1$s</string>
 
 	<!-- Preferences -->
 	<string name="run_auto">Автоматичний запуск при зміні</string>
