@@ -1,0 +1,9 @@
+<resources>
+	<dimen name="editor_text_size">12sp</dimen>
+	<dimen name="editor_caret_width">2dp</dimen>
+	<color name="editor_caret">@color/editor_text</color>
+	<color name="code_selection">#B31F4E79</color>
+	<style name="CodeView">
+		<item name="android:scrollbars">vertical|horizontal</item>
+	</style>
+</resources>
