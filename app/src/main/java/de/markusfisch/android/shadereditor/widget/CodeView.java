@@ -7,10 +7,12 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.RecordingCanvas;
 import android.graphics.RenderNode;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
@@ -19,15 +21,19 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.HapticFeedbackConstants;
+import android.view.InputDevice;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EdgeEffect;
+import android.widget.EditText;
 import android.widget.OverScroller;
 import android.widget.Toast;
 
@@ -64,6 +70,7 @@ import de.markusfisch.android.shadereditor.editor.TextInput;
 // boundary of its own is outside: TouchSelection, which text a gesture selects,
 // tested on its own; SelectionHandles, SelectionToolbar and DragMagnifier, one
 // widget each. Moving more out would pass that state back and forth.
+// CodeAccessibility and AccessibleText decide what a screen reader is told.
 public class CodeView extends View {
 	public static final int INPUT_TYPE_NO_SUGGESTIONS = InputType.TYPE_NULL;
 	// Not NO_SUGGESTIONS, as the old editor keeps: the AOSP keyboard and
@@ -100,9 +107,11 @@ public class CodeView extends View {
 	private final LineCache cache;
 	private final char[] digits = new char[10];
 	private final Handler handler = new Handler(Looper.getMainLooper());
+	private final CodeAccessibility accessibility = new CodeAccessibility(this);
 	private final Document.Listener listener = new Document.Listener() {
 		@Override
 		public void onChange(Document.Change change, Text before) {
+			accessibility.changed(change, before);
 			// A drag in progress goes on in the new text.
 			touch.map(change);
 			invalidate();
@@ -118,6 +127,7 @@ public class CodeView extends View {
 			toolbar.moved();
 			restartBlink();
 			scrollInside(getScrollX(), getScrollY());
+			accessibility.updated();
 			invalidate();
 		}
 	};
@@ -185,6 +195,13 @@ public class CodeView extends View {
 	private boolean edgeScrolling;
 	private float pointDx;
 	private float pointDy;
+	// Under touch exploration a service sends its long press to the middle
+	// of the view: a touch is moved to where the code was explored last, or
+	// to the caret, by touchDx and touchDy.
+	private float exploredX = Float.NaN;
+	private float exploredY;
+	private float touchDx;
+	private float touchDy;
 	private boolean caretHandle;
 	// A DragMagnifier from Android 9 on, once something was dragged.
 	private Object magnifier;
@@ -246,6 +263,7 @@ public class CodeView extends View {
 				getResources().getDimension(R.dimen.editor_tap_target));
 		setFocusable(true);
 		setFocusableInTouchMode(true);
+		setAccessibilityDelegate(accessibility);
 		scroller = new OverScroller(context);
 		edgeTop = new EdgeEffect(context);
 		edgeBottom = new EdgeEffect(context);
@@ -332,6 +350,7 @@ public class CodeView extends View {
 			connect();
 			restartInput();
 		}
+		accessibility.documentChanged();
 		invalidate();
 	}
 
@@ -343,6 +362,10 @@ public class CodeView extends View {
 	@Nullable
 	public Document getDocument() {
 		return document;
+	}
+
+	int inputType() {
+		return inputType;
 	}
 
 	// -1 for none.
@@ -389,6 +412,11 @@ public class CodeView extends View {
 
 	public void marksChanged() {
 		invalidate();
+	}
+
+	boolean caretLineHasError() {
+		return document != null && marks != null &&
+				marks.has(document.text().lineOf(document.selection().head()));
 	}
 
 	public void bringCaretIntoView() {
@@ -460,11 +488,56 @@ public class CodeView extends View {
 		postInvalidateOnAnimation();
 	}
 
+	@Override
+	public boolean onHoverEvent(MotionEvent event) {
+		if (!event.isFromSource(InputDevice.SOURCE_MOUSE) &&
+				accessibility.exploresByTouch()) {
+			exploredX = event.getX();
+			exploredY = event.getY();
+		}
+		return super.onHoverEvent(event);
+	}
+
+	void forgetExplored() {
+		exploredX = Float.NaN;
+	}
+
 	// The gesture detector calls performClick for a tap.
 	@SuppressLint("ClickableViewAccessibility")
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		return touch(event);
+		if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+			touchDx = touchDy = 0;
+			if (document != null && accessibility.exploresByTouch()) {
+				placeExploredTouch(event.getX(), event.getY());
+			}
+		}
+		if (touchDx == 0 && touchDy == 0) {
+			return touch(event);
+		}
+		MotionEvent moved = MotionEvent.obtain(event);
+		moved.offsetLocation(touchDx, touchDy);
+		try {
+			return touch(moved);
+		} finally {
+			moved.recycle();
+		}
+	}
+
+	private void placeExploredTouch(float x, float y) {
+		if (Float.isNaN(exploredX)) {
+			Text text = document.text();
+			int head = document.selection().head();
+			int n = text.lineOf(head);
+			touchDx = textLeft(text.lineCount()) +
+					layoutOf(n).xOf(head - text.lineStart(n)) -
+					getScrollX() - x;
+			touchDy = lineTop(n) + appearance.lineHeight / 2f -
+					getScrollY() - y;
+		} else {
+			touchDx = exploredX - x;
+			touchDy = exploredY - y;
+		}
 	}
 
 	private boolean touch(MotionEvent event) {
@@ -503,6 +576,20 @@ public class CodeView extends View {
 			postInvalidateOnAnimation();
 		}
 		return handled || super.onTouchEvent(event);
+	}
+
+	@RequiresApi(Build.VERSION_CODES.O)
+	@Override
+	public void addExtraDataToAccessibilityNodeInfo(
+			@NonNull AccessibilityNodeInfo info, @NonNull String key,
+			@Nullable Bundle arguments) {
+		super.addExtraDataToAccessibilityNodeInfo(info, key, arguments);
+		accessibility.addExtraData(info, key, arguments);
+	}
+
+	@Override
+	public CharSequence getAccessibilityClassName() {
+		return EditText.class.getName();
 	}
 
 	@Override
@@ -1046,8 +1133,100 @@ public class CodeView extends View {
 		}
 	}
 
+	// null for a character of a line that is not on screen. A character of
+	// a line on screen that runs past its edge has its place beyond the
+	// edge: TalkBack finds lines by the places of characters, and would
+	// cut such a line into pieces at each character it gets no place for.
+	void characterBounds(int offset, RectF[] out) {
+		Text text = document.text();
+		int lineCount = text.lineCount();
+		int[] location = new int[2];
+		getLocationOnScreen(location);
+		float left = textLeft(lineCount);
+		float dx = location[0] - getScrollX();
+		float dy = location[1] - getScrollY();
+		for (int i = 0; i < out.length; ++i) {
+			int n = text.lineOf(offset + i);
+			int column = offset + i - text.lineStart(n);
+			LineLayout layout = layoutOf(n);
+			float x = left + layout.xOf(column);
+			float right = left + layout.xOf(Math.min(column + 1,
+					text.line(n).length()));
+			float top = lineTop(n);
+			float bottom = top + appearance.lineHeight;
+			boolean shown = bottom > getScrollY() &&
+					top < getScrollY() + getHeight();
+			out[i] = shown
+					? new RectF(x + dx, top + dy, right + dx, bottom + dy)
+					: null;
+		}
+	}
+
 	int pageLines() {
 		return Math.max(1, getHeight() / appearance.lineHeight - 1);
+	}
+
+	void selectForAccessibility(int anchor, int head, boolean shown) {
+		toolbar.close();
+		select(anchor, head);
+		touched = shown && anchor != head ? document.selection() : null;
+		if (touched != null) {
+			showToolbar();
+		}
+		bringCaretIntoView();
+	}
+
+	// null for none, as one step with the caret behind; false if the document
+	// refused it.
+	boolean replaceAll(@Nullable CharSequence text) {
+		Text replacement = Text.of(text != null ? text : "");
+		document.beginBatch();
+		try {
+			if (!document.replace(0, document.text().length(), replacement)) {
+				return false;
+			}
+			document.select(replacement.length(), replacement.length());
+		} finally {
+			document.endBatch();
+		}
+		bringCaretIntoView();
+		return true;
+	}
+
+	// As an accessibility service's tap on an EditText: focus and show the
+	// keyboard; the caret stays.
+	boolean clickForAccessibility() {
+		if (!isFocused()) {
+			requestFocus();
+		}
+		performClick();
+		InputMethodManager imm = inputMethodManager();
+		if (imm != null) {
+			imm.showSoftInput(this, 0);
+		}
+		return true;
+	}
+
+	// As an accessibility service's long press on an EditText: show or hide the
+	// toolbar for the selection or the caret.
+	boolean longClickForAccessibility() {
+		sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_LONG_CLICKED);
+		performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+		touched = document.selection();
+		toggleToolbar();
+		return true;
+	}
+
+	// dx and dy are -1, 0 or 1; returns whether the view scrolled.
+	boolean scrollByPage(int dx, int dy) {
+		int x = getScrollX();
+		int y = getScrollY();
+		scroller.forceFinished(true);
+		scrollTo(x + dx * Math.round(getWidth() -
+						textLeft(document.text().lineCount())),
+				y + dy * getHeight());
+		awakenScrollBars();
+		return x != getScrollX() || y != getScrollY();
 	}
 
 	private void restartInput() {
@@ -1247,6 +1426,9 @@ public class CodeView extends View {
 			toggleToolbar();
 		} else if (!touched.isEmpty() || pressed || toolbar.isShown()) {
 			showToolbar();
+		}
+		if (!touched.isEmpty() && accessibility.exploresByTouch()) {
+			accessibility.selectedByTouch();
 		}
 	}
 
