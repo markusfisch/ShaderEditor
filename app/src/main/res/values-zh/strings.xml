@@ -83,6 +83,7 @@
 	<string name="enable_notification_listener_title">启用通知监听</string>
 	<string name="hide_native_suggestions">隐藏系统键盘建议</string>
 	<string name="hide_native_suggestions_summary">隐藏键盘自带的词语建议。如果出现输入问题，请关闭此项。</string>
+	<string name="copy_failed">Couldn\'t copy to clipboard</string>
 
 	<string name="run_auto">修改后自动运行</string>
 	<string name="run_manually">手动运行</string>

@@ -83,6 +83,7 @@
 	<string name="enable_notification_listener_title">啟用通知接聽</string>
 	<string name="hide_native_suggestions">隱藏系統鍵盤建議</string>
 	<string name="hide_native_suggestions_summary">隱藏螢幕鍵盤自帶的建議。若出現輸入問題，請關閉此設定。</string>
+	<string name="copy_failed">Couldn\'t copy to clipboard</string>
 
 	<string name="run_auto">更改後自動執行</string>
 	<string name="run_manually">手動執行</string>

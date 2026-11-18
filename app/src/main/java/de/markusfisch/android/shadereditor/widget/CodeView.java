@@ -1,6 +1,8 @@
 package de.markusfisch.android.shadereditor.widget;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -12,18 +14,26 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
+import android.text.InputType;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.GestureDetector;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EdgeEffect;
 import android.widget.OverScroller;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.util.ArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -31,15 +41,24 @@ import java.util.concurrent.TimeUnit;
 
 import de.markusfisch.android.shadereditor.R;
 import de.markusfisch.android.shadereditor.editor.Document;
+import de.markusfisch.android.shadereditor.editor.EditCommands;
+import de.markusfisch.android.shadereditor.editor.KeyCommands;
 import de.markusfisch.android.shadereditor.editor.LineStyles;
 import de.markusfisch.android.shadereditor.editor.LineStylesScheduler;
 import de.markusfisch.android.shadereditor.editor.Text;
+import de.markusfisch.android.shadereditor.editor.TextInput;
 
 // Shows a Document in the colours of its LineStyles; it owns no text. Only the
 // lines on screen are laid out, and from Android 10 on a line's drawing is
 // recorded once and replayed until its string or colours change. The app runs
 // from Android 6 on, so what later versions add is used behind version checks.
 public class CodeView extends View {
+	public static final int INPUT_TYPE_NO_SUGGESTIONS = InputType.TYPE_NULL;
+	// Not NO_SUGGESTIONS, as the old editor keeps: the AOSP keyboard and
+	// Gboard then offer none.
+	public static final int INPUT_TYPE_TEXT = InputType.TYPE_CLASS_TEXT |
+			InputType.TYPE_TEXT_FLAG_MULTI_LINE;
+
 	// One thread that ends when it has nothing to do.
 	private static final Executor STYLING = new ThreadPoolExecutor(0, 1, 1,
 			TimeUnit.SECONDS, new LinkedBlockingQueue<>(), task ->
@@ -48,6 +67,14 @@ public class CodeView extends View {
 				task.run();
 			}, "LineStyles"));
 	private static final long BLINK = 500;
+	// What the clipboard takes: a clip goes to the system, and from it
+	// to every app that reads it, in binder transactions of at most
+	// 1 MB, at up to two bytes a character.
+	private static final int MAX_CLIP = 400_000;
+	// Reads, splits and counts a clip, whose size has no bound.
+	private static final Executor PASTING = new ThreadPoolExecutor(0, 1, 1,
+			TimeUnit.SECONDS, new LinkedBlockingQueue<>(),
+			task -> new Thread(task, "Paste"));
 	private static final int HORIZONTAL = 1;
 	private static final int VERTICAL = 2;
 
@@ -71,6 +98,44 @@ public class CodeView extends View {
 		}
 	};
 	private final Runnable blink = this::blink;
+	private final KeyCommands.Clipboard clipboard =
+			new KeyCommands.Clipboard() {
+				@Override
+				public void read(KeyCommands.Pasted pasted) {
+					Document requested = document;
+					PASTING.execute(() -> {
+						CharSequence clip = clipText();
+						if (clip == null) {
+							return;
+						}
+						Text text = Text.of(clip);
+						long bytes = Document.bytes(text);
+						handler.post(() -> {
+							if (document == requested) {
+								pasted.paste(text, bytes);
+								bringCaretIntoView();
+							}
+						});
+					});
+				}
+
+				@Override
+				public boolean set(String text) {
+					ClipboardManager manager = clipboardManager();
+					try {
+						if (text.length() <= MAX_CLIP) {
+							manager.setPrimaryClip(
+									ClipData.newPlainText(null, text));
+							return true;
+						}
+					} catch (RuntimeException e) {
+						// Too large after all.
+					}
+					Toast.makeText(getContext(), R.string.copy_failed,
+							Toast.LENGTH_SHORT).show();
+					return false;
+				}
+			};
 	private final OverScroller scroller;
 	private final GestureDetector gestures;
 	private final EdgeEffect edgeTop;
@@ -80,10 +145,23 @@ public class CodeView extends View {
 	private boolean caretIntoViewWhenLaidOut;
 	private int axis;
 	private Document document;
+	private EditCommands commands;
+	private KeyCommands keys;
+	private int deadChar;
+	private int inputType = INPUT_TYPE_NO_SUGGESTIONS;
+	// The keyboard's open connections. It may go on using one after it
+	// was given a newer one.
+	private final ArrayList<CodeInputConnection> connections =
+			new ArrayList<>();
+	// The connection the keyboard used last; only its updates reach it.
+	private CodeInputConnection active;
 	private LineStyles styles;
 	private LineStylesScheduler scheduler;
 	private boolean connected;
+	private boolean tabIndents = true;
 	private boolean showLineNumbers = true;
+	private int composingStart = -1;
+	private int composingEnd = -1;
 	private boolean caretOn;
 	private boolean caretShown;
 	private float caretX;
@@ -162,19 +240,39 @@ public class CodeView extends View {
 	public void setDocument(@NonNull Document document,
 			@NonNull LineStyles styles) {
 		disconnect();
+		closeInput();
 		this.document = document;
 		this.styles = styles;
+		commands = new EditCommands(document);
+		commands.setTabWidth(appearance.tabWidth);
+		commands.setIndentation(styles.syntax().indentation());
+		keys = new KeyCommands(document, commands, clipboard);
+		deadChar = 0;
+		composingStart = composingEnd = -1;
 		forgetLines();
 		scrollTo(0, 0);
 		if (isAttachedToWindow()) {
 			connect();
+			restartInput();
 		}
 		invalidate();
+	}
+
+	public void setInputType(int inputType) {
+		this.inputType = inputType;
+		restartInput();
 	}
 
 	@Nullable
 	public Document getDocument() {
 		return document;
+	}
+
+	// -1 for none.
+	public void setComposingRegion(int start, int end) {
+		composingStart = start;
+		composingEnd = end;
+		invalidate();
 	}
 
 	public void setTypeface(@NonNull Typeface typeface) {
@@ -195,12 +293,21 @@ public class CodeView extends View {
 
 	public void setTabWidth(int tabWidth) {
 		appearance.tabWidth = tabWidth;
+		if (commands != null) {
+			commands.setTabWidth(tabWidth);
+		}
 		appearanceChanged();
 	}
 
 	public void setShowLineNumbers(boolean showLineNumbers) {
 		this.showLineNumbers = showLineNumbers;
 		invalidate();
+	}
+
+	// True by default; false leaves Tab to move the focus, as the platform
+	// does.
+	public void setTabIndents(boolean tabIndents) {
+		this.tabIndents = tabIndents;
 	}
 
 	public void bringCaretIntoView() {
@@ -294,6 +401,81 @@ public class CodeView extends View {
 	}
 
 	@Override
+	public boolean onCheckIsTextEditor() {
+		return true;
+	}
+
+	@Override
+	public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
+		if (document == null) {
+			return null;
+		}
+		outAttrs.inputType = inputType;
+		outAttrs.imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI |
+				EditorInfo.IME_FLAG_NO_FULLSCREEN |
+				EditorInfo.IME_FLAG_NO_ENTER_ACTION;
+		Document.Selection selection = document.selection();
+		outAttrs.initialSelStart = selection.anchor();
+		outAttrs.initialSelEnd = selection.head();
+		outAttrs.initialCapsMode = 0;
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+				selection.end() - selection.start() <= TextInput.MAX_READ) {
+			Text text = document.text();
+			int from = Math.max(0, selection.start() - TextInput.MAX_READ / 4);
+			outAttrs.setInitialSurroundingSubText(text.substring(from,
+					Math.min(text.length(),
+							selection.end() + TextInput.MAX_READ / 4)), from);
+		}
+		CodeInputConnection connection = new CodeInputConnection(this,
+				document);
+		connections.add(connection);
+		if (active == null) {
+			active = connection;
+		}
+		return connection;
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keys == null ||
+				(keyCode == KeyEvent.KEYCODE_TAB && !tabIndents)) {
+			return super.onKeyDown(keyCode, event);
+		}
+		int meta = event.getMetaState();
+		int c = event.getUnicodeChar(meta);
+		if ((c & KeyCharacterMap.COMBINING_ACCENT) != 0 &&
+				KeyCommands.types(meta)) {
+			deadChar = c & KeyCharacterMap.COMBINING_ACCENT_MASK;
+			return true;
+		}
+		if (deadChar != 0 && c != 0) {
+			int combined = KeyEvent.getDeadChar(deadChar, c);
+			c = combined != 0 ? combined : c;
+			deadChar = 0;
+		}
+		String typed = c != 0 ? new String(Character.toChars(c)) : null;
+		return key(keyCode, meta, typed) || super.onKeyDown(keyCode, event);
+	}
+
+	@Override
+	public boolean onKeyMultiple(int keyCode, int count, KeyEvent event) {
+		String characters = event.getCharacters();
+		return keyCode == KeyEvent.KEYCODE_UNKNOWN && characters != null &&
+				keys != null && key(keyCode, 0, characters) ||
+				super.onKeyMultiple(keyCode, count, event);
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		int meta = event.getMetaState();
+		return keys != null &&
+				(keyCode != KeyEvent.KEYCODE_TAB || tabIndents) &&
+				(KeyCommands.command(keyCode, meta) != null ||
+				KeyCommands.types(meta) && event.getUnicodeChar(meta) != 0) ||
+				super.onKeyUp(keyCode, event);
+	}
+
+	@Override
 	public void draw(@NonNull Canvas canvas) {
 		super.draw(canvas);
 		int w = getWidth();
@@ -328,6 +510,7 @@ public class CodeView extends View {
 	@Override
 	protected void onDetachedFromWindow() {
 		disconnect();
+		closeInput();
 		super.onDetachedFromWindow();
 	}
 
@@ -473,6 +656,17 @@ public class CodeView extends View {
 				line.draw(canvas, clipLeft - textLeft, right - textLeft,
 						lineHeight, record);
 			}
+			if (composingStart < composingEnd &&
+					composingStart <= lineEnd && composingEnd > lineStart) {
+				fill.setColor(a.textColor);
+				canvas.drawRect(
+						layout.xOf(Math.max(composingStart, lineStart) -
+								lineStart),
+						lineHeight - a.underline,
+						layout.xOf(Math.min(composingEnd, lineEnd) -
+								lineStart),
+						lineHeight, fill);
+			}
 			if (selStart == selEnd && selStart >= lineStart &&
 					selStart <= lineEnd) {
 				caretShown = true;
@@ -561,6 +755,127 @@ public class CodeView extends View {
 		postInvalidateOnAnimation();
 	}
 
+	// For a line break the keyboard commits.
+	void enter() {
+		if (keys != null) {
+			commands.enter();
+			bringCaretIntoView();
+		}
+	}
+
+	public void tab() {
+		if (keys != null) {
+			key(KeyEvent.KEYCODE_TAB, 0, null);
+		}
+	}
+
+	boolean contextMenuAction(int id) {
+		KeyCommands.Command command = KeyCommands.contextMenuCommand(id);
+		if (command != null) {
+			menuCommand(id, command);
+		}
+		return command != null;
+	}
+
+	private boolean menuCommand(int id, KeyCommands.Command command) {
+		if (keys == null) {
+			return false;
+		}
+		boolean done = keys.run(command, false, 0);
+		bringCaretIntoView();
+		return done;
+	}
+
+	int pageLines() {
+		return Math.max(1, getHeight() / appearance.lineHeight - 1);
+	}
+
+	private void restartInput() {
+		InputMethodManager imm = inputMethodManager();
+		if (imm != null) {
+			imm.restartInput(this);
+		}
+	}
+
+	// The keyboard does not go back to the older ones, so they are closed.
+	void use(CodeInputConnection connection) {
+		if (active != connection) {
+			active = connection;
+			for (int i = connections.indexOf(connection); i-- > 0; ) {
+				connections.get(i).closeConnection();
+			}
+			setComposingRegion(connection.composingStart(),
+					connection.composingEnd());
+		}
+	}
+
+	void updateSelection(CodeInputConnection connection, int selStart,
+			int selEnd, int composingStart, int composingEnd) {
+		InputMethodManager imm = inputMethodManager();
+		if (connection == active && imm != null) {
+			setComposingRegion(composingStart, composingEnd);
+			imm.updateSelection(this, selStart, selEnd, composingStart,
+					composingEnd);
+		}
+	}
+
+	void updateExtractedText(CodeInputConnection connection, int token,
+			TextInput.Window window) {
+		InputMethodManager imm = inputMethodManager();
+		if (connection == active && imm != null) {
+			imm.updateExtractedText(this, token,
+					CodeInputConnection.extracted(window));
+		}
+	}
+
+	void closed(CodeInputConnection connection) {
+		connections.remove(connection);
+		if (connection == active) {
+			active = connections.isEmpty()
+					? null
+					: connections.get(connections.size() - 1);
+			setComposingRegion(-1, -1);
+		}
+	}
+
+	private void closeInput() {
+		for (int i = connections.size(); i-- > 0; ) {
+			connections.get(i).closeConnection();
+		}
+	}
+
+	private InputMethodManager inputMethodManager() {
+		return (InputMethodManager) getContext().getSystemService(
+				Context.INPUT_METHOD_SERVICE);
+	}
+
+	private boolean key(int keyCode, int meta, String typed) {
+		if (!keys.keyDown(keyCode, meta, typed, pageLines())) {
+			return false;
+		}
+		bringCaretIntoView();
+		return true;
+	}
+
+	// Null if there is none or it cannot be read. A clip of a content URI is
+	// read from its provider.
+	private CharSequence clipText() {
+		try {
+			ClipboardManager manager = clipboardManager();
+			ClipData clip = manager != null ? manager.getPrimaryClip() : null;
+			return clip != null && clip.getItemCount() > 0
+					? clip.getItemAt(0).coerceToText(getContext())
+					: null;
+		} catch (RuntimeException e) {
+			return null;
+		}
+	}
+
+	private ClipboardManager clipboardManager() {
+		return (ClipboardManager) getContext().getSystemService(
+				Context.CLIPBOARD_SERVICE);
+	}
+
 	private boolean drawEdge(Canvas canvas, EdgeEffect edge, int x, int y,
 			int degrees, int width, int height) {
 		if (edge.isFinished()) {
@@ -582,6 +897,10 @@ public class CodeView extends View {
 		int offset = offsetAt(x, y);
 		document.select(offset, offset);
 		requestFocus();
+		InputMethodManager imm = inputMethodManager();
+		if (imm != null) {
+			imm.showSoftInput(this, 0);
+		}
 		performClick();
 	}
 

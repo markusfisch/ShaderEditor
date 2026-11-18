@@ -34,6 +34,7 @@ final class CodeAppearance {
 	final int selectionColor;
 	final int caretColor;
 	final float caretWidth;
+	final float underline;
 	final float padding;
 	int tabWidth = 4;
 	float charWidth;
@@ -55,6 +56,7 @@ final class CodeAppearance {
 		selectionColor = ContextCompat.getColor(context,
 				R.color.code_selection);
 		caretWidth = res.getDimension(R.dimen.editor_caret_width);
+		underline = res.getDimension(R.dimen.editor_composing_underline);
 		padding = res.getDimension(R.dimen.editor_padding);
 		paint.setTypeface(Typeface.MONOSPACE);
 		paint.setTextSize(res.getDimension(R.dimen.editor_text_size));
