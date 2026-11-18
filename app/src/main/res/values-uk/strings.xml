@@ -86,6 +86,9 @@
 	<string name="enable_notification_listener_title">Увімкнути прослуховувач сповіщень</string>
 	<string name="hide_native_suggestions">Приховати рідні пропозиції</string>
 	<string name="hide_native_suggestions_summary">Приховує підказки екранної клавіатури. Якщо виникають проблеми, вимкніть цей параметр.</string>
+	<string name="new_editor">New editor</string>
+	<string name="new_editor_summary">Built for large shaders; still being tested</string>
+	<string name="text_too_large">Not changed: the text would be larger than 16 MiB</string>
 	<string name="copy_failed">Couldn\'t copy to clipboard</string>
 	<string name="a11y_code_line">Line %1$d of %2$d</string>
 	<string name="a11y_selected">Selected %1$s</string>

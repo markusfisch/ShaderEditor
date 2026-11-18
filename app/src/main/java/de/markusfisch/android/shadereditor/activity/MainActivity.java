@@ -53,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
 	private ShaderListManager shaderListManager;
 	private ShaderViewManager shaderViewManager;
 	private NavigationManager navigationManager;
+	private ExtraKeysManager extraKeysManager;
 	private DataSource dataSource;
 	private boolean isInitialLoad = false;
 
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
 				findViewById(R.id.preview),
 				findViewById(R.id.quality),
 				createShaderViewListener());
-		ExtraKeysManager extraKeysManager = new ExtraKeysManager(this,
+		extraKeysManager = new ExtraKeysManager(this,
 				findViewById(android.R.id.content),
 				editorFragment::insert);
 		uiManager = new UIManager(this,
@@ -173,6 +174,9 @@ public class MainActivity extends AppCompatActivity {
 		}
 		if (shaderListManager != null) {
 			shaderListManager.destroy();
+		}
+		if (extraKeysManager != null) {
+			extraKeysManager.destroy();
 		}
 		super.onDestroy();
 	}

@@ -26,7 +26,7 @@ public class UndoRedo {
 		private int position = 0;
 		private int maxHistorySize = -1;
 
-		private void clear() {
+		public void clear() {
 			position = 0;
 			history.clear();
 		}

@@ -83,6 +83,9 @@
 	<string name="enable_notification_listener_title">啟用通知接聽</string>
 	<string name="hide_native_suggestions">隱藏系統鍵盤建議</string>
 	<string name="hide_native_suggestions_summary">隱藏螢幕鍵盤自帶的建議。若出現輸入問題，請關閉此設定。</string>
+	<string name="new_editor">New editor</string>
+	<string name="new_editor_summary">Built for large shaders; still being tested</string>
+	<string name="text_too_large">Not changed: the text would be larger than 16 MiB</string>
 	<string name="copy_failed">Couldn\'t copy to clipboard</string>
 	<string name="a11y_code_line">Line %1$d of %2$d</string>
 	<string name="a11y_selected">Selected %1$s</string>
