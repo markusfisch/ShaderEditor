@@ -1,0 +1,128 @@
+# unknown Android SDK built for arm64, Android 23
+# keyboard com.android.inputmethod.latin/.LatinIME, inputType 0x20001
+# With native suggestions shown: "hel" composed and its suggestion "help"
+# picked, then "wirld" composed and autocorrected to "world" by the space.
+83 1 open 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+94 2 open 0 0 null
+118 1 getTextBeforeCursor 1024 -> ""
+136 1 getSelectedText -> null
+# 154 requestCursorUpdates 3 -> false
+172 1 getTextBeforeCursor 1024 -> ""
+190 1 getSelectedText -> null
+207 1 getTextBeforeCursor 1024 -> ""
+224 1 getSelectedText -> null
+329 1 getTextAfterCursor 1 -> "#"
+347 1 getTextBeforeCursor 40 -> ""
+363 1 getTextAfterCursor 40 -> "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecis"
+2831 3 open 0 0 null
+2844 1 finishComposingText -> true
+2844 4 open 0 0 null
+2845 2 close -> 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+2845 1 close -> 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+2845 3 finishComposingText -> true
+2932 5 open 0 0 null
+3994 6 open 0 0 null
+3996 3 close -> 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+3997 4 finishComposingText -> true
+3997 7 open 0 0 null
+4003 8 open 0 0 null
+4011 5 close -> 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+4011 4 close -> 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+4011 6 finishComposingText -> true
+4029 6 close -> 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+4029 7 getTextBeforeCursor 1024 -> ""
+4045 7 getSelectedText -> null
+# 4046 requestCursorUpdates 3 -> false
+4047 7 getTextBeforeCursor 1024 -> ""
+4047 7 getSelectedText -> null
+4148 7 getTextAfterCursor 1 -> "#"
+4149 7 getTextBeforeCursor 40 -> ""
+4149 7 getTextAfterCursor 40 -> "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecis"
+6635 app select 222 222
+6635 7 selected 222 222
+6635 7 updateSelection 222 222 -1 -1
+6635 8 selected 222 222
+6635 8 updateSelection 222 222 -1 -1
+6647 7 getTextBeforeCursor 1024 -> "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}"
+6749 7 getTextAfterCursor 1 -> "\n"
+7869 7 beginBatchEdit -> true
+# 7869 commitText "\n" 1 -> true
+7869 app command "enter"
+7870 7 changed 222 222 "\n"
+7870 8 changed 222 222 "\n"
+7886 8 updateSelection 223 223 -1 -1
+7886 7 endBatchEdit -> false
+7886 7 updateSelection 223 223 -1 -1
+10153 7 beginBatchEdit -> true
+10153 7 getTextAfterCursor 1 -> "\n"
+10154 8 changed 223 223 "h"
+10154 7 setComposingText "h" 1 -> true
+10154 8 updateSelection 224 224 -1 -1
+10154 7 endBatchEdit -> false
+10154 7 updateSelection 224 224 223 224
+12466 7 beginBatchEdit -> true
+12466 8 changed 223 224 "he"
+12466 7 setComposingText "he" 1 -> true
+12466 8 updateSelection 225 225 -1 -1
+12466 7 endBatchEdit -> false
+12466 7 updateSelection 225 225 223 225
+14766 7 beginBatchEdit -> true
+14766 8 changed 223 225 "hel"
+14766 7 setComposingText "hel" 1 -> true
+14766 8 updateSelection 226 226 -1 -1
+14766 7 endBatchEdit -> false
+14766 7 updateSelection 226 226 223 226
+14870 7 setComposingText "hel" 1 -> true
+31932 7 beginBatchEdit -> true
+31932 8 changed 223 226 "help"
+31932 7 commitText "help" 1 -> true
+31950 8 updateSelection 227 227 -1 -1
+31950 7 endBatchEdit -> false
+31950 7 updateSelection 227 227 -1 -1
+46829 7 beginBatchEdit -> true
+46829 8 changed 227 227 " "
+46829 7 commitText " " 1 -> true
+46829 7 getTextAfterCursor 1 -> "\n"
+46846 8 changed 228 228 "w"
+46846 7 setComposingText "w" 1 -> true
+46846 8 updateSelection 229 229 -1 -1
+46846 7 endBatchEdit -> false
+46846 7 updateSelection 229 229 228 229
+48068 7 beginBatchEdit -> true
+48068 8 changed 228 229 "wi"
+48068 7 setComposingText "wi" 1 -> true
+48068 8 updateSelection 230 230 -1 -1
+48068 7 endBatchEdit -> false
+48068 7 updateSelection 230 230 228 230
+48174 7 setComposingText "wi" 1 -> true
+49304 7 beginBatchEdit -> true
+49304 8 changed 228 230 "wir"
+49304 7 setComposingText "wir" 1 -> true
+49304 8 updateSelection 231 231 -1 -1
+49304 7 endBatchEdit -> false
+49304 7 updateSelection 231 231 228 231
+50562 7 beginBatchEdit -> true
+50562 8 changed 228 231 "wirl"
+50562 7 setComposingText "wirl" 1 -> true
+50562 8 updateSelection 232 232 -1 -1
+50562 7 endBatchEdit -> false
+50562 7 updateSelection 232 232 228 232
+50666 7 setComposingText "wirl" 1 -> true
+51828 7 beginBatchEdit -> true
+51829 8 changed 228 232 "wirld"
+51829 7 setComposingText "wirld" 1 -> true
+51829 8 updateSelection 233 233 -1 -1
+51829 7 endBatchEdit -> false
+51829 7 updateSelection 233 233 228 233
+51935 7 setComposingText "wirld" 1 -> true
+54840 7 beginBatchEdit -> true
+54841 8 changed 228 233 "world"
+54841 7 commitText "world" 1 -> true
+# 54861 commitCorrection CorrectionInfo{#228 "wirld" -> "world"} -> false
+54862 8 changed 233 233 " "
+54862 7 commitText " " 1 -> true
+54862 8 updateSelection 234 234 -1 -1
+54862 7 endBatchEdit -> false
+54862 7 updateSelection 234 234 -1 -1
+71126 7 finishComposingText -> true
+71128 7 finishComposingText -> true

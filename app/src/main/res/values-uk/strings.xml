@@ -86,6 +86,7 @@
 	<string name="enable_notification_listener_title">Увімкнути прослуховувач сповіщень</string>
 	<string name="hide_native_suggestions">Приховати рідні пропозиції</string>
 	<string name="hide_native_suggestions_summary">Приховує підказки екранної клавіатури. Якщо виникають проблеми, вимкніть цей параметр.</string>
+	<string name="copy_failed">Couldn\'t copy to clipboard</string>
 
 	<!-- Preferences -->
 	<string name="run_auto">Автоматичний запуск при зміні</string>

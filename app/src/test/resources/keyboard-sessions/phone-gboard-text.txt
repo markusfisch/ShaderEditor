@@ -1,0 +1,119 @@
+# samsung SM-S938B, Android 37
+# keyboard com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME, inputType 0x1
+52 1 open 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+56 2 open 0 0 null
+90 1 finishComposingText -> true
+# 91 requestCursorUpdates 2 -> false
+12014 app select 223 223
+12014 1 selected 223 223
+12014 1 updateSelection 223 223 -1 -1
+12014 2 selected 223 223
+12014 2 updateSelection 223 223 -1 -1
+12026 1 getSurroundingText 600 600 -> 0 223 223 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+12234 1 finishComposingText -> true
+12411 2 changed 223 223 "f"
+12411 1 commitText "f" 1 -> true
+12411 1 updateSelection 224 224 -1 -1
+12411 2 updateSelection 224 224 -1 -1
+12684 2 changed 224 224 "l"
+12684 1 commitText "l" 1 -> true
+12684 1 updateSelection 225 225 -1 -1
+12684 2 updateSelection 225 225 -1 -1
+12948 2 changed 225 225 "o"
+12948 1 commitText "o" 1 -> true
+12948 1 updateSelection 226 226 -1 -1
+12948 2 updateSelection 226 226 -1 -1
+13219 2 changed 226 226 "a"
+13219 1 commitText "a" 1 -> true
+13219 1 updateSelection 227 227 -1 -1
+13219 2 updateSelection 227 227 -1 -1
+13565 2 changed 227 227 "t"
+13565 1 commitText "t" 1 -> true
+13565 1 updateSelection 228 228 -1 -1
+13565 2 updateSelection 228 228 -1 -1
+14330 2 changed 228 228 " "
+14330 1 commitText " " 1 -> true
+14330 1 updateSelection 229 229 -1 -1
+14330 2 updateSelection 229 229 -1 -1
+14595 2 changed 229 229 "r"
+14595 1 commitText "r" 1 -> true
+14595 1 updateSelection 230 230 -1 -1
+14595 2 updateSelection 230 230 -1 -1
+14858 2 changed 230 230 "e"
+14858 1 commitText "e" 1 -> true
+14858 1 updateSelection 231 231 -1 -1
+14858 2 updateSelection 231 231 -1 -1
+15117 2 changed 231 231 "s"
+15117 1 commitText "s" 1 -> true
+15117 1 updateSelection 232 232 -1 -1
+15117 2 updateSelection 232 232 -1 -1
+15565 2 changed 232 232 "o"
+15565 1 commitText "o" 1 -> true
+15565 1 updateSelection 233 233 -1 -1
+15565 2 updateSelection 233 233 -1 -1
+15947 2 changed 233 233 "l"
+15947 1 commitText "l" 1 -> true
+15947 1 updateSelection 234 234 -1 -1
+15947 2 updateSelection 234 234 -1 -1
+16251 2 changed 234 234 "u"
+16251 1 commitText "u" 1 -> true
+16251 1 updateSelection 235 235 -1 -1
+16252 2 updateSelection 235 235 -1 -1
+16559 2 changed 235 235 "t"
+16559 1 commitText "t" 1 -> true
+16559 1 updateSelection 236 236 -1 -1
+16559 2 updateSelection 236 236 -1 -1
+16868 2 changed 236 236 "o"
+16868 1 commitText "o" 1 -> true
+16868 1 updateSelection 237 237 -1 -1
+16868 2 updateSelection 237 237 -1 -1
+17106 2 changed 237 237 "i"
+17106 1 commitText "i" 1 -> true
+17106 1 updateSelection 238 238 -1 -1
+17106 2 updateSelection 238 238 -1 -1
+17409 2 changed 238 238 "n"
+17409 1 commitText "n" 1 -> true
+17409 1 updateSelection 239 239 -1 -1
+17409 2 updateSelection 239 239 -1 -1
+28065 1 beginBatchEdit -> true
+28065 1 beginBatchEdit -> true
+28065 1 finishComposingText -> true
+28065 1 setSelection 236 239 -> true
+28065 2 changed 236 239 "ion "
+28065 1 commitText "ion " 1 -> true
+28065 1 endBatchEdit -> true
+28065 2 updateSelection 240 240 -1 -1
+28066 1 endBatchEdit -> false
+28066 1 updateSelection 240 240 -1 -1
+29617 app key 0 67 0 null
+29620 1 changed 239 240 ""
+29620 2 changed 239 240 ""
+29620 1 updateSelection 239 239 -1 -1
+29620 2 updateSelection 239 239 -1 -1
+29621 app key 1 67 0 null
+29880 app key 0 67 0 null
+29880 1 changed 238 239 ""
+29880 2 changed 238 239 ""
+29881 1 updateSelection 238 238 -1 -1
+29881 2 updateSelection 238 238 -1 -1
+29894 app key 1 67 0 null
+30206 app key 0 67 0 null
+30207 1 changed 237 238 ""
+30207 2 changed 237 238 ""
+30207 1 updateSelection 237 237 -1 -1
+30207 2 updateSelection 237 237 -1 -1
+30207 app key 1 67 0 null
+31012 2 changed 237 237 "x"
+31012 1 commitText "x" 1 -> true
+31012 1 updateSelection 238 238 -1 -1
+31012 2 updateSelection 238 238 -1 -1
+31285 1 getSurroundingText 4096 4096 -> 0 238 238 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\nfloat resolutix"
+31286 app key 0 66 0 "\n"
+31286 1 changed 238 238 "\n"
+31286 2 changed 238 238 "\n"
+31286 1 updateSelection 239 239 -1 -1
+31286 2 updateSelection 239 239 -1 -1
+31286 app key 1 66 0 null
+31293 1 getSurroundingText 600 600 -> 0 239 239 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\nfloat resolutix\n"
+31532 1 finishComposingText -> true
+39995 1 close -> 239 239 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\nfloat resolutix\n"

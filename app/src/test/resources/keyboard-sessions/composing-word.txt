@@ -1,0 +1,44 @@
+# A keyboard that composes, shaped like the AOSP keyboard (LatinIME):
+# it types a word as composing text, the user picks a suggestion that
+# differs from what was typed, then Backspace takes the word back into
+# composition, deletes it letter by letter and goes on into the text
+# before it. Written by hand from the contract, times included; no
+# device recorded it.
+0 1 open 4 4 "x = ;"
+2 1 getSurroundingText 1024 1024 -> 0 4 4 "x = ;"
+310 1 beginBatchEdit -> true
+310 1 setComposingText "v" 1 -> true
+311 1 endBatchEdit -> false
+311 1 updateSelection 5 5 4 5
+420 1 beginBatchEdit -> true
+420 1 setComposingText "ve" 1 -> true
+421 1 endBatchEdit -> false
+421 1 updateSelection 6 6 4 6
+540 1 beginBatchEdit -> true
+540 1 setComposingText "vex" 1 -> true
+541 1 endBatchEdit -> false
+541 1 updateSelection 7 7 4 7
+# The suggestion replaces the composition.
+1200 1 beginBatchEdit -> true
+1200 1 commitText "vec3" 1 -> true
+1201 1 endBatchEdit -> false
+1201 1 updateSelection 8 8 -1 -1
+# Backspace behind a word composes the word again.
+2400 1 beginBatchEdit -> true
+2400 1 getTextBeforeCursor 48 -> "x = vec3"
+2401 1 setComposingRegion 4 8 -> true
+2401 1 setComposingText "vec" 1 -> true
+2402 1 endBatchEdit -> false
+2402 1 updateSelection 7 7 4 7
+2510 1 beginBatchEdit -> true
+2510 1 setComposingText "ve" 1 -> true
+2511 1 endBatchEdit -> false
+2511 1 updateSelection 6 6 4 6
+2620 1 setComposingText "v" 1 -> true
+2620 1 updateSelection 5 5 4 5
+2730 1 setComposingText "" 1 -> true
+2730 1 updateSelection 4 4 -1 -1
+# With nothing left to compose, Backspace deletes before the caret.
+2840 1 deleteSurroundingText 1 0 -> true
+2840 1 updateSelection 3 3 -1 -1
+3900 1 close -> 3 3 "x =;"
