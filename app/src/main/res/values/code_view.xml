@@ -2,6 +2,7 @@
 	<dimen name="editor_text_size">12sp</dimen>
 	<dimen name="editor_caret_width">2dp</dimen>
 	<dimen name="editor_composing_underline">1dp</dimen>
+	<dimen name="editor_mark_width">3dp</dimen>
 	<dimen name="editor_tap_target">48dp</dimen>
 	<color name="editor_caret">@color/editor_text</color>
 	<color name="code_selection">#B31F4E79</color>
