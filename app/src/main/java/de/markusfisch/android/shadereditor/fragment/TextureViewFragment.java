@@ -11,7 +11,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.MenuProvider;
@@ -83,9 +82,15 @@ public class TextureViewFragment extends Fragment {
 			if (nonPremultipliedBitmap != null) {
 				nonPremultipliedBitmap.recycle();
 			}
-			Toast.makeText(activity, R.string.removed_invalid_texture,
-					Toast.LENGTH_LONG).show();
-			activity.finish();
+			// Keep the texture, but let the user remove it.
+			new MaterialAlertDialogBuilder(activity)
+					.setMessage(R.string.removed_invalid_texture)
+					.setPositiveButton(R.string.remove_texture,
+							(dialog, which) -> removeTextureAsync(textureId))
+					.setNegativeButton(android.R.string.cancel,
+							(dialog, which) -> activity.finish())
+					.setOnCancelListener(dialog -> activity.finish())
+					.show();
 			return null;
 		}
 
@@ -176,8 +181,9 @@ public class TextureViewFragment extends Fragment {
 				Database.getInstance(appContext).getDataSource().texture.removeTexture(id);
 				handler.post(() -> {
 					Activity activity = getActivity();
+					// Without a view when the texture could not be shown.
 					if (activity == context && getView() == deletingView &&
-							deletingView != null && !activity.isDestroyed()) {
+							!activity.isDestroyed()) {
 						activity.finish();
 					}
 				});
