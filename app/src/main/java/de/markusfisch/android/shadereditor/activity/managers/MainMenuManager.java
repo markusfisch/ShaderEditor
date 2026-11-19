@@ -1,6 +1,7 @@
 package de.markusfisch.android.shadereditor.activity.managers;
 
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.DisplayMetrics;
@@ -100,6 +101,10 @@ public class MainMenuManager {
 		setClickListener(R.id.delete_shader, shaderActions::onDeleteShader);
 		setClickListener(R.id.share_shader, shaderActions::onShareShader);
 		setClickListener(R.id.update_wallpaper, shaderActions::onUpdateWallpaper);
+		if (!activity.getPackageManager().hasSystemFeature(
+				PackageManager.FEATURE_LIVE_WALLPAPER)) {
+			view.findViewById(R.id.update_wallpaper).setVisibility(View.GONE);
+		}
 		setClickListener(R.id.add_uniform, navigationActions::onAddUniform);
 		setClickListener(R.id.load_sample, navigationActions::onLoadSample);
 		setClickListener(R.id.settings, navigationActions::onShowSettings);

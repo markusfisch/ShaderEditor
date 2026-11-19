@@ -20,7 +20,8 @@
 		android:required="false"/>
 	<uses-feature android:name="android.hardware.camera.autofocus"
 		android:required="false"/>
-	<uses-feature android:name="android.software.live_wallpaper"/>
+	<uses-feature android:name="android.software.live_wallpaper"
+		android:required="false"/>
 	<queries>
 		<intent>
 			<action android:name="android.intent.action.VIEW"/>
