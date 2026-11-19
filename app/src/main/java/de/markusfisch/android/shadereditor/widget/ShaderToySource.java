@@ -49,6 +49,15 @@ final class ShaderToySource {
 	}
 
 	/**
+	 * @return True if {@code inserted} brought a mainImage() into
+	 * {@code src} and {@code src} defines no main().
+	 */
+	static boolean needsConversion(String src, CharSequence inserted) {
+		return PATTERN_SHADER_TOY.matcher(inserted).find() &&
+				needsConversion(src);
+	}
+
+	/**
 	 * @return True if {@code src} defines mainImage() but no main().
 	 */
 	static boolean needsConversion(String src) {
