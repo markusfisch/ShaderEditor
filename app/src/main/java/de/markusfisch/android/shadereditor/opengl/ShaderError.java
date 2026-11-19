@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 public class ShaderError implements Serializable {
 	private static final Pattern ERROR_PATTERN = Pattern.compile(
-			"^.*(\\d+):(\\d+):\\s+(.*)$");
+			"^.*(\\d+):(\\d+)(?:\\(\\d+\\))?:\\s+(.*)$");
 
 	private final int sourceStringNumber;
 	private final int errorLine;
