@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 public class ShaderError implements Serializable {
 	private static final Pattern ERROR_PATTERN = Pattern.compile(
 			"^.*(\\d+):(\\d+)(?:\\(\\d+\\))?:\\s+(.*)$");
+	private static final Pattern SUMMARY_PATTERN = Pattern.compile(
+			"^ERROR: \\d+ compilation errors?\\.\\s+No code generated\\.\\s*$");
 
 	private final int sourceStringNumber;
 	private final int errorLine;
@@ -63,6 +65,10 @@ public class ShaderError implements Serializable {
 		String[] messages = infoLog.split("\n");
 		List<ShaderError> shaderErrors = new ArrayList<>(messages.length);
 		for (String message : messages) {
+			if (messages.length > 1 &&
+					SUMMARY_PATTERN.matcher(message).matches()) {
+				continue;
+			}
 			shaderErrors.add(parse(message, lineMapping));
 		}
 		return shaderErrors;
