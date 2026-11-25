@@ -42,6 +42,7 @@ public class Preferences {
 	public static final String SHOW_EXTRA_KEYS = "show_extra_keys";
 	public static final String AUTO_HIDE_EXTRA_KEYS = "auto_hide_extra_keys";
 	public static final String HIDE_NATIVE_SUGGESTIONS = "hide_native_suggestions";
+	public static final String NEW_EDITOR = "new_editor";
 	public static final String LAST_OPENED_SHADER = "last_opened_shader";
 	public static final String PENDING_CRASH_SHADER = "pending_crash_shader";
 
@@ -87,6 +88,7 @@ public class Preferences {
 	private boolean showExtraKeys = true;
 	private boolean autoHideExtraKeys = true;
 	private boolean hideNativeSuggestions = true;
+	private boolean newEditor = false;
 	private String defaultFont;
 	private long pendingCrashShaderId = 0;
 
@@ -174,6 +176,9 @@ public class Preferences {
 		hideNativeSuggestions = preferences.getBoolean(
 				HIDE_NATIVE_SUGGESTIONS,
 				hideNativeSuggestions);
+		newEditor = preferences.getBoolean(
+				NEW_EDITOR,
+				newEditor);
 		lastOpenedShaderId = preferences.getLong(
 				LAST_OPENED_SHADER,
 				lastOpenedShaderId);
@@ -188,6 +193,10 @@ public class Preferences {
 
 	public boolean hideNativeSuggestions() {
 		return hideNativeSuggestions;
+	}
+
+	public boolean useNewEditor() {
+		return newEditor;
 	}
 
 	public long getPendingCrashShaderId() {

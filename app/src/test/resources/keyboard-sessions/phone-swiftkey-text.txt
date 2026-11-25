@@ -1,0 +1,236 @@
+# samsung SM-S938B, Android 37
+# keyboard com.touchtype.swiftkey/com.touchtype.KeyboardService, inputType 0x1
+98 1 open 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+108 2 open 0 0 null
+115 1 getExtractedText 0 false -> 0 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+118 1 beginBatchEdit -> true
+118 1 endBatchEdit -> false
+141 1 getExtractedText 0 false -> 0 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+141 1 beginBatchEdit -> true
+141 1 endBatchEdit -> false
+150 1 getExtractedText 0 false -> 0 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+150 1 beginBatchEdit -> true
+150 1 endBatchEdit -> false
+702 1 beginBatchEdit -> true
+702 1 setComposingRegion 0 0 -> true
+702 1 finishComposingText -> true
+702 1 endBatchEdit -> false
+710 1 getExtractedText 0 false -> 0 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+711 1 beginBatchEdit -> true
+711 1 setComposingRegion 0 0 -> true
+711 1 finishComposingText -> true
+711 1 endBatchEdit -> false
+11937 app select 223 223
+11937 1 selected 223 223
+11937 1 updateSelection 223 223 -1 -1
+11937 2 selected 223 223
+11937 2 updateSelection 223 223 -1 -1
+11947 1 getExtractedText 0 false -> 0 223 223 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+11948 1 beginBatchEdit -> true
+11948 1 setComposingRegion 223 223 -> true
+11948 1 finishComposingText -> true
+11948 1 endBatchEdit -> false
+12299 1 beginBatchEdit -> true
+12311 2 changed 223 223 "f"
+12311 1 setComposingText "f" 1 -> true
+12311 2 updateSelection 224 224 -1 -1
+12311 1 endBatchEdit -> false
+12311 1 updateSelection 224 224 223 224
+12313 1 beginBatchEdit -> true
+12313 1 endBatchEdit -> false
+12573 1 beginBatchEdit -> true
+12576 2 changed 223 224 "fl"
+12576 1 setComposingText "fl" 1 -> true
+12576 2 updateSelection 225 225 -1 -1
+12577 1 endBatchEdit -> false
+12577 1 updateSelection 225 225 223 225
+12579 1 beginBatchEdit -> true
+12579 1 endBatchEdit -> false
+12845 1 beginBatchEdit -> true
+12846 2 changed 223 225 "flo"
+12846 1 setComposingText "flo" 1 -> true
+12846 2 updateSelection 226 226 -1 -1
+12846 1 endBatchEdit -> false
+12846 1 updateSelection 226 226 223 226
+12854 1 beginBatchEdit -> true
+12854 1 endBatchEdit -> false
+13153 1 beginBatchEdit -> true
+13155 2 changed 223 226 "floa"
+13155 1 setComposingText "floa" 1 -> true
+13155 2 updateSelection 227 227 -1 -1
+13155 1 endBatchEdit -> false
+13155 1 updateSelection 227 227 223 227
+13162 1 beginBatchEdit -> true
+13162 1 endBatchEdit -> false
+13488 1 beginBatchEdit -> true
+13490 2 changed 223 227 "float"
+13490 1 setComposingText "float" 1 -> true
+13490 2 updateSelection 228 228 -1 -1
+13490 1 endBatchEdit -> false
+13490 1 updateSelection 228 228 223 228
+13495 1 beginBatchEdit -> true
+13495 1 endBatchEdit -> false
+14485 1 beginBatchEdit -> true
+14485 1 finishComposingText -> true
+14486 1 finishComposingText -> true
+14486 2 changed 228 228 " "
+14486 1 commitText " " 1 -> true
+14494 2 updateSelection 229 229 -1 -1
+14494 1 endBatchEdit -> false
+14494 1 updateSelection 229 229 -1 -1
+14502 1 beginBatchEdit -> true
+14502 1 setComposingRegion 229 229 -> true
+14502 1 finishComposingText -> true
+14502 1 endBatchEdit -> false
+14774 1 beginBatchEdit -> true
+14777 2 changed 229 229 "r"
+14777 1 setComposingText "r" 1 -> true
+14785 2 updateSelection 230 230 -1 -1
+14785 1 endBatchEdit -> false
+14785 1 updateSelection 230 230 229 230
+14793 1 beginBatchEdit -> true
+14793 1 endBatchEdit -> false
+15153 1 beginBatchEdit -> true
+15154 2 changed 229 230 "re"
+15154 1 setComposingText "re" 1 -> true
+15154 2 updateSelection 231 231 -1 -1
+15154 1 endBatchEdit -> false
+15154 1 updateSelection 231 231 229 231
+15159 1 beginBatchEdit -> true
+15159 1 endBatchEdit -> false
+15466 1 beginBatchEdit -> true
+15468 2 changed 229 231 "res"
+15468 1 setComposingText "res" 1 -> true
+15469 2 updateSelection 232 232 -1 -1
+15469 1 endBatchEdit -> false
+15469 1 updateSelection 232 232 229 232
+15476 1 beginBatchEdit -> true
+15476 1 endBatchEdit -> false
+15835 1 beginBatchEdit -> true
+15836 2 changed 229 232 "reso"
+15836 1 setComposingText "reso" 1 -> true
+15836 2 updateSelection 233 233 -1 -1
+15836 1 endBatchEdit -> false
+15836 1 updateSelection 233 233 229 233
+15842 1 beginBatchEdit -> true
+15842 1 endBatchEdit -> false
+16132 1 beginBatchEdit -> true
+16134 2 changed 229 233 "resol"
+16134 1 setComposingText "resol" 1 -> true
+16134 2 updateSelection 234 234 -1 -1
+16134 1 endBatchEdit -> false
+16134 1 updateSelection 234 234 229 234
+16142 1 beginBatchEdit -> true
+16142 1 endBatchEdit -> false
+16470 1 beginBatchEdit -> true
+16472 2 changed 229 234 "resolu"
+16472 1 setComposingText "resolu" 1 -> true
+16474 2 updateSelection 235 235 -1 -1
+16474 1 endBatchEdit -> false
+16474 1 updateSelection 235 235 229 235
+16482 1 beginBatchEdit -> true
+16482 1 endBatchEdit -> false
+16771 1 beginBatchEdit -> true
+16772 2 changed 229 235 "resolut"
+16772 1 setComposingText "resolut" 1 -> true
+16772 2 updateSelection 236 236 -1 -1
+16772 1 endBatchEdit -> false
+16772 1 updateSelection 236 236 229 236
+16774 1 beginBatchEdit -> true
+16774 1 endBatchEdit -> false
+17052 1 beginBatchEdit -> true
+17054 2 changed 229 236 "resoluto"
+17054 1 setComposingText "resoluto" 1 -> true
+17054 2 updateSelection 237 237 -1 -1
+17054 1 endBatchEdit -> false
+17054 1 updateSelection 237 237 229 237
+17057 1 beginBatchEdit -> true
+17057 1 endBatchEdit -> false
+17484 1 beginBatchEdit -> true
+17486 2 changed 229 237 "resolutoi"
+17486 1 setComposingText "resolutoi" 1 -> true
+17486 2 updateSelection 238 238 -1 -1
+17486 1 endBatchEdit -> false
+17486 1 updateSelection 238 238 229 238
+17490 1 beginBatchEdit -> true
+17490 1 endBatchEdit -> false
+17778 1 beginBatchEdit -> true
+17780 2 changed 229 238 "resolutoin"
+17780 1 setComposingText "resolutoin" 1 -> true
+17781 2 updateSelection 239 239 -1 -1
+17781 1 endBatchEdit -> false
+17781 1 updateSelection 239 239 229 239
+17791 1 beginBatchEdit -> true
+17791 1 endBatchEdit -> false
+31656 1 beginBatchEdit -> true
+31657 2 changed 229 239 "resolution"
+31657 1 commitText "resolution" 1 -> true
+31657 1 finishComposingText -> true
+31658 2 changed 239 239 " "
+31658 1 commitText " " 1 -> true
+31658 2 updateSelection 240 240 -1 -1
+31658 1 endBatchEdit -> false
+31658 1 updateSelection 240 240 -1 -1
+31664 1 beginBatchEdit -> true
+31664 1 setComposingRegion 240 240 -> true
+31664 1 finishComposingText -> true
+31664 1 endBatchEdit -> false
+33267 1 beginBatchEdit -> true
+33268 2 changed 239 240 ""
+33268 1 deleteSurroundingText 1 0 -> true
+33268 1 setComposingRegion 229 239 -> true
+33268 2 updateSelection 239 239 -1 -1
+33268 1 endBatchEdit -> false
+33268 1 updateSelection 239 239 229 239
+33278 1 beginBatchEdit -> true
+33278 1 endBatchEdit -> false
+33555 1 beginBatchEdit -> true
+33556 2 changed 229 239 "resolutio"
+33556 1 setComposingText "resolutio" 1 -> true
+33556 2 updateSelection 238 238 -1 -1
+33556 1 endBatchEdit -> false
+33556 1 updateSelection 238 238 229 238
+33561 1 beginBatchEdit -> true
+33561 1 endBatchEdit -> false
+33958 1 beginBatchEdit -> true
+33958 2 changed 229 238 "resoluti"
+33958 1 setComposingText "resoluti" 1 -> true
+33958 2 updateSelection 237 237 -1 -1
+33958 1 endBatchEdit -> false
+33958 1 updateSelection 237 237 229 237
+33960 1 beginBatchEdit -> true
+33960 1 endBatchEdit -> false
+34973 1 beginBatchEdit -> true
+34990 2 changed 229 237 "resolutix"
+34990 1 setComposingText "resolutix" 1 -> true
+34990 2 updateSelection 238 238 -1 -1
+34990 1 endBatchEdit -> false
+34990 1 updateSelection 238 238 229 238
+34993 1 beginBatchEdit -> true
+34993 1 endBatchEdit -> false
+35294 1 beginBatchEdit -> true
+35295 1 finishComposingText -> true
+35295 1 endBatchEdit -> false
+35295 1 updateSelection 238 238 -1 -1
+35301 app key 0 66 0 "\n"
+35301 1 changed 238 238 "\n"
+35302 2 changed 238 238 "\n"
+35302 1 updateSelection 239 239 -1 -1
+35302 2 updateSelection 239 239 -1 -1
+35304 app key 1 66 0 null
+35305 1 getExtractedText 0 false -> 0 239 239 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\nfloat resolutix\n"
+35305 1 beginBatchEdit -> true
+35305 1 setComposingRegion 239 239 -> true
+35305 1 finishComposingText -> true
+35305 1 endBatchEdit -> false
+35306 1 getExtractedText 0 false -> 0 239 239 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\nfloat resolutix\n"
+35306 1 beginBatchEdit -> true
+35306 1 setComposingRegion 239 239 -> true
+35306 1 finishComposingText -> true
+35306 1 endBatchEdit -> false
+35310 1 getExtractedText 0 false -> 0 239 239 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\nfloat resolutix\n"
+35310 1 beginBatchEdit -> true
+35310 1 setComposingRegion 239 239 -> true
+35310 1 finishComposingText -> true
+35310 1 endBatchEdit -> false
+44466 1 close -> 239 239 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\nfloat resolutix\n"

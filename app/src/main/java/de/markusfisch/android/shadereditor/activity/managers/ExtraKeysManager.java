@@ -54,6 +54,16 @@ public class ExtraKeysManager implements ViewTreeObserver.OnGlobalLayoutListener
 		updateVisibility();
 	}
 
+	// A screen made again by recreate() keeps its window, and with it
+	// this observer: stop listening, or it keeps the old screen alive.
+	public void destroy() {
+		ViewTreeObserver observer = extraKeysView.findViewById(
+				R.id.completions).getViewTreeObserver();
+		if (observer.isAlive()) {
+			observer.removeOnGlobalLayoutListener(this);
+		}
+	}
+
 	public void setCompletions(List<String> completions, int position) {
 		completionsAdapter.submitCompletions(completions, position);
 	}

@@ -1,0 +1,148 @@
+# unknown Android SDK built for arm64, Android 23
+# keyboard com.android.inputmethod.latin/.LatinIME, inputType 0x0
+# The keyboard was switched away and back twice; each time it went on
+# typing into a connection older than the newest one the view had made.
+95 1 open 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+103 2 open 0 0 null
+122 1 getTextBeforeCursor 1024 -> ""
+140 1 getSelectedText -> null
+# 157 requestCursorUpdates 3 -> false
+174 1 getTextBeforeCursor 1024 -> ""
+192 1 getSelectedText -> null
+210 1 getTextBeforeCursor 1024 -> ""
+230 1 getSelectedText -> null
+2732 3 open 0 0 null
+2747 1 finishComposingText -> true
+2747 4 open 0 0 null
+2747 2 close -> 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+2747 1 close -> 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+2747 3 finishComposingText -> true
+2859 5 open 0 0 null
+3899 6 open 0 0 null
+3902 3 close -> 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+3902 4 finishComposingText -> true
+3902 7 open 0 0 null
+3911 4 finishComposingText -> true
+3911 5 close -> 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+3911 4 close -> 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+3911 6 finishComposingText -> true
+3911 8 open 0 0 null
+3928 6 close -> 0 0 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}\n"
+3928 7 getTextBeforeCursor 1024 -> ""
+3945 7 getSelectedText -> null
+# 3947 requestCursorUpdates 3 -> false
+3948 7 getTextBeforeCursor 1024 -> ""
+3948 7 getSelectedText -> null
+6512 app select 222 222
+6512 7 selected 222 222
+6512 7 updateSelection 222 222 -1 -1
+6512 8 selected 222 222
+6512 8 updateSelection 222 222 -1 -1
+6515 7 getTextBeforeCursor 1024 -> "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}"
+7747 7 beginBatchEdit -> true
+7748 8 changed 222 222 "a"
+7748 7 commitText "a" 1 -> true
+7748 7 getTextBeforeCursor 40 -> "\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}a"
+7764 7 getTextAfterCursor 40 -> "\n"
+7765 8 updateSelection 223 223 -1 -1
+7765 7 endBatchEdit -> false
+7765 7 updateSelection 223 223 -1 -1
+8990 7 beginBatchEdit -> true
+8990 8 changed 223 223 "b"
+8990 7 commitText "b" 1 -> true
+8990 7 getTextBeforeCursor 40 -> "\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}ab"
+9002 7 getTextAfterCursor 40 -> "\n"
+9003 8 updateSelection 224 224 -1 -1
+9003 7 endBatchEdit -> false
+9003 7 updateSelection 224 224 -1 -1
+10229 7 beginBatchEdit -> true
+10229 8 changed 224 224 "c"
+10229 7 commitText "c" 1 -> true
+10229 7 getTextBeforeCursor 40 -> "\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}abc"
+10247 7 getTextAfterCursor 40 -> "\n"
+10247 8 updateSelection 225 225 -1 -1
+10247 7 endBatchEdit -> false
+10247 7 updateSelection 225 225 -1 -1
+22790 9 open 225 225 null
+22793 10 open 225 225 null
+22796 11 open 225 225 null
+22797 7 finishComposingText -> true
+22797 8 close -> 225 225 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}abc\n"
+22797 7 close -> 225 225 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}abc\n"
+22797 9 finishComposingText -> true
+24593 12 open 225 225 null
+24596 9 close -> 225 225 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}abc\n"
+24596 10 finishComposingText -> true
+24596 13 open 225 225 null
+24604 14 open 225 225 null
+24612 11 close -> 225 225 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}abc\n"
+24612 10 close -> 225 225 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}abc\n"
+24612 12 finishComposingText -> true
+24612 12 close -> 225 225 "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}abc\n"
+24612 13 getTextBeforeCursor 1024 -> "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}abc"
+24632 13 getSelectedText -> null
+# 24633 requestCursorUpdates 3 -> false
+24633 13 getTextBeforeCursor 1024 -> "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\n\nuniform vec2 resolution;\n\nvoid main(void) {\n\tvec2 uv = gl_FragCoord.xy / resolution.xy;\n\n\tgl_FragColor = vec4(uv, 1.0, 1.0);\n}abc"
+24634 13 getSelectedText -> null
+27234 13 beginBatchEdit -> true
+27234 14 changed 225 225 " "
+27234 13 commitText " " 1 -> true
+27234 14 updateSelection 226 226 -1 -1
+27234 13 endBatchEdit -> false
+27234 13 updateSelection 226 226 -1 -1
+28451 13 beginBatchEdit -> true
+28451 14 changed 226 226 "d"
+28451 13 commitText "d" 1 -> true
+28451 13 getTextBeforeCursor 40 -> "l_FragColor = vec4(uv, 1.0, 1.0);\n}abc d"
+28463 13 getTextAfterCursor 40 -> "\n"
+28464 14 updateSelection 227 227 -1 -1
+28464 13 endBatchEdit -> false
+28464 13 updateSelection 227 227 -1 -1
+29690 13 beginBatchEdit -> true
+29690 14 changed 227 227 "e"
+29690 13 commitText "e" 1 -> true
+29690 13 getTextBeforeCursor 40 -> "_FragColor = vec4(uv, 1.0, 1.0);\n}abc de"
+29706 13 getTextAfterCursor 40 -> "\n"
+29708 14 updateSelection 228 228 -1 -1
+29708 13 endBatchEdit -> false
+29708 13 updateSelection 228 228 -1 -1
+30933 13 beginBatchEdit -> true
+30933 14 changed 228 228 "f"
+30933 13 commitText "f" 1 -> true
+30933 13 getTextBeforeCursor 40 -> "FragColor = vec4(uv, 1.0, 1.0);\n}abc def"
+30935 13 getTextAfterCursor 40 -> "\n"
+30937 14 updateSelection 229 229 -1 -1
+30937 13 endBatchEdit -> false
+30937 13 updateSelection 229 229 -1 -1
+32159 13 beginBatchEdit -> true
+32159 13 getTextAfterCursor 1 -> "\n"
+32160 app key 0 67 0 null
+32160 13 changed 228 229 ""
+32160 14 changed 228 229 ""
+32160 app key 1 67 0 null
+32160 13 getTextBeforeCursor 40 -> "_FragColor = vec4(uv, 1.0, 1.0);\n}abc de"
+32176 13 getTextAfterCursor 40 -> "\n"
+32177 13 getTextAfterCursor 1 -> "\n"
+32178 13 getTextBeforeCursor 40 -> "_FragColor = vec4(uv, 1.0, 1.0);\n}abc de"
+32178 13 getTextAfterCursor 40 -> "\n"
+32179 14 updateSelection 228 228 -1 -1
+32179 13 endBatchEdit -> false
+32179 13 updateSelection 228 228 -1 -1
+33401 13 beginBatchEdit -> true
+# 33401 commitText "\n" 1 -> true
+33401 app command "enter"
+33401 13 changed 228 228 "\n"
+33401 14 changed 228 228 "\n"
+33405 14 updateSelection 229 229 -1 -1
+33405 13 endBatchEdit -> false
+33405 13 updateSelection 229 229 -1 -1
+34621 13 beginBatchEdit -> true
+34621 14 changed 229 229 "x"
+34621 13 commitText "x" 1 -> true
+34621 13 getTextBeforeCursor 40 -> "ragColor = vec4(uv, 1.0, 1.0);\n}abc de\nx"
+34630 13 getTextAfterCursor 40 -> "\n"
+34630 14 updateSelection 230 230 -1 -1
+34630 13 endBatchEdit -> false
+34630 13 updateSelection 230 230 -1 -1
+48894 13 finishComposingText -> true
+48895 13 finishComposingText -> true
