@@ -273,6 +273,9 @@ public class MainActivity extends AppCompatActivity {
 
 			@Override
 			public void onInfoLog(@NonNull List<ShaderError> infoLog) {
+				if (!infoLog.isEmpty()) {
+					ShaderEditorApp.preferences.setPendingCrashShaderId(0);
+				}
 				runOnUiThread(() -> {
 					editorFragment.setErrors(infoLog);
 					showErrors.setVisibility(editorFragment.hasErrors()
